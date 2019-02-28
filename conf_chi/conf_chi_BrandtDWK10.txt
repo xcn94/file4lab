@@ -1,0 +1,374 @@
+The ready availability of online source-code examples has fundamentally changed programming practices.
+However, current search tools are not designed to assist with programming tasks and are wholly separate from editing tools.
+This paper proposes that embedding a task-specific search engine in the development environment can significantly reduce the cost of finding information and thus enable programmers to write better code more easily.
+This paper describes the design, implementation, and evaluation of Blueprint, a Web search interface integrated into the Adobe Flex Builder development environment that helps users locate example code.
+Blueprint automatically augments queries with code context, presents a code-centric view of search results, embeds the search experience into the editor, and retains a link between copied code and its source.
+A comparative laboratory study found that Blueprint enables participants to write significantly better code and find example code significantly faster than with a standard Web browser.
+Analysis of three months of usage logs with 2,024 users suggests that task-specific search interfaces can significantly change how and when people search the Web.
+The Blueprint plug-in for the Adobe Flex Builder development environment helps programmers locate example code.
+A hotkey places a search box  at the programmers cursor position.
+Search results  are example-centric; each result contains a brief textual description , the example code , and, when possible, a running example .
+The users search terms are highlighted , facilitating rapid scanning of the result set.
+Blueprint allows users to rate examples .
+Programmers routinely face the "build or borrow" question : implement a piece of functionality from scratch, or locate and adapt existing code?
+The increased prevalence of online source code--shared in code repositories, documentation, blogs and forums --enables programmers to opportunistically build applications by iteratively searching for, modifying, and combining examples .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Programmers use Web resources in diverse ways.
+For a simple reminder, a quick Web search and a glance at the search result summaries are often adequate.
+To learn a new technique, programmers will likely spend more time, perform several searches, and aggregate and compare information across multiple sites .
+Currently, a programmer searching for example code uses a Web browser that is independent of other tools in his tool chain, a search engine that has no notion of his current development context, and a code editor that assumes that all code is typed by hand.
+Small performance improvements can cause categorical behavior changes that far exceed the benefits of decreased task completion time .
+We believe that reducing search cost through tool integration may increase and change how programmers find and use examples.
+These ideas are manifest in Blueprint, a Web search interface integrated into the Adobe Flex Builder development environment that helps users locate example code.
+Two insights drove Blueprint's design .
+This lowers the cost of constructing a good query, which improves result quality.
+Second, extracting code examples from Web pages and composing them in a consistent, codecentric search results view reduces the need to click through to Web pages to find example code.
+This allows users to evaluate results much more rapidly than with traditional Web search interfaces, reducing the cost of selecting a good result.
+This paper reports on a comparative laboratory study with 20 participants.
+In the lab, participants in the Blueprint condition found and adapted example code significantly faster than those in the traditional Web search condition.
+Blueprint participants also wrote significantly better code, perhaps because they could look at many more examples and choose a better starting point.
+We released Blueprint online and logged its use.
+After three months, we conducted open-ended interviews with four frequent users.
+First, the interviewees felt that the benefits of consistent, example-centric results outweigh the drawbacks of missing context.
+Second, they claimed that Blueprint is symbiotic with existing IDE features.
+Third, they reported using Blueprint primarily to clarify existing knowledge and remind themselves of forgotten details.
+To understand whether these three themes applied broadly, we compared Blueprint's query logs to logs from a traditional search interface.
+We tested three hypotheses: First, if additional context is not necessary, Blueprint queries should have a significantly lower click-through rate.
+Second, if users are using Blueprint in concert with other IDE features, they are likely querying with code and more Blueprint search terms should contain correctly formatted code.
+Third, if Blueprint is used for reminders, Blueprint users should repeat queries more frequently across sessions.
+Evidence for all three of these hypotheses was found in the logs, indicating that users are searching differently with Blueprint than with traditional tools.
+These findings suggest that taskspecific search interfaces may cause a fundamental shift in how and when individuals search the Web.
+This research is inspired by prior work in two domains: tailoring Web search to specific tasks and domains, and providing support for example-centric development.
+Blueprint follows a templatebased approach  to display results from a diverse set of pages in a consistent manner enabling users to rapidly browse and evaluate search results.
+There are research  and commercial  systems designed to improve search for programmers.
+While these search engines are domain-specific, they are designed to support a broad range of tasks.
+Blueprint, on the other hand, is task-specific: it is oriented specifically towards finding example code.
+This introduces a trade-off: Blueprint's interface is optimized for a specific task, but loses generality.
+These systems are also completely independent of the user's development environment.
+CodeTrail explores the benefits of integrating Web browsing tools and development environments by linking the Firefox browser and Eclipse IDE .
+Blueprint goes one step further by placing search directly inside the development environment.
+Again, this introduces a trade-off: Blueprint gives up the rich interactions available in a complete, stand-alone Web browser in favor of a more closelycoupled interaction for a specific task.
+Prior work has created tools to assist with example-centric development .
+This work has addressed the availability of example code problem by mining code repositories  or synthesizing example code from API specifications .
+We believe using regular Web pages as sources for example code has two major benefits: First, it may provide better examples.
+Code written for a tutorial is likely to contain better comments and be more general purpose than code extracted from an open source repository.
+Second, because these pages also contain text, programmers can use natural language queries to find the code they are looking for.
+The remainder of this paper proceeds as follows.
+We first present a scenario that describes the use of Blueprint and presents its interface.
+We then describe the implementation of Blueprint.
+Next, we detail the evaluation of Blueprint through a comparative laboratory study and a 3-month deployment.
+We conclude by positioning Blueprint in a design space of tools that support example-centric development.
+Blueprint is designed to help programmers with directed search tasks and allow them easily remind themselves of forgotten details, and clarify existing knowledge.
+Let's follow Jenny as she creates a Web application for visualizing power consumption.
+First, Jenny needs to retrieve power-usage data from a Web service.
+Although Jenny has written similar code previously, she can't remember the exact code she needs.
+So, she types "URL" into her code and uses autocomplete to remember the "URLLoader" class.
+Although, she now knows the class name, Jenny still doesn't know how to use it .
+With another hotkey Jenny brings up the Blueprint search interface, which automatically starts searching for URLLoader .
+Blueprint augments Jenny's query with the language and framework version she is using, and returns appropriate examples that show how to use a URLLoader.
+She scans through the first few examples and sees one that has all the pieces she needs .
+She selects the lines she wants to copy, presses Enter, and the code is pasted in her project.
+Blueprint augments the code with a machine- and human-readable comment that records the URL of the source and the date of copy .
+When Jenny opens this source file in the future, Blueprint will check this URL for changes to the source example , and will notify her if an update is available.
+Jenny runs the code in Flex's debugger to inspect the XML data.
+Next, Jenny wants to explore different charting components to display power usage.
+She invokes Blueprint a second time and searches for "charting".
+Jenny docks the Blueprint result window as a panel in her development environment so she can browse the results in a large, persistent view.
+When source pages provide a running example, Blueprint presents this example next to the source code.
+Eventually Jenny picks a line chart, copies the example code from the Blueprint panel into her project, and modifies it to bind the chart to the XML data.
+Finally, Jenny wants to change the color of the lines on the chart.
+She's fairly confident that she knows how to do this, and types the necessary code by hand.
+To make sure she didn't miss any necessary steps, she presses a hotkey to initiate a Blueprint search from one of the lines of code she just wrote.
+Blueprint automatically uses the contents of the current line as the initial query.
+Because terms in this line of code are common to many examples that customize charts, she quickly finds an example that matches what she is trying to do.
+She confirms her code is correct, and begins testing the application.
+After only a few minutes her prototype is complete.
+The Blueprint client is a plug-in for Adobe Flex Builder.
+Flex Builder, in turn, is a plug-in for the Eclipse Development Environment.
+The Blueprint client provides three main pieces of functionality.
+First, it provides a user interface for initiating queries and displaying results.
+Third, it notifies the user when the Web origin of examples they adapted has updated .
+All communication between the client and server occurs over HTTP using the JSON data format.
+The user presses a hotkey to initiate a search; a search box appears at the cursor location .
+Searches are performed interactively as the user types; example code and running examples  are shown immediately .
+The user browses examples with the keyboard or mouse, and presses Enter to paste an example into her project .
+Blueprint automatically adds a comment containing metadata that links the example to its source .
+Blueprint's query and search results interface is implemented using HTML and JavaScript that are rendered by SWT browser widgets.
+Search results are rendered sequentially in a list below the query box.
+Each search result includes the source Web page title, a hyperlink to the source Web page, English description of the example, the code example, and, if available, a running example  showing the functionality of the code.
+All examples include syntax highlighting , and users can navigate through examples using the Tab key and copy/paste selections by pressing enter.
+Users can rate examples and dock the Blueprint floating window as an Eclipse panel.
+Blueprint also allows users to follow hyperlinks to view search results in context, and maintains a browsing and search history.
+When users paste example code into a project, Blueprint inserts a Javadoc-like comment at the beginning.
+This comment tags the example code with its URL source, the insertion date and time, and a unique numerical identifier.
+This metadata is both human- and machine-readable.
+Blueprint searches for these example comments each time a file is opened.
+For each comment, it queries the Blueprint server to check if the original example has been modified since it was copied.
+The Blueprint server executes queries for example code and returns examples to the client.
+To maximize speed, breadth, and ranking quality, the server leverages the Adobe Community Help search APIs, a Google Custom Search engine.
+This search engine indexes Adobe productspecific content from across the Web.
+Then the server sends the new augmented query to the search engine, which returns a set of URLs.
+Since Blueprint users are interested in code examples and not Web pages, the server retrieves the Web pages returned by the search engine and processes them to extract source code examples.
+Since processing each page requires on average 10 seconds , we preprocess pages and cache extracted examples.
+When the search engine returns URLs that are not in the Blueprint cache, the URLs are added to the cache by a background process.
+Code examples from those URLs are returned in future queries.
+Before deploying Blueprint, we pre-populated the cache with approximately 50,000 URLs obtained from search engine query logs.
+To keep the cache current, Blueprint crawls the URLs in the cache as a background process.
+Since pages containing examples are relatively static, the Blueprint prototype re-crawls them weekly.
+The current Blueprint cache includes 59,424 examples from 21,665 unique Web pages.
+First, it is substantially more resource-efficient to implement, as keeping a document collection up to date is expensive.
+Second, generating high-quality search results from natural-language queries is a hard problem and a highly-optimized commercial search engine is likely to produce better results than a prototype search engine with a restricted domain.
+Finally, a general-purpose search engine surfaces examples from tutorials, blogs, and API pages.
+Examples found on such pages are more likely to be instructive than examples extracted from large source code repositories.
+To extract source code from Web pages, Blueprint segments the page and classifies each segment as source code or other type of content.
+First, Blueprint uses the BeautifulSoup library  to transform HTML into proper XHTML, and then it divides the resulting hierarchical XHTML document into independent segments by examining block-level elements.
+Blueprint uses 31 tags to define blocks; the most common are: P, H1, DIV, and PRE.
+To find block-level elements, Blueprint performs a depth-first traversal of the document.
+When it reaches a leaf element, it backtracks to the nearest blocklevel ancestor and creates a segment.
+If the root of the tree is reached before finding a block-level element, the element immediately below the root is extracted as a segment.
+This algorithm keeps segments ordered exactly as they were in the original file.
+Finally, to more easily and reliably determine whether a segment contains code, Blueprint renders each segment to plain text using w3m, a text-based Web browser.
+This rendering allows for classification of code based on its appearance to a user on a Web page and not based on its HTML structure.
+Blueprint stores the HTML and plain text versions of all segments in a database.
+On average, a Web page in our dataset contains 161 segments.
+However, 69% of these are less than 50 characters long .
+Although this algorithm leads to a large number of non-source code segments, it correctly parses blocks of example code into single segments, which enables our classifiers to prune non-source code segments.
+One limitation of this extraction algorithm is that it assumes code examples on Web pages are independent and so it does not handle Web pages that provide several related code examples that should be considered in concert, such as tutorials that list several steps or offer several complementary alternatives.
+In addition to extracting source code, Blueprint extracts English descriptions and, where possible, running examples for each code segment.
+Informal inspection of pages containing example code found that the text immediately preceding an example almost always described the example, and running examples almost always occurred after the example code.
+Using this strategy the English we extract is the correct example description roughly 83% of the time as compared to the descriptions manually extracted by two researchers.
+To find running examples, Blueprint analyzes the k segments following a code example.
+Because we are concerned with Flex, all examples occur as Flash SWF files.
+We search for references to SWF files in OBJECT and SCRIPT tags.
+In practice, we have found k=3 works best; larger values resulted in erroneous content, such as Flash-based advertisements.
+Given a set of clean, separate segments, the most straightforward approach to classifying them as source code is to use a programming language parser and label segments that parse correctly as code.
+For Blueprint, this would require ActionScript and MXML parsers, because they are the two languages used by Adobe Flex.
+In practice, this approach yields many false negatives: segments that contain code but are not labeled as such.
+For example, code with line numbers or a typo will cause parsing to fail.
+An alternate approach is to specify heuristics based on features unique to code, such as curly braces, frequent use of language keywords, and lines that end with semi-colons .
+This approach produces many fewer false negatives, but introduces false positives, such as paragraphs of text that discuss code.
+Such paragraphs usually describe other source code found on the page and are not useful on their own.
+To remove buggy code that appears in forums and blog post comments, we ignore all segments that follow a comment block  and all Web pages that include "group" or "forum" in the URL.
+We computed precision  and recall  on 40 randomly sampled Web pages from a corpus of the 2000 most frequently visited Web pages from the Adobe Community Help Search Web site.
+We compared the examples extracted by Blueprint to the examples manually extracted by two researchers.
+Each time a page is crawled, Blueprint checks for updates to the examples .
+It performs an exhaustive, pairwise comparison of examples on the new and old pages using the diff tool.
+Pages typically contain fewer than ten examples.
+If an example on the new and old pages matches exactly, they are deemed the same.
+If a new example has more than two-thirds of its lines in common with an old example, it is recorded as changed.
+Otherwise, the new example is added to the repository.
+When an example is no longer available on the Web, we keep the cached versions but do not display it as part of search results.
+The database stores each example with a timestamp, and keeps all previous versions.
+These timestamps allow Blueprint to notify users when an example changes.
+We conducted a comparative laboratory study with 20 participants to better understand how Blueprint affects the example-centric development process.
+The laboratory study evaluated three hypotheses: H1: Programmers using Blueprint will complete directed tasks more quickly than those who do not because they will find example code faster and bring it into their project sooner.
+H2: Code produced by programmers using Blueprint will have the same or higher quality as code written by example modification using traditional means.
+H3: Programmers who use Blueprint produce better designs on an exploratory design task than those using a Web browser for code search.
+We ranked the participants by the time until they pasted the first example.
+Participants using Blueprint pasted code for the first time after an average of 57 seconds, versus 121 seconds for the control group.
+The rankorder difference in time to first paste was significant .
+Among finishers, those using Blueprint finished after an average of 346 seconds, compared to 479 seconds for the control.
+The rank-order difference for all participants in task completion time was not significant .
+Participants' first paste time correlates strongly with task completion time .
+This suggests that lowering the time required to search for, selecting and copying examples will speed development.
+A professional software engineer external to the project rank-ordered the participants' code.
+He judged quality by whether the code met the specifications, whether it included error handling, whether it contained extraneous statements, and overall style.
+Participants using Blueprint produced significantly higher-rated code .
+We hypothesize this is because the example-centric result view in Blueprint makes it more likely that users will choose a good starting example.
+When searching for "URLLoader" using the Adobe Community Help search engine, the first result contains the best code.
+However, this result's snippet did not convey that the page was likely to contain sample code.
+For this reason, we speculate that some control participants overlooked it.
+We recruited twenty professional programmers through an internal company mailing list and compensated them with a $15 gift card.
+The participants had an average of 11.3 years of professional experience.
+Fourteen reported at least one year of programming experience with Flex; twelve reported spending at least 25 hours a week programming in Flex.
+The participants were given an off-the-shelf installation of Flex Builder, pre-loaded with three project files.
+The participants in the control condition were provided with the Firefox Web browser; they were asked to use the Adobe Community Help Search engine to look for example code.
+Participants in the treatment condition were provided with Blueprint to search for code samples; they were not allowed to use a Web browser.
+Participants were asked to complete a tutorial, a directed task, and an exploratory task.
+Participants were told that they would be timed and that they should approach all tasks as though they are prototyping and not writing productionlevel code.
+Participants began each task with a project file that included a running application, and they were asked to add additional functionality.
+For the tutorial task, the sample application contained an HTML browsing component and three buttons that navigate the browser to three different Web sites.
+Participants received a written tutorial that guided them through adding fade effects to the buttons and adding a busy cursor.
+In the control condition, the participants were asked to use the Web browser to find sample code for both modifications.
+The tutorial described which search result would be best to follow and which lines of code to add to the sample application.
+In the treatment condition, the participants were asked to use Blueprint to find code samples.
+For the directed programming task, the participants were instructed to use the URLLoader class to retrieve text from a URL and place it in a text box.
+They were told that they should complete the task as quickly as possible.
+In addition, the participants were told that the person to complete the task fastest would receive an additional gift card as a prize.
+Participants were given 10 minutes to complete this task.
+For the exploratory programming task, participants were instructed to use Flex Charting Components to visualize an array of provided data.
+The participants were instructed to make the best possible visualization.
+They were told that the results would be judged by an external designer and the best visualization would win an extra gift card.
+Participants were given 15 minutes to complete this task.
+To conclude the study, we asked the participants a few questions about their experience with the browsing and searching interface.
+A professional designer rank-ordered the participants' charts.
+To judge chart quality, he considered the appropriateness of chart type, whether or not all data was visualized, and aesthetics of the chart.
+The sum of ranks was smaller for participants using Blueprint , but this result was not significant .
+While a larger study may have found significance with the current implementation of Blueprint, we believe improvements to Blueprint's interface  would make Blueprint much more useful in exploratory tasks.
+When asked "How likely would you be to install and use Blueprint in its current form?"
+Participants also provided several suggestions for improvement.
+The most common requests were for greater control over result ranking.
+Two users suggested that they should be able to rate  examples.
+For example, one participant suggested that all class names appearing in examples be linked to their API page.
+Finally, three participants requested maintaining a search history; one also suggested a browseable and searchable history of examples used.
+We implemented the first two suggestions before the field deployment.
+The third remains future work.
+None of our interviewees found lack of context to be a problem when using Blueprint.
+One interviewee walked us through his strategy for finding the right result: "Highlighting  is the key.
+I scroll through the results quickly, looking for my search term.
+When I find code that has it, I can understand the code much faster than I could English."
+We hypothesize that examining code to determine if a result is relevant has a smaller gulf of evaluation  than examining English.
+Presenting results in a consistent manner makes this process efficient.
+When users desire additional context for a Blueprint result, they can click through to the original source Web page.
+This Web page opens in the same window where Blueprint results are displayed.
+If additional context is rarely necessary, we expect a low click-through rate.
+H1: Blueprint will have a significantly lower click-through rate than seen in a standard search engine.
+In addition to the participants' explicit suggestions, we identified a number of shortcomings as we observed participants working.
+It is currently difficult to compare multiple examples using Blueprint.
+Typically, only one example fits on the screen at a time.
+To show more examples simultaneously, one could use code-collapsing techniques to reduce each example's length.
+Additionally, Blueprint could show all running examples from a result set in parallel.
+Finally, visual differencing tools might help users compare two examples.
+We assumed that users would only invoke Blueprint once per task.
+Thus, each time Blueprint is invoked, the search box and result area would be empty.
+Results should be persistent, but it should be easier to clear the search box: when reinvoking Blueprint, the terms should be pre-selected so that typing replaces them.
+To better understand how Blueprint would affect the workflow of real-world programmers, we conducted a three-month deployment on the Adobe Labs Web site.
+Over the course of the deployment, we performed bug fixes and minor design improvements ; the main interaction model remained constant throughout the study.
+At the completion of the study, we conducted 30-minute interviews with four active Blueprint users to understand how they integrated Blueprint in their workflows.
+Based on the interviews, we formed three hypotheses, which we tested with the Blueprint usage logs.
+After evaluating these hypotheses, we performed further exploratory analysis of the logs.
+This additional analysis provided high-level insight about current use that we believe will help guide future work in creating task-specific search interfaces.
+Three interviewees reported using Blueprint as an "extension" to auto-complete.
+They use auto-complete as an index into a particular object's functionality, and then use Blueprint to quickly understand how that functionality works.
+This suggests that embedding search into the development environment creates a symbiotic relationship with other features.
+Here, auto-complete becomes more useful because further explanation of the auto-complete results is one keystroke away.
+We believe that this symbiotic relationship is another example of how integrating task-specific search into a user's existing tools can lower search costs.
+Programmers routinely search with code terms when using standard search engines .
+If Blueprint is being used in a symbiotic manner with other code editing tools, we expect to see a large number of correctly formatted queries.
+H2: Blueprint search terms will contain correctly formatted code more often than search terms used with a standard search engine.
+Our interviews with active users uncovered three broad insights about the Blueprint interface.
+To understand if these insights generalize, we distilled each insight into a testable hypothesis.
+The insights and hypotheses are presented here; the results of testing them are presented in the following section.
+One interviewee stated that, using Blueprint, he could find what he needed "60 to 80 percent of the time without having to go to API docs."
+He felt that Blueprint fell in the "mid-space between needing to jump down into API docs when you don't know what you're doing at all and not needing help because you know exactly what you are doing."
+Other interviewees echoed this sentiment.
+In general, they felt that Blueprint was most useful when they had some knowledge about how to complete the task at hand, but needed a piece of clarifying information.
+In general, understanding a user's search goal from query logs alone is not feasible--there is simply not enough contextual information available .
+However, if uses of Blueprint tend more toward reminding and clarifying existing knowledge than learning new skills, we expect that users will more commonly repeat queries they have performed in the past.
+H3: Users of Blueprint are more likely to repeat queries across sessions than users of a standard search engine.
+H2: Blueprint search terms will contain correctly formatted code more often than search terms used with a standard search engine.
+To test this hypothesis, we used the occurrence of camelCase words as a proxy for code terms.
+The Flex framework's coding conventions use camelCase words for both class and method names, and camelCase rarely occurs in English words.
+The large number of camelCase words in Blueprint searches indicates that many searches are being generated directly from users' code.
+This suggests that, as hypothesized, Blueprint is being used in a symbiotic way with other IDE features.
+The large number of camelCase queries in Blueprint searches also indicates that the majority of searches use precise code terms.
+This suggests that Blueprint is being used heavily for clarification and reminding, where the user has the knowledge necessary to select precise search terms.
+H3: Users of Blueprint are more likely to repeat queries across sessions than users of a standard search engine.
+Significantly more Blueprint search sessions contained queries that had been issued by the same user in an earlier session than for Community Help: 12.2%  versus 7.8% .
+To evaluate these hypotheses, one needs a comparison point.
+Adobe's Community Help search engine presents a standard Web search interface that is used by thousands of Flex programmers.
+Furthermore, Community Help uses the same Google Custom Search Engine that is part of Blueprint.
+In short, Blueprint and Community Help differ in their interaction model, but are similar in search algorithm, result domain, and user base.
+We randomly selected 5% of users who used the Community Help search engine over the same period as the Blueprint deployment.
+We analyzed all logs for these users.
+In both datasets, queries for individual users were grouped into sessions.
+A session was defined as a sequence of events from the same user with no gaps longer than six minutes.
+Common "accidental" searches were removed  in both datasets.
+We used the z-test for determining statistical significance of differences in means and the chi-square test for determining differences in rates.
+Unless otherwise noted, all differences are statistically significant at p < 0.01.
+Blueprint was used by 2024 individuals during the 82 day deployment, with an average of 25 new installations per day.
+Users made a total of 17012 queries, or an average of 8.4 queries per user.
+The 100 most active users made 1888 of these queries, or 18.8 queries per user.
+The Community Help query logs used for comparison comprised 13283 users performing 26036 queries, an average of 2.0 queries per user.
+H1: Blueprint will have a significantly lower click-through rate than seen in a standard search engine Blueprint users clicked through to source pages significantly less than Community Help users .
+To be conservative: the mean of 0.38 for Blueprint is an over-estimate.
+For technical reasons owing to the many permutations of platform, browser, and IDE versions, clickthroughs were not logged for some users.
+For this reason, this analysis discarded all users with zero click-throughs.
+A large percentage of sessions  did not contain a copy-and-paste event.
+There are two possible reasons for this high number: First, as our interviewees reported, we believe Blueprint is commonly used to confirm that the user is on the right path - if they are, they have nothing to copy.
+Second, sometimes Blueprint's results aren't useful.
+The statistic presented here is only calculated amongst users were we could log this event.
+We examined the most common queries for Blueprint and Community Help and found that there was a large amount of overlap between the two sets: 10 common terms appeared in the top 20 queries of both sets.
+The relative frequencies, however, differed between sets.
+As one example, the query "Alert" was significantly more frequent in Blueprint than Community Help.
+It was 2.2 times more frequent, ranking 8th versus 34th.
+Task: At a high level, programming comprises: planning and design; implementation; and testing and debugging.
+Blueprint helps programmers find code that implements desired functionality.
+Other tasks could  benefit from Web search , but are not easily completed with Blueprint's interface.
+For example, to decipher a cryptic error message, one may want to use program output as the search query .
+Because Blueprint presents code-centric results, programmers must have the expertise required to evaluate whether a result is appropriate.
+Time scale: We designed Blueprint to make small tasks faster by directly integrating search into the code editor.
+This removes the activation barrier of invoking a separate tool.
+While Blueprint can be docked to be persistent, for longer information tasks, the advantages of a richer browser will dominate the time savings of direct integration.
+Approach: Programmer Web use can include very directed search tasks as well as exploratory browsing tasks.
+Given its emphasis on search, the Blueprint prototype is best suited to directed tasks: a well-specified query can efficiently retrieve a desired result.
+It is possible to use Blueprint for exploratory tasks, such as browsing different types of charts, however support for such tasks can be improved by incorporating traditional Web browser features such as tabbed browsing and search results sorting and filtering.
+Integration Required: Some examples can be directly copied.
+Others require significant modification to fit the current context.
+Because Blueprint inserts example code directly into the user's project, it provides the most benefit when example code requires little modification.
+When a piece of code is part of a larger project, the programmer may need to read more of the context surrounding the code in order to understand how to adapt it.
+The initial result views for search "Alert" for both Blueprint and Community Help are shown in Figure 5.
+In the case of this particular search, we believe the difference in frequency is explained by the granularity of the task the user is completing.
+Namely, this task is small.
+When a user searches for "Alert," he is likely seeking the one line of code necessary to display a pop-up alert window.
+In Blueprint, the desired line is immediately visible and highlighted; in Community Help, the user must click on the first result and scroll part way down the resulting page to find the code.
+It may be the case that Blueprint's lowered search cost changes user behavior.
+Users who do not have Blueprint more frequently settle for sub-optimal approaches because of the relatively higher cost of taking the optimal approach.
+Users can interact with blueprint either as a pop-up window or inside a docked panel.
+Among all users, 59% of sessions used only the pop-up interface, 9% used only the docked interface, and 32% used both.
+This suggests that providing both interfaces is important.
+Furthermore the fact that users frequently switched between interfaces mid-session suggests that some tasks are more appropriate for a particular interface.
+Are early adopters of Blueprint still using it, or is Blueprint simply an interesting curiosity that users pick up, try a few times, and set aside?
+At the time of publication, Blueprint had been publicly available for 200 days, and its user base had grown to 3253, with an average of 16.3 new users per day.
+During this time, the most active third of users  searched with Blueprint over at least a 10-day span.
+The top 10% of users  queried Blueprint over at least a 59day span, and the top 1% of users  used queried Blueprint over at least a 151-day span.
+Hacking, Mashing, Gluing: Understanding Opportunistic Design, IEEE Pervasive Computing, vol.
+What Would Other Programmers Do?
+Suggesting Solutions to Error Messages.
+In Proceedings of CHI: ACM Conference on Human Factors in Computing Systems, 2010.
+Programming by a Sample: Rapidly Creating Web Applications with d.mix.
+In Proceedings of UIST: ACM Symposium on User Interface Software and Technology.
+18 Hearst, M. A., Search User Interfaces.
+Assieme: Finding and Leveraging Implicit References in a Web Search Interface for Programmers.
+In Proceedings of UIST: ACM Symposium on User Interface Software and Technology.
+Jungloid Mining: Helping to Navigate the API Jungle.
+In Proceedings of PLDI: ACM SIGPLAN Conference on Programming Language Design and Implementation.
+Exploring Websites through Contextual Facets.
+In Proceedings of CHI: ACM Conference on Human Factors in Computing Systems.
+23 Pirolli, P. L. T., Information Foraging Theory.
+24 Richardson, L., Beautiful Soup.
+XSnippet: Mining for Sample Code.
+In Proceedings of OOPSLA: ACM SIGPLAN Symposium on Object-Oriented Programming Systems, Languages, and Applications.
+Mica: A Web-Search Tool for Finding API Components and Examples.
+In Proceedings of VL/HCC: IEEE Symposium on Visual Languages and Human-Centric Computing.
+Visual Snippets: Summarizing Web Pages for Search and Revisitation.
+In Proceedings of CHI: ACM Conference on Human Factors in Computing Systems.
+PARSEweb: A Programmer Assistant for Reusing Open Source Code on the Web.
+In Proceedings of ASE: IEEE/ACM International Conference on Automated Software Engineering.
+Using Thumbnails to Search the Web.
+In Proceedings of CHI: ACM Conference on Human Factors in Computing Systems.
+To support programming by example modification, this paper introduced a user interface for accessing online example code from within the development environment.
+It discussed the Blueprint client interface, which displays search results in an example-centric manner.
+The Blueprint server introduced a lightweight architecture for using a general-purpose search engine to create code-specific search results that include written descriptions and running examples.
+In evaluating Blueprint, we found that it enabled users to search for and select example code significantly faster than with traditional Web search tools.
+Log analysis from a large-scale deployment with 2,024 users suggested that task-specific search interfaces may cause a fundamental shift in how and when individuals search the Web.
+Zoetrope: Interacting with the Ephemeral Web.
+In Proceedings of UIST: ACM Symposium on User Interface Software and Technology.
+Sourcerer: A Search Engine for Open Source Code Supporting Structure-Based Search.
+In Companion to OOPSLA: ACM SIGPLAN Symposium on Object-Oriented Programming Systems, Languages, and Applications.
+Opportunistic Programming: Writing Code to Prototype, Ideate, and Discover, IEEE Software, vol.
+Two Studies of Opportunistic Programming: Interleaving Web Foraging, Learning, and Writing Code.
+In Proceedings of CHI: ACM Conference on Human Factors in Computing Systems.
+7 Brooks, F. P., The Mythical Man-Month: Essays on Software Engineering.
+8 Clarke, S. What is an End-User Software Engineer?
+In EndUser Software Engineering Dagstuhl Seminar, 2007.
+Relations, Cards, and Search Templates: User-Guided Web Data Integration and Layout.
+In Proceedings of UIST: ACM Symposium on User Interface Software and Technology.
+Summarizing Personal Web Browsing Sessions.
+In Proceedings of UIST: ACM Symposium on User Interface Software and Technology.
+Codetrail: Connecting Source Code and Web Resources.
+In Proceedings of VL/HCC: IEEE Symposium on Visual Languages and Human-Centric Computing.
+Milliseconds Matter: An Introduction to Microstrategies and to Their Use in Describing and Predicting Interactive Behavior.
+Journal of Experimental Psychology: Applied 6.
+Query Logs Alone are Not Enough.
+In Workshop on Query Log Analysis at WWW 2007: International World Wide Web Conference, 2007.

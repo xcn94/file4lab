@@ -1,0 +1,100 @@
+While very large collaborative surfaces are already being widely employed to facilitate concurrent interactions with multiple users, they involve no personalization in the touch interactions.
+Augmenting them to identify the touch interactions with multiple smart-phones can enable interesting colocated communal applications with context-based personalized interactions and information exchange amongst users' portable devices and the shared wall display.
+This paper proposes a novel matching technique, called tilt correlation, which employs the built-in tilt sensor to identify smart-phones that make concurrent two-point contacts on a common multitouch wall display.
+Experimental investigations suggest that the resultant error rate is relatively low; in addition, we also propose a quantitative measure, called the Bourne Identity Index to allow application designers to determine the reliability of each device identification.
+Besides handheld devices, multi-touch interaction is also gaining popularity on surfaces with large form factors like the interactive tabletops, LCD display walls, and projector-based display surfaces.
+These surfaces  are becoming more common as interactive exhibits in public settings, where people can reach and closely interact with the digital contents.
+While users can intuitively interact with the multi-touch wall, the interaction space is shared with other users without personalization.
+With recent proliferation of personal smartphones equipped with multi-touch and accelerometer-based tilt sensing, we propose to extend users' interaction with a large multi-touch display to include personal smart-phones.
+A number of novel and interesting personalized application scenarios can be realized, for example: * Interactive Music Shop Display.
+A large multi-touch wall display in a music shop features user browsable song albums.
+Users can simultaneously interact with the wall; when their phones contact the visuals on the wall, the system can identify the phone and send purchased contents wirelessly to the identified phone.
+Likewise, audio samples could be downloaded for individual's preview.
+A large communal multi-touch wall display could be used for many users to simultaneously post advertisements, notices and comments by touching an unused space on the wall with their own smart-phones to upload their posts.
+Users at another locality of the same digital board could use his smartphone to touch an existing post to download its content.
+The main challenge of these scenarios is the capability to correctly identify the smart-phones that are simultaneously touching  the common multitouch wall display.
+As for this, we propose to use the builtin tilt detector, i.e., the accelerometer.
+Since tilt detectors are already widely available on many smart-phones, our approach requires no extra hardware.
+Moreover, since tilt detectors can report the tilt condition at high sampling rate, we can analyze the devices' tilt condition dynamically during a touch interaction event.
+By augmenting the protective casing of smart-phones with two contact prongs, the device's orientation when touching the wall can be computed as the angle subtended by the two contact points relative to the wall's horizon.
+This touch-derived tilt angle can be correlated with the tilt sensor information from all active smart-phones registered in the vicinity.
+We analyze the identification error rate of the proposed tilt correlation algorithm for both static and dynamic situations, and propose a quantitative reliability measure, called the Bourne Identity Index, to accommodate infrequent but sometimes unavoidable mis-identifications.
+Tilt information provided by handheld devices was initially explored by Rekimoto  for developing various user-interaction applications.
+Wilson and Sarin  used vision-based handshaking by triggering infrared  port to blink via Bluetooth.
+Comparing to this work, most previous works focus on a one-time authentication and require additional external hardware.
+Similar to , this work employs the built-in accelerometer available in most smart-phones to identify the phone's contact on a common surface.
+And further than that, this work is capable of observing temporal tilt changes over a longer period of time so that we can continuously identify dynamic contacts between the phones and the display.
+Figure 1 depicts our testbed system.
+The multi-touch wall display is built using the standard laser-light-plane  method for finger touch detection.
+Since we propose to touch with a two-prong contact that emulates two rigid fingers in this testbed system, this technique can work on most standard multi-touch surfaces without hardware modification.
+Our custom-built experimental wall display is of size 120cm x 80cm and is connected to the server PC .
+In our experiments, we employed an iPhone 3GS and two iPod touches as the tilt sensing mobile devices, and connected them to the server PC via wifi.
+Lastly, we used multi-threading on the server PC to send-and-receive real-time data with these sources.
+Before we discuss the procedural detail of tilt correlation, we first describe the coordinate systems involved: * The phone coordinate system  is defined by the built-in accelerometer, with axes aligned with the device; if we tilt the device, this coordinate system will still stay with the device's orientation, but after the tilt, its orientation relative to the wall will be changed.
+Given the blobs detected on the multi-touch wall, we compute m , which is the angle measured anti-clockwise from the positive Xwall axis to the line segment joining the centroids of the two blobs, see Figure 2 .
+The accelerometer in the smart-phone reports the gravity direction from phone to Earth center, as a 3D vector in phone coordinates, see Figure 2 .
+This vector changes upon tilting the phone , and its components can tell us the angles between the gravity and each phone coordinate axis.
+Taking  as the angle between +Xphone and gravity, and xacc as the X component of gravity vector, we have  = cos-1 .
+When the phone's front side contacts the wall, both +Xphone and gravity vectors of the phone lie on the wall's XY -plane.
+Thus we can compute the phone's contact angle on the plane, say p , from  .
+Note that p is measured anti-clockwise from +Xwall axis like m and ranges also .
+Moreover, we apply a low pass filter using moving-window average to smooth the accelerometer values like most smart-phone applications.
+Since tilting sensing with accelerometer is non-linear, see , we need a calibration step on p before the system is usable.
+Here we record time-series data, say m,t and p,t for m and p by slowly rotating the phone over the wall, and apply a degree-five polynomial to fit the mapping, say f , from p to m , to minimize:
+The following outlines the working scenario of our approach: 1.
+First, the user connects his/her smart-phone to the server PC via wireless so that the server can continuously monitor the 3D tilt orientation of all registered phones.
+Then, the user touches the multi-touch wall display using the two-contact prongs located at the two corners on the front side of the smart-phone.
+The multi-touch wall display detects the two blobs associated with the contact prongs and continuously sends the coordinates of the blob centroids to the server PC at 60Hz while contact remains, see Figure 1 .
+At the same time, the server PC obtains 3D tilt conditions of all active smart-phones.
+Note that the network latency for the server to receive multi-touch and tilting data is slightly different; we fit also ts in the above minimization.
+This calibration process was repeated 5 times to obtain multiple time-series data pairs to improve the parameter estimation, and we compute also the standard deviation, say , of all gathered angle differences from the truly matched time-series pairs.
+The values of ts and  are experimentally found to be around 20 milliseconds and 2.3 degrees, respectively.
+Note that this calibration is only done once for a particular system setup with the device, e.g., iPhone, and users are not required to do this when using the application.
+After briefing the participants on how to contact a given handheld device with the wall display, i.e., with the prongs on device's front side, we started the graphical program shown on Figure 4  on the wall.
+Here we had two sets of funnels  and door locks : red for the left and blue for the right.
+Each participant  was given an iPod touch  or iPhone 3GS  on his/her hand, and they were then asked to stand on the respective side of the wall and contact his/her device with the central bar of the door lock on his/her own side.
+If a multi-touch contact is detected, say on the left door lock, a red ball in the left funnel will pass down and go into the screen of the device identified by the tilt correlation method, and vice versa.
+Hence, if all identifications are successful, the iPod touch should receive only red balls whereas the iPhone should receive only blue balls.
+In this test, each participant was asked to repeatedly touch his/her own door lock bar 40 times casually without coordinating with the other.
+Each static contact had to last for at least 2 seconds1 , and we randomized  the tilt angle of the bars after each touch on them.
+As a strategy to prevent mis-identifications in this static scenario, the randomization is constrained such that the two bars always maintain an angular separation of at least 3.
+Note that this strategy is only needed in static case but not in inmotion scenario below because the dynamic movement in in-motion scenario can bring temporal changes.
+Table 1 shows the identification results.
+Though three failed cases were found among the identification events , they all come with a low Bourne Identity Index of around 0.5.
+In practice, we recommend 0.75 as a reliability cutoff for the Bourne Identity Index.
+Rather than static contacts, we propose another identification strategy, with each door lock ran1 The contact time duration was selected arbitrarily; a shorter duration will also work, albeit with a minor fall in accuracy.
+In this test, each participant had to rotate his/her device while touching the wall display, mimicking the action of opening a door lock by hand.
+Since the tilt correlation method examines angles over time , this in-motion strategy is more accurate as compared to the static strategy.
+In this test, the initial tilt angles for the door lock bars were also randomized as in the static test, and each participant was also asked to repeatedly touch his/her own door lock bar 40 times casually.
+But during the contact, they had to rotate their devices 90 degrees so that the door lock can be opened.
+M. Clifford and L. Gomez.
+Measuring tilt with low-g accelerometers.
+Smartphone localization on interactive surfaces using the built-in camera.
+G. Jacucci, A. Morrison, G. T. Richard, J. Kleimola, P. Peltonen, L. Parisi, and T. Laitinen.
+Worlds of information: designing for engagement at a public multi-touch display.
+P. Peltonen, E. Kurvinen, A. Salovaara, G. Jacucci, T. Ilmonen, J. Evans, A. Oulasvirta, and P. Saarikko.
+M. Rahman, S. Gustafson, P. Irani, and S. Subramanian.
+Tilt techniques: Investigating the dexterity of wrist-based input.
+Tilting operations for small screen interfaces.
+D. Schmidt, F. Chehimi, E. Rukzio, and H. Gellersen.
+PhoneTouch: A technique for direct phone interaction on surfaces.
+J. Sch oning, M. Rohs, and A. Kr uger.
+Using mobile phones to spontaneously authenticate and interact with multi-touch surfaces.
+In Advanced Visual Interfaces  Workshop on designing multi-touch interaction tech.
+Poker surface: Combining a multi-touch table and mobile phones in interactive card games.
+Using cooperative artefacts as basis for activity recognition.
+A. D. Wilson and R. Sarin.
+BlueTable: connecting wireless mobile devices on interactive surfaces using vision-based handshaking.
+Table 2 shows the corresponding results, again with the five groups of participants.
+This time, only one failed case was found and the resultant Bourne Identity Index for it was found to be relatively low as well.
+Lastly, we conducted a preliminary test on the scalability of tilt correlation.
+A group of three participants was recruited to do this test with two iPod touches  and one iPhone 3GS .
+The in-motion strategy was employed and each participant had to perform the door open action 40 times as in the in-motion scenario.
+Table 3 shows the results; out of 40 x 3 identification events, there is one failed case, hence giving an accuracy of 99.33%.
+In general, we conjecture that a group of n users could roughly result in an error rate that is n/2 times that in the case of 2 users.
+We leave this as a future investigation.
+We have proposed a novel algorithm that applies the timevarying tilt information to distinguish multiple smart-phones when they interact with a common wall display.
+This approach is practical and easy-to-implement since it works on standard multi-touch wall displays and uses the built-in accelerometers that are already widely available in many smartphones.
+Additionally, we proposed the time-dependent Bourne Identity Index to quantitatively measure the instantaneous reliability by which the tilt correlation algorithm identifies the device that makes the touch contact.
+Several experiments were devised to demonstrate the method's accuracy, performance, and scalability.
+As a future work, we envisage the two contact prongs that are used currently could be removed; we will explore the use of line tracking to detect the phone's edge on the multi-touch screen.

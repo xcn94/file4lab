@@ -1,0 +1,162 @@
+Bicycling is an affordable, environmentally friendly alternative transportation mode to motorized travel.
+A common task performed by bikers is to find good routes in an area, where the quality of a route is based on safety, efficiency, and enjoyment.
+Finding routes involves trial and error as well as exchanging information between members of a bike community.
+Biketastic is a platform that enriches this experimentation and route sharing process making it both easier and more effective.
+Using a mobile phone application and online map visualization, bikers are able to document and share routes, ride statistics, sensed information to infer route roughness and noisiness, and media that documents ride experience.
+Biketastic was designed to ensure the link between information gathering, visualization, and bicycling practices.
+In this paper, we present architecture and algorithms for route data inferences and visualization.
+We evaluate the system based on feedback from bicyclists provided during a two-week pilot.
+An efficient route might be the quickest way to get between two places with the fewest number of stops.
+A fun route could be one that goes by points of interest.
+These good routes are often found through an informal process of experimentation combined with knowledge sharing in the biking community.
+Biketastic aims to facilitate this knowledge exchange among bikers by creating a platform where participants can share routes and experience.
+Biketastic participants ride new or familiar routes while running an application on a mobile phone.
+The mobile phone application captures location, sensing data, and media.
+Basic route information, such as the spatial and temporal extent as well as length and speed information is obtained by recording a location trace using the GPS sensor.
+The physical dynamics of the route are documented using the accelerometer and microphone.
+Specifically, road roughness and general noise level along a route is inferred using these sensors.
+Finally, the experience of a route is obtained by having individuals capture geo-tagged media, such as images and video clips of interesting, troublesome, and beneficial assets, along with tags and descriptions while riding.
+The route data are uploaded to a backend platform which contains a map-based system that makes visualizing and sharing the route information easy and convenient.
+Many web systems exist to support the route planning needs of bicyclists.
+In this section, we describe a representative subset and detail how Biketastic differs.
+Existing services can be divided into mashups, geowikis, and ride loggers.
+Bicycling specific mashups, such as Bikely and Veloroutes, are web sites built on top of mapping APIs to enable individuals to draw and share routes.
+Geowikis, including Cyclopath and OpenCycleMap, extend the capabilities of mashups by introducing rich geo-editing features, such as the ability to create and modify points of interest and route/path segments.
+Cyclopath also provides route planning based on user submitted bikeability ratings .
+Furthermore, geowikis contain features from traditional wikis, including the ability to comment on and watch specific regions.
+Ride loggers are services that enable individuals to upload ride location traces to a website for visualization and ride analytics.
+Typically, these services support a variety of input mechanisms including importing data from GPS tracking devices and from mobile phone applications.
+With the rising costs and detrimental environmental effects associated with motorized travel, individuals are exploring alternative modes of transport.
+One transport type that has become popular is bicycling.
+New and even experienced bikers often seek "good" routes to traverse.
+The quality of a route can be influenced by safety, efficiency, or overall enjoyment.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Many have "dashboards" that accumulate ride statistics and promote exercise goal setting.
+A popular ride logger focused on exercise is MapMyRide .
+EveryTrail is an alternative tailored for road and mountain routes .
+Biketastic differs in both purpose and capability from existing bike services.
+For instance, ride logger applications are designed primarily as exercise and recreational bike planning/tracking tools.
+In contrast, Biketastic is created for users to log commuter routes with the intention to share them with a larger community.
+Biketastic augments the capabilities of mashups and geowikis by requiring users to actually ride the routes they share and by capturing aspects of the ride through sensors.
+For example, in addition to logging location traces, Biketastic obtains information about road roughness and noise levels using accelerometers and microphones common on smartphones.
+Furthermore, the system allows individuals to submit media along the route.
+Finally, specific logging platforms have been developed for bikes corresponding to "cyclocomputers"  and systems that consist of a network of sensors .
+Biketastic explores the capture of lower resolution information in exchange for affordability and convenience.
+By using mobile phones for sensing, we do not require individuals to buy expensive, specialized equipment.
+In addition, since sensing occurs on a single device, the user is not bothered with having to manage several sensors in various positions on the bike.
+Using these sensors does have one complication - the validity of the data due to phone positioning.
+Thus, when the biker starts a ride, the application asks the participant where the phone is located  to figure out if noise data should be gathered.
+Further, if the phone is mounted on the bike, the application goes through a calibration phase to determine which axis corresponds to the down direction  and its offset angle so that meaningful roughness data can be gathered.
+As data is collected on the mobile phone, it is uploaded to a backend sensor storage database.
+Once the user indicates that a route is complete, a series of processing operations are performed to obtain additional inferences, to gather aggregate metrics about the route, and for visualization purposes.
+GPS quality can be affected by the environment in which the ride occurs.
+In areas where tall buildings or over-hangs exist, location values can be significantly displaced.
+To address this issue, outlier detection is performed .
+Location points in which the speed exceeds an experimentally derived threshold of 45 mph are discarded .
+The initial design of Biketastic involved input from the local bike community.
+We asked a small group of expert bikers what they would be interested in getting out of the platform and what features should be emphasized.
+Most wanted a system where individuals could find routes in a particular area based on the experience of others.
+Bikers also placed a strong emphasis on metrics to help rank the quality of routes where traffic density, road quality, ride efficiency, and access to assets are contributing factors.
+Finally, the bike community was frustrated with existing map-based visualizations since browsing through routes was often confusing and difficult due to cumbersome, overly detailed interfaces.
+The Biketastic system enables users to compare sensor derived information  within a specific route.
+We found that providing objective comparative measures across different routes is far more challenging and a subject for future work due to differences in sensor placement, bike types, and user riding behavior.
+In this section, we review the techniques used to interpret the sensor data that is gathered for the within route measures.
+Speed is obtained directly from the GPS sensor, but cleaned by replacing instances where the GPS based value is significantly different from the speed obtained from location points by using the average of the previous and next valid points.
+The goal of gathering sound information during a ride was to compare traffic levels along a route.
+We experimented with using both low level features such as amplitude information, as well as obtaining ambient sound classification features, including Mel-Frequency cepstrum coefficients, brightness, bandwidth, and zero crossing rate, from 1-second segments.
+In general, when the phone is positioned externally with the microphone in the opposite direction of travel, the system can use amplitude information to identify quiet streets with very little traffic versus road segments with many passing vehicles.
+To support additional phone positions and to counter the effect of wind, classifying segments of audio using ambient noise sound features and supervised learning algorithms is promising.
+Our preliminary work has revealed a high level of accuracy  when classifying with a C4.5 Decision Tree based on 10-fold cross validation of 500 audio segments labeled with traffic levels.
+We are exploring a hybrid technique where changes in amplitude variance trigger the classifier to run since there is a energy burden associated with calculating the additional audio features.
+We developed a mobile phone application for the Google G1 platform to record bicycle route information.
+The application records fine-grained location traces by collecting GPS data  every 1 second.
+Furthermore, the application enables capturing of geo-tagged media .
+The microphone and the accelerometer embedded on the phone are sampled to infer route noise level and roughness.
+The phone samples its audio stream and obtains the maximum amplitude every 1 second.
+The goal is to find areas that have excessive noise levels, which could be indicators of large vehicles or heavy traffic.
+The phone also uses its accelerometer to monitor acceleration variance of the axis corresponding to the direction pointing towards earth, which gives an indication of both divots and bumps.
+In order to obtain road roughness information, we calibrate the accelerometer so that we are able to obtain the downward force acting on the phone when attached to a bike.
+By analyzing the change in variance of 5 second segments, the system is able to indicate rough patches along a route segment such as the existence of pot holes, uneven pavement, and other road deficiencies.
+But indicating the "intensity" of a pot hole becomes difficult due to the varying speed levels of bike riders.
+Thus, we have been experimenting with obtaining scaling parameters to normalize roughness by capturing training data over similar potholes at different speeds.
+Biketastic reverse geocodes the start and end points of a ride to obtain address information.
+The system also calculates route statistics including the distance traveled and the maximum, minimum, and average speed, noise level, roughness along the route.
+Using route location data, external indexes are queried to derive elevation and zip code information.
+The Biketastic visualization has two components: a dynamic side-bar and a map.
+Figure 2 shows the elements in the Flash-based visualization.
+Individuals are initially presented with a screen for browsing routes.
+All rides from the last month are shown on a map, with the ability to scroll through previous months.
+When an individual hovers over a particular route, it is highlighted and the start and end address are shown with zoomed in maps of these points.
+The final processing module involves transforming route data so that it can be presented using the map platform.
+The steps include: de-clustering, simplification, and smoothing.
+In the de-clustering step, the route is processed so that clusters of points are removed for visualization appeal.
+Whenever a user stays stationary, several location points are uploaded.
+But due to the imprecise nature of GPS, the points do not occur at the same location.
+De-clustering considers location points sequentially, and if a new point is within a certain minimum distance from the preceding point's center, it is considered part of the cluster.
+This continues until a point is reached that exceeds the distance threshold, and if the cluster is at least four points , then all the points are replaced with the center point .
+Since bike routes often have intricate spatial variances, it is not always appealing to represent every nuance of a ride in all zoom levels on a map.
+Instead, route simplification is desired for usability and visual appeal .
+The highest zoom level  will result in the raw location data to be shown while traversing to lower zoom levels  results in varying levels of route simplification.
+To accommodate this feature, we employed the Douglas-Peucker algorithm, a mechanism to select a subset of points in a route which lie within a predefined distance threshold of the original route .
+By varying the distance threshold, the level of simplification is changed.
+Simplification causes location traces to be very rigid in structure, making them appear as straight lines connected with segment points.
+To make traces look more natural, segment points need to be smoothed into curves.
+This is done by finding two equidistant anchor points, along the location trace, and then using the bezier-curve algorithm to smooth the segment point using these anchors .
+An example of the simplification and smoothing of routes is shown in Figure 1 where the left route represents the original and the right route is the simplified and smoothed version.
+Individuals can investigate a route by clicking on it.
+This causes a minimap to appear that shows the raw location data of the route in the side-bar.
+Route summary statistics such as the date, distance, and duration traversed are provided below the minimap.
+If any media was collected, thumbnails appear on the route as well.
+Also, each route can be referenced externally through an unique link.
+When an individual clicks on the "Charts" button located on the side-bar, a series of data collected by the phone sensors appears.
+The high, low, and average data values associated with each sensor type are displayed below the sensor tabs.
+When a particular sensor tab is selected, a chart appears that shows the sensor values.
+Also, the sensor values are displayed in graph form along the route itself on the map.
+Tracing the mouse along the chart causes a pointer to appear on the map over the corresponding location.
+Individuals can investigate various aspects of a route, such a fast periods, high noise levels, or rough patches, using this interface.
+Figure 3 shows an example of the chart view with speed information.
+We conducted a pilot evaluation with 12 users recruited via local bike advocacy organizations.
+The individuals ran Biketastic for two weeks, and submitted a total of 208 routes.
+The minimum number of routes submitted by a user was 7 and the maximum was 36.
+The majority of users submitted routes on at least half of the days the pilot ran.
+Also, 8 users submitted a total of 14 images.
+Every user logged onto the website.
+Overall, 10 users participated in evaluation focus groups, which consisted of 3 sessions made up of 3-4 riders.
+Focus group discussions centered on motivations for using Biketastic, system usability, and the effectiveness of information dissemination through the system.
+Interview notes were coded for discussions of usability, including system critiques and suggestions; comments about system use and cycling practices; and analysis of information learned from and conclusions drawn from, the system.
+For instance, one participant was surprised that "my commute is shorter than I expected" and another user validated her suspicion that her commute was "slightly slanted"  using the elevation chart visualization.
+During the pilot, many users also became interested in the routes ridden by others.
+Participants expressed interest in exploring "hot spots" or routes that received a lot of coverage.
+The respondents felt that they either learned or verified knowledge of popular streets and well-traversed avenues for getting from one neighborhood to another.
+Visualization clutter caused by these frequently ridden routes could be eliminated by abstracting raw traces to road or path segments  Participants found noise and roughness data less understandable in its numeric or even semantic form.
+Furthermore, this validation step by riders would eliminate false indicators of route friendliness.
+For instance, noise readings are complicated by the fact that riders sometimes ride on bike-friendly stretches that are right beside, but not actually on, congested streets.
+Finally, participants wanted the ability to annotate their routes to better engage with the data by adding captions to sensor information and highlight route sections.
+Among the most interesting findings of the focus groups were the ways in which bikers overwhelmingly tied critiques of the system to disruptions of their existing biking practices.
+The participants suggested that the interface to engage Biketastic be simpler on the phone.
+Instead of going through dialogs indicating the positioning of the phone every time, the system should remember previous settings and just have a simple "start" button.
+Another area where practice and usability collided was in the media capture feature.
+As one rider expressed, "I was too lazy to stop biking and take a picture of pot hole."
+Instead, users suggested that easy-to-use tags could be used to indicate features of a route.
+Participants' suggestions for new features were also based in their own biking practices.
+Riders were interested in time filters to differentiate routes based on time of day, a feature we had neglected to consider.
+One female biker felt that day and night routes varied based on safety.
+Other bikers felt time differentiation was useful because traffic can differ significantly during different periods of the day.
+Another suggestion referenced the mental map that these experienced bikers had developed of their city.
+Biketastic automatically inferred exact addresses for start and end points, however, bikers felt that cross streets and even neighborhood information would be just as, if not more, useful.
+Rider information was also an important part of cycling practice that participants felt could be better expressed in Biketastic.
+They suggested that the system track rider profiles, gathering such data as age, gender, and experience level.
+The system could then use this information to determine what kind of people bike where and when.
+Website users could then receive recommendations based on these attributes.
+M. Agrawala and C. Stolte.
+Rendering effective route maps: improving usability through generalization.
+D. Douglas and T. Peucker.
+Algorithms for the reduction of the number of points required to represent a digitized line or its caricature.
+The bikenet mobile sensing system for cyclist experience mapping.
+Computer graphics: principles and practice.
+Map your cycling, bike map and mountain biking routes, September 2009. http://www.mapmyride.com.
+Openstreetmap cycle map, September 2009. http://opencyclemap.com.
+R. Priedhorsky and L. Terveen.
+The computational geowiki: what, why, and how.
+C. Zhou, D. Frankowski, P. Ludford, S. Shekhar, and L. Terveen.
+Discovering personal gazetteers: an interactive clustering approach.

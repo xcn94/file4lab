@@ -1,0 +1,107 @@
+The 1e filter  is a simple algorithm to filter noisy signals for high precision and responsiveness.
+It uses a first order low-pass filter with an adaptive cutoff frequency: at low speeds, a low cutoff stabilizes the signal by reducing jitter, but as speed increases, the cutoff is increased to reduce lag.
+The algorithm is easy to implement, uses very few resources, and with two easily understood parameters, it is easy to tune.
+In a comparison with other filters, the 1e filter has less lag using a reference amount of jitter reduction.
+Jitter has a large effect on the way people perceive and act.
+For example noisy values are harder to read and unstable cursors hinder target acquisition .
+One usually wants to filter noisy signals to reduce, and possibly remove, the unwanted parts of the signal.
+However, filtering inherently introduces time latency - commonly called lag - which reduces system responsiveness.
+Lag may not be an issue in domains like artificial perception and decision making, but with interactive feedback, it is very important.
+In fact, it is the combination of precision and responsiveness that are crucial: people can point accurately in spite of an offset, but only with minimal lag and jitter.
+The difficulty is that implementing and tuning a filter to minimize both jitter and lag is challenging, especially with little or no background in signal processing.
+In this paper we describe the 1e filter , a tool to improve noisy signal quality with a tunable jitter and lag balance.
+It uses a low-pass filter, but the cutoff frequency changes according to speed: at low speeds, a low cutoff reduces jitter at the expense of lag, but at high speeds, the cutoff is increased to reduce lag rather than jitter.
+The intuition is that people are very sensitive to jitter and not latency when moving slowly, but as movement speed increases, people become very sensitive to latency and not jitter.
+We compare the 1e filter to alternative techniques and show how it can reduce that same amount of jitter with less lag.
+It is also efficient and easy to understand, implement, and tune: the algorithm can be expressed in a few lines; it uses only basic arithmetic; and it has only two independent parameters that relate directly to jitter and lag.
+Other researchers and ourselves have already used variations of it in many projects.
+In fact, the "dynamic recursive low-pass filter" used by the third author in  established the basic principle, but it required four parameters and a fixed sample rate.
+The `1e' name is an homage to the $1 recognizer : we believe that the 1e filter can make filtering input signals simpler and better, much like the $1 recognizer did for gestures.
+After a review of the jitter, lag, and alternative filtering techniques, we describe the 1e filter in detail with an implementation, discuss tuning with different applications, and conclude with an illustrative comparison.
+Noisy signals occur when an original time varying value undergoes undesirable and unpredictable perturbations.
+These may be caused by things like heat and magnetic fields affecting hardware circuitry, the limits of sensor resolution, or even unstable numerical computation.
+Noisy signals are a common problem when tracking human motion, particularly with custom sensing hardware and inexpensive input devices like the Kinect or Wiimote.
+In addition, even signals from established high-end sensing systems can become noisy when interaction techniques use large scaling effects.
+A common example is using a Vicon tracking system to implement ray casting with a wall display : calibration problems and hand tremor add further perturbations to the ones amplified by the pointing technique.
+Noise affects the quality of a signal in two primary ways .
+It can reduce accuracy, by adding an offset between the observed values and the true ones.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+With 3D hand tracking, Ware and Balakrishnan found that only 50 ms lag reduced performance by more than 8% .
+Pavlovych and Stuerzlinger found no performance degradation below 58 ms lag using a mouse or Wiimote, but increasing jitter from 4 to 8 pixels doubled error rates for small targets .
+Assuming a 100 PPI screen, 4 pixels corresponds to 1mm of jitter mean-to-peak: close to the 0.4 mm of jitter they found with the established Optitrack system.
+Although the precision of an input device may be very good, it does not take into account scaling effects introduced by interaction techniques.
+Device input is often scaled up, so people can cover more display distance with less device movement.
+For example, default operating system mouse transfer functions can be scaled up 12x  and factors as high as 90x have been used when ray casting on wall sized displays .
+Regardless of native device precision, scaling amplifies even small sensing perturbations, increasing jitter.
+These results highlight the importance of balancing jitter and lag.
+Jitter should be less than 1mm mean-to-peak, but lag should be below 60 ms. As we shall see, any filter introduces some lag and considering 40-50 ms of inherent system lag , that leaves less than 10-20 ms for the filter.
+As the name suggests, double exponential smoothing uses two of these equations to handle trends in the signal.
+By the Central Limit Theorem and reasonable assumptions, averaging enough successive values of a noisy signal should produce a better estimate of the true one .
+As a result, a moving average of the last n data values is commonly used by computer scientists as a kind of filter.
+For example, Myers et al.
+Since all n values are weighted equally, this creates a lag up to n times the sampling period.
+Unlike the techniques above, Kalman filters make assumptions about the system generating the signal.
+Kalman filters rely on a process model and a measurement model.
+The standard Kalman filter uses a discrete-time linear stochastic difference equation for the process model and assumes that process and measurement noise are independent of each other, white, and are normally distributed .
+When estimating the true position of a moving object, the process model is typically a linear function of the speed and the previous estimated position.
+With additional complexity, Extended and Unscented variants of Kalman filters can also model non-linear processes and observations .
+In the frequent case where the process and measurement noise covariances are not known, one must determine them empirically.
+This task can be challenging, and an improperly tuned filter can increase and even degrade the signal , by creating artificial "overshooting" movements for example.
+Moreover, understanding Kalman filters requires mathematical knowledge beyond basic linear algebra such as statistics, random signals, and stochastic methods.
+Implementing them requires a language or library with matrix operations.
+And, as demonstrated by LaViola for predictive tracking, they can be considerably slower to compute than double exponential smoothing predictors  with similar jitter and lag performance .
+With human movements, noise typically forms high frequencies in the signal while actual limb movements have lower frequencies.
+A low-pass filter is designed to let these desired low frequency portions pass through, while attenuating high frequency signals above a fixed cutoff frequency.
+The order of a low-pass filter relates to how aggressively it attenuates each frequency: first order filters reduce the signal amplitude by half every time the frequency doubles, while higher order variants reduce the signal amplitude at a greater rate.
+The first term of the equation is the contribution of new input data value, and the second term adds inertia from previous values.
+As  decreases, jitter is reduced, but lag increases since the output responds more slowly to changes in input.
+Since the contribution of older values exponentially decreases, a low-pass filter will have less lag than a high n moving average filter.
+Smoothing techniques used in business and economic forecasts are similar in approach to a low-pass filter.
+The 1e filter is an adaptive first-order low-pass filter: it adapts the cutoff frequency of a low-pass filter for each new sample according to an estimate of the signal's speed, or more generally, its derivative value.
+Even though noisy signals are often sampled at a fixed frequency, filtering can not always follow the same pace, especially in event-driven systems.
+To accommodate possible fluctuations, we rewrite equation 1 to take into account the actual time interval between samples.
+Each filter can be tuned interactively and all filters can be shown simultaneously making it possible to visually compare jitter reduction and lag across parameter settings and filters.
+Once tuned, timestamped positions can be logged for the system cursor  and filtered positions of all filters.
+In our comparison, we used independent Gaussian white noises for X and Y with a 50 dB SNR2 , a public implementation of the Kalman filter3 , and custom implementations of a moving average, single exponential, and LaViola's double exponential smoothing.
+We tuned moving average first and used its performance as a baseline.
+We found that averaging more than 14 data values did not reduce jitter further and only increased lag, so we used n=14.
+Then we interactively tuned the other filters to primarily match the jitter reduction of moving average, and secondarily attempting to reduce lag.
+Tuning single exponential smoothing to match the reference jitter requires a low alpha value  which introduces lag.
+This highlights the difficulty of tuning with only a single parameter.
+For LaViola's double exponential smoothing filter, the reference jitter is obtained with a lower alpha value  and with lower lag.
+However, this causes overshooting when the pointer abruptly decelerates.
+For the Kalman filter, we set the measurement noise covariance to the variance of the introduced noise  as in , and adjusted the process noise covariance until we obtained the reference jitter reduction .
+The amount of lag for this setting was comparable to the moving average and single-exponential.
+For the 1e filter, we matched the reference jitter and optimized lag using the tuning procedure described above.
+In the first tuning step, setting fcmin = 1 Hz and  = 0 matched the reference jitter and lag was similar to single exponential smoothing.
+In the second tuning step, increasing  to 0.007 made the lag almost imperceivable yet maintained the reference jitter when stationary or moving slowly.
+A supplementary video demonstrates this tuning process and visualizes filter performance.
+For a quantitative comparison, we logged the system cursor at 60 Hz for about 1 hour during regular desktop use, then added white noise and applied the filters using the settings above.
+Figure 1 shows the distance from each filtered cursor position to the true one, binned into four speed intervals.
+Note that since we tuned the filters to match a reference jitter when not moving, the error between filtered position and noiseless position is primarily due to lag when moving.
+With higher speeds, the filtered position lags farther and farther behind, increasing this distance .
+All filters introduce a similar amount of lag except for the 1e filter which has less lag across all speed intervals.
+The sampling period Te  can be automatically computed from timestamps, so the cutoff frequency fc is the only configurable parameter in equation 6.
+As with any low-pass filter, decreasing fc reduces jitter, but increases lag.
+Finding a good trade-off between the two is difficult since people are more sensitive to jitter at low speeds, and more sensitive to lag at high speeds.
+This is why an adaptive cutoff frequency works well.
+To reduce jitter, a low fc is used at low signal speeds, and to reduce lag, fc is increased as speed increases.
+We found that a straightforward linear relationship between cutoff frequency fc and the absolute speed works well .
+The speed  is computed from raw signal values using the sampling rate and then low-pass filtered with a cutoff frequency chosen to avoid high derivative bursts caused by jitter.
+Our implementation uses a fixed value of 1 Hz, leaving only two configurable parameters: the intercept fcmin and the slope  shown in Equation 7.
+Details of the algorithm are provided in the Appendix.
+To minimize jitter and lag when tracking human motion, the two parameters can be set using a simple two-step procedure.
+First  is set to 0 and fcmin to a reasonable middle-ground value such as 1 Hz.
+Then the body part is held steady or moved at a very low speed while fcmin is adjusted to remove jitter and preserve an acceptable lag during these slow movements.
+Next, the body part is moved quickly in different directions while  is increased with a focus on minimizing lag.
+Rotational input uses a similar tuning process, but rotation axis and angle are filtered separately.
+Another application of the 1e filter is displaying noisy numerical values, such as an unsteady frame rate used to monitor graphical application performance.
+The goal is to reduce jitter to make the numerical output legible while minimizing lag so the value remains timely.
+Tuning is similar to above: adjust fcmin until the text becomes stable, then increase  until just before the text become unstable.
+The 1e filter has the smallest SEM  followed by LaViola's double exponential smoothing , the moving average and the Kalman filter , and single exponential smoothing .
+Our intention for this evaluation is to illustrate the performance of the 1e filter in an intuitive way under realistic conditions.
+We are exploring alternative comparisons with user experiments, synthetic reference movements, different noise configurations, and examples of "noisy" hardware.
+Human-Computer Interaction researchers and practitioners should stop filtering noisy input with a moving average.
+In most cases, they do not need to wrestle with low-level signal processing issues or with more complex techniques like Kalman filtering - which can be difficult to understand, tune, and implement.
+The 1e filter is an intuitive and practical alternative since it is easy to understand, implement, and tune for low jitter and lag.
+Best of all, it produces better results.

@@ -1,0 +1,225 @@
+The time and labor demanded by a typical laboratory-based keyboard evaluation are limiting resources for algorithmic adjustment and optimization.
+We propose Remulation, a complementary method for evaluating touchscreen keyboard correction and recognition algorithms.
+It replicates prior user study data through real-time, on-device simulation.
+To demonstrate remulation, we have developed Octopus, an evaluation tool that enables keyboard developers to efficiently measure and inspect the impact of algorithmic changes without conducting resource-intensive user studies.
+It can also be used to evaluate third-party keyboards in a "black box" fashion, without access to their algorithms or source code.
+Octopus can evaluate both touch keyboards and word-gesture keyboards.
+Two empirical examples show that Remulation can efficiently and effectively measure many aspects of touch screen keyboards at both macro and micro levels.
+Additionally, we contribute two new metrics to measure keyboard accuracy at the word level: the Ratio of Error Reduction  and the Word Score.
+SGK's are also known as Shape Writing keyboards , gesture keyboards  or word-gesture keyboards  in the literature.
+Different forms of SGKs have been commercially distributed in many products such as ShapeWriter, SlideIT, Swype, Flex T9, TouchPal, and the Android 4.2 stock keyboard  .
+SGKs face the same correction challenges as STKs because they must map ambiguous finger gestures to words.
+HCI research has explored various techniques for error prevention, including adapting decoding algorithms to hand posture , and personalizing ten-finger typing for large touchscreens .
+As with other advanced UI technologies such as speech recognition, effective and efficient evaluation is critical to the improvement of smart keyboards.
+An evaluation generally consists of  data collection and  data analysis.
+Our goal is to facilitate both stages of the process.
+Collecting keyboard output data typically involves a laboratory experiment with a dozen or more participants.
+The time and labor required by these experiments make frequent evaluation of small algorithmic changes infeasible.
+Moreover, current data analysis techniques do not provide important information about keyboard algorithms.
+For example, they do not explicitly and quantitatively measure an STK's ability to correct user errors, and the typical accuracy metrics  examine output at the character-level, and do not reflect today's keyboards' word-level behaviors.
+To expand the repertoire of tools and methods for evaluating STKs and SGKs, we propose Remulation, a novel keyboard evaluation approach that measures correction and recognition algorithms of keyboards by replaying previously collected user data through real-time on-device simulation.
+Today, touchscreen keyboards are used by hundreds of millions of people around the world as their default text entry method.
+To reduce typing errors, most of these "Smart Touch Keyboards"  correct errors automatically as users type.
+However, occasionally the error correction system itself makes a mistake, with undesirable and sometimes humorous consequences .
+An increasingly popular alternative to the STK is the smart gesture keyboard .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The original experiment is thereby replicated on a working keyboard.
+Remulation can efficiently evaluate many  aspects of both STKs and SGKs without conducting laboratory experiments, and can be done repeatedly as if the same group of participants were employed to type the same input tirelessly over and over on different keyboards.
+Typical use cases for Remulation include:  a developer seeks to evaluate the impact of an algorithmic change to her keyboard,  a researcher seeks to evaluate different versions of the same third-party keyboard, and  a device manufacturer wants to select a third-party keyboard to embed in its devices without inspecting the keyboards' proprietary source code or algorithms.
+To effectively measure the accuracy of a keyboard algorithm, we introduce the metrics of Word Score, which reflects the number of correct words out of every 100 input words from a given test dataset, and Ratio of Error Reduction , which quantifies an STK's error prevention and correction ability.
+Both metrics measure keyboard accuracy at the word level.
+In the rest of this paper we demonstrate the Remulation approach and its corresponding data analysis methods by designing and implementing Octopus, a Remulation-based keyboard evaluation tool.
+We put Remulation and Octopus into practice by applying them to two STKs and two SGKs, revealing various insights at both the macro and micro levels.
+In summary, this work contributes a novel approach to evaluating touchscreen keyboards, which includes: * Remulation, a new approach for evaluating keyboard correction and recognition algorithms by replicating prior user study data with real-time simulation The design and implementation of Octopus, a Remulation-based keyboard evaluation tool and system A demonstration of Remulation and Octopus in real use, with evaluations of two STKs and two SGKs RER and Word Score, new metrics for evaluating keyboard accuracy.
+In what follows we discuss relevant prior work on  simulating human text entry for evaluating keyboard performance without traditional laboratory studies, and  current analysis techniques used for assessing a text entry method's accuracy.
+In 1982, Rumelhart and Norman  described a model for simulating skilled typists on physical typewriters, with the goal of understanding human typing behavior.
+Their model focused on predicting keystroke timing and simulated key transposition and doubling errors.
+In our work, we rely on direct data replication rather than complex modeling of human performance, and seek to evaluate keyboard algorithms rather than theorize user behavior.
+Since the early 1990's, research interest has shifted from studying physical typewriters to soft keyboards.
+The Fittsdigraph model, first proposed by Lewis , was used to estimate average text entry speeds based on movement time between pairs of keys and digraph frequencies.
+This model has been a popular performance prediction tool for keyboard evaluation with different layouts using a single finger or a stylus , and has been used as an objective function for keyboard optimization .
+A twothumb physical keyboard predictive model has also been proposed .
+Unlike these models, which predict an upper bound for average text entry speed assuming a certain error rate implied by Fitts' law , our Remulation and analysis method assesses keyboard error rates and accuracies using the same speed that had naturally occurred in the data collection experiment.
+Also, we focus on evaluating keyboards with similar appearances but different algorithms, instead of different layouts.
+Standard text entry accuracy metrics compare the transcribed and presented strings.
+The Minimum String Distance   is often used to measure the "distance" between the two strings, based on the number of character insertions, deletions, and replacements needed to turn one string into another.
+While this has been effective in measuring traditional physical keyboards that literally output every letter typed, it is insufficient for measuring STKs.
+STKs embed a dictionary or language model and do not necessarily map touch points to text on an individual letter basis.
+Similarly, SGKs usually work at the word level: they recognize a continuous finger gesture to output a single word .
+Since both SGKs and STKs operate at wordlevel, it is more meaningful to adopt the word-level metrics.
+Furthermore, although word-level metrics  are common in other fields such as speech recognition , they are rarely used to measure keyboard performance.
+Wobbrock and Myers  analyzed the character input stream in addition to the presented and transcribed strings.
+They assume that text flows serially character by character.
+Collecting natural use data and applying them to train recognition algorithms has been widely adopted as a research methodology in AI .
+Recently, it has also been employed to design keyboard algorithms.
+Remulation uses some of the same techniques for the different problem of comparing two or more third-party keyboards when the source code or algorithm is unavailable.
+Octopus enables us to investigate how a keyboard handles these situations.
+The dataset is fed into Octopus to simulate real users' text entry actions.
+The datasets consist of touch events and their corresponding phrases in presented phrases.
+Each touch event includes the event type , the  screen coordinates, the timestamp, and the finger identifier.
+The collected data aims to reflect fundamental human performance, independent of particular visual design elements, keyboard features, or algorithms.
+Also, to challenge keyboards' algorithms and better discriminate different keyboards, the dataset strives to capture users' relaxed, natural and uncorrected typing behaviors.
+In the current implementation of Octopus, the dataset is collected through lab studies in which participants type or gesture the presented phrases on a mobile device as naturally and as quickly as possible, using a collector keyboard.
+The collector keyboard provides users with only asterisks as feedback when they enter text, to prevent them from adjusting their input behaviors to take advantage of certain keyboard algorithms and features .
+Ideally, the layout and dimensions of the collector keyboard are identical to the test keyboard used during Remulaiton.
+If the test keyboard has slightly different dimensions, touch points can be scaled and translated according to the target keyboard's height, width, and top-left corner location.
+The validity of such transformations should be further empirically verified in future research, particularly when the transformation is large.
+This is an application  that runs on the touch screen device at the same time as the Simulator that generates the touch events.
+Based on the Remulation concepts described earlier, we designed and implemented Octopus .
+Octopus is a Remulation-based touchscreen keyboard evaluation tool.
+Figure 2 shows its architecture, which consists of  the Simulator,  Dataset, and  the Keyboard Output Receiver.
+This component simulates touch actions on a mobile device in real time according to TOUCH_DOWN, the dataset.
+It can simulate TOUCH_MOVE, and TOUCH_UP events, which are the three basic touch operations on a mobile device.
+Using these events as building blocks, Octopus can simulate all the typical touch interactions.
+For example, a quick tap usually consists of a TOUCH_DOWN event immediately followed by a TOUCH_UP event, and a gesture usually consists of a TOUCH_DOWN event followed by several TOUCH_MOVE events and a TOUCH_UP event.
+The Simulator accurately specifies the interval between every two touch events.
+The precision of such intervals between two events is less than 10 ms.
+It can also simulate multi-finger interaction by specifying the finger ID of a touch event.
+These features allow Octopus to keep fidelity high in simulation, which is critical for evaluating modern soft keyboards.
+For example, a keyboard might adjust its algorithm according to the typing speed of a user.
+Simulating touch actions in real time is critical to measure such algorithms.
+When a user quickly types with two thumbs,
+The Keyboard Output Receiver includes a standard text view widget that receives the transcribed phrases from the keyboard.
+The communication between the keyboard and the Keyboard Receiver is through the mobile OS input method framework, so Remulation can be performed on any keyboard that is installed on the device.
+The Keyboard Output Receiver logs the transcribed phrases generated by the keyboard, compares them with the presented phrases from original Dataset, and then calculates and displays the quality measures of the keyboard being tested .
+The Octopus remulation method is but one method of keyboard evaluation.
+Text entry is a complex process and no single method, such as a laboratory experiment, instrumented field deployment, or modeling and prediction, can provide a complete understanding of a keyboard.
+In our view, the Remulation-based approach offers another method that has both strengths and limitations.
+The advantages of this method include: 1.
+Empirical data can be used and reused multiple times to evaluate different keyboards.
+Efficiency is important for rapid algorithm iteration, since a developer can determine the impact of algorithm changes without new human participants.
+This approach faithfully replicates participants' behavior in real time during the user study.
+It can precisely specify the time intervals between touch events, and also can support multitouch input.
+Running Octopus is like employing the same group of participants typing over and over on multiple keyboards.
+There are no confounding variables like time of day, fatigue, or learning effects, so the impact of small algorithm tweaks can be measured reliably.
+This approach offers a "black box" evaluation: one must only install a keyboard on a mobile device to evaluate it.
+This enables evaluation of third-party keyboards without accessing their proprietary algorithms or source code.
+This type of data reflects the most basic and natural input behaviors, unencumbered by the UI and algorithms, but does not capture feedback-driven behavior adjustments.
+We implemented Octopus on the Android operating system.
+The initial simulator was implemented on a desktop machine.
+It constructed touch events according to the Android protocol and sent them to the device using Android Debug Bridge   via a USB cable.
+The current Simulator was implemented on top of Android's Monkey event simulation tool.
+It runs on a device without direct connection to a host computer.
+Since it simulates touch events at the OS level, it works on any Android device.
+From the perspective of a keyboard application, events from the simulator are indistinguishable from events that are generated by the device's touch screen.
+The Keyboard Output Receiver is a standard android application developed in Java.
+Octopus focuses on correction and recognition algorithms of keyboards.
+It does not evaluate the entire user experience of a touchscreen keyboard.
+In particular, it does not evaluate UI-related interaction behaviors, such as selecting the target via the suggestion bar or using the backspace key.
+Also, it is limited to keyboards with the same layout as the one used in data collection .
+Because the user data is collected a priori and the keyboard for data collection does not provide the user with feedback for correct or erroneous input, Octopus does not account for changes in user behavior in response to keyboard output.
+The character score is between 0 and 100, and approximately indicates the percentage of correct characters.
+The higher the score, the more accurate the keyboard.
+A keyboard with a score of 100 is error-free.
+However, note that this score depends on the test dataset.
+A word is defined as a string of characters entered between one or more continuous spaces.
+Similar to Character Score, Word Score is defined as: It approximately represents the percentage of correct words for a given dataset.
+Like Character Score, it is also datasetdependent.
+Character and Word Scores measure the overall accuracy of a given dataset, but they do not specifically measure a keyboard's correction and recognition capabilities.
+Comparing transcribed to presented text does not provide information about how many of a user's errors were corrected by the touch keyboard.
+Figure 4 shows an example of user touch input on a soft keyboard.
+The presented text is "home," but the user touches the keys "h", "o", "m", and "w." A naive keyboard that does not attempt to correct user imprecision may output "homw," but the keyboard in the figure has successfully corrected the user's input and output the text "home."
+However, if we compare the presented text to the transcribed text, we do not learn about the successful error correction.
+If the user's input had been precise , the naive keyboard would have produced the same transcribed text.
+A Word Score comparing presented text with transcribed text will give the same result for the two scenarios.
+This is a naive key-detection algorithm that offers no error correction, and literally transcribes the user's touch points.
+Comparing the baseline text to the presented text provides information about a user's accuracy; comparing the baseline text to the transcribed text provides information about the keyboard's ability to correct user errors.
+To quantify a touch keyboard's ability to correct user error into correct words, we propose another metric, the Ratio of Error Reduction .
+This metric is defined as the proportion of errors in the baseline string that were fixed by the keyboard.
+The RER is calculated as follows:
+RER is applicable only when  > 0.
+We can use either the MSD or the MWD to express the error rates.
+We used Octopus to evaluate two touch keyboards on Android phones.
+Since the purpose of the current work was to research and demonstrate an evaluation method and a tool, not to report the relative merit and quality of different commercial products, we anonymously refer to the two keyboards as STK-A and STK-B.
+The dimensions of the two are identical, but the algorithms that determine keyboard output for given touch input are different.
+Since STK-B was developed a bit later than STK-A, it was expected that it would perform slightly better than STK-A.
+To evaluate the keyboards with Octopus, we collected text input data from users in a laboratory study we called "Salt."
+The study was similar to the dataset used in Azenkot and Zhai , but with different conditions for different hand postures, and different instructions to encourage the users to type more quickly.
+A wizard of Oz keyboard was used in the study , which provided users with only asterisks as feedback when they entered text.
+After a user finished a phrase, she pressed the "next" button to proceed to the next phrase.
+The average age was 32 .
+All had experience with text entry on smartphones.
+The average level of self-rated proficiency with STKs was 5.5  according to a pre-study questionnaire .
+Unlike the study in Azenkot and Zhai , which specified a hand posture for every participant, this study allowed the participants to text with two thumbs, one finger, or one thumb on the dominant hand according to their preference.
+A Galaxy Nexus phone was used throughout the study.
+A detailed analysis, however, shows important differences between the two keyboards.
+The same correct output were generated from the two keyboards on 5,401  words from the Salt dataset.
+There were 1,000 cases of touch input in Salt in which both STKs failed to generate correct target words.
+There were 438 word cases in which STK-B succeeded but STK-A failed.
+By visually inspecting the output, we discovered that STK-B seemed better at handling missing spaces than STK-A.
+The top three rows in Table 1 show examples.
+Conversely, there were 267 cases where STK-B failed but STK-A succeeded, as shown by the bottom three rows of Table 1.
+STK-B seemed to be more conservative than STK-A in auto-correcting spatial proximity errors.
+Each participant entered the same set of 50 phrases randomly chosen from the MacKenzie and Soukoreff phrase set .
+All touch events were logged.
+Participants were asked to enter text "as naturally and as fast as possible."
+The first 10 phrases for each user were considered a warm-up and excluded in the dataset.
+Here we can see the Octopus remulation approach not only generated global metrics, but also afforded inspection of specific error cases.
+The latter capability enables the kind of micro-level analysis critical for more detailed insights into a keyboard's characteristics.
+The word and character scores of baseline text of the Salt dataset were 38.9  and 80.6  respectively, indicating that users' input was very sloppy.
+More than 60% of words would have been incorrect if the touch input were decoded with a naive closest-label keyboard algorithm.
+Both STK-A and STK-B keyboards markedly reduced the errors due to imprecise input.
+Approximately 7 out of 10 word errors in the Salt dataset were corrected by each keyboard.
+A paired t-test did not show a significant difference between these two keyboards on either of the two measures, indicating that the overall accuracies of these keyboards were similar.
+When a keyboard attempts to correct user errors, a word undergoes a transition between two possible states: correct  and incorrect .
+There are four such transitions: incorrect to correct, incorrect to incorrect, correct to incorrect, and correct to correct.
+Table 3 shows examples of the transitions for the presented text "home."
+Ideally, all transitions are either correct to correct, where the keyboard algorithms recognize the input is correct and do not modify it, or incorrect to correct, where the keyboard algorithms identify "sloppy" input and modify it to the target word.
+Correct to incorrect transitions are likely to occur when a user enters a string that is OOV .
+Transitions that move from Correct to Incorrect have been found in prior work to be disruptive and frustrating to users .
+The Salt study described earlier also collected gestures.
+The experiment balanced the order of gesture and touch data collection.
+The WOZ keyboard in the study was the same as the one used in touch data collection .
+It was identical to SGK-B in dimensions, but slightly different from SGK-A in height .
+The gesture data collected were therefore slightly scaled to match SGK-A when running Octopus.
+The same 40 subjects participated in the study.
+The levels of proficiency of these participants reflected the partial adoption of SGKs: half of the participants were proficient users who used SGKs at least 5 days a week; the other half had never used an SGK.
+Unlike STK data collection in which participants freely chose the preferred input finger, hand posture was a twolevel, within-subject factor .
+Each participant gestured a set of 50 phrases by index finger and the same set of phrases by the thumb.
+The device used in this study was the same as the one used in the typing data collection study.
+A user's finger gesture trace was shown using a blue stroke, and only minimal output feedback was provided.
+The current target word was underlined and the previously gestured words were dimmed .
+Our purpose was again to capture the most natural input behaviors, and to avoid interference from any particular recognition algorithm.
+To deeply understand the keyboard's error correction behavior, we investigate the composition of these four types of transitions .
+3,297 words  on STK-A and 3,425 words  on STK-B keyboards underwent an incorrect to correct transition, demonstrating strong auto-correction performance for both keyboards.
+STK-A and STK-B falsely changed 1.5% and 0.8% of words from correct to incorrect.
+Although small in number, in this very critical category of errors, STK-B made only about half the errors that STK-A did.
+Table 4 shows examples of successful corrections.
+As illustrated in Figure 9, SGK-B was especially more accurate than SGKA in the thumb condition, in which the input was more "sloppy" than in the index-finger condition.
+Figure 10 shows the mean word score for each participant.
+As illustrated, SGK-B is more accurate then SGK-A for 39 out of 40 participants .
+It confirms the finding from the ANOVA analysis: SGK-B is significantly superior to SGKA.
+By comparing the output of both keyboards with presented phrases, we discovered some limitations of each keyboard.
+These findings could help developers to further improve the algorithms.
+One interesting observation of SGK-A's performance was that it tended to mistakenly include unintended letters adjacent to the target letter in the recognition results.
+As shown in the first three rows of Table 5, SGK-A misrecognized provide as provides, are as ate, and smart as smarty.
+Unintended letters s , t , and y  were mistakenly included.
+Unlike SGK-A, one potential problem for SGK-B was its large vocabulary.
+It contained obscure words that distracted a sloppy gestures from their intended word.
+For example, it falsely recognized the target words disturbance as dissonance, getting as hefting, and question as quezon .
+We note again that the performance measures from Octopus Remulation depend on the test dataset.
+A dataset can be either too easy  so all keyboards can give high word scores , or too difficult  so no keyboard can do well on it .
+We have collected a dataset, Salt, that is natural and sloppy, so it can discriminate among different keyboards.
+Indeed our word scores were in 70's and 80's, close neither to the ceiling  nor the floor .
+However whether the Salt data closely resembles users' "natural" behavior on real keyboards is debatable.
+We suspect there may not be a "perfectly natural" behavior when it comes to interacting with real UI technologies.
+The better the recognition technology gets, the sloppier the user may behave to take advantage of the technology.
+It will therefore be necessary to collect different datasets that reflect different ranges of user expertise and behavior.
+Octopus can be used and enhanced in several ways.
+We described only two applications of Octopus for evaluating touch and gesture keyboards.
+With a new set of data, Octopus can be used to evaluate keyboards with different layouts on various devices, including tablets.
+With appropriate operating system support, the Remulation approach can also be implemented on platforms other than Android, such as Apple's iPhone and Microsoft's Windows Phone, enabling comparison across platforms.
+We have presented Remulation, a novel approach to evaluating keyboard correction and recognition algorithms by replicating prior user study data via real-time simulation.
+It contributes to the wide spectrum of user interface evaluation methods, ranging from A/B testing in laboratory experiments to model-based prediction.
+We have also contributed two new metrics, Word Score and Ratio of Error Reduction , to measure keyboard accuracy at the word level, and to quantify STK error-correction capability.
+Based on the Remulation approach and new data analysis methods, we have designed and implemented Octopus, a keyboard evaluation tool.
+Powered by the Salt dataset we collected, we used Octopus to evaluate two smart touch keyboards and two smart gesture keyboards.
+The results clearly demonstrated the value of the Remulation approach, the Octopus tool, and the metrics of Word Score and RER.
+For example, Octopus showed that today's STKs can correct over 70% of the word errors that a naive touchscreen keyboard would produce on the Salt dataset.
+Octopus also exposed different types of errors made by the tested STKs, even though standard metrics showed that the keyboards performed identically.
+SHARK: a large vocabulary shorthand writing system for pen-based computers.
+Boca Raton, FL: International Business Machines Corporation.
+Development of a Digram-Based Typing Key Layout for Single-Finger/Stylus Input.
+Proceedings of The Human Factors and Ergonomics Society 43rd Annual Meeting.
+Evaluation of Typing Key Layouts for Stylus Input.
+Proceedings of The Human Factors and Ergonomics Society 43rd Annual Meeting.

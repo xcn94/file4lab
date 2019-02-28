@@ -1,0 +1,242 @@
+We describe a method for applying gain to events reported by scrolling input devices such as scroll wheels.
+By treating document length as an input to our gain functions, the method allows rapid document traversal regardless of document length; it also allows slow and precise scroll control at shorter distances.
+An initial experiment characterises four diverse scrolling input devices - a standard `notched' scrollwheel, a high performance `inertial' wheel, an isometric scrolling joystick, and a trackpad - and the results are used to calibrate several gain function parameters.
+A second experiment validates the method, showing that it allows faster scrolling in long and short documents than current scrolling-device gain methods, and that subjective preferences favour it.
+For pointing, however, gain studies are common, and they are known to improve performance .
+Two main problems complicate the design of effective scroll gain functions.
+First, many scrolling input devices allow only coarse levels of control.
+For example, the range of physical movement enabled by most mouse scrollwheels is approximately 10mm linearly without `clutching' .
+Furthermore, this limited movement is often discretised into 5 or 6 coarse `notches'.
+By contrast, clutch-free mouse pointing extends over approximately ten times this linear distance, on two dimensions, with hundreds of registered points per cm.
+The second problem complicating the design of scroll gain functions is that the linear range of control requirements for scrolling is much larger than that of cursor pointing.
+Pointing requires at most a few thousand pixels be addressable on the x or y dimensions.
+Documents, however, can be thousands of pages long, with each page containing roughly a thousand linear pixels, any of which might be considered a target for positioning the scrolled display.
+The conflict between the low fidelity of scrolling input controls and the wide range of possible scrolling targets means that clutching with scrolling input devices is often pronounced, causing users to frenetically repeat scrolling actions, exhibited as `clawing' a scrollwheel or `scratching' a touchscreen.
+Consequently, many scroll devices, such as standard notched scrollwheels, are best used only for short range movement, and when longer movements are required users should switch to an alternative control, such as dragging the scroll thumb .
+However, expecting users to make a distance-based choice between scrolling methods is inefficient: decisions take time, they can be made incorrectly, and they require that the user switch their attention from the task to the interface.
+As a result, users may avoid the decision and try to use a single technique regardless of its comparative inefficiency for a particular range of distances .
+Given that devices such as scrollwheels are already in common use, it is reasonable to expect that these controls should be usable for all scrolling needs - no one would consider using two mice for pointing , yet curiously, this is the equivalent expectation for scrolling.
+Scrolling provides a simple means for working with documents that are too large to be conveniently displayed within a single view.
+Commensurate with its importance, scrolling interactions have been extensively researched, producing innovative devices, techniques, and behaviours.
+Surprisingly, though, there has been little public research into one of the most basic and universal scrolling problems - that of supporting appropriate gain functions to allow both precise repositioning actions as well as rapid movement across large distances.
+Although most pointing devices include scroll controls  there has been little research into optimising their performance.
+Scrolling and mouse-based targeting are similar in that both have a wide range of control requirements - from small precise pixel actions to long range movement.
+Yet gain functions for scrolling are relatively unstudied .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Two observations - that documents vary greatly in length, and that scrolling mechanisms are inefficient at long distances - lead us to the idea of making gain functions that are dependent on document length.
+Document-lengthdependent  gain is a simple method that can substantially improve the performance of scrolling input devices.
+Our method of evaluation involves a rapid calibration process to understand device characteristics, which could be performed by the device manufacturer or by individuals seeking tailored performance.
+The gain function allows pixel-precise movement as well as rapid document traversal, regardless of length.
+Experiments validate the technique's effectiveness across a diverse range of devices.
+The specific contributions of this paper are as follows:  An empirical characterization of human performance with different scrolling devices: a notched scrollwheel, an isometric `ScrollPoint' joystick, an inertial scrollwheel, and two-finger trackpad scrolling.
+Details of our document-length-dependent gain function.
+Empirical results demonstrating that performance and preferences are improved by our gain function.
+Input devices translate motor actions into electronic events which are interpreted and modified by low level driver software before being forwarded to applications.
+Quantization and driver gain critically affect this process.
+Quantization problems occur when input discretisation impedes performance.
+This arises in many aspects of scrolling, such as mapping from a constrained range of scrollbar positions to a large range of potential views, or the coarse scroll increments supported by notched scroll wheels.
+The impact of quantization has been examined in several pointing studies , but we are unaware of similar analysis for scrolling.
+Scrolling devices report raw events corresponding to the degree of a user's manipulation, which is translated into a magnitude of movement m  by software device drivers.
+The drivers can also attend to the reported m value and the time since the last event  and use these to apply transformations to the device events, typically using gain functions to improve performance.
+While there have been many studies of pointing gain , there has been little public research on scroll gain, with Hinckley et al.
+Their experiments demonstrate that their gain function improves scrollwheel performance.
+In this equation, y is the resultant gain, k1, k2, and  are constants, and t is the time between scroll events.
+The y gain value is used to multiply event magnitude m. For negative values of , this function caps gain to a maximum value of k1.
+Recognising the limitation of capped gain for long distance scrolling, Hinckley et al.
+This requires calibration of timeout values and threshold levels to distinguish small pauses from clutched reacquisition of the scrollwheel.
+We are unaware of any evaluation of the method, and we include it in Experiment 2.
+Abowd and Beale's interaction framework  subdivides interaction into translations from the user's motor actions to input events, from input events to system state, from state to output, and from output to perception.
+We use this framework to clarify scrolling activities and to classify prior research.
+Several previous studies have examined input device capabilities, including Buxton's analysis of position, motion, and pressure input for controlling multiple input dimensions , Card, Mackinlay and Robertson's morphological analysis of input , and Jacob et al.
+These analyses focus on pointing requirements, and none share our specific focus on document scrolling.
+Most scrolling devices are isotonic, using either linear or rotary movement to control absolute position, relative position, or rate of movement.
+Absolute position control assigns specific meaning to fixed locations: for example, touching the bottom of a trackpad slider might map directly to the bottom of a document.
+Relative position control normally involves manipulating instant-to-instant displacement , but it is can also be used to control displacement between a `marked' location and a tracked one, as is the case when using middle-button autoscroll to control scroll speed .
+With rate of movement control the velocity of interaction is the primary input parameter, with examples including the speed of gestural flicks on a touchscreen  and the speed of rotary movement .
+Applications are responsible for updating the display in response to events reported from the driver.
+The default behaviour is to adjust the viewport by the magnitude requested, but applications can apply other effects based on particular needs.
+Techniques such as these change the basic scrolling behaviour, adding side effects to scroll-based movement, such as zooming or path alteration.
+In contrast, our goal with DLD-gain is to improve performance of basic scrolling using ubiquitous devices such as scroll wheels.
+The three component functions are described below.
+SMF controls gain  during precise scrolling actions - it maps from the device velocity  to gain level using Equation 2.
+Figure 1 shows that this gives a rapid increase through fractional gain levels up to a capped constant level ks .
+Fractional gain allows devices that report line-based scroll increments to support pixel-level smooth scrolling.
+The parameter  determines the rate of gain increase, which could be set through a user preferences dialog.
+Note that Equation 2 is independent of document length, meaning that slow document movement is consistently controlled across all documents.
+In Human-Computer Interaction, gain functions are used to amplify the raw signals from a device to assist the user in achieving their tasks.
+The level of gain calculated by the function depends on some input parameter.
+For example, `pointer acceleration'  is a gain function whereby pointer movement is amplified dependent on mouse velocity - when the mouse moves quickly, the user is assumed to want to move far, so higher gain assists them in doing so.
+The specific goals of our document-length-dependent scrolling gain functions are as follows: Pixel-level control.
+Recent scrolling devices and drivers allow smooth document movement by reporting high resolution  scroll increments.
+Our gain functions enable smooth sub-line scroll increments even when the minimal scroll increment reported by the device/driver is an integral number of lines - the functions smooth out rough devices.
+Constant time for full document traversal.
+Regardless of document length, the gain function should allow the entire document to be traversed  in a nearconstant time.
+Without this property device efficiency is likely to decrease as document length increases.
+The gain function must remain efficient across all movement ranges - lines, paragraphs, pages, chapters, and entire books.
+Users must find the gain-modified device satisfying and comfortable for all movement ranges.
+The FPF function calculates gain  based on the proportion of the document that is visible in the viewport .
+High gain levels are therefore possible for long documents or for documents that are viewed when closely zoomed.
+This is analogous to the behaviour of the scroll thumb - the number of document lines traversed when dragging the thumb depends on the ratio of document length to viewport size.
+The constant kf allows adjustment of the maximum scrolling gain, and can be used to account for differences in device report granularity and for user preferences.
+Our gain method uses three functions to map from device velocity to a resultant gain level: a slow movement function , a fast proportional function , and a slow-tofast transition function , described below.
+As mentioned in related work, two parameters can be derived from each scrolling event - the magnitude of the movement  and the time since the last event .
+From these values we calculate a device velocity for each event , which is input to our functions to determine a gain level .
+The gain level is then used as a multiplier to the initial event magnitude to calculate a resultant scrolling distance .
+This approach differs to Hinckley et al.
+The SFTF function controls the transition between slow-movement and fast-proportional functions.
+It does so by linearly transitioning between the proportional contribution of the SMF and FPF gain functions , based on the proportion of maximum device velocity .
+This transition is shown in Figure 2, Equation 4 and the piecewise Equation 5.
+The gain calculation is shown in Equation 6.
+The overall effect of these functions is similar to an exponential mapping from v to g, but the gain onset is postponed until high velocities to assist users with document control when moving short distances.
+By understanding the characteristics of the event stream, simple procedures may adequately smooth event reports.
+Q3: Is it necessary to diminish events for over-sensitive devices?
+The slow movement function  is capable of generating fractional gain levels .
+These low gain levels allow pixel scrolling with devices that report integral line scroll increments, but importantly, they should also improve control of `twitchy' devices that report unexpectedly fast scroll speeds for small motor effects.
+The experiment answers these questions using four scrolling devices that use very different control mechanisms: a low-end traditional `notched' scrollwheel , an `inertia' freewheeling scrollwheel , two-finger scrolling on a trackpad , and a mouse-mounted isometric scroll knob .
+The potential drawback of the technique is that the fast proportional function  will produce high gain levels in long documents, which may cause control problems  when the initial threshold is accidentally attained.
+This effect will be more severe in long documents, since the interpolation gradient between the slow and fast functions will be steeper.
+To investigate and evaluate the idea of document-lengthdependent gain, we carried out two experiments.
+The objective of Experiment 1 was to understand important aspects of human control with four substantially different scrolling input devices, to characterise their event streams, and to use this data to calibrate the DLD-gain parameters identified in the previous section.
+Experiment 2 then validated DLD-gain by analysing human performance when using it; this study also examines the trade-off between fast long-distance movement and a steep interpolation function.
+Their participation lasted approximately 40 minutes.
+The experiment ran on an Apple iMac with a 21.5 display at 1920x1080 native resolution.
+The software was written in JavaScript and ran in Firefox 5.
+The drivers for each device were configured to use their lowest gain settings; we confirmed that these settings produced constant gain  by tracing function calls in the driver code1.
+Calibrating DLD-gain would be straightforward if all users had exactly the same physical capabilities, if these capabilities were identically expressed in upward and downward scroll directions, if device event streams were smooth, and if all devices produced exactly the same range of values in their event reports.
+None of these are likely to be true.
+Experiment 1 therefore answers several questions that are used to calibrate DLD-gain parameters, as follows: Q1: Is it necessary to separately calibrate vmax for different participants, directions, and devices?
+Equation 5 shows that vmax is a critical value controlling the transition between slow precise movement and fast proportional movement.
+If there is little variation between participants, directions, and devices then a single value would be sufficient for all, but if variation is substantial then individual calibration is necessary for participants, directions and devices.
+Q2: Is smoothing necessary to reduce noise in event streams?
+All participants used the four scrolling devices in both scrolling directions , completing all trials with one device before proceeding to the next .
+Participants completed NASA-TLX  worksheets after each device.
+With each device the procedure consisted of two repetitions  of the following activities: familiarisation, vmax calibration, and slow scrolling.
+Familiarisation with each device/direction combination consisted of four repetitions of operating the device to match the left-to-right velocity of a series of orange vertical lines shown inside a progress bar.
+Each vertical line traversed the progress bar in three seconds.
+The participant's control of scroll velocity was indicated by progressively shading the progress bar grey, with a green leading edge.
+An abstract representation of scroll velocity was used  to reduce transfer effects from prior scrolling experience.
+To calibrate maximum velocity with the device/direction combination, participants were prompted to scroll `As fast as comfortably possible'.
+They clicked a `Start' button then began operating the device as fast as possible.
+A progress bar automatically filled at a rate of 1/4 per second.
+This process was repeated four times in each direction, with the first trial discarded as familiarisation.
+The final condition prompted users to scroll "smoothly and slowly to match the shown rate", with a document displaying pixel-scrolling at 2.5 lines per second .
+They repeated the four second task four times.
+The trackpad and isometric event streams frequently included paired `corrective' events of small magnitude with extremely small t values , resulting in extremely high peak velocities.
+We account for these by summing t and m across events within a 10msec window.
+Two further steps were taken to smooth DLD-gain's performance in response to noisy event streams.
+First, our implementation sets vmax to the 70th percentile of velocity attained during maximum velocity calibration trials.
+Doing so means that vmax is an attainable velocity, rather than one that can only be accidentally hit when the device reports a `spike'.
+Second, to reduce the tendency for high variance in event stream velocities to produce jerky post-gain velocities, we average DLD-gain  over a window of w event reports .
+The event window is reset if no events are received for wt seconds  and when the scroll direction reverses.
+We analyse vmax variation between directions and devices using a 4x2 repeated-measures analysis of variance for factors input device and direction.
+The dependent variable is the average speed during each trial .
+We applied the Aligned Rank Transform for nonparametric factorial analysis  to accommodate a non-normal distribution.
+A device x direction interaction , was caused by inertia having a larger difference between up and down directions than other devices.
+These results demonstrate that device- and directiondependent vmax calibration is necessary.
+There was also substantial cross-participant variation in vmax, particularly with inertia and isometric devices.
+Figure 3 shows the range, median, mean, and interquartile range of vmax values across participants with the devices, suggesting that individual vmax calibration is important.
+Slow trials involved operating the devices to match the velocity of a document shown scrolling at 40 px/s.
+Event stream analysis showed that participants operated three of the devices at roughly twice the intended speed: 82, 69 and 82 px/s with notch, inertia, and trackpad.
+Isometric was extremely fast at 4835 px/s, which suggests that users will have difficulty with slow and precise movement unless its event reports are diminished - confirmed by Experiment 2.
+The absence of clutching with isometric best explains its low perceived workload.
+However, participant comments also stated that isometric was "too sensitive to control, need to highly concentrate on it", and "I never feel like I have good control even if I can match a target rate".
+Experiment 2 compares DLD-gain performance with `hinckley' gain .
+We used Hinckley et al.
+Experiment 2 Part 1 compares performance with three devices when using DLD-gain and when using Hinckley's gain functions.
+The devices were notch, inertia, and isometric, with trackpad discarded for expediency due to its calibration similarity to notch in Experiment 1.
+As our research objective is to improve performance of scrolling devices, other methods for scrolling  were disabled.
+The experiment analyses performance across scrolling distance and direction.
+Pilot testing demonstrated that long distance scrolling with Hinckley's function can be prohibitively time-consuming, so to avoid prolonged and frenetic use of the device, trials were capped at 15 seconds.
+We validate DLD-gain in a three-part experiment.
+The first part compares performance with three devices using DLDgain against that of the same devices using Hinckley's gain functions.
+It uses an extremely long document  that will cause DLDgain to produce very high gain levels when the user exceeds the initial speed threshold - DLD-gain is therefore likely to be `twitchy' at medium speeds.
+Part 1's hypothesis is: H1: DLD-gain improves performance compared to Hinckley's gain functions in an extremely long document.
+Hinckley's gain functions are used as the comparator because they represent the state-of-the-art - they are known to improve performance with notched scrollwheels , and our pilot testing demonstrated that they radically improved performance with inertia and isometric devices, particularly for long distances.
+Part 2 of the experiment analyses user performance with DLD-gain when scrolling in shorter documents, testing the following hypothesis.
+H2: scrolling performance with DLD-gain improves as document length decreases.
+Finally, when switching between documents of different lengths user performance and preferences may be adversely affected by `unpredictable' gain.
+This is tested in Part 3: H3: user performance with DLD-gain is not adversely affected when switching between document lengths.
+These hypotheses are tested using Hinckley et al.
+The target line is indicated by showing a mark at its location in the scroll trough and by highlighting the target line green .
+A target is acquired by pressing the space bar when the target line rests within a marked central region of the viewport .
+Pressing the space bar when the target is outside the target region constitutes an error, and the trial continues until successfully acquired.
+The primary dependent measure is acquisition time, with a secondary dependent measure for number of target overshoots and undershoots .
+Data are analysed using a 2x3x5x2 ANOVA for within subjects factors input device, gain, distance, and direction:  {hinckley, DLD}x Gain Input device  {notch, inertia, isometric}x  {7, 49, 343, 2401, 16807}x Distance  {up, down}x3 repetitions Direction With each device, participants completed nine device familiarisation trials with no gain.
+They then completed a vmax calibration for the up and down directions using the same procedure as Experiment One.
+The main experimental trials consisted of six selections at each of five levels of distance, with shorter distances preceding longer ones.
+All trials with each input device were completed before moving on to the next input device, within which, all trials with each gain level were completed before moving on to the next gain.
+Six orders of input device and gain were balanced using a Latin square.
+DLD-gain was much faster, especially when considering that nearly all long distance hinckley trials were prematurely terminated by the 15 second cap.
+To produce an estimate of how long it would have taken participants to complete the 16807 distance trials using hinckley, we used the distance completed during the 15 seconds of scrolling to calculate an average speed, and extrapolated for the remaining distance.
+This produces a mean estimate of 33 seconds for notch, 21 seconds with inertia, and 85 second with isometric, suggesting that long distance scrolling is impractical using hinckley gain.
+Regardless of DLD's faster overall performance, its slightly worse performance at the 343 line distance is notable .
+We attribute this to participants accidentally hitting the initial threshold and consequently experiencing high gain levels due to the extreme document length strongly influencing Equation 3.
+This explanation is supported by scrolling path analysis, which shows significantly higher target overshooting with DLD .
+Note that the number of overshoots characterises interaction but does not necessarily imply a performance problem - for example, a rapid ballistic phase of movement will promote overshooting, while gradual slow target approach will not.
+As the isometric device was shown to be particularly sensitive in Experiment 1, we conducted a planned comparison between DLD and hinckley for it at the shortest distance, revealing means of 1.57s with DLD and 2.1s with hinckley .
+Although further analysis is required, this suggests that DLD's slow movement function can be effective in aiding slow precise control.
+Subjective responses for workload  favoured DLD.
+Table 2 summarises these values, showing that where significant differences were detected, they all favoured DLD.
+The table suggests that participants found DLD most beneficial with the notch device for which physical and temporal workloads were particularly high with hinckley.
+Participants showed higher mean values for success when using DLD with all devices, and they rated it significantly higher for comfort.
+The experiment ran on a Microsoft Window 7 PC with a 22 display at 1680x1050 native resolution.
+The experimental software was written in JavaScript and ran in Firefox 6.
+Device drivers were configured to produce constant gain .
+The document used for the study was 20,000 lines of raw text from David Hume's A History of England.
+At the longest scrolling distance  most trials were automatically terminated before the 15 second time cap with hinckley , but comparatively few were automatically terminated with DLD .
+In the following analysis the time cap value of 15 seconds is inserted for all time capped trials .
+Direction was found to have no significant effects or interactions, so we collapsed the analysis across direction and report results of a 2x3x5 ANOVA for gain, device, and distance.
+Importantly, all interactions were also significant.
+The figures show that hinckley gain was slightly faster than DLD-gain for most short scrolling distances.
+Participants' comments reinforced these findings.
+One participant stated that when using hinckley with the notch device there was "strain on finger, particularly index" and "very slow scrolling far away".
+Another stated that hinckley with the isometric device was "Hard to manipulate".
+However, several participants commented on overshooting problems with DLD: "kept over scrolling, hyper sensitive" and "didn't like how it jumped when I was close to target."
+ANOVA of overshoots  shows the same statistical effects, with overshooting much more prevalent in the 20,000 line document.
+DLD's slight performance disadvantage for short distances and its substantial advantage for long distances  are indicative of a performance trade-off.
+When navigating long documents such as manuals, users are likely to need to move large distances , and these results show that for movements exceeding 10 pages , DLD substantially outperforms hinckley.
+Part 2 examines DLD's performance in shorter documents.
+Hypothesis 2 examines DLD-gain's performance in shorter documents .
+For expediency, experiment parts 2 and 3 were conducted using only the inertia device .
+Participants completed trials at a subset of Part 1 distances  in a 600 line document and in a 6000 line document .
+Trials were otherwise administered exactly as for Part 1, with the same progression through increasing movement distances and repetition of the two directions.
+We conducted planned comparisons between hinckley inertia data from Part 1 with DLD 600 and DLD 6000 data from Part 2, using separate 2x3 RM-ANOVA for gain and distance.
+There was also a significant gainxdistance interaction  due to performance with hinckley-inertia deteriorating more rapidly across distance than DLD.
+Comparison of DLD performance in the 6000 line document with hinckley-inertia shows no main effect of gain, but a significant gainxdistance interaction .
+Analysis of overshoots showed no significant effects involving gain.
+These results suggest that DLD-gain outperforms Hinckley gain with the inertia wheel in a ten page document.
+This supports the explanation that DLD's slightly worse performance than Hinckley gain in middle-distance scrolling in Experiment 2 Part 1 was due to the performance trade-off in allowing rapid extremely long distance scrolling at the cost of `twitchy' performance in middle distance scrolling.
+Experimental concerns with this assessment are presented in the Discussion.
+The change in gain behaviour is analogous to switching between different mouse gain settings, which temporarily disrupts pointing performance.
+This order was used to maximise abrupt transitions between document lengths, and therefore maximise changes in DLD-gain behaviour.
+To allow a comparison between scrolling times when working within one document and when switching between document lengths, we compare data from Part 3  with data from the same distance and document length combinations in Experiment Parts 1 and 2 .
+Acquisition time data are analysed using a 2x4 RMANOVA for factors task-type and distance-length.
+The levels of task-type are non-switching and switching, with non-switching data extracted from the equivalent conditions in Parts 1 and 2 .
+Figure 8 summarises the results.
+There were no significant negative effects of switching between different document lengths.
+There was a marginal task-typexdistancelength interaction , but as Figure 8 shows, this is due to switching being faster than nonswitching trials at the longest distance-document combination, which  is likely due to participants becoming more familiar with the inertia device later in the experiment.
+First, we will compare DLD-gain with previous gain functions in typical document lengths.
+Experiment 2 Part 2 demonstrated that performance with DLD-gain improves in shorter documents, but we also compared DLD results from Part 2 with Hinckley gain results from Experiment Part 1.
+This comparison is reasonable because Hinckley's gain functions are not affected by document length, but there are risks of learning effects and of task prompting effects .
+We are confident that direct comparisons with short documents will confirm the results.
+Our second main area for further work is to conduct these comparisons with multiple devices.
+Third, an important part of the motivation for DLD-gain was to enable scrolling devices to support the full range of scrolling activities, regardless of distance.
+We think DLDgain achieves this objective, but in future work we will seek empirical evidence demonstrating the use of DLDgain enhanced devices in favour of dragging the scroll thumb.
+The results of Experiment 2 show that DLD-gain allows faster scrolling in extremely long documents than existing state-of-the-art gain functions, that its performance is faster still in more typical document lengths, and that performance is not harmed by switching between documents of different lengths.
+Subjective preferences were also favourable.
+These are good results, which suggest that the utility of scrolling devices such as scroll-wheels can extend far beyond their commonplace restriction to short-distance movement.
+The following paragraphs describe challenges to general use of DLD-gain, and areas for further work.
+DLD-gain requires information about document length and viewport size that is unavailable to device driver software.
+It is most likely that DLD-gain would be implemented by particular applications or interface toolkits.
+This raises three concerns: first, how could application designers calibrate their software to work with many different devices; second, how would users adapt to inconsistent scrolling across applications; and third, how does DLDgain interact with different device gain settings?
+For calibration parameters, without changes to driver protocols, the application would need to support a table lookup dependent on automatic device detection or userspecification of their main device.
+The second issue of inconsistent scrolling behaviour seems relatively minor as many applications already support scrolling enhancements that result in varied performance.
+Experiment 2 Part 3 also provided preliminary evidence that users are robust to sudden large changes in scrolling gain behaviour.
+Finally, many research systems are known to improve scrolling performance, with several using some form of zooming output effect  or oscillatory input gestures .
+DLD-gain is different in that it maintains traditional mechanisms for scrolling input and output.
+However, empirical comparison with these and other techniques remains interesting.
+Specific devices for scrolling, such as scrollwheels, are provided on most pointing devices, but there has been surprisingly little publicly accessible research into improving their performance.
+Consequently, these devices have limited applicability, and in particular, they become inefficient for long distance scrolling.
+We presented three gain functions, collectively called document-lengthdependent gain, that improve performance with scrolling devices.
+They do so by making the maximum attainable gain level a function of document length, which allows long documents to be traversed quickly.
+Experimental results demonstrated that the technique improves performance and preferences over existing gain methods in a variety of document lengths and navigation distances.

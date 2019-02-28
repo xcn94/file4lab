@@ -1,0 +1,245 @@
+We present the Implicit Fan Cursor  - a novel target pointing technique using a cursor with a fan-shape activation area.
+The IFC couples the cursor's activation area with its velocity, i.e., the speed and direction of the mouse motion, behaving like a 2D spotlight cursor at low speed and a circular area cursor at high speed.
+Thus, it enables the user to precisely acquire distant targets at low speed and easily acquire nearest targets at high speed, without explicit mode switching.
+This technique minimizes cursor movement, while taking into consideration of the precision of cursor movement at different speeds.
+It also ensures that only one target is captured at any time.
+The results of our controlled experiments show that the IFC outperforms the point cursor and the area cursor techniques, particularly in terms of cursor moving distance, and that its performance can be accurately modeled using the Fitts' law.
+However, they are sensitive to the density and layout of the interface components, and their performance degrades if the target to be captured has multiple nearby objects.
+As it is common to have non-uniform target distributions and clusters of small targets in GUIs, these techniques may not always provide a performance improvement over the traditional point cursor.
+Recently, there are some techniques proposed for dense target environments.
+They include techniques that are based on expanding the size of the targets   , dynamic controldisplay ratio  and multiple cursors .
+A promising technique developed from the area cursor   is the Bubble cursor .
+It dynamically adjusts the cursor's activation area such that only the closest target is captured.
+This is equivalent to expanding the boundary of each target to the Voronoi cell with the target center being the cell center, such that the Voronoi tessellation defined by all targets fills the whole desktop space.
+This maximizes the effective sizes of all targets.
+To allow the selection of the empty space between targets and reduce rapid changes of cursor size, another technique based on the area cursor, called Dynaspot , couples the cursor's activation area with its speed, behaving as a point cursor at low speed and a circular area cursor at high speed.
+However, this technique limits the maximum size of the circular area, and thus the cursor still needs to travel a long way to access distant targets even in a sparse desktop environment.
+In this paper, we present the Implicit Fan Cursor , a new type of area cursor that couples the cursor's activation area with its velocity, i.e., its speed and direction of motion, as illustrated in Figures 1 and 2.
+It has a fan-shape activation area to allow the user to capture the target easily with minimal cursor motion .
+The spanning angle of the cursor's activation area grows as a function of its speed to a maximum span of 180 degrees, and the orientation of the activation area is determined by the cursor's moving direction .
+At low speed, the fan cursor behaves as a spotlight cursor, enabling the user to precisely acquire distant targets , while at high speed, it behaves as a semicircular area cursor, allowing the user to easily approach the targets along the specified rough orientation .
+To isolate the intended target from others, the spotting distance of the cursor is dynamically and automatically adjusted such that at any time only one target is captured.
+After reviewing the related work, we discuss the design and implementation of the IFC, and evaluate its performance.
+Results show that the IFC outperforms the traditional point cursor and some popular area cursor techniques in both sparse and dense desktop environments.
+Finally, we show that the performance of the IFC can be modeled with the Fitts' law.
+In graphical user interfaces , target pointing is a fundamental task for acquiring interface components such as buttons, menu items and icons.
+With the increase in both size and resolution of computer displays, it becomes less efficient for a user to acquire small interface elements over the large display screen with the traditional point cursor.
+Several techniques have been proposed in recent years to address this problem and to improve pointing performance.
+One of the approaches is to reduce cursor movement by directly altering the cursor or target locations   .
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Another cursor jumping technique, the Delphian desktop , estimates the user's intention based on the movement direction and the peak velocity of the cursor and allows the cursor to jump over obstructive objects.
+All these techniques are sensitive to the target layout and density.
+Their performances are also heavily dependent on the accuracy of the target prediction algorithms used.
+In , an improved endpoint prediction method is proposed.
+It can predict target regions with an accuracy of up to 42%.
+Our method is similar to the jumping cursor techniques in that we also aim at reducing the cursor travel distance in a sparse desktop.
+However, instead of jumping among the potential targets, our method provides a smooth cursor movement with intuitive orientation control.
+Multiple Cursors: These methods employ multiple cursors for target selection.
+The Ninja Cursor  consists of multiple cursor instances distributed over the screen and concurrently controlled by the same input device.
+This essentially reduces the movement distance, i.e., between the target and its nearest cursor.
+Another multi-cursor technique, the Rake Cursor , captures also the gaze position to help identify the current active cursor.
+The main limitation of the multi-cursor techniques is that they increase the total number of visual elements on the screen, leading to possible visual distraction.
+The need to search for the active cursor introduces extra focus switching and may increase the overall interaction time.
+W is the target width.
+1 indicates that the movement time decreases if the size of the target increases or the distance needed to travel to acquire the target decreases.
+Hence, we may improve the efficiency of pointing tasks either by reducing the movement amplitude A, increasing the target width W , or a combination of both.
+In this section, we review these three approaches for improving pointing efficiency.
+Increasing the target size: These methods attempt to speed up target pointing by directly increasing the size of the potential targets.
+The len-based cursors  magnify nearby objects in the visual space, i.e., screen space, where the information is displayed, but not in the motor space, i.e., device space, where the physical movement takes place.
+Thus, it still takes a similar amount of movement time for the cursor to reach the target.
+Other methods involve increasing the target size in both visual and motor spaces when the cursor approaches any potential targets.
+In , target expansion is shown to facilitate pointing even if it occurs as late as after 90% of the movement has been completed.
+Experiments in  show that for small targets, visual expansion in unaltered motor-space has similar performance gains as enlarged motor-space.
+Area Cursors: These methods attempt to speed up target pointing by using an area cursor with a larger activation region , instead of a single-pixel hotspot as in the traditional point cursor.
+This is similar to increasing the effective target size.
+It makes pointing easier, but may capture multiple objects, leading to ambiguities.
+This problem can be solved by integrating a point cursor into the area cursor , or by interactively adjusting the cursor area on multi-touch input .
+The Bubble cursor  improves the area cursor by dynamically resizing its activation area depending on the proximity of surrounding targets, such that only one target is captured at any time.
+This is equivalent to partitioning the empty space into a Voronoi tessellation defined by all targets, thus maximizing the activation area of each target.
+Jumping Cursors: These methods attempt to reduce the movement amplitude A by directly altering the cursor or target locations.
+The drag-and-pop technique  temporarily brings the potential targets closer to the cursor when an object is being dragged.
+Several variations of the Bubble cursor have been proposed  .
+Recently a speed-dependent area cursor technique, named Dynaspot , is proposed.
+It behaves as a point cursor at low speed and an area cursor at high speed, and thus allows pointing anywhere in the empty space without requiring an explicit mode switching.
+Our approach is also based on a dynamic area cursor.
+However, unlike previous area cursor techniques, our technique utilizes both the cursor speed and orientation information to control the shape of the cursor's activation area.
+It allows overlapped  effective target widths, and the user can seamlessly switch between the low-speed spot light mode and the high-speed area mode.
+The Beam Cursor  is a pen-based technique, which exploits the sliding motion and allows selection of the nearby targets in the moving direction of the pen-tip.
+This is similar to our proposed approach in the sense that both techniques use the cursor moving direction as input.
+However, the Beam Cursor also requires the first landing position of the pen-tip to segment the screen into selectable regions.
+This information is typically not available with a traditional mouse.
+To ensure that only one target is captured by the activation area at anytime, the radius of the fan is automatically set to the distance of the nearest target that the fan cursor reaches.
+Previous area cursor techniques usually capture the nearest target, without considering the dynamic motion information of the cursor, e.g., the Bubble cursor as shown in Figure 1.
+The IFC allows the user to focus on targets along the movement direction and thus to select a target that may not be nearest to the cursor as shown in Figure 1.
+This means that the effective size of the targets can be larger than the corresponding Voronoi cells defined by all target centers.
+Such a Voronoi tessellation was previously considered as the "maximum" effective size of a given target set .
+By utilizing the cursor's motion information, the effective areas of the targets could now be overlapped, allowing the user to pick a nonobscured target with minimum cursor movement and without the need to move the cursor to the Voronoi cell of the desired target, as shown in Figure 1.
+As a result, individual targets have extended effective widths that are much larger than their corresponding Voronoi cells.
+According to the Fitts' law, the IFC could facilitate more effective pointing performance than other area cursor techniques, which give relatively smaller effective widths.
+To reduce visual distraction, we do not display the fan-shape activation area.
+We only highlight the captured target.
+We have conducted a preliminary user study on three display styles and confirmed that not displaying the activation area as shown in Figure 3 gives the best performance, compared to displaying a circular cursor  or our fan cursor .
+Hence, the fan-shape activation areas shown in Figures 2 and 1 are only for illustration.
+They are in fact invisible to the user.
+This is why we name the new method as the Implicit Fan Cursor.
+Note that it is easy for the user to identify the captured target as it is highlighted with an expanded contour, which has the same translucent color as the circular cursor shown in Figures 3 and 3.
+This is similar to the approach taken by the Bubble cursor .
+There are several pointing techniques that are based on dynamically adjusting the control-display ratio, thus changing the underlying movement amplitude as well as target width.
+Sticky icons  and Semantic pointing  slow down the cursor when approaching a selectable target, thus increasing the underlying target width for easier acquisition.
+However both techniques are sensitive to the layout and density of the targets.
+While they work well in a sparse desktop environment, problems may arise when targets are clustered, as some targets located along the path to the intended target may slow down the cursor movement.
+The Vacuum  dynamically controls the positions of the prospective targets.
+Similar to IFC, the Vaccum uses a fan shaped area to determine the potential targets.
+The difference is that the Vaccum attempts to reduce the movement distance by drawing the targets towards the cursor.
+Animation is applied to smooth the visual state transition.
+This method significantly reduces the selection time of distant targets, while making no significant improvements when selecting nearby targets.
+The Implicit Fan Cursor is based on the area cursor technique    , and is designed to facilitate efficient target selection with minimum cursor movement.
+It dynamically adjusts the spanning angle and orientation of the cursor's activation area to model different selection styles, i.e., behaving as a spotlight to search for targets with precise orientation control or behaving as an area cursor to search for nearby targets with rough orientation control, without requiring any explicit mode switching.
+The IFC is inspired by a number of speed-dependent techniques that have successfully made use of the cursor's dynamic characteristics, including Dynaspot , interactive zooming  , and the sigma lenses .
+With a smaller spanning angle at low speed, users can have a more precise orientation control, reaching distant targets with only small cursor movements.
+For example, in Figure 2, the cursor at point A only needs to travel a short distance to point B to capture target 2.
+At high speed, the cursor behaves as a semi-circular area cursor and allows rough but effective target selection.
+For example, target 4 in Figure 2 can be captured by moving the cursor from point C to the target location roughly, as the spanning angle is maximized at high speed.
+We have conducted a preliminary user study to determine the most suitable minimum and maximum spanning angles, and found that setting M inSpan and M axSpan to 90 degrees and 180 degrees, respectively, gives the best performance.
+If the cursor speed is less than a speed threshold M axSpeed, the spanning angle  of the fan-shape activation area is linearly proportional to the cursor speed s. When the cursor exceeds M axSpeed, the fan reaches the maximum spanning angle M axSpan.
+When the user stops moving the mouse, the spanning angle will linearly decrease to M inSpan in one second if no targets are captured.
+Otherwise, the fan will keep its spanning angle unchanged to avoid undesirable deselection of the captured target.
+We have found that setting M axSpeed to 1200 pixels/s  works fine in all our experiments.
+Since the captured mouse positions can be noisy, in particular during mouse clicking, we apply a simple Exponentially Weighted Moving Average  operation to smooth out the noisy samples collected.
+The EWMA operation averages recent velocity values with exponentially decreasing weights for past velocity values.
+Specifically, the smoothed velocity v t of the cursor at the current time t is computed as: v t =  vt-1 + vt  where 0    1 is the weight.
+Note that the noise caused by mouse clicking typically has small magnitudes, which can be easily filtered out by the EWMA.
+Hence, the spanning angle of the activation area grows from a point cursor when the user starts moving the mouse, and the user may select or click at the empty space when the cursor is not moving.
+Though it is an interesting topic to study the usability and performance of empty space pointing, the main focus of this paper is on the target acquisition performance of the IFC, and we leave this study as a future work.
+Sixteen circular candidate targets of 32 pixels in diameter were evenly distributed on a circle of 300 pixels in radius centered at the screen center, as shown in Figure 4.
+At the start of each pointing task, a pair of opposite start and goal targets drawn in yellow and green colors, respectively, were randomly selected from the candidate targets.
+Participants were asked to first click at the start target and then the goal target.
+When a target is captured, it changes to red color.
+In order to approximate a more realistic target acquisition scenario, four distracter targets were placed around the goal target.
+Two were placed along the direction of movement with one on each side of the goal target, while the other two were placed perpendicular to the direction of movement.
+The distracters were of the same size as the goal target and were 64 pixels away from it.
+Note that a task would be counted only if the user clicked at the goal target immediately after clicking at the start target.
+If he mistakenly clicked at a wrong target, e.g., one of the distracters, before clicking at the goal target, this task would be disqualified.
+Our experiment was a one-factor within-participant design.
+Each participant performed the experiment in one session lasting for approximately half of an hour.
+The session is divided into groups of different spanning angle configurations.
+We have also conducted another preliminary study to evaluate how different display styles  may affect the performance of the IFC.
+Note that for all display styles we tested here, the underlying cursor activation area was always in fan shape, using the same spanning angle configuration of ; we only changed how the cursor is visualized on the screen.
+Before starting the experiment, each participant was given a single 5-minute warm-up session to get familiar with the interface.
+A total of 1,800 pointing tasks were performed in this experiment, with each participant performing a total of 300 tasks.
+Note that the implicit display style  was used in this preliminary study.
+We used the same pointing task as described in preliminary study 1.
+Each participant was asked to perform 50 pointing tasks in each of the three display styles: fan-shape, circular and implicit style, and they were ordered with balanced Latinsquare.
+Before starting the experiment, each participant was given a single 5-minute warm-up session to get familiar with the interface.
+A total of 900 pointing tasks were performed in this experiment, with each participant performing a total of 150 tasks.
+The effect of spanning angle configuration was explored by analyzing two dependent variables, movement time and error rate.
+Table 1 shows the mean movement time and the error rate of each configuration.
+We observe that the movement time is generally shorter for larger spanning angles in both M inSpan and M axSpan.
+This is due to the fact that a smaller spanning angle typically requires a more precise orientation control on the mouse, thus leading to longer manipulation time.
+However, some participants commented that a fan cursor with spanning angle greater than 180 degrees might capture targets behind the cursor, leading to non-intuitive jumping behavior.
+This explains that the pointing performance slightly degrades when the maximum spanning angle is higher than 180 degrees.
+As such, we suggest to limit the maximum spanning angle to 180 degrees, which ensures that only targets in front of the cursor will be captured.
+For the remaining experiments, we only show results from the  configuration, unless specified otherwise.
+Table 2 shows the mean movement times and the error rates of different display styles.
+Some participants commented that both the fan-shape and circular cursors caused visual distraction, due to their continuous changing sizes.
+They drew user attention, causing unnecessary focus switching between the cursor and the targets.
+For the fan-shape cursor in particular, the fan-shape activation area distracted them from the selection of the desired target to the manipulation of the cursor orientation.
+Overall, we have found that the implicit cursor performs the best.
+Hence, we used this display style in the main experiment to compare our technique with other representative techniques.
+After determining the spanning angles and the display style, we conducted the main experiment to quantitatively evaluate the performance of the IFC.
+We compared it with the point cursor, which served as a baseline, the Bubble cursor  and the Dynaspot  , which are two of the most popular area cursors.
+We created two groups of distracter targets.
+They were set to the same size as the targets and drawn as black outlined circles.
+One group of four main distracters are placed around the goal target to control the potential effective width of the goal target.
+We use a parameter RotaAngle to determine the locations of these four main distracter targets.
+If RotaAngle = 0o , two are placed along the direction of movement with one on each side of the target, while the other two are placed perpendicular to the direction of movement, as in the preliminary study.
+If RotaAngle is not equal to 0o , we simply rotate the four distracter targets about the goal target in clockwise direction by the corresponding angle.
+The second group of distracters are placed along the path from the start target to the goal target.
+They are distributed around a 20o slice originating from the start target to the nearest main distracter so as to match a density condition DD.
+If DD = 1, we pack the slice with distracters such that the distracters do not overlap each other.
+If DD = 0.5, we place half of the number of distracters as in DD = 1 within the slice.
+If DD = 0, we place zero distracters.
+After placing the distracters within the slice, we then place similar density of distracters outside the slice.
+Figure 5 shows such an example.
+W, DistracterRatio and RotaAngle, we directly examined how these different factors affect the performance of each pointing technique here.
+Each participant performed the experiment in a single session, which was divided into groups of different pointing techniques.
+Each TECH group was further divided into 3 subgroups, one for each amplitude A.
+Each subgroup A was divided into 3 blocks, one for each target width W. In each block, participants completed a total of 27 combinations of DistracterRatio, RotaAngle and DD, presented in order.
+Each participant needed to perform 5 pointing tasks for each possible combination of all the factors.
+A total of 77,760 pointing tasks were thus included in the analysis.
+In the experiment, the TECH condition was counterbalanced with Latinsquare, and A and W conditions were arranged in random order.
+Before using each technique, participants were given a single 5-minute warm-up session to get familiar with the technique and the tasks.
+They were given a 10-minute break after each TECH group.
+On average, each participant took approximately 3 hours to complete the whole experiment.
+The screen layout of the main experiment.
+The yellow circle is the start target, while the green circle the goal target.
+The four grey circles are the main distracters, which are used to control the potential effective width.
+Note that the grey color for the main distracters and all the lines shown in the diagram are for illustration only.
+In the experiments, there were no lines and all the distracter targets were black outlined circles.
+Our experiment was a 4x3x3x3x3x3 within-participant design with the following factors:  four techniques TECH for comparison: IFC, Dynaspot, Bubble cursor and Point cursor;  three amplitudes A: 256, 512 and 768 pixels;  three target widths W: 8, 16 and 32 pixels; three DistracterRatios: 1.5, 3 and 5 ;  three rotation angles RotaAngle: 0o , 22.5o and 45o ;  three distracter densities DD: 0, 0.5 and 1.
+We note that some of the factors  are related to the overall target density, and we could have used a general density factor in the experiment instead .
+Table 3 shows results of the repeated measures analysis of variance on movement time.
+We only show factors with significant effects of the ANOVA results and skip those insignificant ones.
+We can see that TECH, A, W and DistracterRatio have significant effects on the movement time.
+The IFC was the fastest among all four techniques.
+The following significant interactions are also observed: TECHxA, TECHxW, TECHxDistracterRatio and TECHxRotaAngle.
+This shows that different techniques were affected differently by the factors.
+We have performed a Tukey HSD post-hoc test on the differences in mean movement time among the four techniques.
+Results show that IFC, Bubble and Dynaspot are significantly faster than the point cursor and there are no significant differences in movement time among IFC, Dynaspot and Bubble.
+In addition, there are no significant differences in movement time among IFC, Dynaspot and Bubble for all W values, and the three techniques are significantly faster than the point cursor at most W values.
+However, when W=32, there is no significant difference between Dynaspot and the point cursor.
+This may be due to the fact that the ratio of potential effective width  to target width W is relatively small for Dynaspot when the target width is large, and thus the advantage of Dynaspot over the point cursor becomes less obvious.
+Here, we have a hypothesis that the potential EW of the four techniques determines their performance ordering, i.e., a technique with a larger potential EW should perform better than the other techniques under the same amplitude A and width W. Figure 6 middle shows the movement times of different techniques grouped by different movement amplitudes A.
+A Tukey HSD post-hoc test on the differences among the technqiues TECH by amplitude A  shows that the movement time increases significantly as the amplitude increases for all four techniques.
+In addition, there are no significant differences among IFC, Dynaspot and Bubble for A = 256 or A = 512.
+The test reveals that IFC is significantly faster than Dynaspot when A = 768.
+The reason may be that Dynaspot has a fixed maximum activation area and thus a fixed potential EW  for each W. For large amplitude, Dynaspot still has to move near to the goal target to capture it.
+This also indicates that the potential EW of each technique determines the performance ordering among the techniques.
+Figure 6 right shows the movement times of different techniques grouped by different distracter ratios.
+A post-hoc test  reveals that IFC, Dynaspot and Bubble are significantly faster than the point cursor for all distracter ratios, and that IFC is significantly faster than Dynaspot and Bubble for DistracterRatio = 5.
+This may be due to the fact that Dynaspot and Bubble have fixed potential efficient widths, although Bubble has a larger one than Dynaspot.
+However, the IFC can provide a larger potential EW than Bubble as a result of coupling movement-fan orientation.
+Figure 7 shows the movement times of different techniques grouped by different RotaAngle values.
+The post-hoc test reveals that IFC, Dynaspot and Bubble are significantly faster than the point cursor for all RotaAngle values, and that there is no significant different among IFC, Dynaspot and Bubble .
+To further explore the performance differences among the techniques by different factors, we have performed a post-hoc test of the techniques by both distracter ratios and RotaAngle values .
+The test shows that for distracter ratio = 5 and RotaAngle = 45, IFC performs significantly faster than both Bubble and Dynaspot.
+Because in this situation, IFC can provide significantly larger potential EW than Bubble and Dynaspot and thus performs significantly better.
+We have also found that for Distracter Ratio = 3 and RotaAngle = 45, there was not any significant difference between IFC and Bubble.
+A possible explanation is that IFC and Bubble are likely to first capture either one of the two main distracter targets, which are located between the start target and the goal target.
+However, the potential EW of Dynaspot is independent of the cursor location.
+Figure 8 shows the mean potential EW of different techniques grouped by the combination of W values and distracter ratios.
+For the point cursor, the potential EW is the same as the target width.
+For Bubble, the potential EW is determined by the multiplication of the target width and the distracter ratio.
+Unlike Bubble and Dynaspot, the potential EW of IFC is determined by both the distracter ratio and the cursor velocity, and is always larger than than of Bubble, which was previously considered as the maximum effective width.
+Since it is difficult to define the potential EW of IFC, we approximate it in each selection task as the distance between the cursor and the target at the time when a participant clicks and selects the target correctly.
+Note that this approximation is posteriori and is always smaller than the priori potential EW defined by the target configuration when IFC is being used.
+Nevertheless, we can see that for all W values and distracter ratios, the posteriori effective widths of IFC are still larger than the  potential EW of all other techniques, and IFC always has the smallest movement time, as shown in Figure 9.
+We have also computed the covered distance, which is defined as the physical distance travelled by the cursor to acquire the goal target, of the four techniques.
+The overall mean covered distance was 467 pixels for IFC, 525 pixels for Bubble, 538 pixels for Dynaspot and 648 pixels for the point cursor.
+Figure 10 shows the mean covered distances of different techniques grouped by the combination of W values and distracter ratios.
+We can see that for all W values and distracter ratios, IFC has the smallest covered distance.
+A Tukey HSD post-hoc test was performed and no significant differences among IFC, Bubble and Dynaspot were detected.
+However, IFC was the most accurate among all four techniques.
+Participants were asked to rank the techniques by subjective preference in a post-hoc questionnaire.
+Thirteen participants ranked the IFC as their preferred technique, while three ranked Bubble as their preferred technique and IFC as second.
+Most participants complained about the visual distraction caused by the Bubble cursor as the cursor becomes extremely large in a sparse environment.
+Voronoi cells, which was previously considered as the maximum effective width in other area cursor techniques.
+The implicit property of our fan cursor reduces unnecessary visual distraction and allows users to focus on the target being captured.
+During a typical target pointing operation, the user's focus may be jumping among the selectable targets.
+However, our technique provides a better control over the prediction-based jumping cursor techniques because our acquisition of targets is controlled by the underlying smooth cursor movement.
+The results of our controlled experiments show that the IFC is a promising pointing technique with performance advantages over existing area cursor techniques, particularly in terms of cursor moving distance.
+In addition, the performance of our technique can be accurately modeled using Fitts' law.
+As a future work, we would like to evaluate our method in broader application scenarios, e.g., empty space pointing and target selection in 3D virtual environment.
+We would also like to investigate the effectiveness of a content-aware fan cursor, which may adjust the spanning angle according to both cursor velocity and local target density.
+Figure 11 plots the movement times of the four techniques as a function of the index of difficulty .
+Note that the effective target widths, as defined in the previous section, are priori for Bubble and Dynaspot.
+However, the effective width for IFC was measured during the experiment, which is posteriori.
+We take the mean for each amplitude, width and distracter ratio, fitting 27 points to each technique as shown in Figure 11.
+Table 10 lists the intercept, slope and r2 values for each technique.
+We can see that all techniques fit the linear model with resonable r2 values.
+From Figure 11, we may conclude that the performance of the IFC can be modelled using Fitts' law.
+This paper introduces a new target acquisition technique that is based on a velocity-dependent dynamic area cursor.
+Our key contribution is the utilization of the orientation and speed information of the cursor movement to dynamically update the cursor's activation area.
+We thank all the reviewers of this paper for the insightful comments and constructive suggestions.

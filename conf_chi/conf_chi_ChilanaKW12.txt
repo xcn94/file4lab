@@ -1,0 +1,261 @@
+Web-based technical support such as discussion forums and social networking sites have been successful at ensuring that most technical support questions eventually receive helpful answers.
+Unfortunately, finding these answers is still quite difficult, since users' textual queries are often incomplete, imprecise, or use different vocabularies to describe the same problem.
+We present LemonAid, a new approach to help that allows users to find help by instead selecting a label, widget, link, image or other user interface  element that they believe is relevant to their problem.
+LemonAid uses this selection to retrieve previously asked questions and their corresponding answers.
+The key insight that makes LemonAid work is that users tend to make similar selections in the interface for similar help needs and different selections for different help needs.
+Our initial evaluation shows that across a corpus of dozens of tasks and thousands of requests, LemonAid retrieved a result for 90% of help requests based on UI selections and, of those, over half had relevant matches in the top 2 results.
+Among the long history of approaches to software help, perhaps the most powerful approach is crowdsourced help.
+With crowdsourced help , users can help each other answer questions in discussion forums, mailing lists, or within their online social networks.
+Such resources reinforce the social nature of technical support that users tend to prefer  and companies also benefit, as they have to expend fewer resources on support.
+While crowdsourced help is powerful at generating answers to help questions, locating useful answers from past discussions can be difficult.
+First, questions and answers are scattered across different resources: a user may post a technical help question on her social network, unaware that a similar question had already been answered on the application's forum site.
+Second, even if a user finds a discussion that potentially has the answer, the answer may be buried deep within long conversation threads that span multiple pages.
+Even though recent Q&A sites have incorporated strategies for promoting the best responses to the top of the list, users often cannot find these threads in the first place because users' queries tend to be not only incomplete and imprecise , but also plagued by the classic vocabulary problem , where different users provide different words to describe the same goal .
+While search engine algorithms can be used to mitigate some of the challenges in natural language retrieval, the onus is still on users to translate their help needs and problem contexts into keywords that result in an effective search.
+We present LemonAid, a new approach to technical help retrieval that allows users to ask for help by selecting a label, widget, link, image or other user interface  element, rather than choosing keywords.
+With LemonAid, help is integrated directly into the UI  and users can ask questions, provide answers, and search for help without ever leaving their application.
+The key insight that makes LemonAid work, one supported by our formative studies, is that users tend to make similar selections in the interface for similar help needs and different selections for different help needs.
+This tight coupling of user needs to UI elements is central to LemonAid's effectiveness, reducing unnecessary variation in users' queries.
+Millions of users on the web struggle to learn how to use and configure applications to meet their needs.
+For example, customers must decipher cryptic error messages after failed e-banking transactions, office workers wrestle with adding attachments to their company wikis, and new users may have to interpret complex privacy settings on social networking sites.
+As today's web applications become more dynamic, feature-rich, and customizable, the need for application help increases, but it is not always feasible or economical for companies to provide custom one-on-one support .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The LemonAid user interface:  the help button, which invokes the help mode;  a user's selection; and  questions relevant to the user's selection .
+LemonAid works exclusively with standard DOMs, makes no assumptions about how an application's back or front end is implemented, does not require the modification of application source code, and does not require the use of a specific UI toolkit.
+It simply operates as a layer above an application's UI.
+The only work that developers must do to integrate LemonAid into their site is extract text labels appearing in the UI from a web application's code and include the framework in their client-side deployment.
+We have tested the LemonAid framework with a few web applications and found that the integration work is minimal.
+While LemonAid's approach is influenced by recent work on helping programmers debug code in-context , the novelty lies in providing a contextual help framework for end-users to resolve issues through crowdsourcing.
+Our larger vision is that software teams will be able to use this repository of contextually reported issues for better understanding potential usability problems and user impact.
+In this paper, we contribute: * A new selection-based querying interface and a question and answer authoring interface allows users to generate help content and find help without leaving the application.
+LemonAid allows users to find application help in-context by selecting UI elements, including labels, widgets, links, and images that they believe are relevant to their help request, question, or problem.
+For example, consider Figure 1, which shows an example scenario in which Bob, a teacher who occasionally does online banking, wants to pay his electricity bill by setting up a monthly online payment through his bank.
+Bob has checked his account balance a few times using the bank's online application, but he is not familiar with all of the other application features.
+He clicks on the "Bill Payer" option and it opens up a new page with more information, but now Bob does not know what to do.
+Normally, Bob would call his tech-savvy friend for help, but since it is late, Bob needs to find a solution on his own.
+Bob clicks on the LemonAid "Help" button at the upper right of the page  and the screen dims, indicating that the application has entered help mode.
+LemonAid fades the user interface, indicating to Bob that the meaning of a "click" has changed.
+As Bob moves his mouse cursor over the page, he notices that words and objects under his cursor are highlighted in yellow, indicating that they are clickable.
+Bob selects the "Bill Payer" label, as he thinks it is most relevant to his problem .
+LemonAid displays five questions that it believes are relevant to his selection , all which have been asked by other users who had previously selected the same or similar labels.
+Bob immediately notices the 2nd question, "how to set up recurring payments," and sees it has 2 answers .
+Bob clicks on the question and sees that the first answer is what he needs .
+While he is logged in, Bob also wants to update his phone number in the e-banking system.
+An example scenario and its results are displayed in Figure 2.
+There were two major findings from the study.
+First, participants tended to select labels in the UI that they believed were conceptually relevant to the help problem.
+Most of these keywords were application-specific labels or headings .
+Second, when no label appeared relevant, participants selected UI elements that were similar in terms of their visual appearance and location on the screen, with a bias towards the top-left.
+These findings suggested that LemonAid could determine similarity between selections largely based on the text on UI labels, and leverage additional attributes of the selected DOM object such its layout position and appearance.
+Based on these results, we designed LemonAid to capture the three contextual details listed in Table 1.
+When a user clicks on a region of a page, LemonAid first determines the topmost DOM node  under the user's cursor.
+From this, it extracts the tag name of the selected node .
+It also extracts the XPath string representing the sequence of tag names and child indices that indicate the path from the root of the DOM tree to the selected node .
+Finally, it extracts all of the text node descendants of the selected node, concatenated into one string, using the standard innerText or textContent property of the selected DOM node, depending on the browser .
+If the selected node is an image and includes an alt attribute, this text is also concatenated to nodeText.
+While we also considered using HTML ids or classes, since they are also related to appearance and layout, they are often dynamically generated between user sessions and thus not useful for representing questions shared by users.
+Since the text labels on DOM elements could potentially be user-generated and privacy-sensitive, LemonAid only stores the nodeText if it is a known UI literal.
+UI literals include any string that is explicitly defined in the application source code or any whitespace-delimited string that appears in application resource files, such as localization files.
+A UI literal may represent labels on UI widgets, headings, or error messages, among other application-specific strings.
+Every time a user makes a selection, LemonAid compares the nodeText of the selected node against a whitelist of known application UI literals to determine whether or not to store the captured nodeText.
+For example, for a heading element where the text is "Account Settings," the nodeText would only be stored as part of the contextual data if "Account Settings" was found in the list of application UI literals.
+You are trying to add photos from a recent trip to your Facebook page for the first time.
+You heard from a friend that it's easy to upload multiple photos from your hard drive, but when you arrived at this page, you did not see any such option.
+You are wondering if you came to the right place and what you should be doing next to upload your photos.
+The help system now shows a much longer list of relevant questions , as there are many features relevant to this label.
+Bob does not want to read all of them, so he starts typing into the search box  and notices that the question list updates.
+Bob now only sees two questions , the first of which is explicitly about adding phone numbers.
+The main component of LemonAid is a retrieval engine that produces a ranked list of relevant questions in response to a user's selection on a page.
+Selections are captured as a DOM element and other context  and then matched against the existing set of questions stored in LemonAid's repository of application-specific questions and answers.
+In this section, we  describe the contextual data that LemonAid captures,  explain how LemonAid represents questions, answers, and users' selections, and  explain LemonAid's retrieval algorithm.
+When a user makes a selection, LemonAid captures information about the target DOM object and underlying HTML, which we will call contextual data.
+There was a variety of contextual information that LemonAid could gather .
+But, we focused on identifying contextual data that would be useful in discriminating between different help problems within the UI from the user's perspective.
+We designed a formative study that presented 20 participants with a series of 12 screen shots from popular web applications.
+Each screen shot conveyed a problem scenario consisting of a textual description and a printout of where a problem was encountered, as shown in Figure 2.
+All of the problem scenarios were taken from real questions from help forums for these web applications.
+Once the user makes a selection and LemonAid captures the data in Table 1 to represent it, the data is used as a query to LemonAid's repository of questions.
+To explain this retrieval, we first define how questions and answers are stored.
+Each Question submitted by a user through LemonAid's question box  includes a unique id for each question in the set ; the nodeXPath, nodeType, and nodeText described in Table 1 , and the optional question text provided by the user in the text field in Figure 1.4 .
+Since the focus of this paper is on help retrieval, and not help authoring, LemonAid's Answers are basic, mimicking the kind of answers found in discussion forums: each Answer has a unique id, an answerString, which stores the text provided in the field in Figure 1.6, and a questionID, linking it to the question for which the answer was provided.
+Questions may have multiple Answers.
+A UserSelection in LemonAid consists of the contextual data captured from the user's selection  and optional searchTerms, which store the text provided by the user in the search input field .
+A UserSelection initially generates a query consisting only of the contextual data.
+Each keystroke in the search input field generates a new UserSelection and updates the retrieved results using an auto-suggest interaction.
+As discussed above, our formative study suggested that similarity between selections could largely be based on the text on UI literals.
+Therefore, the primary factor in the contextScore is the nodeTextScore, which is 1 if the nodeText of a selection contains  the nodeText of the Question being compared and 0 otherwise.
+With this approach, LemonAid is able retrieve a match related to a specific item in the container  even if the user's selection was the container itself.
+This factor is given a weight of 0.7, since it was the most important factor in our formative studies.
+The 2nd factor in the contextScore is the XPathScore, which captures similarity in layout and position identified in our formative study.
+Although XPaths can change as UI layouts evolve over time , many menus and header items on a page stay relatively the same or have only slight layout differences over time.
+Therefore, this score is a measure of the percent node overlap between the nodeXPath of the query and a Question's nodeXPath.
+We compute this by starting from the root and doing a node-by-node string comparison from root to leaf, incrementing the score by 1 every time there is a match, and stopping when there is no match or the last node of the shorter path is reached.
+We divide the final sum by the length of the longer XPath to get a percentage.
+To retrieve help, LemonAid utilizes a relevance ranking approach leveraging contextualData and optional searchTerms using the process shown in Figure 3.
+The retrieval algorithm takes a UserSelection and compares it to each previously asked Question in the application's repository, producing a similarity score between 0 and 1 for each Question, with 1 being the best match.
+LemonAid then presents the matching questions in descending order of score.
+The 3rd and final factor in the contextScore compares the nodeType of the selected node to that of the potentially matching Question.
+This factor accounts for both appearance similarities, while also helping with situations where multiple UI elements share the same text label, such as a button and a heading with the same words.
+The nodeTypeScore is 1 if the labels of the selection and the Question are equivalent and 0 if not.
+Because ties were rare, and appearance was only rarely a factor in our formative study, we only give nodeTypeScore a small weight of 0.1.
+After contextScore is computed, the algorithm in Figure 4 includes a Question in the results set if its score is above 0.25.
+This threshold was selected because it implies that there is no nodeText match, but there is a strong match between the nodeXPath and nodeType.
+Even though this type of match is weaker than one based on nodeText, it is useful for cases where a question may be attached to a container or non-UI literal text .
+Since nodeText similarity is not relevant in such cases, the nodeXPath and nodeType similarity can still be used as  indicators of relevant questions.
+From this, LemonAid generates a CSV file containing the list of literals and stores it alongside the question repository.
+LemonAid uses a simple algorithm for finding string literals in commonly used web programming languages, looking for sequences of characters delimited by single  and double ASCII quotes .
+While this approach does not account for UI literals that may be dynamically generated, it covers a large range of UI literals defined at design time.
+While this extraction approach may generate false positives , these non-UI literals are not visible to the user and hence not selectable anyway.
+Furthermore, site administrators have full control in editing the CSV file containing string literals from their source code.
+Finally, site administrators include a few lines of JavaScript on all of their web application's pages, just as with analytics services such as Google Analytics.
+Doing so links the LemonAid source code to the web application, and makes LemonAid functional on that page.
+The interface shown in Figure 1 is an example implementation of LemonAid on the static version of Bank of America's Bill Payer site.
+The UI literals were obtained by manual screen scraping since we did not have access to Bank of America's source.
+The current implementation of LemonAid sets up a basic infrastructure through which anyone can anchor questions and answers on the underlying application's UI literals.
+Site administrators may have different needs in terms of managing the Q&A and the related community of users.
+For example, some web applications are already controlled by user authentication and it may be just a matter of integrating LemonAid with the existing user accounts on the site.
+Another approach may be the use of social networking plugins to facilitate communication among users within their social network.
+In other cases, administrators may want to restrict answer authoring to the company's support personnel and may want to store the help data locally.
+1.4, the algorithm in Figure 4 also computes a textSimilarityScore.
+It does this by comparing a query's searchTerms with the whitespace-delimited words in each existing Question's questionString.
+To compare the similarity between these keywords, we created a search index on each questionString and used a standard full-text search feature based on the vector space model .
+The similarity score is computed using the term frequency-inverse document frequency  weighting approach in information retrieval.
+The main idea of tf-idf is that terms that occur frequently in the target document , but less frequently in the whole document collection are the useful terms.
+The weight of these terms is a combination of term frequency within the target document and its frequency across all documents.
+Each Question that matches the user's searchTerms is included in the result and sorted in descending order based on the textSimilarityScore.
+This result set is then sorted by contextScore of each question against the UserSelection.
+One of the strengths of LemonAid's simplicity is that it can be easily integrated into an existing website with minimal modification to the site itself.
+First, site administrators choose an ID to uniquely identify their application-specific help information in the third party server.
+At the core of LemonAid is a retrieval engine that produces a ranked list of questions relevant to a user's selection and optional search terms.
+As explained above, although users' natural language descriptions of the same problem may differ, users tend to make the same selections in the UI for a given problem.
+Thus, to assess the effectiveness of LemonAid's retrieval algorithm, we focused our evaluation on answering the following question: across a corpus of help problem scenarios, how effective is LemonAid at retrieving a relevant question asked by another user using only the current user's selection?
+To operationalize this, we measured the rank of the first retrieved Question that regarded an identical help problem , using only the contextual data from the UserSelection.
+To perform this assessment, we first needed a large corpus of LemonAid help selections.
+Recently, mTurk has become a popular way for researchers to recruit a large number of participants for small tasks .
+We used mTurk to have hundreds of web users read a detailed help scenario and perform a LemonAid help request by selecting a UI element and providing a question relevant to the scenario.
+To ensure that our corpus of help scenarios was realistic, we began by selecting the first 100 questions tagged as popular or recently asked in the How Do I category of Google Calendar's help forum .
+We chose Google Calendar because it is a popular application used by millions of people and offers not only basic functionality, but also a range of advanced functions that people have trouble finding and using.
+From our sample of 100 popular or recently asked questions, we eliminated questions that appeared to be duplicates and created a random sample of 50 questions that we could use in our evaluation.
+Although there were many more than 50 questions in Google's help forums, by analyzing the 10 "related discussions" that Google lists alongside each thread, we found that many of these discussions concerned the same issue and believe that 50 questions represented a substantial proportion of the common problems.
+This is reinforced by previous studies that have shown that there often are a large number of duplicate discussions on forums  and other forms of issue reports .
+To convert the help discussions into scenarios, we identified the expected or desired behavior identified by the help requester and wrote a textual scenario to represent it.
+We also included a motivation for the task in the scenario and details about Google Calendar to help a user unfamiliar with the application understand the specified goal.
+Figure 5 shows an example scenario involving a calendar-sharing question.
+In addition to scenario text, we also created a Google Calendar page representing an application state in which a user might encounter the problem, as in Figure 5.
+We created the HTML pages for each scenario by manually recreating the chosen Google Calendar state and scraping the application's corresponding HTML for that state.
+We then augmented each scenario page with LemonAid's question-asking functionality.
+Since LemonAid requires a list of UI literals corresponding to the application and we did not have access to Google Calendar's source code, we manually extracted a set of UI literals by scraping each visible text label  from all UI elements for each scenario page.
+This reduced the possibility that participants would change the type of selections they made after completing multiple HITs based on the type of results returned by LemonAid's retrieval algorithm.
+Of the 50 help problems, 8 were likely to be encountered in different contexts ; for these, we created two scenarios, each with a different application state, resulting in a total of 58 scenarios overall.
+Our mTurk HIT presented one of these 58 help-seeking scenarios , including the scenario text and the static HTML page with interactive LemonAid features.
+Users were asked to  read the scenario,  answer two multiple choice comprehension questions ,  enter the help mode,  select one of the highlighted words or elements on the screen that they felt were most relevant to the problem, and  provide a question in their own words that they would ask to get help in the given scenario.
+The comprehension questions were included in order to gain some confidence that participants understood the scenario and were not selecting UI elements randomly .
+Each comprehension question had 5 items; the scenarios and questions were carefully edited by two of the authors for clarity.
+If users answered one of the questions incorrectly, they were given another explanation of the scenario to help them understand the scenario better.
+Each mTurk HIT was launched with 55 assignments per HIT, with the intent of gathering 50 selections per scenario.
+We used 5 of the 58 HITs to pilot the mTurk protocol and our data collection strategy, resulting in a final data set of 53 unique HITs.
+The study  ran for about 5 weeks.
+We also asked mTurk users had to write a brief explanation for why they made a particular selection.
+After obtaining the data, we computed the time that an mTurk user spent on the task and compared it to the average completion time .
+If this time was below the 20% of the average , we automatically eliminated the response.
+For responses that fell between 45 seconds and 3.5 minutes, we manually checked the written explanation of why a particular selection was made.
+If the explanation was not intelligible, we excluded that response.
+Finally, we also checked the passcode that mTurk users provided against the passcodes generated by our system and eliminated responses that had incorrect passcodes.
+These three data points together allowed us to detect UI selections that appeared to be hastily selected with no apparent comprehension of the scenario.
+We were able to use between 47-52 selections for each HIT .
+Our final corpus included 2,748 help selections from 533 different mTurk accounts.
+As explained above, LemonAid uses a ranked retrieval approach where the retrieved results  are presented in an ordered list.
+Since our study solicited multiple selections corresponding to each scenario, multiple relevant Questions could potentially be retrieved for a given selection.
+To assess the performance of the retrieval, we focused on computing the rank of the 1st relevant Question for a given selection of all retrieved results.
+We defined ground truth in the retrieval by denoting, for each captured selection, which one of the 50 scenarios the selection corresponded to.
+We computed ranks for all 2,748 selections in the corpus, retrieving relevant results from all other selections in the corpus using only the contextual data in the selections .
+LemonAid retrieved 1 or more results for 90.3% of the selections.
+Figure 6 shows the proportion of queries resulting in median ranks of 1 through 10.
+The median rank of the results across the whole corpus was 2, thus the relevant result was likely to be in the top 2 results for at least half of the queries .
+To assess performance across the whole corpus more systematically, we computed the Mean Reciprocal Rank .
+The reciprocal rank of a result is equivalent to the multiplicative inverse of the rank of the first relevant result.
+The MRR is computed as the average of the reciprocal ranks of results for a set of queries in corpus C where 1/ranki is the inverse rank of the ith query in C, and |C| is the size of the corpus.
+The resulting MRR was 0.5844, meaning that the average rank of the result across the repository  was between 1 and 2.
+To understand why LemonAid failed for 9.7% of the queries, we inspected the selections made by users  and the corresponding task scenario.
+We found that the failed queries mainly represented idiosyncratic selections; in other words, a few of the users made selections that did not match any selection made by other users.
+When we further looked at the corresponding question text provided with the selections, we found that such users  either misunderstood the scenario description, were confused about the selection task, or were simply guessing.
+While the overall performance of the retrieval algorithm is important, its performance over time, as users ask more questions, is also important.
+To investigate the effect of corpus size, we randomly selected 5 subsets of queries of four different corpus sizes .
+Figure 7 displays the MRR for these 20 corpus subsets, showing that while MRR degrades as the number of selections increase, it degrades quite slowly.
+A live deployment of LemonAid would obviously introduce other factors that would affect these outcomes; for example, there might be many more help problems.
+However, these results show that users would also be more likely to find an existing question about a problem rather than ask a new one.
+While our initial evaluation represented data from a simulated community of users on mTurk, the main finding is promising: LemonAid retrieved a relevant match in the top 2 results for over half of the queries based on the UI selection.
+Thus, in most cases, users would only have to make a UI selection that they think is relevant and they would see a relevant question .
+This is a dramatic improvement over traditional text-based queries for help on the web, which require substantially more effort.
+The key phenomenon that facilitates the retrieval of high-ranking relevant results is that users' queries are restricted to a smaller and more focused set of UI selections instead of natural language text and that users tend to select similar labels for similar problems and different labels for different problems.
+These results, and the larger vision underlying LemonAid's approach to crowdsourced contextual help, raises some issues around scope, scalability, robustness, and privacy.
+For a given application, users may have a range of feature-related or account-specific troubleshooting help needs.
+Since LemonAid is integrated within the UI of the application, its primary strength is likely to be in providing user interface related help.
+For other types of issues that reach beyond the user interface, such as a problem with a blocked account or an issue with a credit card transaction, LemonAid would be able to inform a user that it is necessary to contact support, but it will not be able to help the user address their problem directly.
+Help needs that require the intervention of support personnel are less a limitation of LemonAid and more a limitation of crowdsourced help approaches in general.
+As shown in Figure 7, we have some initial indication that the retrieval algorithm is relatively stable as a help corpus increases in size.
+However, another important question is how LemonAid's retrieval scales for applications that vary from a narrow to a wide range of features and corresponding UI literals.
+For instance, in our study we observed was different users consistently made the same selection in the UI for the same problem, but made different selections for different types of problems.
+Thus, for an application that has a large number of features , the spread of questions could be sparse.
+For the case of an application with only a few features, there will likely be similarly few possible selections.
+We predict that LemonAid's performance will still degrade slowly as there would possibly be fewer questions about applications that have more limited functionality.
+Another case we observed in our evaluation was the same label being used as an anchor for many different problems.
+For example, the "settings" label of Google Calendar was a particularly common choice when users perceived no better label in some of the scenarios.
+The retrieval algorithm was not able to retrieve a relevant answer in the top few results based on the selection alone.
+In this situation, the user would need to provide keywords to pare down the results.
+One concern about the utility of LemonAid in practice might be that web applications are constantly changing; anchoring help to rapidly changing labels and layouts may not be robust to such change.
+The UI labels that LemonAid relies on, however, are likely to change less often than the average website content, since changing functionality labels often requires costly user re-education.
+Moreover, when functionality labels and locations do change, it would actually make sense for the help associated with those UI literals to be deprecated.
+With LemonAid, this would be automatic, since questions attached to labels that have been removed would no longer be matched.
+By using text on web pages, much of which may be privacy-sensitive, LemonAid also raises some privacy concerns.
+However, since we are only extracting UI literals from source code, and users can only select labels that match these static labels, user-generated content is never captured as part of a help request.
+There is a possibility that there may be some overlap between a UI literal and user-generated text.
+Future versions of LemonAid could allow users to redact details from their selections before submission.
+While we have shown LemonAid performs well on a large corpus of queries, the approach still requires someone to provide help in order for the system to be useful and the help must actually be helpful.
+These challenges are not unique to LemonAid, however; they are more general challenges with crowdsourced help, and evidence has shown that they are they are easily surmountable with the right types of incentives and community features .
+In future work, we will explore these community aspects further.
+Our evaluation has some limitations that that should be considered when interpreting our results.
+For example, our results might only hold for the type of users represented by mTurk workers .
+Although we tried to filter out invalid selections in our mTurk data , it could be that a few users genuinely misunderstood scenario descriptions or the purpose of the task and ended up selecting something not relevant to the scenario.
+Moreover, our evaluation did not explore the effect of LemonAid users interactively exploring LemonAid search results, which may also affect LemonAid's utility.
+We hope to explore these issues further in a live deployment where users would be driven by their actual help needs.
+Although LemonAid's approach to retrieving help is novel, it builds upon a variety of prior work in help systems research.
+Context-sensitive help to date has largely been about attaching help to specific UI controls.
+Researchers have explored a variety of ways to invoke this help, including tooltips, special modes as in the "?"
+Other recent approaches have explored the use of screenshots and visual search in creating contextual help .
+Despite the utility of these forms of context-sensitive help, one drawback is that designers must anticipate where users might seek help, so that they can author it at design-time and attach it to UI controls.
+Also, the help presented is static and often limited to explaining the functionality of a widget.
+LemonAid addresses this issue by letting users decide where help should be embedded, authoring that help at run-time.
+Adaptive help attempts to overcome contextinsensitivity by monitoring user behavior for opportunities to help .
+These systems make an explicit effort to model users' tasks, often employing AI techniques to predict and classify user behavior, some even using speech recognition .
+Perhaps the most well known is "clippy" in Microsoft Word .
+Although powerful, these systems are limited by their ability to model and infer users' intent, meaning that the static help that they provide can often be irrelevant.
+Moreover, these systems may interrupt at inappropriate times and are often perceived as being intrusive.
+In contrast, an ambient and unobtrusive approach is feature recommendation based on monitoring of application usage .
+Still, in all of these cases, help is tied to functionality rather than user's intentions and application use.
+Another class of help tools manifest as automatic help tools.
+Rather than inferring users' intent, such tools enable users to explicitly state their problems to obtain customized help.
+For example, SmartAide  allows users to choose particular application task, and AI planning algorithms generate step-by-step instructions based on the current application state.
+The Crystal system  allows users to ask "why?"
+While such help techniques are powerful in generating customized solutions to users' help requests, they can only answer a limited class of questions amenable to automatic analysis.
+They also often require significant adaptations to an applications' code to provide useful answers.
+Crowdsourced help is the most recent approach to software help.
+The essential idea is that the user community can generate solutions to help requests more quickly than any tool or in-house support team .
+Early research examples of this approach, such as AnswerGarden , focused on organizational support and exchange of expertise; similar ideas emerged in the open source community in technical support forums .
+Some research has explored the role of contextual help in content authoring.
+For example, the CHIC framework  for the Eclipse IDE adds links from each Eclipse UI control to a wiki where users can author help.
+LemonAid goes further by letting users decide which aspect of the interface matters for particular problems and allows users to author and discover help there.
+Furthermore, LemonAid is not specifically tied to any application structure and can be applied to any site implemented with web standards.
+In this paper, we have introduced LemonAid, a new framework for integrating crowdsourced contextual help in web applications.
+We have shown that LemonAid's approach to selection-based query and retrieval is effective, providing a relevant answer in the top 2 results for over half of the queries in a corpus developed by a simulated community.
+We also have initial evidence that as a LemonAid help corpus grows in size, its ability to retrieve relevant results degrades slowly.
+In our future work, we will explore a number of enhancements.
+For example, we will incorporate community feedback features for improving the ranking of search results and indicating which questions require useful answers, enabling users to vote on relevant questions and solutions that are tied to specific selections.
+We will include multimedia options, such as screen shots and videos, for enhancing solution authoring and diagnosis of reported issues .
+In addition to helping users find help content, LemonAid may also provide other benefits.
+For example, a user could browse the goals of other users who have used the site by simply clicking on different labels in the UI.
+Other users' goals expressed in the context of the application could lead to the serendipitous discovery of new application features, shortcuts, and customizations.
+Software teams could also use their product's LemonAid help repository as a dataset of user expectations and potential usability issues.
+This would be a significant improvement over the status quo, where feedback about an application is scattered in discussion forums and social networking sites all over the web, with no simple way to monitor them.
+With LemonAid, user selections and queries can be easily aggregated and placed in the exact context in which users experienced a problem.
+Ultimately, software teams can use this information to better understand users and provide a more seamless user experience.

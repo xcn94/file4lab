@@ -1,0 +1,294 @@
+There are not enough programmers to support all end user goals by building websites, mashups, and browser extensions.
+This paper presents reform, a system that envisions roles for both programmers and end-users in creating enhancements of existing websites that support new goals.
+Programmers author a traditional mashup or browser extension, but instead of writing a web scraper by hand, the reform system enables novice end users to attach the mashup to their websites of interest.
+This work presents reform's architecture, algorithms, user interface, evaluation, and five example reform enabled enhancements that provide a step towards our goal of write-once apply-anywhere user interface enhancements.
+This website-by-website strategy cannot scale to the entire web without tasking every programmer on earth with the development and maintenance of multiple site enhancements.
+We propose instead leveraging the Internet's 1.4 billion end users, allowing a single programmer to enhance many websites at once.
+A programmer authors a single siteindependent web enhancement, and end users attach it to all the sites they use in the context of their existing tasks.
+This architecture of write-once apply-anywhere web enhancements divides web enhancement into two roles: programming and attaching.
+This allows end-users to do the attaching, and bring enhancements to many more sites.
+The key is enabling end users to teach an enhancement how to attach to a new website and understand its data representation, a difficult problem traditionally studied as web information extraction or web scraping .
+We present a new interactive machine learning technique designed for novice end users, allowing them to scrape a variety of data layouts by example, without seeing the underlying webpage representation.
+Our prototype is a library for Firefox extensions called reform.
+Rather than hard-code HTML or DOM patterns to access parts of a webpage, web enhancements  query the reform library with a schema expressing the general type of data they expect a webpage to contain.
+For instance, a map enhancement will use reform to prompt the end user to click on example addresses.
+The reform library then generates and applies an extraction pattern, provides the enhancement with its requested integration points, and stores the pattern in a central database for future use.
+Webmasters cannot afford to support all end-user goals.
+Every site design prioritizes some features and uses over others, and every site's implementation is limited by the webmaster's time, incentives, and knowledge.
+For example, many sites present lists of addresses without a map, forcing users to perform tedious copying and pasting to a map website.
+Few sites implement a mobile-optimized version for a user's favorite phone.
+Online phone bill designs do not include visualizations to help users switch to cheaper plans and spend less money.
+Online shopping carts do not offer coupons or better deals at other stores.
+Although there are many website features that would enhance important enduser tasks, the webmasters in charge lack the time, incentives, or knowledge to implement them.
+Instead, third-parties develop mashups, browser extensions and scripts , and web proxies  to enhance the web post-hoc.
+Unfortunately, there are not enough developers to reform all websites: there are 175 million websites on the Internet, yet in comparison the United States employs fewer than 2 million programmers .
+Scripts and mashups must be updated when a website's layout changes,
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+AJAX photo viewing widget that works on multiple photo sites, even ones he has not seen.
+He can write a shopping aggregator that plugs into web retailers that did not exist when he wrote it.
+He can script a new feature into his favorite webmail system, and end users can repurpose it to work with their own webmail systems.
+Using the reform library, we built five web interface enhancements in Firefox.
+We built two data visualizations: a universal Google map, and a timeline graph that can visualize patterns in time series data, such as a phone bill or bank account, on any scrape-able page.
+We built a multi-site aggregator as a shopping assistant that learns layouts of coupon rebates and merchant deals, and notifies them when viewing a product for which there is a coupon or better deal elsewhere.
+We implemented an interface facade that makes an iPhone-optimized version of a website after an end user shows it example article titles and summaries.
+We implemented an interactive AJAX widget that replaces the standard "click next page and wait for a page refresh" idiom on multi-page sites with a single automatically-fetching infinitely-scrolling page.
+These illustrate a space of enhancements that one can build with the reform library.
+This work contributes an architecture for web enhancement that allows end users to integrate existing enhancements with new websites.
+We introduce an interaction technique and learning algorithm that allows end users to train a web scraper.
+We evaluated reform in three ways: we built a few example enhancements to validate the system architecture; we measured the machine learning generality by testing it on a sample of websites from the Internet; and we ran a small usability study to see if novice end users could successfully enhance a subsample of those sites.
+In the rest of this paper we first situate reform within related systems.
+Then, we describe the user interface in detail, and explain the machine learning algorithm and its limitations.
+We then explain the five interface enhancements we implemented, our user study, and how we evaluated the algorithm's cross-site generalizability.
+These extractors are difficult to implement and generalize to support many websites.
+Furthermore, many extraction problems are by nature ambiguous and require user input, yet mostlyautomatic systems like Sifter  offer the user little help when the extractors fail.
+Karma  and Mashmaker  can learn from positive but not negative examples.
+Mashmaker users must drop into a lower level pattern editor to make a pattern more selective.
+Many systems allow enhancement of any site that includes predefined semantic markup in formats such as RSS feeds, Semantic Web RDF, microformats, or web APIs.
+For instance, Vispedia  allows visualization of Wikipedia articles by leveraging the RDF predefined for each topic as part of the DBpedia project.
+Visual programming mashup makers like Yahoo Pipes  require web data to be prepared with special wrappers.
+Since semantic markup is not yet pervasive on the web, this requirement limits the websites that can be enhanced.
+Whereas reform allows end users to attach an enhancement to new sites, traditional mashups and scripts are hard-coded to specific websites by the original programmer.
+Tools like Chickenfoot , CoScriptor , Greasemonkey , Marmite  and Highlight  make the task of developing such enhancements easier, but do not separate the tasks of development and attachment.
+Thus, the original developer must adapt each enhancement to each new website.
+Systems often combine extraction tools with enhancements in separate modular steps.
+Traditional extraction systems are not directly connected to a user goal; they instead extract data to an intermediate representation, which can indirectly be fed to enhancements.
+Dapper  has a robust byexample interface, but extracts data to intermediate formats like XML, HTML, and RSS.
+Mashmaker  and Karma  also support some by-example extraction, but Mashmaker requires a separate up-front data extraction step where users specify a hierarchical schema before connecting data patterns to widgets, and Karma decomposes the mashup process into the abstract steps of extraction, data cleaning, source modeling, and data integration.
+Irmak  presents a by-example extraction algorithm that uses simi-
+Schema definition appears to be a burden to end users.
+Furthermore, directing extraction towards a specific enhancement goal has additional advantages: * We can guide and prompt the user through extraction, using the concrete terminology defined by the enhancement.
+If the enhancement needs a "purchase price" from the webpage, the extractor will ask the user to click "purchase prices".
+After each click, the system is able to update the enhancement's display with the new extracted data, providing the user with incremental feedback towards the enhancement goal.
+For instance, if it knows the user is selecting a time, it can consider only DOM nodes that parse as a time.
+This allows accurate inference with fewer examples.
+We will explain reform's interface and extraction algorithm with the following running example.
+Some web enhancements, such as Ubiquity , require each website datum to be manually selected or copied and pasted.
+This manual approach can quickly become unwieldy for larger data sets.
+Attaching enhancements to arbitrary websites is a difficult problem.
+Traditional extraction approaches pose two major challenges to end users.
+First there is the pattern expression problem: how can an end user, without learning a special language or understanding HTML or DOM representations, specify an extraction pattern that is expressive enough to represent the wide variety of DOM structures that can appear on different websites, and navigate the many inconsistencies and special cases that occur in layouts?
+Second, there is the data mapping problem: how can an end user plan and design a data schema that is compatible with the desired enhancements, extract the data to that schema, and connect the schema to the enhancements?
+Both tasks can require up-front planning, abstract reasoning and can be difficult to debug.
+These challenges are obstacles to widespread end user web enhancement.
+We now outline reform's approach.
+Pattern expression: reform users specify patterns by example, and a machine learning system infers an expressive matching pattern behind the scenes.
+User interaction involves nothing more than highlighting elements of the webpage that should be connected with the enhancement and removing highlights from incorrectly inferred elements.
+Our machine learning algorithm synthesizes hundreds of features that explain the examples provided and computes weights to choose the best amongst them.
+Data mapping: Traditionally, extraction systems output to an intermediate data representation with a general data schema, which allows extracted data to be reused towards multiple purposes.
+This is sensible if extraction is a difficult and costly task.
+The enhancement programmer defines a single schema, and the end user only needs to highlight webpage elements that correspond to the schema's fields; a simpler task.
+Most bank websites provide users with a multi-page list of purchases and transactions: an online "bank statement."
+Although this presentation may fulfill contractual obligations, it is a difficult format for understanding spending trends and spotting fraud or errors.
+Here we illustrate reform by describing how an end user applies a reformpowered timeline to their banking site, shown in Figure 4.
+In the next section, we will give more details about reform's algorithm.
+This timeline is a Firefox extension using the reform library.
+The extension is a general purpose timeline, is not customized to the particular banking site, and only interacts with reform.
+To be used, it needs tuples containing a "time" and an "amount".
+When the user is at an online banking page, she opens the timeline widget by clicking a button at the bottom of her browser window.
+If it does not, reform starts the interactive selection by-example mode.
+As the user moves the cursor around the screen, the DOM node under the current cursor location is outlined, and a floating menu appears next to it, prompting the user to specify if it is a "time" or "amount" .
+This menu is always present, following the mouse and the node underneath the cursor.
+Figure 3: Interaction with reform.
+A menu for specifying fields is always visible and follows the cursor, jumping to the node under the mouse.
+Positive examples are bordered with the color of the field.
+Inferred nodes are highlighted but have no border.
+The user can click on the X to provide a negative example, turning the border red.
+The user now moves the cursor to a transaction balance amount and clicks "amount", giving it a dark blue border.
+With two clicks, the user has taught the timeline to graph her financial history.
+A tuple consists of a set of concrete DOM nodes, one for each field in the schema.
+The algorithm includes two phases, which are analogous to the phases of lexing and parsing in compilers.
+The positive and negative examples provided by the user for each field are used to train a support vector machine .
+This trained SVM then labels every node in the DOM with the degree that it "matches" the field, given the user's examples.
+Like compiler lexing, this phase analyzes the type of each node in isolation, without considering its relationship to the nodes around it.
+Given these isolated match strengths on each node, the second phase extracts a coherent table of tuples.
+It segments the webpage into tuple boundaries, associating nodes with high SVM scores together so that, for instance, a timeline can graph a pair of time and amount nodes as a single datapoint.
+Like compiler parsing, this phase infers a structural relationship amongst individual nodes.
+This bank task requires only one example per data type.
+However, some pages with more ambiguity require additional learning.
+The user clicks the X to mark the date as a negative example, and instead marks the correct comment date "09/18/08" as a time.
+Negative examples receive a red border.
+To finish the task, the user moves the cursor to a missing date in a transaction without comments and marks it "time."
+These three additional examples successfully teach reform a rule that prefers the comment dates to the posted dates for transactions with comments, but uses the posted date when there is not a date in the comment .
+Given a set of user-specified positive and negative examples and a schema specified by the enhancement, the goal of reform's algorithm is to return a set of tuples that both match the pattern implied by the positive and negative examples and conform to the schema.
+Let us clarify some terms before continuing.
+Each schema consists of a set of fields, such as {time, amount}.
+Rather than derive one path per field, we store many paths for every node, along with attributes and values of the nodes at the ends of those paths.
+Our SVM then determines which paths are important by examining the positive and negative examples, and assigning each path a variable weight.
+Thus, when there is only one example, all the paths have equal weights, and our extractor behaves similarly to an XPath, readily extracting regular structure.
+However, when the page has complex varying structure, inconsistencies, or noise, an XPath can fail, whereas our system takes additional examples from the user and adapts to the inconsistencies by variably weighting the plurality of alternative paths.
+To train a SVM we must first represent each node as a feature vector.
+We synthesize a new format for feature vectors, called a feature vocabulary, after every new example, to capture the features that characterize the new set of examples.
+Each feature represents a triplet , representing a concept such as "this node's parent's second child has an x coordinate of 33px", or .
+A node's feature vector will then be computed as an array of booleans, each true if and only if the node at the end of path from the original node has an attribute with the specified value.
+We capture the following attributes at the end of each path: * Spatial: x and y coordinates, width and height * Matched datatypes: whether the node contains a date, time, number, price, or address, as recognized by reform * The first and last 3 words of text contained in the node * The DOM attributes id and class * The node's index in its parent's list of children We experimented with a few ways of generating and representing paths, and settled on simply counting hops in a post-order depth-first-search from the starting node, up to a distance of 10 nodes with left-first ordering and 10 with right, creating a total of 21 paths, including the empty path representing the node itself.
+We store paths according to the number of hops left or right, such as "4 left" or "2 right."
+We create a feature vocabulary for each field with the following algorithm.
+For each example node, traverse each of the 21 paths and record each attribute's value at the end of that path.
+Then union all  combinations together, assigning an index to each.
+This becomes the feature vocabulary.
+Computing a feature vector for a node is then a matter of repeatedly traversing a DFS path to a neighboring node, and comparing the value of neighbor's property to the value in the vocabulary.
+If they match, the vector's value is true at that feature's index.
+We then create feature vectors for each node in the web page, and predict their match score by measuring their distance from the SVM margin.
+At this stage, we also incorporate knowledge of the enhancement's schema, by automatically setting any node's score to zero that does not contain the correct datatype.
+For instance, if we are training a SVM to recognize "purchase price" on a webpage, we ignore all nodes that cannot be parsed as a price.
+We then normalize all scores to sit between zero and one.
+At the end of this process, every node in the tree has been labeled with its distance to the margin for every field in the schema.
+In the timeline scenario, every node would be labeled with its similarity to both "time" and "amount" .
+Now that we know how similar each individual node is to each field in isolation, we need to extract a coherent set of tuples, containing nodes with large match strengths.
+However, reform also supports finding all matching tuples on a page, which requires segmenting the page and relating nodes into a table of values--a more difficult problem.
+Existing end user extractors with support for multiple tuples per page, such as Solvent , Sifter  and Karma  use an XPath approach to segment the page into tuples, by replacing part of a node's XPath with a wildcard.
+For instance, they might substitute "third child of the second DIV" with "each child of the second DIV".
+Unfortunately, this only works if the tree is structured such that a set of children precisely aligns to tuple boundaries.
+Some pages do not, such as the online bank statement as visualized in Figure 7.
+Furthermore, XPath wildcards do not provide a straightforward approach for incorporating negative examples from the user to focus on different features and disambiguate extraction.
+The XPath approach is limited by relying on a particular tree structure to identify tuple bounda-
+We compute feature vectors for each positive and negative example, and use them to train the SVM.
+There is, however, one trick.
+Since each task begins with only positive examples, and the user may in fact never provide a negative one, we fabricate a fake negative example with every feature set to false.
+Since our feature vocabulary was created from positive examples in such a situation, and every fea-
+We compute the segmentation with an optimization routine that looks at the way a page is displayed, rather than represented, and tries to slice the page into horizontal display strips that maximize a utility function over the bestmatching fields in each strip.
+These best-matching fields within strips become tuples .
+The next section describes layouts in which this assumption does not hold.
+Its goal, then, is to choose a sequence of y-coordinate segmenting locations at which to slice the page into tuples of maximum score.
+We calculate the score of a slice by finding the best-matching node for each field within the slice and summing their values.
+We then add the scores of all chosen slices to calculate the net utility of a page segmentation.
+However, this flat sum over maximums encourages the creation of small tuples with low-scoring fields, since it is of higher value to sum two tuples with match scores e.g.
+To encourage clustering high-valued fields together into a single tuple, we additionally run each segment score through a gentle convex function.
+We find that cubing each segment score works well.
+Now our task is to search over all possible segmentations to choose the one with the largest utility.
+Since the brute-force approach explores an exponential search space, we employ a dynamic programming approach to make it efficient.
+We also do not consider segments taller than 700 pixels.
+Finally, we filter out segments with scores below one half.
+Figure 7: The bank account internals as displayed in Firebug.
+XPaths segment each element of a list along an enclosing parent, which fails when a tuple is composed of multiple children.
+They also have trouble when there are extraneous children or when tuples are at different depths in the tree.
+This web server delegates the raw machine learning task to a native binary, communicating over files.
+Extraction patterns are automatically stored on the web server, storing one pattern per enhancement per website domain name.
+The enhancements use Prefuse Flare , Google Maps, and the iPhone iUI library.
+The prototype is almost fast enough for production use.
+Processing the first example generally takes a second or two.
+Since each example has a new set of  tuples, and thus features, the size of feature vectors grows proportionally to the number of examples provided by the user.
+After 5 or 6 examples, updates can take 3-10 seconds to process.
+The bulk of this time is spent in interprocess communication, writing feature vectors to disk for the SVM; wasted time that would be eliminated if reform were rewritten to run in a single process.
+Enhancements use reform by defining a schema and calling reform.start_selection.
+A schema consists of an enhancement's name, such as `Timeline,' an array of data types for each field of the tuples, such as `number,' `timedate,' `address,' `link,' or `*,' and a matching array of user-visible names for each field.
+Each time the user provides an example, the system infers new tuples and passes them to the callback.
+If interactive is set to true, reform will force a new interactive selection session.
+Otherwise, it will first try to find an existing pattern for the website in its database.
+However, by architecting the extraction process into separate lexing and a parsing phases, we can extend the algorithm pieceby-piece to overcome its limitations.
+For instance, we can solve problems in parsing without affecting lexing.
+In this section we describe the current algorithmic limitations.
+We assume each field is separated by a node boundary.
+Sometimes fields are separated by text patterns, such as with "$100 - Microwave".
+Bigham describes one approach we could adopt, in which additional node boundaries are inferred before learning .
+Regions could also be interactively selected, and learned, as a phase that occurs before phase 1.
+Finally, sometimes a user wants a single field to be composed of multiple disconnected regions, such as when selecting nodes that should be included in a mobile summary.
+Our algorithm can find a best single tuple for a page, or find a list of tuples.
+However, we only support vertical lists, since the parser uses horizontal strips to segment tuples.
+Web data can also be laid out in a horizontal list, a twodimensional grid , or a more complicated nested combination of horizontal lists of vertical lists and grids, which we call newspaper layout because it is common on the front pages of newspapers.
+However, it would be straightforward to extend our existing algorithm to horizontal layouts by running it horizontally instead of vertically, and grid layouts by recursing.
+We also fail to support nested schemas, e.g., containing lists of tuples of lists.
+For instance one might want to scrape a list of photos on Flickr, where each photo has a list of tags.
+One could represent such a schema as .
+A dual problem is extracting lists with headers.
+For example, a list of calendar events might have the schema , but display the list in sections with the date as a header, which could be represented with the nested schema , even though it contains the same data.
+By shifting between schema representations, the same layout algorithm could capture both cases.
+Maps are consistently the most popular, well-known, and frequently-created mashups.
+Of all the mashups on programmableweb.com, 38% are tagged "map."
+In Zang's survey of mashup developers, he found that 77% had built mapping mashups and 96% had used the Google Maps API .
+We created a single mapping enhancement that end users can apply to any website.
+Suppose, for instance, that an end user is browsing nucleartourist.com and finds a list of nuclear reactor locations in the United States.
+The page lists the precise address of the reactors, but the user would reach a much richer understanding of the bulk of data if the website provided a map.
+The user can click on the remap button at the bottom of his browser, the page fades to grey and the blue and yellow selector menu prompts him for "Address" and "Details", as can be seen in Figure 2.
+He selects the address, and the system plots it on a map along with any other addresses it finds on the page and highlights those addresses in the web page.
+He then highlights one of the reactor names, and selects "Details".
+This teaches remap that the name should appear in a caption bubble when clicking on the reactor's icon.
+After two more examples, the system has learned a pattern for extracting every plant name and address from this page and can plot them on the map.
+In another example, Figure 9 shows how we can modify a government website of sex offenders in Buda, TX to include an easily accessible map.
+We built five enhancements and ran two small studies to evaluate reform's architecture, algorithms, and user interface.
+The enhancements exercised the space of possibilities with our architecture and API, and uncovered areas for improvement.
+Our algorithm study elicited the algorithm's generalizability: on how many sites does it work, and how frequent is each failure mode?
+Our user study tested our interaction goal: can novice end users successfully attach enhancements to websites?
+We increasingly browse the web on cell phones, yet only a small proportion of websites offer cellphone versions.
+The reduce enhancement makes an iPhone-specific version of any website.
+It prompts the user to teach it a sequence of  tuples, and uses this content to fill in a template with the iPhone look and feel.
+Our resume enhancement is an example of using reform to change a fundamental web interaction widget.
+Users scroll from one page to the next, with a "Page 2" header in the middle, rather than clicking and waiting for a page refresh .
+To evaluate how well our algorithms generalize across different websites, we tested reform on a set of thirty websites.
+To avoid bias in selecting test pages, we used Mechanical Turk  to recruit anonymous Internet users and paid them 20-50 cents to collect pages from the Internet for us.
+These users had not used reform previously.
+They were told only that we were testing timeline visualization software and needed webpages containing dates and amounts.
+We displayed the bank account as an example page, along with a screenshot of a reform timeline for the page, to make the task more concrete.
+We applied the timeline enhancement to all of the pages and counted the number of examples necessary to visualize the data.
+If reform failed to extract the proper pattern, we noted the reason that it failed.
+We classified each failure as whether it was caused by an unsupported layout format , by an unsupported node boundary format, or by other unexpected problems.
+Of the failures, two had http://www.nucleartourist.com/us/address.htm 2 3 5 5 4 6 8 horizontal data layouts, four had grid USPS branches  2 2 4 14 2 10 2 layouts, four had datums separated by whitespace instead of node boundaries, Timeline Community First Credit Union 2 2 2 6 2 8 2 and one had data displayed images inhttp://digg.com/ 5 6 4 5 11 12 2 stead of parseable text.
+These results show that if we extend reform's second 11: Number of examples  for users to complete each task.
+Shaded box phase parser to handle new layouts and Figure means the user failed to complete the task.
+All others were completed successfully.
+We have never seen a programming by example interface prior to not run generalization studies for the other enhancements.
+Two users understood the reform concepts imUser Study mediately and completed the tasks readily, skipping instrucMaking expressive extraction algorithms accessible to novtions.
+Three completed the tasks at a moderate pace.
+Two ice users is a difficult problem.
+To evaluate our approach, had difficulties that appeared to stem from basic misunderwe recruited novice end users and asked them to attach our standings.
+User #6 did not realize that the system learned enhancements to a variety of websites with reform.
+By the from his examples and inferred selections for him, and intime of the study, we had built the remap, revisit, and restead assumed he needed to manually select every datum duce enhancements.
+For each enhancement, we asked an on the page as one would do for a normal Google map.
+We then selected an X to allow a negative example, which confused him, and he additional website to create a test set of 9 websites for the 3 sometimes clicked the X and sometimes selected a nearby enhancements.
+We ensured that for each enhancement the node instead.
+He mentioned he did not understand what the pages ranged in difficulty, so that we could observe correcX meant.
+However, he seemed to understand how the systive behavior from users.
+We only used pages with layouts tem worked by the time he completed the final task.
+User that could be processed with reform.
+We canceled the last #4 also did not understand what the red X meant during her of the three iPhone tasks, because a bug made it impossible first tasks, thinking it was trying to tell her that something to complete, resulting in a total of 8 enhancement tasks.
+Her understanding also appeared to improve slowly We recruited seven end users to attempt our enhancement over time.
+In addition to the X, both users also sometimes tasks and offered them five dollars to complete a five to ten seemed not to understand what the blue and yellow highminute study.
+Three subjects were female and four were lights meant.
+We suspect these graphics could be clarified.
+We screened subjects to ensure that they were InterNonetheless, we found it encouraging that users had few net users, but did not understand HTML.
+The study began with the facilitator demonstrating the use of remap on a Washington State website with addresses for driving license office locations.
+This introduction lasted approximately one minute.
+Then the subject was tasked with using remap, revisit, and reduce on each of the websites for a total of 8 tasks.
+The subjects could not ask questions during the tasks until they gave up, at which point the facilitator recorded the task as a failure.
+If a subject simply did not notice an errant missed or extra inference, the facilitator helped the subject and tallied the oversight but did not mark the task as a failure.
+The study was conducted on a 2Ghz 13" Macbook laptop computer using a trackpad.
+Most of the tasks  were completed successfully, and the failures were isolated to only two subjects who had much more difficulty than the others.
+The average number of examples needed to successfully complete a task was 4.4 clicks, with a standard deviation of 2.6 clicks.
+More detailed results are shown in Figure 11.
+The number of examples required varied across enhancements and websites.
+Digg and Google News, for instance, required additional learning to overcome internal variations when different stories have different imagery and layouts.
+Training also requires more examples if users provide slightly different examples: for instance, every date might be enclosed within two nodes, with one slightly larger than the other, and a user might click on these nodes differently in different tuples.
+We were surprised to observe, however, that even if users gave unknowingly erroneous training, such as marking a date as amount, the SVM was flexible enough to recover the correct pattern after additional examples: a single bad data point would eventually be overruled.
+We also noticed that users would sometimes restart extraction to get a clean slate if they accidentally gave multiple incorrect examples and subsequently saw strange inferences from reform.
+The data in Figure 11 aggregates the number of ex-
+We did not record task times, but estimate tasks took anywhere between 20 seconds and two minutes once users understood and were comfortable with the interface.
+Many users asked if they could download the program.
+Multiple users said they would like to use the visualizations in education, for use by their students, children, or selves.
+This study verifies that reform's expressive by-example extraction is accessible to novice end users, and their comments suggest that some may have the motivation to use it.
+We present reform, a prototype tool with which novice end users can attach web user interface enhancements to new websites.
+End users in a small study were able to successfully use the system.
+We believe reform can be extended to support a much broader class of web pages with straightforward modifications to its extraction algorithms.
+Automation and customiztion of rendered web pages.
+Jeffrey P. Bigham, Anna C. Cavender, Ryan S. Kaminsky, Craig M. Prince and Tyler S. Robison.
+Transcendence: enabling a personal view of the deep web.
+Bryan Chan, Leslie Wu, Justin Talbot, Mike Cammarano, Pat Hanrahan, Jeff Klingner, Alon Halevy and Luna Dong.
+Vispedia: interactive visual exploration of wikipedia data via search-based integration.
+In IEEE Transactions on Visualizations and Computer Graphics 14, 6.
+Summarizing personal web browsing sessions.
+Robert J. Ennals and David Gay.
+User-friendly functional programming for web mashups.
+Georg Gottlob, Christoph Koch, Robert Baumgartner, Marcus Herzog and Sergio Flesca.
+The Lixto data extraction project: back and forth between theory and practice.
+Enabling web browsers to augment web sites' filtering and sorting functionality.
+Bjorn Hartmann, Scott Doorley and Scott R. Klemmer.
+Hacking, mashing, gluing: understanding opportunistic design.
+Bjorn Hartmann, Leslie Wu, Kevin Collins and Scott R. Klemmer.
+Programming by a sample: rapidly creating web applications with d.mix.
+Jeffrey Heer, Stuart K. Card and James A. Landay.
+Interactive wrapper generation with minimal user effort.
+Thorston Joachims, Making large-scale SVM learning practical.
+Alberto H.F. Laender, Berthier A. Ribeiro-Neto, Altigran S. da Silva and Juliana S. Teixeira.
+A brief survey of web data extraction tools.
+Greg Little, Tessa A. Lau, Allen Cypher, James Lin, Eben M. Haber and Eser Kandogan, Koala: capture, share, automate, personalize business processes on the web.
+Highlight: a system for creating and deploying mobile web applications.
+Making mashups with Marmite: towards end-user programming for the web.

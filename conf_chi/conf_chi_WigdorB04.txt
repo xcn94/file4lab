@@ -1,0 +1,209 @@
+The numeric keypads on mobile phones generally consist of 12 keys .
+Ambiguity arises when the 36-character alpha-numeric English alphabet is mapped onto this smaller number of keys.
+In this paper, we first present a taxonomy of the various techniques for resolving this ambiguity, dividing them into techniques that use consecutive actions to first select a character grouping and then a character from within that grouping, and those that use concurrent actions to achieve the same end.
+We then present the design and implementation of a chording approach to text entry that uses concurrent key presses.
+We conducted a controlled experiment that compared this chording technique to onehanded and two-handed versions of the commonly used MultiTap technique.
+The results show that the concurrent chording technique significantly outperforms both versions of the consecutive action MultiTap technique.
+Most text input techniques to date can generally be divided into two categories: those that require multiple presses of a single key to make the between-group followed by withingroup selections, and those that require a single press of multiple keys to make these selections.
+Because both categories require consecutive key presses, the research focus has been on reducing the average number of key strokes per character "KSPC" required to enter text.
+Advances in the area generally make language specific assumptions to "guess" the desired within-group character, thus reducing or eliminating the key presses required for the within-group selection.
+The success of these techniques, however, is based almost entirely on how closely the text entered conforms to the underlying language model.
+Given that text entered on mobile phones often involves significant abbreviations and even evolving new "languages" by frequent users of SMS messaging, making language assumptions may not be the best approach to solving the text input problem.
+Recently, the TiltType  and TiltText  techniques demonstrated using a second physical action - tilting the device - to make within-group selection concurrent to the between-group key press selection.
+This effectively shifted the research focus from reducing KSPC in consecutive key press techniques to finding new, language independent, concurrent techniques.
+The improvements in entry speeds demonstrated by these techniques indicate that developing new concurrent input methods may be a promising avenue for further research.
+In this paper, we explore the design space of consecutive and concurrent input techniques for text entry.
+We first review the literature, and develop a taxonomy of current techniques.
+We then present the design and implemention of a concurrent chording text input technique using both hands - one to make the between-group selection, and the other to concurrently make the within-group selection.
+We present a controlled experiment that compares this concurrent chording technique to one and two handed versions of the most common consecutive selection technique - MultiTap, and discuss implications for future designs.
+Entering text from the 26 character English alphabet using the standard 12-key  mobile phone keypad forces a mapping of more than one character per key.
+The typical mapping has keys 2-9 representing either three or four alphabetic characters in addition to the numerals.
+All text input techniques that use this standard keypad have to somehow resolve the ambiguity that arises from this multiplexed mapping.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+A few mobile phones on the market today use QWERTY style keypads that allow for text entry with techniques similar to typing on a regular keyboard, albeit on a much smaller physical scale .
+More recently, hybrid devices that combine PDAs with phones, such as the Handspring Treo  and PocketPC Phone , use pen-based text input techniques such as Graffiti.
+While these devices are making small inroads into the mobile phone market, the vast majority of mobile phones are equipped with the standard keypad  which has 12 keys: 0-9, *, and #.
+Language based disambiguation techniques use predictive models to automate the within-group selection, but there is generally a "next" key that allows the user to choose from among the possible combinations of characters.
+If the user enters text that is perfectly predicted by the language model, then pressing of the "next" key is rarely required.
+An example of these techniques is T9  which computes all possible combinations of a sequence of key presses and looks them up in a dictionary.
+For example, the key sequence 5,3,8 results in 27 possible combinations .
+A dictionary lookup indicates that the only valid combination in English is jet and is therefore entered as the result, with the other combinations rejected outright.
+Ideally, the user need only make the between-group selection, by pressing the key that is labelled with the desired character, and the system will make a perfect, automatic, within-group selection.
+Unfortunately, ambiguity can arise if there is more than one valid combination for the given language.
+Typically, the most common result is presented first.
+For example, the sequence 6,6 could indicate either on or no.
+If the algorithm suggests the wrong word, the user can manually cycle through the possible options by pressing a "next" key.
+An analysis of this technique for entering English text found a KSPC close to 1, indicating that the "next" key was rarely used .
+Newer linguistic disambiguation techniques such as LetterWise  and WordWise  perform similarly, with subtle advantages over earlier techniques.
+While these techniques all have low KSPC rates, their success relies on users entering "English like" text.
+It is also impossible to enter numerals using these techniques, so messages including numbers must be composed with a different technique.
+Another problem is that users have to visually monitor the display to resolve ambiguities, unlike the MultiTap and twokey techniques which expert users can operate "eyes free".
+The most common text entry technique for mobile phones is MultiTap, where users repeatedly press the key labelled with their desired character until it appears on the screen.
+For example, the characters abc traditionally appear on the 2 key.
+Pressing that key once yields a, twice b, and so on.
+In effect, multiple consecutive presses of the same key perform both between and within group selections.
+A problem arises when the user attempts to enter two letters from same key consecutively.
+For example, tapping the 7 key three times could result in either r or pq.
+To overcome this, MultiTap employs a time-out on the key presses, usually 1-2 seconds, such that no key presses during the timeout indicates completion of the current letter.
+Entering pq under this scheme has the user press the 7 key once for p, wait for the timeout, then press 7 twice more to enter q.
+To mitigate the time penalty this incurs, some versions add a "timeout kill" button that allows the user to explicitly skip the timeout.
+If we assume that 0 is the timeout kill button, this makes the sequence of key presses to enter pq: 7,0,7,7.
+MultiTap is simple and unambiguous, but can be slow, and has a KSPC rate of approximately 2.03 .
+In the two-key technique, users press one key to make the between-group selection, and a second key to select from within the group.
+For example, to enter the letter c, the 2 key is pressed to select the group abc, followed by the 3 key since c is the third letter in the group.
+This simple technique has failed to gain popularity for roman alphabets.
+TiltText  requires the user to simultaneously tilt the phone in one of four directions and press a key to enter text.
+The key press selects the group of characters, and the tilt selects the character within that group.
+For example, to enter the character e, the user presses the 3 key to select the group def while simultaneously tilting the phone forward to indicate that the desired letter is the second in the group.
+This technique was demonstrated to be significantly faster than MultiTap, primarily because the two tasks  are done concurrently.
+The KSPC is 1, but this does not reflect tilting.
+In any design exercise, it is helpful to identify design dimensions and to organize existing techniques into a taxonomy that can help suggest future design possibilities.
+For text input techniques for mobile phones, important dimensions include input concurrency, and the number of keys and key presses needed to enter a single letter.
+Table 1 presents a taxonomy based on these dimensions:
+Two-handed chorded keyboards have been used by the US postal service for mail sorting , and are still used today by stenographers.
+The Twiddler  and the Septambic Keyer  are examples of modern-day one-handed chording keyboards.
+Designed to be held in the hand while text is being entered, both are commonly used as part of a wearable computer , but are not used for mobile phones.
+The Twiddler is equipped with 6 keys to be used with the thumb, and 12 for the fingers, while the traditional Septambic Keyer has just 3 thumb and 4 finger switches.
+The Septambic Keyer allows for 47 different combinations of key presses, while the Twiddler allows over 80,000, though not all keys are used for text entry.
+Another interesting chording keyboard is the the halfQWERTY developed by Matias et al.
+The system used half the usual number of keys of a QWERTY keypad, and required the user to press the space-bar prior to entering those keys that are normally located on one half of the keyboard.
+The results of their controlled experiment showed quick adaptation by expert users.
+From this taxonomy, it is clear that existing techniques fall within three cells.
+Of the unpopulated cells, #1, and #2 represent impossible situations and #4 is the regressive case since consecutive multiple presses on multiple keys will be obviously worse than the single key, multi press, MultiTap technique.
+Techniques that fit in cell #5 could be viable but likely difficult to accomplish in practice.
+Cell #3 suggests a technique that has not been explored for mobile-phone text entry: concurrent chording, where multiple keys are pressed once concurrently to input an unambiguous letter.
+We have developed a new text input technique for mobile phones, called ChordTap, based on the principles of a chording keyboard.
+The mobile phone is augmented with three additional "chording" keys on the back of the phone .
+Users press a key with their dominant hand on the standard mobile phone keypad to make the between-group selection, and concurrently use their other hand to press the chording keys to make the within-group selection.
+This technique is similar in theory to the consecutive press two key method discussed previously.
+ChordTap improves upon this by adding dedicated "chord" keys for making the withingroup selection.
+With these extra keys, users can concurrently make between and within group selections, potentially improving entry speed.
+If characters are mapped to all possible key press combinations, a simple one-handed five key chord keyboard can enter 31  distinct characters.
+For many text applications, this is sufficient.
+Adding the second hand increases this to 1023  possible unique characters.
+Conrad and Longman  found that chording keyboards are faster and easier to learn than traditional keyboards.
+Gopher and Koenig  examined how best to determine the optimal mapping of chordings to characters of text.
+Gopher and Raij  examined whether the two-handed chording keyboard had any advantage over a one-handed implementation.
+They found that while both significantly outpaced a QWERTY keyboard, there was no significant difference in performance between their one and two-handed chording keyboards in the early stages of learning.
+As average user speed started to approach 32 wpm, the two-handed keyboard started to outperform its one-handed counterpart, and this spread in performance continued to grow as users gained more experience.
+Each key on a mobile phone has mapped onto it one, four, or five characters: some have only the numeral, most have three letters and one numeral, while the 7 and 9 keys have four letters and one numeral .
+When designing ChordTap, we had to decide how many chording keys to have, and how to assign combinations of chords to particular character selections.
+We use simple binary state switches for the chording keys.
+The need to map five possible withingroup character selections onto the chord states dictated that we would need at least 3 chording keys to ensure unambiguous selection.
+The chords' states can be viewed as 3-digit binary numbers, where the ith digit indicates whether that key is depressed  or released .
+Of the 362 possible pairs of consecutive characters, there are 112  sequences that come from the same key.
+This means that for 9% of all pairings the user would not need to move their finger between character entries.
+Though these sequences are not uniformly probable when entering text in a particular language, this still represents some savings in just about any language.
+This mapping was chosen with the intent that it be as simple as possible for the user.
+We believe that pressing the first chord for the first letter, second chord for the second letter, and third chord for the third letter would be a fairly intuitive mapping.
+The choice to use all remaining chordings for the fourth letter was made because we felt that since this mapping was used least frequently, and it was not in keeping with the more frequently used ith chord to ith letter mapping, it would reduce errors & learning time to simply map them all to the fourth letter.
+One could alternatively envision using these remaining mappings for additional characters in a nonEnglish alphabet.
+In this implementation, keypad presses trigger new text to be entered into the phone, but chord presses do not.
+The chords' states are read only when an event is triggered by a keypad press.
+As demonstrated in Table 4, this approach to text entry gives a savings of work whenever two subsequent characters appear on different keys, but share the same chord.
+To enter each character, the user must input precisely two pieces of information: the between-group selection using the standard keypad, and the within-group selection using the chords.
+Since both the within and between group selections are explicit but separate key presses, a number of options are available when determining exactly when a character should be generated.
+In this implementation, either a chord or keypad press results in new text being entered.
+The advantage of this implementation is that because every state change generates a new character, expert users would benefit from the savings illustrated in both the previous event handlers.
+In order for this implementation to work, we must assign no character mapping to the "000"  state of the chords.
+Table 5 demonstrates how fewer distinct actions are required to generate text in this configuration.
+The experiment was conducted entirely on the phone rather than simulating a mobile phone keypad on some other device.
+All software, including those implementing the text entry techniques, and data presentation and collection software, ran on the phone.
+No connection to an external computing device was used.
+Our MultiTap implementation used the i95cl's built-in MultiTap engine, with a 2 second timeout and timeout kill.
+We only considered lowercase text entry in this evaluation.
+As such, the MultiTap engine was modified slightly to remove characters from the key mapping that were not on the face of the key, so that the options available were only the lower case letters and numeral on the key.
+Fifteen participants recruited from the university community volunteered for the experiment.
+There were 5 women and 10 men of whom 2 were left-handed and 13 were right-handed.
+All participants had little prior experience in entering text into mobile phones, and did not receive any tangible compensation for their participation.
+We wished to compare the performance of ChordTap to existing techniques for entering text into mobile phones.
+For this experiment, we chose MultiTap as the comparison technique, because it has served as a baseline in almost every other evaluation of text entry reported to date, and because it is the most common of the consecutive action techniques.
+In previous experiments reported in the literature , MultiTap users were usually instructed to use only the thumb on the dominant hand to press keys.
+However, informal observation of MultiTap users indicates that many use two thumbs to enter text.
+Since ChordTap is also a two-handed technique, we tested both one and two-handed MultiTap use.
+The onehanded case served as a common baseline for comparison with previous studies.
+Participants entered short phrases of text selected from MacKenzie and Soukoreff's corpus .
+These phrases were selected because they have been used in previous text entry studies involving MultiTap , allowing comparisons with this previous work.
+This corpus' high correlation of frequencies of letters to the English language is an asset, although it does not take into account abbreviations commonly used in mobile text input.
+Timing began when participants entered the first character of the phrase, and ended when the phrase was entered completely and correctly.
+If an erroneous character was entered, the phone alerted the user by vibrating, and the user was required to correct their error.
+With this procedure, the end result is error-free in the sense that the correct phrase is captured.
+Also, the phrase completion time incorporates the time taken to correct for errors.
+Phrases were shown to participants on the phone's display.
+Before beginning each treatment, participants were told to read and understand the displayed phrase before entering it, and were given instructions for that treatment as follows: One-handed MultiTap instructions: to enter a character using the MultiTap technique, first find the key that is labeled with that character.
+Press that key repeatedly until the desired character is reached.
+Press once for the first character, twice for the second, three times for the third, and, if present, four times for the fourth.
+Once you have found the correct letter, and are ready for the next one, you simply repeat the process.
+If the letter you wish to enter next is on the same key, you must first either press the "right" arrow on the phone or wait two seconds for the cursor to advance.
+Two-handed MultiTap instructions : in this experiment, we are interested in seeing how people use MultiTap with two thumbs simultaneously.
+Please hold the phone with two hands so that you are able to reach all of the keys with either thumb comfortably.
+As you enter text, use whichever thumb you wish to press the appropriate key - do whatever feels best for you.
+Feel free to change how you press keys as you get more comfortable with the technique, but please be sure to press only with your thumbs.
+ChordTap instructions: to enter a character using the ChordTap technique, first find the key that is labeled with that character, then hold it down.
+Next, press the chord on the back of the display that corresponds to the position of the letter on the key.
+For the first letter, press the top chord, for the second letter, the 2nd chord from the top, for the 3rd letter, the 3rd chord from the top.
+To enter the 4th letter on a key, press any two of the chords.
+ChordTap works by detecting the state of the chords at the time you release a key.
+Because of this, you can continue to hold down a chord if two keys in a row require the same chord.
+It's also not important whether you press the chords before or after the key, just so long as the correct chord is being held when you release the keys.
+The experimenter then demonstrated the relevant technique.
+To ensure that participants understood how the technique worked, they were asked to enter a single phrase that would require the use of all chord combination for ChordTap, or two successive letters on the same key for MultiTap.
+Instructions were also given to describe space and delete keys, as well as to enter an extra space at the end of the phrase to indicate completion.
+The process for error correction was also explained.
+Participants were directed to rest as required between phrases, but to continue as quickly as possible once they had started entering a phrase.
+In other words, all participants entered identical phrases in the same order, the only difference being which technique they used.
+Participants were asked to rest for at least 5 minutes between each block, and each session of 8 blocks was conducted on separate days.
+In summary, the design was as follows: 3 techniques x 5 participants per technique x 2 sessions per participant x 8 blocks per session x 20 phrases per block  = 4800 phrases entered in total.
+The standard wpm  measure was used to quantify text entry speed.
+Traditionally, this is calculated as *60/5.
+Because timing in our experiment started only after entering the first character, that character should not be included in entry speed calculations.
+Thus, the phrase length is n-1 characters in our computations.
+Although users entered an extra space at the end of each phrase to signify completion, the entry of the last real character of the phrase denotes the end time.
+The average text entry speeds for all blocks were 13.59 wpm for ChordTap, 10.11 wpm for one-handed MultiTap, and 10.33 wpm for two-handed MultiTap .
+Pairwise means comparisons showed that ChordTap was significantly faster than both MultiTap techniques, with no significant difference between the two MultiTap techniques.
+Overall, ChordTap was 32% faster than two-handed MultiTap, which in turn was 2% faster than onehanded MultiTap.
+Interestingly, we see in Figure 3 that while the progress of average speed per block for one-handed MultiTap fits the power law of learning with a high correlation , this correlation for two-handed MultiTap is not as strong .
+We attribute the difference to users' changing their use of the non-dominant hand throughout the experiment in the two-handed case.
+Since hand use was not prescribed, users were free to change how it was used over the course of the experiment.
+Data was collected for both one and two-handed MultiTap and ChordTap.
+To prevent the transfer effects between techniques inherent in within-subjects designs, a betweensubjects design was used.
+Participants were randomly assigned to three groups of five.
+The first group performed the experiment with the one-handed MultiTap technique, the second group used the two-handed MultiTap technique, and the third group used the ChordTap technique.
+Participants were asked to complete two sessions of 8 blocks of trials each.
+Each block required the entry of 2 identical practice phrases, followed by 20 different phrases selected randomly from the corpus.
+Phrase selection for each of the 16 blocks were done before the experiment, and presented in the same order to each participant.
+Phrases were selected such that all blocks had similar average phrase lengths.
+The same set of phrases and blocks were used for all three techniques.
+We attribute this higher rate to the less obvious chording scheme , and to the requirement to press two chords simultaneously.
+While the higher error rate for `z' could also be attributed to its lower frequency and thus fewer opportunities for user practice, the same cannot be said for `s' which appears as frequently as characters  with lower error rates.
+As Figure 3 shows, all three techniques began with roughly the same performance , but improved at different rates.
+ChordTap users had an overall improvement of 90% between the first and last blocks, vs. 45% and 39% for one and twohanded MultiTap respectively.
+Two-handed MultiTap users spent most of the first day  with lower average speeds than the one-handed users.
+The one-day break seemed to benefit them more, as they spent all of the second day with higher speeds than the one-handed users.
+By the end of the experiment, average speeds were 11.05 wpm for one-handed MultiTap, 12.04 wpm for two-handed MultiTap, and 16.06 wpm for ChordTap.
+Recall that that our experimental procedure required participants to make corrections as they proceeded, with an end result of a completely correctly entered phrase.
+As such, the entry speed results discussed previously incorporate the cost of error correction.
+However, it is still helpful to look at a more explicit error rate.
+We calculate percentage error rate as the number of characters entered that did not match the expected character, divided by the length of the phrase.
+In this case, we used the actual length of the phrase, and not  as in the wpm rate.
+With ChordTap an incorrect character can be generated in two ways: by pressing an incorrect key  or incorrect chord .
+An examination of error rates  on individual letters shows that the key error rate is fairly consistent across letters .
+The chord error rate, however, varies more widely .
+This is a proof of concept experiment that indicates concurrent chording to be a viable text input technique for mobile phones.
+Note that these results were achieved despite a fairly crude prototype of switches for entering chords.
+As such, it is highly likely that with better industrial design of the chord switches and their integration with the phone, even greater performance benefits could be realized.
+It is also plausible that an appropriately designed layout could enable chording and keypad entry to be performed using the fingers of one hand.
+It will be the topic of future work to examine how this technique could be adapted for the use with one hand, and how varying the placement of the chords impacts speed of entry.
+We will also examine applying the research of Gopher & Koenig  to alter the mappings of chords to characters to optimize entry speed.
+One of the reasons why we chose to compare ChordTap to MultiTap was because MultiTap is used as a baseline technique in most studies of text entry performance.
+We are able to make direct comparisons with our own previous technique, TiltText, since our experiment in  used a nearly identical design.
+We are able to overcome the only difference between the present and previous work by looking only at the data from the between-subject portion of the earlier experiment .
+At the end of the experiment for TiltText, users had achieved speeds of 13.5 wpm, with an error rate of 8.6%, as compared with ChordTap's 16.06 wpm and 4.5% in the present study.
+As was done in , we are also able to approximate a comparison of the performance of ChordTap to MacKenzie's Letterwise, by comparing our results to that of .
+We see that the 16th block of our experiment is roughly equivalent to the 6th or 7th session in MacKenzie et al.
+At this point, their data for MultiTap is roughly in the 11 wpm range, which is very close to ours.
+At the same point in time, entry rates for LetterWise are about 14 wpm, which is in the same range as our experiment's rate for ChordTap of 16.06 wpm.
+While the different experimental designs, number of phrases per block, and other factors necessarily imply that these cross-experiment comparisons are not precise, this rough analysis does give us a ballpark sense of how ChordTap compares to techniques other than MultiTap.
+We have described a taxonomy of mobile phone text-entry research, with particular focus on the differences between consecutive and concurrent approaches.
+Our experiment has demonstrated the effectiveness of the classic concurrent technique, chording, when applied to mobile phone text entry.
+The performance advantages seen over the consecutive action MultiTap technique, and consequently the inherent advantages over linguistic disambiguation techniques, indicates that concurrent text input could be a viable alternative to current techniques.

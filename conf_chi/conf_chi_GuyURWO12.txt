@@ -1,0 +1,312 @@
+Although people search can be viewed as another type of vertical, it is only recently that a study provided the first comprehensive query log analysis of a commercial Dutch engine for people search .
+The study showed that most people search is for celebrities, key players of bursty events, and friends or family members.
+In the enterprise, people search has a rather different set of motivations.
+Employees may look up the details of an individual with whom they have a meeting or correspond with on email or instant messaging.
+They may explore the organizational unit or management chain of a complete stranger whose name they heard during a call.
+They may also look up a specific detail, such as the phone, email, or office location of a person they already know.
+In some cases, employees may only have partial information about the person they want to find: Alice whose last name starts with an `H', Bob who works in Dublin, or someone whose last name is Johnson and works in the Research division.
+In this paper, we present Faces, an application for people search in the enterprise, and analyze its use within IBM.
+In Faces, the results are presented and updated while the user is typing and fuzzy search handles misspelling.
+The user interface is designed to provide the most essential details of individuals and to allow easy navigation across the organizational chart.
+Scoring heuristics are used to bring the most relevant people as top results.
+The massive-scale backend pre-calculates and stores information to support fast response.
+Person data is kept in memory to speed scoring and display at runtime.
+Faces has been rapidly adopted within our organization, gaining tens of thousands of users per month.
+In this work, we take advantage of its popularity to provide a large-scale evaluation of enterprise people search, relying on over four months of data, with over one million queries, and 35,000 distinct users.
+We also conducted a survey with 661 participants and interviewed 20 users.
+The goal of our analysis was to better understand the main scenarios and motivations that drive the search for other people in the enterprise.
+We wanted to gain insight on how employees perform their search, the people they search for, and how the Faces design supports this activity.
+This paper presents Faces, an application built to enable effective people search in the enterprise.
+We take advantage of the popularity Faces has gained within a globally distributed enterprise to provide an extensive analysis of how and why people search is used within the organization.
+Our study is primarily based on an analysis of the Faces query log over a period of more than four months, with over a million queries and tens of thousands of users.
+The analysis results are presented across four dimensions: queries, users, clicks, and actions, and lay the foundation for further advancement and research on the topic.
+Searching for other individuals is one of the most fundamental scenarios in an enterprise.
+As businesses become global and distributed, employees more often need to look for others in the organization and find out their job title, organizational unit, contact information, management chain, or office location.
+We define people search as any search in which the returned entities are people.
+Despite its fundamentality, people search within the enterprise has received little attention in the literature.
+Most of the existing studies focus on the expertise location challenge, where the employee looks for another employee who is knowledgeable of a certain topic or field.
+However, searching by expertise is just one type of people search; other search criteria can include name, location, job role, email, phone number, or any combination of these.
+Even outside the enterprise, studies on people search have been limited.
+Many works have studied web search engines, where the returned entities are web pages .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The rest of the paper is organized as follows.
+We open with related work, followed by a description of Faces and its user interface.
+We briefly describe the scoring method and backend mechanisms, but those are not analyzed in this paper.
+The analysis section presents an extensive overview of how Faces is used to search for people in the enterprise, across four dimensions: queries, users, clicks, and actions.
+We conclude by discussing our findings and suggesting future directions.
+Our evaluation is primarily based on analysis of the Faces query log.
+Query log analysis is a common method for evaluating search engines and has been widely used in past work.
+One of the first studies  provided a large-scale query log analysis of the AltaVista web search engine, including popular query terms, query length, number of clicks per search, and more.
+Broder  classified queries in web search engines into three types: informational, navigational, and transactional.
+When Jansen and Spink  compared the query logs of nine web search engines, they found that entity search, including people search, has been on the rise.
+The most relevant related work is a very recent query log analysis of a Dutch people search engine on the Web .
+As the authors state, "it is the first time a query log analysis is performed on a people search engine".
+The authors found that the percentage of one-query sessions  is higher as compared to web document search, and that the click-through rate  is much lower than for document search.
+Additionally, less than 4% of the queries included a keyword along with the person's name.
+Our result analysis and discussion further relate to that study and highlight the commonality and difference between web and enterprise people search.
+Searching people in the enterprise may be associated with the broader domain of enterprise search, typically referring to searching for content within the organization.
+Despite the advances in content search technology over the years, research shows that employees still spend a large amount of time searching for information .
+The people search part is approached and evaluated as an expertise location task.
+Expertise location helps users find a person with knowledge or information about a certain technology, process, or domain.
+Typically performed within an organization, it is the only well-studied type of enterprise people search.
+Quite a few empirical field studies of enterprise expertise location systems have been conducted along the years.
+For example, Mcdonald and Ackerman  performed a field study within a medium-size software company and Reichling et al.
+Yiman-Seid and Kobsa  identified two motives for seeking an expert: as a source of information and as someone who can perform a social or organizational role.
+Ehrlich and Shami  further enumerated four motives: getting answers to technical questions, finding people with specific skills, gaining awareness of "who is out there", and providing information.
+Several studies suggested using other criteria, such as the organizational or social network, in addition to a topic, as query for expertise location.
+ReferralWeb  was one of the first systems to do so, allowing users to specify a search topic and a social criterion .
+Expertise Recommender  filtered expert search results based on two elements of the user's network: organizational relationships and social relationships gathered through ethnographic methods.
+All of the above still have the topic as the center of the query.
+In our work, the query is not constrained to include a topic and thus addresses a broader scope of people search than expertise location.
+Faces is a web application used to find people within an enterprise.
+Two applications existed in the enterprise before we deployed Faces: a user interface into the Corporate Directory   and an enterprise social network site  .
+A user profile in the SNS includes the employee's "friends" and tags applied by others, as well as recent activity in enterprise social media, such as blogs, wikis, bookmarks, and forums.
+Faces was designed to overcome many of the deficiencies found in these existing applications and included the following goals: Return as many results as possible, as fast as possible, and score them so that the most relevant people show up first * Emphasize closer matches in the interface * Search a mixture of user profile attributes; support partial matches and misspelling * Allow quick navigation over the organizational environment: direct reports, peers, and managers * Show people's faces Fast response was of vital importance.
+We were introducing Faces into an enterprise that had existing, extensively-used applications for people search.
+It was essential to introduce significant improvements in functionality and performance to get users to switch.
+Our goal was to have results displayed within 100 milliseconds for each search.
+We provide a comprehensive overview of the application being used to analyze enterprise people search.
+The Faces application starts out with a simple interface that includes an empty search box and a prompt "the best way to find employees.
+The user simply enters the information related to the person they are looking for.
+This may be a first or last name, or some other data about the person such as their job title, location, or a tag associated with them.
+Tags are retrieved from an enterprise people tagging application, which allows employees to annotate each other with descriptive terms .
+As the user starts typing, Faces updates the results dynamically.
+A search is performed with each character typed, unless another one is typed less than 100 milliseconds thereafter .
+If the user types another character while the search results to the previous string are still being processed, they are discarded.
+Otherwise, the top results are displayed to the user with both a picture  and basic identification information, as shown in Figure 1.
+The display is continuously updated with results as the user types.
+When users click a result, a larger "lightbox" pops up with more information, as depicted in Figure 3.
+This information includes the organizational environment: management chain, peers, and direct reports .
+It also contains a "more info" link, which replaces the organizational environment view with details such as the person's office location , serial number, links to both the person's CD and SNS pages, as well as a "permalink" URL to this person's information within Faces.
+The user can click again to switch back to the organizational environment view.
+In the existing CD and SNS applications, searching is not performed until the full text is typed and submitted by the user.
+In contrast, Faces provides instant feedback while the user is typing.
+The user may often find the person they are looking for even before they finish typing the data.
+As more text is entered into the search box, the confidence in the potential results increases.
+When the results become more distinctive, we present the top ones with a larger thumbnail to make them easier for the user to notice.
+Figure 2 depicts a case of two larger results.
+We only present larger results if they have a score that is at least 20% higher than the score of the subsequent result.
+The number of larger results is determined according to the gap in score of the subsequent results and does not exceed four.
+Faces provides basic information for initial results of face, name, email, and job title .
+More detailed results also include location , division,
+Upon hovering over a face in the organizational environment, a tooltip appears with the person's name and job title.
+In addition, users can easily browse up, down, and across the organization chain.
+Clicking a person's face displays their information on the lightbox, instead of the person currently presented.
+As people are selected from the organization environment, their pictures are kept at the top of the lightbox as breadcrumbs to allow jumping conveniently to any of them .
+A user who is not identified is prompted to do so by a string that appears at the bottom of each page "Want better results?
+Tell us who you are!"
+Scoring brings the most relevant results to the top of the list.
+As the user starts typing, the backend system gathers all people that have a profile field that matches the search term.
+Scoring is then performed on this set of matches by calculating a cumulative score that is a product of the importance of the matching field and the strength of the match.
+The strength of the match designates how well the search term  matches the field's text; it has three possible values for: exact match, prefix , and substring .
+In case of multiple matches of a token to a field, the one that yields the highest value, taking into account both field importance and match type, is considered for scoring.
+On top of the basic scoring, Faces applies a personalization boost when the user has identified.
+Personalization boost is added when : the person is in the searcher's network or vice versa; the person is in the searcher's management chain or vice versa; they share the same work location, organizational unit, or country.
+If less than 250 results match the query, Faces performs a fuzzy search to catch phonetic misspellings and extend the set of results.
+For fuzzy search, the Metaphone 3 software , which extends the Metaphone algorithm for phonetic encoding , is used.
+Up to one million additional results are fetched based on misspelling alternatives.
+The match strength value for these results is normalized according to the phonetic resemblance.
+The system uses Apache Hadoop's map-reduce paradigm  to distribute the burden of precomputation and load the data into Voldemort.
+Data is retrieved from multiples sources, including the corporate directory , the people tagging application , and a social network aggregation system, called SONAR  .
+SONAR calculates a weighed list of a person's familiar people in the organization, taking into account relationships as reflected across various enterprise systems, including the explicit enterprise SNS, the organizational chart, databases of projects and patents, and enterprise social media .
+SONAR has shown to effectively produce the list of a person's familiar people in the enterprise .
+The Faces runtime is implemented principally using Java web application servers.
+Person information is loaded into memory from Voldemort  at server start-up.
+In addition, mappings of all substrings of length 1, 2, and 3 to their matching person IDs  are loaded into memory to allow speedy response to the query's first few characters.
+Scoring is performed at runtime as explained in the previous section.
+Our evaluation is based primarily on query log analysis.
+The Faces query log documents every query string sent to the server, along with its respective timestamp and the user's IP address and ID if they are identified.
+For each query, the log records the interface actions taken by the user, such as clicking on results or navigating the organizational environment.
+We also conducted a short user survey to cover several aspects that could not be inferred from the logs, such as the most important piece of information about a person found or the use of copy-paste versus manual typing.
+The survey also prompted for general free-text comments.
+We sent the survey to the top 2000 Faces users and received 661 responses.
+Participants originated from 45 countries, spanning the different divisions within our organization.
+Furthermore, we interviewed 20 Faces users to get an indepth understanding of why and how they use Faces.
+The interviewees originated from 13 countries, spanning different usage levels of Faces.
+The interviews were conducted by phone and lasted half an hour each.
+The Faces backend is built to support very fast response to people search queries and enable the dynamic update of results.
+Project Voldemort , a distributed key-value storage system, serves as the main data storage mechanism.
+Based on this data structure, Faces determines person IDs that are relevant to the query.
+When asked about the most compelling features of Faces, our survey participants and interviewees noted the dynamic display of results and their high relevance, fuzzy search support, simplicity of the interface, and speedy performance.
+Many said they found Faces to be the most useful intranet application.
+One participant wrote: "This is a fantastic application and I have come to depend on it for my day-today business function.
+The ability to search using various fields is very useful" and another stated "Together with email and calendar, this is my most used internal service."
+Some people mentioned that they keep a browser tab open with Faces on it, for "fast access to people".
+They use Faces to find a person in a matter of seconds and typically do not spend extra time on exploration.
+Some did mention that serendipity may occur when someone else in the display catches their eye.
+Among the most common usage scenarios people mentioned were searching for individuals who send mail to their inbox, appear in their calendar meetings, and participate in chats and phone calls.
+One participant wrote: "I often use Faces when I get an email from someone I don't know or when people I do not recognize are copied" and another noted: "Faces fast performance allows me to look for someone while they are calling me, just by quickly typing in their phone number."
+One interviewee said "When I go to meetings abroad, I look up the people I'm going to be meeting beforehand" and another told us: "I have once set up a call with someone I was already working with, and he suggested that I add more participants to the conference, so I wanted to know their role, location, and org chart relation to him.
+I found out that one was his manager, one was his employee, and one worked in his lab on this topic."
+Hearing someone's name during a meeting was also mentioned as a common use case.
+One interviewee said: "I often hear a person's name or nickname in a meeting, do not get the full name, but try to find them with the first name and keywords from the context of the discussion."
+Other interesting scenarios described were: "I use Faces when I hear about an organizational change and want to better understand it" and "I recommend it to every newcomer in my team and it is key to their integration."
+We next provide an in-depth analysis of the use of Faces across queries, users, clicks, and actions.
+This can be attributed to the fact that users do not need to complete the whole string or correct spelling mistakes due to the dynamic result updates and the support for partial matching.
+We note that the fact that a click was not made, does not mean the user did not find the desired result, since many of the details appear inline.
+Figure 4 shows the distribution of number of characters per query for clicked queries.
+The most common query length was 6 characters , implying a low effort to get the desired result.
+In our survey, we asked participants whether they use copy-paste of text for their queries rather than typing the text themselves.
+3.2% indicated they always use copy-paste, 12% chose `often', and 17.1% indicated they use it for about half of their queries.
+We conclude that while copy-paste is not the prevalent way for querying, it is used from time to time by most users.
+Hence, the number of characters for manuallytyped queries is likely to be even lower.
+One interviewee said: "I often copy names or email addresses from email or chat messages I get or from calendar meetings."
+Since Faces updates results as the user types, each character can lead to a new query of the backend.
+However, in our analysis we were interested in the final string of characters created once the user stops typing.
+We therefore merged successive query log entries by the same user that had an edit distance of at most 3 between their respective query strings.
+The edit distance between two strings is the number of operations required to transform one to another; we specifically used the Levenshtein distance definition.
+This merging method is required since users sometimes delete and/or enter characters in the middle of the query string .
+The value of 3 is needed since not every character edit is logged .
+The rest of the section refers solely to the merged queries.
+Inspecting the clicked queries, the most common number of tokens per query was 2 with 53.3%.
+7.28% of the queries included a keyword, i.e., a token that is neither a name nor contact information 
+This portion is higher than the 3.9% reported for the commercial engine .
+It could be explained by the fact that in the organization, people are associated with more attributes, such as the organizational unit or the job description.
+The upper rows of Table 1 show the distribution of number of characters per token .
+The most common token lengths were 4, 5, and 6 characters .
+4% of the tokens had 9 or more characters.
+Match percentage is low when token length is 1 or 2 characters and gradually increases as token length grows.
+For tokens with 9 or more characters it decreases slightly, probably since the likelihood for misspelling grows for lengthy tokens.
+Overall, 35.6% of the tokens did not have an exact match, indicating the support for partial matching and fuzzy search is indeed of need.
+One of our interviewees made an interesting comment in this context: "Working in a global environment exposes us to names we have hard time to spell or even pronounce.
+Faces breaks the barrier of culture within the organization by allowing us to easily locate international colleagues."
+Names had a higher match percentage than keywords.
+First name had a particularly high portion of exact matches.
+Our participants indicated they occasionally copy and paste a name or an email to search Faces.
+This may contribute to the high percentage of exact matches for these fields.
+Separately inspecting the tokens of one, two, and threetoken queries , the first token of the query was typically longer  and with a higher exact match .
+1- or 2-character strings were very uncommon  for the first token.
+By contrast, 27.2% of the second tokens in 2TQ were of 1 or 2 characters.
+The median length was 4 and only 38.1% exactly match their respective field.
+Similarly, the second and third tokens of 3TQ were of median 3 and 4, and with exact match of 51.5% and 40.6%, respectively.
+These numbers imply that users often provided one full token and only a subset for the second and third.
+One interviewee noted: "I usually need to provide a name with another hint of character or two before I find the result" and another said: "I often don't remember correctly long family names, so it's a blessing Faces can suggest results after typing the first few letters."
+We next examine the types of query tokens to understand what person fields were used as search criteria.
+For each clicked query, we matched each of its tokens with a field of the resulting person.
+Matching was done even when the token did not equal the field, based on substrings and phonetic resemblance, using the same mechanism used by Faces at runtime.
+Overall, we inspected the following field types: first name , last name , middle name , email , job title , location , tag associated with the user , and organizational unit .
+The vast majority of the tokens referred to first names and last names, as can be seen in the upper rows of Table 2.
+Employee ID  and phone number  appeared in a small portion of the tokens and are not shown on the table.
+Table 3 depicts the breakdown of type distribution by tokens in queries of length 1, 2, and 3.
+For 1TQ, most tokens were evenly distributed between first name and last name.
+For 2TQ, first name was predominant as the first token, while last name was prevalent as the second.
+Email was mostly used as a single token, since it is a unique identifier.
+Keywords were used more often as part of multiple-token queries, especially in three token queries.
+Job and Tag were spread evenly across the tokens, while Location and Org tended to appear in the second or third, as a means to further narrow down the search results, as one interviewee noted: "If I don't have the person's exact name, or can't spell it, I try to add hints like location or division".
+For our study period, 265,940 people used Faces, according to distinct IP addresses.
+There were 36,663 distinct identified users, who originated from 82 countries.
+The portion of users from Services and Sales is higher than their relative division sizes.
+Indeed, they typically need to work with a wider set of individuals and teams, compared to, say, software developers or system engineers.
+Figure 5  shows the distribution of the number of queries for identified users, which follows a power law with slope =-1.93.
+Figure 6 shows the percentage of managers within the top Faces users.
+Top usage is determined according to the number of queries issued by a user along the time period.
+The corresponding number of queries by the last person on the list is shown in brackets.
+For example, the top 100 include users with 209 queries or more.
+The "All Users" bar shows the percentage of managers for all identified users, while the "All IBM" bar shows the percentage of managers within the entire organization, for reference.
+Clearly, the percentage of managers is higher among heavier Faces users .
+Overall, it is evident that managers use Faces more frequently.
+This can be explained by the fact that managers typically need to communicate with a large numbers of people, receive more email, and participate in more meetings, making people search more fundamental to their job.
+Table 4 shows the top 10 most popular resulting employees, in terms of click counts  and distinct users who clicked.
+Per each person result, the table also shows the level in the organizational hierarchy  and the number of people managed, either directly or indirectly .
+The company's CEO is by far the most popular, while the rest on the list are also very senior executives, either senior vice presidents  or general managers .
+All have a high level in the organizational hierarchy and a large number of people managed.
+It should be noted that these senior executives do not lead the list of Faces frequent users and, in fact, most did not use Faces at all during the inspected period.
+The overall number of distinct employees who were clicked within Faces over the analysis period, either as a result or through the organizational environment, was 274,390.
+The overall number of employees clicked at least once as a direct result of a query was 243,354.
+The distribution of these employees according to the number of times they were clicked as a result is depicted in Figure 5 .
+The average rank of a clicked result was 1.82 for identified users and 2.34 for non-identified users, indicating that the personalization of results indeed improves ranking.
+Even without personalization, the relevant person is typically very high on the list of results once the user clicks.
+Figure 7 displays the average level and number of people managed for the most popular Faces results.
+Popularity was determined by click count; the number in brackets is the corresponding click count for the last person on the list.
+For example, the top 100 most popular results had 116 clicks or more.
+The trends are generally very clear: popular results tend to be of senior people who are high up the hierarchy and manage many employees.
+The average level of the top 100 results is 2.6 and gradually goes down the hierarchy to 4.8 for the top 10,000, which is still much higher than the organizational average at 6.2.
+It should also be noted that the percentage of managers among the top results is very high: 93.6% for the top 100 and 60.7% for the top 10,000.
+We next analyze the relationship of users to the people they searched for.
+We first examine how many of a person's searches fell among her top 150 familiar people, as calculated by SONAR.
+Overall, only 7.5% of the searches were of people among the user's top 150 familiar people.
+In our survey, a somewhat different picture was received.
+The vast majority of participants  chose `about equally strangers and people I know' in response to a question about whom they search for more often.
+Comments made by our interviewees shed more light on the reason for this gap.
+One said "I know many people across the company, so most people I search for I vaguely know or remember from before" and another mentioned: "Many of the people I don't personally know, but rather know of  for example, people who were on meetings with me or whom I previously searched".
+Apparently, the 150 people returned by SONAR represent the employee's stronger ties within the organization, but typically the number of people they are familiar with, or are aware of, within the organization, may be much higher.
+While users mostly searched for strangers or faint ties, we found that these often belonged to the same country and division.
+74.7% of the searches were for people in the same country.
+In 30% of the cases, these were people from the same office location.
+Additionally, 56.9% of the searches were within the same organizational division.
+While searching for strong ties was rare, self searching was rather common.
+43.8% of the identified users searched for themselves at least once.
+Of these, 65% searched for themselves exactly once, while 6.9% did so 5 times or more.
+The most ardent self searcher did this 336 times.
+Interestingly, this is a substantially higher click ratio than for all queries .
+In our survey, we asked participants about the single most important piece of information, once they find the person they are searching for.
+Figure 8 shows the distribution of answers.
+Contact information - phone number  and email address  - is at the top of the list.
+The organizational environment is also among the most important, with 20.1%, as demonstrated by this comment: "I look at the peers to see if I know someone on the team they are on."
+And also: "I often examine the management chain to understand to which organization they belong and who is the executive in charge."
+Job description was selected by 11% , while the person's full name was selected by 10% 
+Photo was selected by 7.7% of the participants.
+Location and organizational unit were selected by very few participants as most important fields, and are perceived by most as complementary information.
+One participant wrote: "I often look up a person's photo who works in the same building when talking to them the first time, then walk to their location and find them by comparing the photo to real faces."
+Some of the participants mentioned that the selection depends on the search scenario.
+The overall number of actions within Faces along the time period was 2,487,518.
+Figure 9 details the different action types and their distribution of occurrence .
+Clicks on query results constituted 30.4% of all actions.
+Clicks on the organizational environment  were even higher at 34.9% overall.
+It is interesting that peers were explored more often than the management chain; this could be due to fact that a person typically has more peers than managers.
+The lower portion of direct report clicks is expected since this option exists only for managers.
+The breadcrumbs within the organizational environment view were clicked in 6.9% of all cases, indicating that users often navigated back and forth across the organizational environment of the searched person.
+Clicking on "more info" to see additional details about the searched person was another common action , leading to clicks on external links, either to the CD or the SNS .
+Going back to organizational environment view  was less frequent .
+Overall, we observed a high level of diverse activity beyond the click itself, especially around exploration of the organizational environment.
+We also compared how managers use Faces versus regular employees.
+Table 5 summarizes the comparison across different aspects related to queries, clicks, and actions.
+All differences were found to be statistically significant.
+First, the average number of searches by managers was higher than by employees, again indicating that managers use Faces more frequently.
+A higher percentage of the managers searched for themselves.
+A comment by an interviewee, who manages a department of a few hundred people, provides insight for this difference: "I often need someone within my own organization, so I start by searching my own name and then dig into my team  to find them".
+Indeed, while 14.9% of the managers searched themselves 10 times or more, only 8.1% of the employees did so.
+Keyword tokens were used more often by employees.
+The only type of keyword used more frequently by managers was organizational unit, supposedly due to better organizational orientation.
+Managers searched for people who were higher up the hierarchy .
+The difference was not very large, as employees were also looking for people who are high up the organizational chain.
+The average percentage of results among the top 150 familiar people was higher for managers than for employees, presumably since managers search more often within their own hierarchy.
+Finally, managers carried out more actions per clicked result than employees, indicating that they conduct more exploration of the organizational environment than regular employees.
+The number of queries per user is much higher than reported for the commercial engine , indicating that people search in the enterprise is a more fundamental action.
+The information sought for is diverse: users pointed out phone number, email, job title, photo, location, division, and organizational environment as valuable information pieces in different scenarios.
+For example, phone and email are essential when looking to contact a known person; job title, photo, and organizational environment are important when looking up the details of a stranger or a distant tie.
+The search criteria also vary accordingly, although the vast majority of searches are done by name.
+However, if name information is not available or has been forgotten, other attributes, such as location, job title, or a tag, come to aid.
+Most employees used Faces to search for individuals they barely know or complete strangers, often within the same country or division.
+The overall user-base of Faces was very broad, both in terms of unique users and unique results, while managers were found to use it more often.
+Even more prominently, the popular searches were mostly for managers and senior executives, as opposed to `regular' employees.
+This suggests that boosting results by hierarchy level or number of people managed can be effective.
+In their study of the logs for the commercial people search engine, Weerkamp et al.
+One of the most prominent features of Faces is its dynamic result update and support for partial matching.
+Users indicated these features are of great value, allowing them to find a person even if they remember just a few letters of the name, cannot figure out the correct spelling, or misheard it.
+This was said to be especially important for long or foreign names.
+Our results indicate that Faces queries are indeed typically short .
+Over 35% of the tokens did not precisely match a field of the clicked result, indicating the practical application of these features.
+Even while using Faces for short, focused transactions, users took advantage of the interface to extensively explore the organizational environment by moving along and across the organizational chart.
+Overall, more than half of the clicks originated from the organizational environment view rather than the search results.
+This combination of "search and browse" behavior bears some similarity to web search.
+These findings support the centrality of organizational navigation in Faces design.
+One of the suggestions for improving Faces referred to searching by social network: "I would like to be able to find Collean who works with Ajamu Smith" wrote one participant.
+The org chart navigation capability provides partial support for this already, as another interviewee explained: "I sometimes make my way to the person I need by actually searching for someone I know who is close in the hierarchy".
+The most common feature request was integration with other business tools, such as email and instant messaging: "I would like to be able to instantly open a chat window with the person I found."
+A few participants suggested adding instant messaging availability as a search criterion .
+Another common comment referred to better enablement for mobile devices.
+Another repeating remark was that tags do not cover all expertise areas, so adding more keywords based on the employee's content can be of value.
+Other interesting ideas included: "I would like queries to be saved, so I can access my history of searches" and "Showing Twitter ID or LinkedIn ID would be handy."
+Throughout our analysis we pointed out the similarities and differences between Faces and the commercial people search engine : in both, one-query sessions are popular and search by name is dominant, but in Faces keywords are more common; click ratio is low in both engines, compared to web search engines, however, it is higher in Faces; the percentage of unique query strings is expectedly higher in Faces as well as the average number of queries per user.
+Obviously, some of these stem from the different designs of the tools.
+Overall, however, both people search engines have unique characteristics that distinguish them from other search engines, e.g., the prevalence of one-query sessions, low click ratio, and massive use of names for querying.
+This study lays the foundation for further in-depth exploration of enterprise people search.
+Comparing search characteristics among job roles  can be one direction of interest.
+Further examination of self searches, to examine to what degree they are followed by exploration of the organizational environment, can also be of value.
+Inspecting more closely the level of user repeated searches is also important and can support the request for saving search history, as expressed by one participant.
+Finally, the volume of searches for an individual can serve as an indication of her influence or reputation in the enterprise.
+It would be interesting to perform an in-depth exploration of who appears high on the list of popular searches, especially when those individuals do not hold senior positions .
+Our analysis is based on experimentation in a single enterprise and is thus affected by its unique characteristics, such as the organizational structure and distribution of employees across countries and divisions.
+We believe, however, that our organization is a good representative of a large global enterprise.
+Given the importance of enterprise people search, we call for future research to study the topic further and conduct experiments in other organizations.

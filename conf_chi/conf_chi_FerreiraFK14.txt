@@ -1,0 +1,279 @@
+We often use datasets that reflect samples, but many visualization tools treat data as full populations.
+Uncertain visualizations are good at representing data distributions emerging from samples, but are more limited in allowing users to carry out decision tasks.
+We present guidelines for creating visual annotations for solving tasks with uncertainty, and an implementation that addresses five core tasks on a bar chart.
+A preliminary user study shows promising results: that users have a justified confidence in their answers with our system.
+We suspect there to be several reasons for this neglect.
+Many users are unaware of the importance of seeing their data as a sample.
+While it is common to generate boxplots to show error bars, and to run statistical tests, these usually are prepared only at the end of an analysis process.
+Many analysts simply explore their data based on the sample available, looking at averages or sums without taking into account uncertainty.
+Including statistics and uncertainty in an analysis can add a great deal of complexity to the process and slow it down, but data analysts prioritize rapid iteration for exploration.
+Even for knowledgeable users, reasoning in the presence of probabilities and uncertainty can be very challenging .
+In order to think about samples properly, users need to interpret all questions and conclusions about the data in a probabilistic manner: "is A greater than B?"
+Even with the aid of specialized visualizations, this task can still be very hard, as Micallef et al showed in their work on visualizing Bayesian probability .
+Part of the challenge is that showing an uncertain value does not necessarily help reason about uncertain values.
+Many visualizations have been adapted for showing uncertainty, ranging from error bars to more exotic tools .
+These visualizations often focus on specifically showing uncertainty ranges .
+However, there are many tasks that we understand how to accomplish on non-uncertain charts , such as comparing bars to each other, or finding the largest and smallest values; these uncertain visualizations do not directly support them.
+While it is easy to compare the heights of two bars, it can be difficult to compute the probability of a nearly-overlapping set of uncertainty regions.
+Previous work has shown that even experts trained in statistics make mistakes when interpreting confidence intervals .
+All of this suggests the need for a better integration of statistical techniques and interactive visual interfaces to enable data analysts to understand the meaning of sampled data.
+In this paper, we take a first step in this direction: we investigate how to adapt the data analysis process to respect samples.
+In order to do so, we modify analysis tools to allow users to carry out tasks based on quantified uncertainty.
+The goal of data analysis is, in general, to describe attributes of a population based on quantifiable properties.
+Yet we often interact with samples of data, rather than the full population.
+Sometimes, samples are employed because processing the entire data set places unacceptable overhead on storage or computing .
+More often, only a subset of a much larger real-life distribution is available: because the data is a sample by its very nature, such as the results from a survey, or because the instrumentation to obtain the data can only capture a small subset of the data universe , such as when only a subset of nodes in a data center run potentially expensive telemetry instrumentation.
+Despite the ubiquity of samples in data analysis, far too many visualization tools neglect the fact that the data is a sample.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Copyright is held by the owner/author.
+Publication rights licensed to ACM.
+More precisely, we design visual encodings and interactions with the goal of allowing data analysts not only to identify the presence and magnitude of uncertainty, but to carry out common data exploration tasks.
+We discuss the design space for such visualizations and describe our approach.
+We focus on two common visualizations used in exploratory data analysis, bar charts and ranked lists.
+For each of these, we identify common tasks that are performed on these charts in exploratory data analysis.
+Users can interact with these charts with task-specific queries; these are shown as annotations and overlays  that allow users to carry out these tasks easily and rapidly.
+Finally, we perform a preliminary user study to assess how our visualizations compare to standard approaches, and to establish whether users are better able to carry out these tasks with uncertain data.
+We find that our annotations help users to be more confident in their analyses.
+Even experts have difficulty using confidence intervals for tasks beyond reading confidence levels.
+For example, a common rule of thumb suggests that two distributions are distinct if their 95% confidence intervals just barely overlap.
+Yet, as Belia et al  point out, this corresponds to a t-test value of a p < 0.006--the correct interval allows much more overlap.
+Cummings and Finch  further note that most researchers misuse confidence intervals; they discuss "rules of eye" for reading and comparing confidence intervals on printed bar charts.
+While their suggestions are effective, they require training, and are limited to comparing pairs of independent bars.
+While it may be complex, representing uncertainty can help users understand the risk and value of making decisions with data .
+For example, long-running computations on modern "big data" systems can be expensive; Fisher et al  show that analysts can use uncertainty ranges, in the form of confidence intervals on bar charts, to help decide when to terminate an incremental computation.
+The idea of visualization techniques that can handle uncertainty is a popular one in the visualization field.
+Skeels et al  provide a taxonomy of sources of uncertainty; in this paper, we refer specifically to quantitative uncertainty derived from examining samples of a population.
+Olston and Mackinlay  suggest a number of different visualizations for quantitative uncertainty, but do not carry out a user study.
+Three recent user studies  examined ways that users understand uncertainty representations.
+All three studies examine only the tasks of identifying the most certain  values, and do not ask about the underlying data.
+Major exploratory visualization tools available today--such as Tableau, Spotfire, and Microsoft Excel--do not have a built in concept of samples or uncertainty.
+Rather, they treat the data presented within the system as the whole population, and so present any numbers computed from the data -- sample sums and averages, for example --as precise.
+However, as Kandel et al note , data analysts often deal with samples or selections of data.
+Statistical software, such as SPSS and SAS, do have a more sophisticated concept that the data introduced is a sample, and draw their visualizations with error bars and confidence intervals as appropriate.
+However, these visualizations are usually produced in the process of running an explicit statistical test; by the time this test has been run, the user usually knows what questions they wish to investigate.
+This is highly effective for hypothesis-testing, but less useful when the user wishes to explore their data.
+There is an opportunity, then, to provide lightweight data exploration techniques combined with statistical sampling.
+Beyond identifying the existence of uncertainty, we also want users to be able to carry out basic tasks with charts.
+To identify what those tasks should be, we turn to Amar et al , who identify ten different tasks that can be carried out with basic charts.
+Their tasks include comparing values to other, discovering the minimum value of a set of data points, and even adding several points together.
+All of these tasks are very quick operations on a standard bar chart without uncertainty: comparing two bars, for example, is as easy as deciding which one is higher.
+To make chart-reading tasks easier, Kong and Agrawala  suggest using overlays to help users accomplish specific tasks on pie charts, bar charts, and line charts.
+Their overlays are optimized for presentation; they are useful to highlight a specific data point in a chart.
+In contrast, our approach allows users to read information that would have been very difficult to extract.
+It can be difficult for users to reason in the presence of probabilistic data: Tversky and Kahanen  show that people make incorrect decisions when presented with probabilistic choices.
+It is possible to make more accurate decisions about data analysis when provided with confidence intervals and sample size information .
+Unfortunately, the classic visual representations of uncertainty--such as drawing confidence intervals or error bars--do not directly map to statistical precision.
+However, when comparing representations of probability distributions, it may not be so simple to extract this information.
+Instead of comparing fixed values, the user needs to perform statistical inferences based on the given distributions .
+Furthermore, a change in mindset is required: instead of asking whether or not a particular fact is true, the analysts can only estimate the likelihood of a fact being true or not.
+For example, for the extreme value tasks, the question changes to be "what aggregates are likely to be the maximum or minimum?"
+These cannot be read directly off of a set of bars with uncertain ranges: a user would need to estimate how much uncertainty is represented by error bars, and how likely that makes a maximum or minimum measure.
+In Figure 1, we can be quite confident that 1995 represents the highest aggregate value; but while it is likely that 1992 is the lowest, there are several other possibilities, too.
+Several different bars might have overlapping confidence intervals, and so the correct answer might not be a single value, but a distribution.
+The visualizations that we discuss in upcoming sections  are designed to allow users to answer these questions directly and visually, rather than by making mathematical inferences.
+We use aggregates because they are common in exploratory data analysis: a core operation in understanding a dataset is examining the filtered and grouped average, sum, and count of a column.
+Indeed, visualization tools like Tableau are based largely around carrying out these aggregate operations against different groupings.
+In sample-based analyses, we carry out approximate versions of these queries: we estimate the expected average, sum, or count of a dataset based on the sample, and infer a distribution on this expected value.
+Hellerstein et al provide a simple overview of how to use the Central Limit Theorem  to estimate error bounds based on these estimators.
+As a result, the aggregate value and confidence interval represent a distribution of possible values.
+One use for this is in incremental analysis , in which the system sees cumulative samples from a large dataset, and generates converging estimates of the final value.
+The distribution for each value represents the possible values once all of the data has been seen.
+For example, consider the bar chart shown in Figure 1.
+This chart is based on a sample from a large dataset of sales by year.
+In this scenario, the analyst's task is to extract information from the probability distributions modeled from the sample.
+Amar et al  collect a series of different tasks that are commonly performed during the exploratory data analysis process.
+Their list includes low-level tasks like retrieve value, find extrema , sort values, and compare values.
+In a representation without uncertainty, such as an ordinary bar chart, these tasks have direct interpretations: to find the minimum value in the bar chart, for example, the users simply finds the shortest  bar.
+To begin our design, we selected two core data visualizations: the bar chart and the ranked list.
+Bar charts, of course, are ubiquitous; they are a core of every visualization toolkit, and are used to represent many sorts of data.
+Ranked lists are used to represent sorted elements, and often show just the top few bars of a broad histogram.
+For example, when exploring search logs with millions of entries, a researcher might wish to see the top 10 mostfrequent queries.
+These lists, truncated to the top values, are particularly relevant when the number of distinct results is too high to be shown on a single chart.
+Ranked lists are particularly interesting because they can be unstable in an incremental analysis environment.
+As an incremental system processes increasing amounts of data, its estimate for the top few items can change, sometimes radically.
+As more data arrives, the top few items gradually stabilize; one at a time, additional items would also stay in place.
+Gratzl et al  present a visual treatment for showing how a ranked list changes across different attributes; their mechanism does not address uncertain rankings.
+Uncertain ranked lists can be seen as having a partial order: we are certain that some items will be greater than others, but may be uncertain about other pairwise relationships.
+Soliman and Ilyas  provide a mathematical basis for rapidly evaluating rankings as a partial order; they do not present a user interface for interacting with rankings.
+Other visualizations, such as line charts, scatterplots, and parallel coordinates, might also be interesting to examine; we leave those for future work.
+Our goal was to design a visual data analysis environment containing summaries for bar charts and ranked lists that supported sample based analysis.
+We selected some particularly relevant tasks from Amar et al .
+For the bar chart, we support compare pair of bars; find extrema; compare values to a constant; and compare to a range.
+Amar et al also suggest the task sort values.
+For the ranked list, we selected two tasks based on sorting a list: identify which item is likely to fall at a given rank, and identify which items are likely to fall between a given pair of rankings.
+This latter task includes identifying all objects that fall in the top 3, but also every item ranked between 10 and 20.
+It can be challenging to compute the statistical tests required to compare distributions.
+If we assume independent normal distributions, the simplest operations--such as comparing a distribution with a constant, or comparing two distributions--can be computed using standard techniques such as t-tests.
+However, there is no simple closed form for many other distributions and tasks.
+To address this problem, we have constructed a two-phase computational framework that applies to all of the visualizations.
+The first phase is an uncertainty quantification phase, in which we estimate the probability distribution from the aggregate we are interested in.
+As a heuristic, we use the Central Limit Theorem to estimate confidence intervals based on the count, standard deviation, and running average of items we have seen so far.
+We create one distribution for each aggregate on the chart; we will later interpret these distributions as bars with confidence intervals.
+In the second phase, we use these distributions to compute probabilities using a Monte-Carlo approach.
+We represent each task by a corresponding non-probabilistic predicate  that refers to samples.
+For example, the task `is the value of the distribution D1 likely to be greater than D2' corresponds to the predicate `a sample from D1 is greater than a sample from D2.'
+From each distribution, we repeatedly draw samples and evaluate the predicate against the samples.
+We repeat this process a large number of times--in this paper, 10,000 times.
+We approximate the probability of an event as the fraction of those iterations in which the predicate is true.
+Table 1 shows an example of this process for two normal distributions D1 and D2 and the predicate D1 > D2.
+In the simplified example, we take six samples; the predicate is evaluated on each.
+Although this approach computes only approximate probabilities, it is able to compute general predicates for any probability distributions, with the only requirements that we can draw samples from the distributions and can assume the distributions are independent.
+While many iterations are needed for precision, given the speed of computing systems,
+Our goal is to assist data analysts in making decisions about uncertain data.
+We expect those analysts to be at least familiar with bar charts with confidence intervals, and so our design extends existing familiar visual representations.
+Our system should allow them to carry out the tasks listed above.
+After reviewing literature in visualization and interface design, we settled on these design goals: Easy to Interpret: Uncertainty is already a complex concept for users to interpret; our visualizations should add minimal additional complexity.
+One useful test is whether the visualization converges to a simple form when all the data has arrived.
+Consistency across Task: One elegant aspect of the classic bar chart is that users can carry out multiple tasks with it.
+While we may not be able to maintain precisely the same visualization for different uncertain tasks, we would like a user to be able to change between tasks without losing context on the dataset.
+Spatial Stability across Sample Size: In the case of incremental analysis , where samples grow larger over time, the visualizations should be change as little as possible.
+In particular, it should be possible to smoothly animate between the data at two successive time intervals: changes in the visualization should be proportionate to the size of the change in the data.
+This reduces display changes that would distract the user for only minor data updates.
+Minimize Visual Noise: We would like to ensure that the visualization is not confusing.
+If the base data is displayed as a bar chart, showing a second bar chart of probabilities is likely to be more confusing than a different visual representation.
+To fulfill these criteria, we apply interactive annotations  to the base visualizations.
+The annotations will show the results of task-based queries against the dataset.
+We select particular annotations that we believe will minimize confusion.
+The Compare Bars tool is used to directly compare the distributions in the plot.
+The user selects one of the distributions; the system compares all the distributions against the selected one.
+Each bar is colored by the probability that its distribution is larger than the selected bar.
+A divergent color scale ranges from 0% likely--that is, "is definitely smaller"--to 100%, "definitely larger."
+At the center, we use white coloring to represent "unknown".
+This tool is illustrated in Figure 2.
+The Extrema tool is used to quantify the probability that any bar would be either the maximum or minimum among all the distributions.
+We compute the probability that each bar represents the minimum; separately, we compute the probability it represents the maximum.
+The total probability across all bars must equal 100%, and so we map the data to a pair of pie charts.
+Pie charts avoid the confusion of presenting a second, different bar chart.
+A qualitative color mapping is used to identify bars and the regions in the pie charts.
+We note that this color map would not scale to large numbers of bars.
+In those cases, we could consider coloring only bars that are candidates for the top position.
+When even that is infeasible, the ranked list visualization, below, is a better choice.
+This tool is illustrated in Figure 2.
+This annotation enables users to compare a given value to the probability distributions represented by the error bars.
+Users drag a horizontal line representing a constant value; the probability that the distribution is larger than this constant value is mapped as a color to the corresponding bar.
+As with the bin comparison, a divergent color scale is used to represent the full space from "definitely lower" to "definitely higher".
+The tool is illustrated in Figure 2.
+The height, width, and color of each rectangle are mapped to the probability of that ranking.
+Very unlikely results, therefore, shrink to nothing; likely results take up almost all the space.
+The bars are sorted in a stable order, and so are easier to find between levels.
+We use the single-ended color scale to highlight regions of certainty .
+Unlike the other annotations discussed here, this view can also be used in a standalone setting, without being displayed next to a bar chart.
+This is particularly useful when the number of distributions being ranked is large.
+This tool is illustrated in Figure 3.
+The Range tool is similar to comparing to a constant.
+It is used to evaluate the probability of a distribution 's value falling within a range.
+Users can drag and scale a horizontal strip.
+The probability that the distribution represented by the error bar is contained in the region is mapped as a color to the corresponding bar.
+Unlike the comparison tools, which map to a divergent color scheme, this uses a single-ended palette; it only tests whether the value is likely to be inside or outside the range.
+This tool is illustrated in Figure 2.
+The Ranked List tool is also used to find what items fall within a range of ranks.
+This would allow a user to learn the set of items that are likely to fall in the top five --without regard for individual rank.
+That set might be very large when sample sizes are small and uncertainty ranges are high.
+A user can select the rows to be merged and click the "merge" button.
+At that point, the system displays the probability that the bars will fall within the range .
+Height, width, and color are proportional to the probability that this item will fall in this bin.
+Figure 3: The Ranked List tool shows the probability of rank orders.
+All the interactions are lightweight: users need only select the tool, and choose the relevant value.
+With these simple mechanisms, users can interactively perform complex queries in the data.
+While "compare bar to bar" and "compare bar to bin" can be visually approximated , the other tasks simply cannot be done visually.
+Our design process considered several alternative visualizations for these tasks.
+For example, we considered having matrix-like visualizations to compare each bin against the others.
+While this would reduce the amount of interaction needed, it would massively increase the complexity of the visualization.
+The Sort tool has a more complex design compared to the others, although it is conceptually still very simple.
+It is basically a list, in which every row represents all the possible values of that row.
+The redundant mapping--probability maps to height, width, and color--is meant to address three distinct problems.
+By mapping to width, very small bars fall off the chart.
+By mapping to height, a user can easily read across to find high bars: comparing lengths is much harder.
+Finally, colors help to highlight regions of the list where the rank is certain.
+All the color scales were obtained from ColorBrewer .
+Both qualitative and quantitative feedback would help assess whether these annotations would enable users to make better decisions with greater confidence under uncertainty.
+Because current charting techniques often neglect confidence intervals, it would be important to allow users to compare our annotations to both plain bar charts, and to charts that had traditional confidence intervals.
+Our working hypotheses are that users with our system will be  more accurate in their answers to these questions, and be  more confident in their answers.
+We do not expect them to be faster to respond, as our method requires additional interaction.
+Our study was designed to explore a broad space of possibilities in order to understand the use of each of our annotations.
+We ask about five different question types: compare-to-constant, compare-to-bar, find-minimum, findmaximum, and top-k. Our study design compares three visual conditions.
+In the first condition, the user can see only a basic bar chart with neither error bars nor annotations.
+In the second, we present a bar chart with confidence intervals.
+In the third, users begin with confidence intervals, but may also turn on the annotations using a menu.
+The study apparatus is shown in Figure 5.
+In all conditions, users can see the amount of data that this question represents.
+We wished to select a scenario that would be closely resemble the ways that users might really deal with this system.
+We selected TPC-H1, a standard decision support benchmark designed to test performance of very large databases with realistic characteristics.
+To generate realistic data, we generated skewed data .
+Part of TPC-H is a series of testing queries with many sample parameters.
+Different parameters to the query produce different results.
+We selected one query, Q13, which produces a bar chart of four or five bars.
+The raw Q13 data table carries 13 million rows.
+To simulate an analysis scenario, we randomly sampled the TPC-H tables at five different fractions, from 10% of the data through 50% of the data.
+Because the Q13 query is very restrictive, each bar only represented a couple of dozen or hundred  data points.
+A single question, then, is a combination of a question type , a visual condition , a sample size, and a parameter to the question.
+Our study uses a repeated-measures design.
+Each user answered 75 questions in random order.
+We balanced within users by question type, and randomly assigned the other values.
+Questions were roughly balanced: no user answered fewer than 19 questions in any condition, nor more than 30.
+For this preliminary study, we recruited seven participants.
+All were male graduate students in computer science; all were generally familiar with reading charts and interacting with data.
+All had at least basic statistical training, have some familiarity with confidence intervals and error bars, and had used analytics systems.
+During the training before the study, all of our subjects learned the system and visualizations quickly and reported that they felt comfortable using them.
+Users had no difficulty understanding the purpose for the enhancements.
+After the study, we debriefed the users.
+Our users understood all of the annotations.
+User 2, for example, had avoided dealing with confidence intervals before, as he found them difficult; using our system, he said, "It is good that I don't need to do much thinking."
+Users were least happy with the sort tool; several complained that it was too complex to use easily.
+While it was designed to be a variant on a traditional list, it may have added too much material.
+We wanted to better understand how users made decisions about their confidence in a visualization.
+In the baseline PLAIN condition, users had very few cues to guess how broad the confidence intervals were; several reported that they eyeballed their confidence by looking at the progress bar in the top right: they felt more confident with larger dataset sizes, and less confident with smaller ones.
+In the annotated condition, in contrast, users had several different cues to judge confidence.
+Indeed, user 4 complained that in the annotated condition, he had "too many things to consider:" sample size, error bars and annotations.
+Another user said he did not feel confident in any answer when the sample size was small.
+This is an interesting misperception: in theory, the sample size should not matter at all to the analysis.
+Confidence intervals should provide at least as much information as the progress bar would have; our annotations should override confidence intervals.
+Users still attempted to juggle all three.
+We also wanted to understand how certain users were about their answers: we expected the system to make more of a difference in marginal cases where confidence intervals were broad; when confidence intervals are narrow, certainty is less interesting.
+Users rated confidence on a five-point Likert scale from "completely uncertain" to "completely certain."
+For each question, user selected an answer, self-rated their certainty in that answer, and then pressed "next question."
+We logged the answer, their confidence in the answer, and the time it took to answer.
+After the experiment users were presented with a questionnaire that to assess their overall user experience.
+Because accuracy and confidence are on ordered, categorical data, we carried out non-parametric Kruskal-Wallis chisquared test to compare accuracy and confidence across conditions.
+Overall, our users were very accurate, getting 84% of all questions right.
+We have shown how these annotations could be applied to a bar chart with error bars; however, our design principles are very general: almost any aggregate chart type could presumably be adapted to show task annotations.
+Indeed, we suspect that more complex charts would benefit even more from our techniques.
+We wanted to understand the interaction between confidence and accuracy--we wanted to ensure we did not deliver confidence without accuracy.
+However, we do not expect our system to deliver accuracy at all levels: we expect our system to provide justified confidence.
+That is, a user using our system should be confident when they are right, and conversely feel unsure when they do not have sufficient information.
+To explore this idea, in Figure 9, we bucket confidence into three categories.
+In the PLAIN condition, users maintain approximately the same level of confidence: in other words, being right and being confident are unrelated.
+In contrast, in the ENHANCED condition, the highly-confident users were very likely to be right; the less-confident users were comparatively more likely to be wrong.
+Not only that, but from the test for H2, we know that users are more likely to be confident with our system.
+We believe this is good preliminary evidence that our visualization helps encourage justified confidence.
+Similarly, the Monte-Carlo framework that we outline is highly adaptable to other tasks.
+It could be incorporated into a variety of tasks beyond those in this paper.
+For example, multiple range tools could be combined to test the likelihood of being within a disjoint union of ranges.
+We are currently incorporating the system discussed in this paper within a progressive data processing framework; we hope to make interacting with uncertainty and samples an everyday part of its users' experiences.
+Many data systems use sampled data, either for progressive computation or because sample data is the available or affordable subset.
+Drawing confidence intervals can help as a static view, but cannot help users handle more sophisticated queries against their visualizations data.
+Tasks involving probability and confidence intervals have been shown to be difficult, even for experts.
+Past work has looked mainly at interpreting whether a given point was uncertain, and how uncertain it is.
+In this work, we have expanded that to look at techniques that will allow users to make use of that uncertainty--to predict when one value is likely to be higher than another, or to look at the ranked sequence of values.
+These techniques allow users to directly read the answers to these tasks off of the chart, analogously to the way that non-probabilistic data can be read directly off a bar chart without confidence intervals.
+Our annotations did not increase raw accuracy.
+Instead, we have suggested that they increase what we call "justified confidence."
+To pursue this further, though, we would need more ambiguous questions: as is reflected by the high accuracy rates, a number of the questions were too easy for users.
+Our experiment suggests that enhancing bar charts with taskspecific annotations may indeed help users make decisions about samples.
+While we did not show in this context that users would be more accurate, we did show that they would be more confident in their accurate responses 
+This seems a desirable trait in a system based on partial data: we would like analysts to be able to make decisions about when to terminate expensive and slow queries.
+The current reliance on variations of the box plot is insufficient for real data fluency--we need to broaden our tools for visualizing uncertainty, not only of individual levels, but of complex operations on data.
+R. Amar and J. Stasko.
+A knowledge task-based framework for design and evaluation of information visualizations.
+Low-level components of analytic activity in information visualization.
+Researchers misunderstand confidence intervals and standard error bars.
+Bewer., G. W. Hatchard and Mark A. Harrower, 2003, ColorBrewer in Print: A Catalog of Color Schemes for Maps, Cartography and Geographic Information Science 30: 5-32.
+N. Boukhelifa, A. Bezerianos, T. Isenberg, J. D. Fekete.
+Evaluating Sketchiness as a Visual Variable for the Depiction of Qualitative Uncertainty.
+Understanding the new statistics: Effect sizes, confidence intervals, and meta-analysis.
+Inference by eye: Confidence intervals and how to read pictures of data.
+D. Fisher, I. Popov, S. M. Drucker, and mc schraefel.
+Trust Me, I'm Partially Right: Incremental Visualization Lets Analysts Explore Large Datasets Faster.
+D. Goldsman, B. Nelson, and B. Schmeiser.
+Methods for Selecting the Best System.
+Proceedings of the 1991 Winter Simulation Conf.

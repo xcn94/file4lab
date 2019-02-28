@@ -1,0 +1,323 @@
+Intel Research Seattle 1100 NE 45th Street Suite 600 Seattle, WA 98105 james.a.landay@intel.com data entry, while gestures are drawn to issue commands for manipulating the data.
+For example, a note-taking tool allows people to take notes via natural handwriting and to edit by making copy editing gestures to perform commands.
+Some note-taking tools, such as Windows Journal, support scratching out a word to delete it.
+However, if this gesture is performed on a system without any explicit signal for gestures, then naturally occurring ink strokes may be falsely classified as gestures, such as when the user shades part of a diagram.
+In some cases such problems can be averted, but in general it is extremely difficult, and it may often be intractable for computers to "understand" natural ink input and always "do the right thing" unless given some explicit guidance by the user.
+Consequently, many pen interfaces in the literature  support two distinct modes: ink mode and gesture mode.
+A mode switch includes switching into a gesture mode and switching back to inking mode after completing a gesture.
+Users may have to frequently transition between these modes, and a slow or ineffectual ink/gesture mode switching technique may become a major bottleneck in the usability of a pen-based interface.
+Modes have long been recognized as a significant source of errors, confusion, unnecessary restrictions, and complexity in interfaces .
+Efforts have been made to alleviate modes in pen-based interactions by processing both ink and gesture input in a single mode based on pure inferencebased approaches  or with the help of user mediation .
+However, as illustrated above, current technologies are still extremely limited in their ability to discern gestures from other ink strokes in freeform sketches, so typically modeless input of both gestures and ink can only be realized in narrow and highly-constrained situations in which sketches are well classified or where frequent user mediation is required, which can distract users and compromise performance.
+Other solutions rely heavily on particular assumptions about how the pen interface is structured or how basic events 
+Abstract Inking and gesturing are two central tasks in pen-based user interfaces.
+Switching between modes for entry of uninterpreted ink and entry of gestures is required by many pen-based user interfaces.
+Without an appropriate mode switching technique, pen-based interactions in such situations may be inefficient and cumbersome.
+In this paper, we investigate five techniques for switching between ink and gesture modes in pen interfaces, including a penpressure based mode switching technique that allows implicit mode transition.
+A quantitative experimental study was conducted to evaluate the performance of these techniques.
+The results suggest that pressing a button with the non-preferred hand offers the fastest performance, while the technique of holding the pen still is significantly slower and more prone to error than the other techniques.
+Pressure, while promising, did not perform as well as the non-preferred hand button with our current implementation.
+Categories & Subject Descriptors: H5.2.
+Keywords: Pen interfaces, mode switching, mode errors, ink, gestures.
+INTRODUCTION Pen interaction techniques have demonstrated much promise in two general areas: raw ink intended for interpretation by a person , and gestures intended for immediate interpretation by a computer .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Rather than trying to eliminate ink and gesture modes, we focus here on how to improve mode switching techniques, so that these mode transitions can be quick, predictable, and minimally disruptive.
+Previous work has investigated mode switching techniques in the context of text editing tasks , and a number of interaction techniques have been reported for switching between inking and gesturing .
+However, there has not been a quantitative and systematic investigation into the performance of these techniques.
+Our study is the first to offer a quantitative analysis of methods for switching between ink and gesture modes.
+We implemented and examined five mode switching techniques for this analysis.
+Two of them, using a barrel button on a pen and holding a pen still, are standard mode switching techniques in existing pen-based user interfaces.
+The other three, using pen pressure, using a nonpreferred hand and using the eraser end of a pen, have not been deeply explored for mode switching.
+Our experimental design was based on the experimental paradigm of Dillon et al.
+Mode switching is analogous to selecting a "command" with the user incurring a cost to activate a mode, and a second cost to deactivate that mode and return to the previous state.
+We employ the same strategy of carefully comparing completion time for a baseline task without any mode transitions to an experimental task that does include mode transitions.
+In this way the experiment captures all influences of mode switching on task completion time for an experimental task.
+We designed an experimental task of making a crossing stroke  through an oriented pie slice .
+Users were prompted to make each stroke as either an ink stroke or as a gesture stroke.
+This is an experimental task that is meant to capture the quick and fluid feel of a pen interface that includes transitions between ink strokes and gestures.
+For the case of ink, the task is similar to a user annotating a document or crossing out previously written notes with a simple straight line.
+For the case of gestures, the task is similar to activating a marking menu  command with a stroke in a particular direction.
+In the following sections of this paper, we first describe the five mode switching techniques that were investigated in the experiment.
+We then describe the design of the experiment.
+This is followed by a discussion of experimental results, which includes the implications of improving mode switching techniques for pen-based UIs.
+MODE SWITCHING TECHNIQUES The techniques are discussed in order from the most common to the more novel.
+Technique 1: Pressing Barrel Button Pressing the stylus' barrel button for gesturing is a standard technique in many existing pen-based applications .
+The barrel button also serves as a right-click equivalent.
+Before gesturing, users press the barrel button while the pen is in the air and keep it pressed until drawing is started.
+After a pen down event, the gesture mode is not disengaged until the later of a pen up or the barrel button is released.
+Technique 2: Press and Hold Similar to Technique 1, the action of Press and Hold is also a standard technique for gesturing or as a right-click equivalent .
+This requires a user to press the tip of the pen onto the tablet, hold it still until some mode change feedback appears, and then while the mode change feedback still appears on the screen, the user can either lift the pen to bring up a popup menu or move the pen to draw a gesture.
+This technique leverages temporal information for switching modes, which is useful on devices where few input devices are available, e.g., a PDA or mobile phone.
+We implemented this technique based on the Hold technique available on Tablet PCs .
+To draw a gesture, there are three phases to performing a Press and Hold action for a mode switch.
+Once the pen touches the tablet, it enters the Hold Detection phase in which the bounding box size of the pen movement must be kept less than a pen travel threshold to be considered "still."
+In our implementation, the Hold Detection phase was 1 second long and the pen travel threshold was 1.5mm.
+If the pen is held longer than 1 second, a red circle appears around the pen tip and it enters the Hold Through phase in which the user should move the pen to exceed the pen travel threshold and draw a gesture.
+The Hold Through phase was 800ms long in our implementation.
+This phase enables a user to stay in the ink mode by holding through this phase, if the user did not actually intend to draw a gesture.
+The gesture mode is engaged when a pen is moved out of the pen travel threshold in the Hold Through phase and automatically disengaged when the pen is lifted after drawing a gesture.
+Technique 3: Using Non-Preferred Hand Two-handed interactions have been studied extensively .
+An appropriate design of two-handed interactions allows the division of labor across two hands and the reduction of task completion time by simultaneously carrying out two subtasks.
+Some of the previous work investigated using two-handed interactions for compound tasks such as drawing and selection .
+In these tasks, the non-preferred hand is used to set the context, e.g., the color, for drawing.
+Based on this previous work, we implemented a technique for using the non-preferred hand for selecting a gesture mode.
+A physical button mounted at the top-left corner of a Tablet PC screen was employed as a mode switching button.
+Pressing the mode switching button using a non-preferred hand indicates a mode switch and the gesture mode is engaged when the pen is off the tablet.
+After a pen down event, the gesture mode is not disengaged until the later of a pen up or the mode switching button is released.
+Technique 4: Pressure-Based Mode Switching Pen pressure sensitive inputs are available on many tablet devices.
+However, except when used for drawing and image manipulation, such as adjusting the thickness of strokes, pen pressure has rarely been employed until recently.
+The LEAN  system employed pressure as a feature for gesture recognition.
+Here, we looked at using the stylus pressure to achieve an implicit mode transition.
+Under the assumption that inking occupies most of the user's time in a pen-based interface, we intended to preserve the normal  pressure space for inking and leave the heavy spectrum for gesturing.
+This was also based on the observation that the low end spectrum is harder to control .
+To find out the right pressure spectrum for our gesture mode, we ran a preliminary experiment with four people, two males and two females.
+In the experiment, our participants were asked to draw with their normal pressure or with heavier pressure alternately on a Tablet PC, which has 256 levels of pressure.
+We collected the pressure data for 120 straight drawings varying along different directions from each participant.
+There was no visual feedback other than the pressure sensitive ink thickness.
+Although the sample size was small, the data still gave us useful information for making a quick implementation of this idea.
+The collected data indicated there was a statistically significant difference on the maximum average pressure of a stroke between the normal and heavy pressure conditions .
+The maximum average pressure is defined as the maximum of the average pressure at each time while drawing the stroke.
+The average pressure at the time ti is measured as:
+Once the average pressure reaches the threshold, the gesture mode is engaged.
+The gesture mode is automatically disengaged when the pen is lifted.
+We also observed that this simple measure was immune to quick "heavy" tapping, which we originally thought might cause heavy pressure values but it turned out that this resulted in relatively small average pressure values.
+In addition to the pressure sensitive ink thickness, we designed continuous color feedback to reflect the change in pressure.
+Rather than directly jumping from black to red1, a linear interpolated color was used once the average pressure exceeded a lower bound.
+This helps a user to realize that the pressure is getting close to the threshold.
+At the same time, an abrupt change of color is still kept as a salient signal so that a mode change can be easily perceived .
+Technique 5: Using the Eraser End of a Pen The eraser end of a pen has been used for deleting objects  as well as other functions, such as music playback .
+Here, we explored a more general use of the eraser end for drawing gestures.
+The gesture mode is engaged when a user inverts a pen and disengaged when the pen is reverted.
+In the rest part of the paper, we will use the abbreviations of BarrelButton, Hold, NonPrefHand, Pressure and Eraser to refer to these five techniques, respectively.
+EXPERIMENT We conducted a quantitative experiment to investigate the performance of each of these five mode switching techniques.
+Experimental Design A pie-crossing task was devised as an abstraction of gesturing and inking.
+Based on this, the baseline task and the compound task were designed.
+Pie-Crossing Task To capture the nature of sketch-based interactions, which are normally informal and fluid, we designed a pie-crossing task as an abstraction of the action of gesturing and inking .
+A pie slice is shown with one of eight orientations corresponding to the eight major geographical directions.
+A participant was required to quickly cross a slice from its inner edge towards its outer edge according to a target's orientation.
+This design examines the drawing of various directions without requiring precise positioning and careful alignment by participants.
+This design also captures a realistic use scenario of gestures, i.e., marking menus , where users can cross a series of objects with marks to perform different commands.
+The pie-crossing task is a simplification of gesturing and inking.
+Each slice covers 45 degrees and eight orientations are allowed.
+For example, the orientation of the filled slice, Slice 2, is 45 degrees.
+A successful crossing requires a stroke to cross a target slice as well as to have the right orientation.
+For example, to cross Slice 2, the orientation of a stroke has to be between 22.5 and 67.5 degrees.
+The numbers and the dashed lines are not shown in the experiment .
+We also simplified the semantics of the ink mode and the gesture mode by providing no further semantic feedback than stroke color.
+This simplification allowed us to efficiently capture the effect of mode switching techniques on overall performance rather than being distracted by other issues, such as gesture interpretation.
+Baseline and Compound Task Based on this basic element, two kinds of tasks were devised as trial blocks: a baseline task and a compound task.
+In a baseline task, five unfilled black slices with a certain orientation were shown on each screen .
+A participant only needed to perform a pie-crossing task for each slice and no mode switch was required.
+In a compound task, slices were presented alternatively in two different colors, black and red, starting with a black slice .
+A participant was required to cross a black slice with a black line and a red slice with a red line.
+Thus, a participant was required to switch color according to the color of a target pie using a mode switching technique.
+Both the baseline task and the compound task included eight screens, each with the slices shown in one of the eight orientations of Figure 2.
+So in total, forty pie crossings were required in a baseline or a compound task.
+Here, a mode switch includes switching into gesture mode and switching back to ink mode.
+In a compound task, each screen requires two mode switches.
+Thus, sixteen mode switches were required in a compound task.
+Error Classification Errors in this experiment were classified into three categories: mode errors, crossing errors, and out-of-target errors.
+Mode errors include Mode-In errors that happen when drawing black lines on red targets and Mode-Out errors that happen when drawing red lines on black targets.
+A crossing error takes place when a drawing does not cross a target slice, has the wrong orientation or both.
+An out-oftarget error happens when a drawing falls entirely out of a target box, which can be caused when a participant draws on or taps the area outside of the target box.
+If an error happens, the experimental tool asks participants to correct their drawing by beeping and highlighting the target box with a bold rectangle.
+The fourth screen of a baseline task.
+All slices are in black.
+A participant starts drawing by first clicking the Start button  and the tool starts timing.
+After finishing crossing all five slices from left to right sequentially, timing stops and the Next button becomes enabled.
+A participant clicks the Next button to go to the next screen.
+A target slice is centered in a target box pointed at by the arrow.
+Once a target slice is successfully crossed, the pie becomes filled.
+The eighth  screen of a compound task.
+Five slices are presented in black and red alternatively, which requires a participant to cross a slice with the slice's color.
+The participant needs to switch modes to draw lines with different colors.
+The gesture mode must be engaged to draw in red.
+The experiment took about 80 minutes in total.
+A 5x5 Latin Square was used to counterbalance the order of the techniques.
+Each session was divided into two parts.
+The first part involved learning to use a mode switching technique and extensive practice.
+The second part was the experimental phase in which a participant was given 9 blocks of trials.
+The first block was a baseline task and then a compound task, alternating until the ninth block ended with a baseline task.
+A participant could take a break between blocks.
+In total, the experiment consisted of: 15 participants x 5 mode switching techniques x 9 block of trials x 8 screens  x 5 pie-crossing tasks = 27,000 pie-crossing tasks 4,800 mode switches had to be performed during these tasks.
+We collected data on all events in the experiment including pen entering/leaving range, pen down/up, pen draw, barrel button down/up, mode switching button down/up as well as the stylus' current position and pressure value and the time of each event.
+The high level events of gesture mode engaged or disengaged were also recorded.
+Performance Measures The dependent variables were the mode switching time, the total number of errors in a compound task, and the subjective preference of participants.
+The first two blocks in the experimental phase were for warming up and the data of the seven following blocks were used for analysis.
+The timing for each screen is started when the Start button is clicked and automatically ended when the last pie is crossed and the pen is lifted.
+This duration is divided into three cycles.
+The first cycle starts when the Start button is clicked and ends when the first pie is crossed.
+The second cycle starts right after the first cycle and ends after the third pie is crossed.
+This is followed by the third cycle, which includes crossing the last two slices.
+Therefore, one target needs to be crossed in the first cycle and two targets need to be crossed in each of the second and the third cycles.
+We call cycle 2 and 3 full cycles and cycle one the start cycle.
+In a compound task, a full cycle contains a complete mode switch process including switching into gesture mode and switching back to ink mode.
+The mode switching time for each of the three compound blocks was computed by subtracting the mean of the two adjacent baseline tasks' average cycle durations from the compound block's average cycle duration.
+Average cycle duration was the mean duration of all correct full cycles in a block.
+A start cycle guarantees that there is a pie-crossing task performed in ink mode before a full cycle.
+Having a pair of gesturing and inking in a full cycle enabled us to investigate how a mode switching technique also affects the following inking after the gesture mode is disengaged.
+After participants finished all five sessions, they rateed the five techniques in terms of ease of learning, ease of use, accuracy, operation speed, eye fatigue and hand fatigue.
+Apparatus The experiment was conducted using a Toshiba Portege Tablet PC running under Windows XP Tablet PC Edition.
+This Tablet PC has a Pentium III M 1.33GHz processor and 1GB of RAM.
+The device has a 12.1" LCD display and a digitizer with 256 levels of pressure.
+The experiment was conducted at a resolution of 1024x768 pixels.
+The stylus is equipped with a barrel button and an eraser.
+Participants Fifteen adult volunteers were recruited from a university campus.
+They were graduate and undergraduate students, two female and thirteen male, 20 to 30 years old.
+They received $25 for their participation.
+None of these participants were involved in the preliminary experiment for determining the pressure threshold.
+Two of the fifteen participants were left-handed and only one of them felt that using his non-preferred hand to press the mode switching button was a little inconvenient.
+Even so, he still gave a highest preference rating for the NonPrefHand.
+20% of participants had experience using the BarrelButton, and 13% of participants had experience using the Hold, primarily from using PDA devices.
+13% of participants had experience in adjusting stylus pressure to control the ink thickness while drawing, but none of them had experience using stylus pressure for mode switching.
+None of them had experience with the NonPrefHand technique.
+Experimental Software The experimental software was developed in C# using the Microsoft Tablet PC Platform SDK.
+The software presented tasks to participants and logged all primitive and high level events.
+It also automatically generated tables of durations and errors as pure text files so that they could be easily imported into SPSS and MS Excel for analysis.
+RESULTS Repeated measure variance analyses and post hoc pairwise comparisons were performed on the mode switching time and the subjective preference.
+The number of errors was analyzed using a chi-square analysis.
+Performance Stability over Experimental Blocks There was no obvious learning effect on the mode switching time and the error rate between the three experimental compound blocks.
+Post-hoc comparisons were performed using the Bonferroni adjustment for multiple comparisons.
+The mode switching time of using the NonPrefHand was the smallest with a mean of 139ms, which was found to have no significant difference  from using Pressure to switch modes .
+There was no significant difference found on mode switching time between using Pressure and the BarrelButton .
+Although these three techniques can be grouped on their similar efficiency in switching modes, they are significantly faster than the other two techniques  tested in the experiment .
+The mode switching time of using the Eraser technique had a sharp increase of over a second with a mean of 1277ms, but it was still significantly lower than the mean of using the Hold technique  .
+Figure 6 shows the completion time of a full cycle in a compound task, without subtraction of the baseline time, as well as the times when a gesture mode becomes engaged or disengaged.
+These measurements are discussed in detail in the following sections.
+Error Analysis The number of errors was analyzed by using the chi-square test and post hoc analysis based on standardized residuals.
+On the frequency of making errors, we found that there is a statistically significant relationship between the number of errors and the technique  .
+The NonPrefHand appears to support accurate mode switches resulting in very few errors with a standardized residual at -4.
+The Eraser technique also resulted in few errors .
+Many more errors  were made with the Hold technique.
+We further analyzed the frequencies of each type of error when using the five different techniques.
+Since several techniques did not lead to any Out-Of-Target errors, to satisfy the chi-square's requirements that expected frequency should not be less than 5, we conducted the chisquare analysis of five techniques on only three types of errors .
+The results indicate that there is a statistically significant relationship between the five techniques and three types of errors .
+As seen in Figure 7, the mode errors, including Mode-In and Mode-Out errors, were the main errors found for all techniques except the Eraser.
+The Hold and the Pressure techniques led to fewer Crossing errors, while the Eraser resulted in many more Crossing errors .
+In terms of Mode-In and Mode-Out errors , the Hold technique led to more Mode-In errors , but less Mode-Out errors  than the expected frequencies.
+When using the Eraser, fewer Mode-In errors were made than would be expected.
+The Pressure technique led to more Mode-Out errors.
+The mean duration of a full cycle in a compound task .
+The time of mode engagement and disengagement are also shown.
+This result can be accredited to the extensive practice in the training phase and the beginning 2 blocks  for warming up.
+After these preliminary blocks, participants had highly acquired the five mode switching techniques and stably applied them in the following experimental blocks.
+We therefore used the aggregated mean mode switching times and error numbers over three compound blocks as the value of the mode switching time and the error number, respectively, to analyze the differences between techniques.
+The sphericity assumption was not met so the Huynh-Feldt correction was applied.
+Before analyzing the variance, an analysis of normality found that the data of three techniques were moderately skewed, which can be remedied by applying a square root transformation.
+The variance analysis on the transformed data showed the same statistical significance results as on the original data.
+For simplicity, we based our analysis on the original data space.
+This may have required a participant to focus on the pen trails while drawing, thus making Crossing errors less likely .
+Subjective Preference The five techniques were rated by the participants on six dimensions: ease of learning, ease of use, accuracy, operation speed, and fatigue of the eyes and hands .
+Participants were required to rate these techniques on a 5-point scale .
+There was a significant difference found in the effect of the five techniques on the overall preference rating .
+The participants' preferences for each technique.
+The occurrence rate of Mode-In and ModeOut errors on each pie-crossing, which is weighted by the frequency of inking and gesturing, respectively.
+40% of pie-crossings were for gesturing, while 60% were for inking.
+Although the Eraser was not the most accurate technique, it led to the least number of mode errors, with Mode-In and Mode-Out errors evenly distributed.
+As mentioned earlier, the Eraser caused the most Crossing errors.
+It was not a surprise to see that the Eraser caused the most Out-OfTarget errors since it was observed that our participants dropped the pen or accidentally pressed the pen when flipping the pen.
+The Hold technique has the highest mode error rate in our experiment, although 13% of our participants had some experience using this technique on PDAs, as mentioned earlier.
+The slippery LCD screen made it difficult to hold the pen in a 1.5mm range for a second.
+We often saw our participants slide the pen too much while performing this technique.
+Among these mode errors, most were Mode-In errors.
+This means that the temporal and spatial constraints in our implementation made it much harder to use this technique to switch to a gesture mode than switch back to an ink mode.
+However, on the other hand, simply loosening these thresholds might increase the Mode-Out errors while reducing Mode-In errors.
+We discuss this technique further in the following sections.
+Unlike the other techniques, the Pressure technique is the only technique that allows a gesture mode to be engaged while drawing.
+Tukey's post hoc pairwise analysis showed that the BarrelButton, the NonPrefHand, and Pressure were rated significantly higher than the other two techniques .
+The NonPrefHand was rated the best overall, followed by the BarrelButton, and there was a significant difference between the two.
+The preference level for the Pressure technique was found to be significantly lower than for the NonPrefHand, but Pressure had no significant difference with the BarrelButton.
+The Eraser was rated lower than all but the Hold technique, although there was no significant difference between them .
+The subjective preference of these five techniques is fairly consistent with the time and error performance, but has some inconsistency with respect to the error rate results of the Eraser.
+The Eraser has a comparatively low overall rating although the error rates were the second best.
+One reason was that our participants commented that they disliked flipping the pen frequently while drawing.
+The extremely low rating on hand fatigue of the Eraser also implies this.
+DISCUSSION We conducted keystroke level analyses on the results.
+The results are also discussed in terms of implications for the design of mode-switching techniques in pen-based applications.
+Although the participants were informed that they could release the button once they started drawing, the decomposed durations indicated that they mostly kept the button pressed until a gesture was completely drawn.
+The positive results of the NonPrefHand were based on a tablet button that was not in an optimal position.
+This should help motivate tablet manufacturers to design tablet buttons that are positioned properly for this type of situation and for use while holding a tablet.
+In fact, an early 90s tablet prototype from DEC  provided buttons for just this scenario.
+Using Hold We originally expected that the TP1 of the Hold technique should be close to the baseline's TP1 because the action of engaging a gesture mode is started after the pen is pressed on the tablet.
+However, we found there was 282ms extra time in the Hold's TP1 compared to the baseline's.
+After reanalyzing the effort for a user to perform a Hold-based mode switch, we found it was consistent with the hand movement.
+When the hand moved quickly to the next target, some extra effort was needed to slow down the movement and to hold the pen steady .
+This effort can probably take even longer if the preceding hand movement was very fast.
+We call this time effort the preparation time .
+The TC2 row shows that these five techniques had no significant impact on the inking after a gesture mode is disengaged because the TC2 of each technique was very close to the TC2 of the baseline task.
+The differences of each phase of a cycle across these columns are mostly caused by a mode switch using the different techniques.
+We analyzed this difference based on the temporal models of each technique.
+The temporal model of the NonPrefHand and the BarrelButton techniques.
+Using BarrelButton and NonPrefHand The BarrelButton and NonPrefHand share the same temporal model .
+Neither of them requires significant hand movement to hit the mode switching button or the barrel button.
+The difference between these two techniques is that the BarrelButton uses one hand for two subtasks, drawing and mode switching, while the NonPrefHand uses two hands for these two subtasks.
+The result that NonPrefHand has better performance than BarrelButton can be explained as partly due to temporal overlap of two subtasks as described in .
+The temporal model of the Hold technique.
+Table 2 also shows that there was a short interval after the Hold Detection phase  and before the gesturing phase .
+This was the time it took for a participant to respond to the feedback  and move the pen.
+This response time can be calculated as: Tresponse= TEngage - TP1 - 1000 = 1781 - 644 - 1000 = 137ms Using Pressure From Table 2, we can see that Pressure took the least time before starting drawing a gesture among these techniques.
+The time difference with the baseline's TP1 was 34ms.
+In other words, there was little extra effort required in this phase while using the Pressure technique.
+After the pen was down, two actions were performed simultaneously: crossing the pie and increasing the pressure to the threshold .
+Improving Pressure-based Mode Switching Our preliminary design of the Pressure-based technique shows a moderate level of performance among the five techniques.
+The experimental data indicates this technique can be improved by using a personalized pressure space.
+As mentioned earlier, we ran a preliminary study to collect pressure data from four participants, which helped us in determining the threshold for separating gestures and inking as well as a linear interpolation function for continuous color feedback.
+Although the pressure space of our experimental Tablet PC is from 0 to 255, we noticed that our participants have different pressure spaces.
+This is consistent with the intuition that different people might draw with different force.
+In particular, one female participant in the preliminary study had a much lower overall pressure than others although the pressure of her heavy drawing was still significantly different from the pressure of her normal drawing.
+This implies that the threshold should be adapted to the user.
+However, we used a uniform threshold of 190 in our experiment because we thought people would adapt to this threshold.
+The mode switching experimental results indicated our participants did indeed adapt to this threshold.
+But, it was still not enough to overcome the differences in their inherent pressure spaces.
+We found that participants who had a lower pressure space tended to make more Mode-In errors and less Mode-Out errors, and vice versa.
+For example, a participant whose mean average pressure was 91 made the most Mode-In errors, while another participant whose mean average pressure was 164 made the most Mode-Out errors.
+It was further confirmed by the high negative correlation between the number of Mode-In errors and the number of Mode-Out errors .
+This result confirms our earlier concern with using a standard pressure threshold for all participants.
+Improving Hold-based Mode Switching The Hold technique had the worst performance in our experiment.
+However, as mentioned earlier, since it requires the least hardware support, it has been widely used in many mobile devices, such as the Palm Pilot and the PocketPC.
+Thus, it is worth improving this technique.
+The keystroke level analysis above showed that there was a 282ms preparation time before the pen is pressed.
+To reduce this time, we devised a revised Hold called Stroke+Hold.
+This technique allows a user to perform a Hold at any point of a drawing rather than only at the starting point.
+This can reduce the preparation time.
+Although it may introduce some extra time for slowing down the pen in the middle, it is easier to hold the pen still in the middle or end of a drawing than at the moment of touching the slippery tablet.
+All of these factors can help to improve the overall performance of this technique.
+The temporal model of the Pressure technique.
+Using the Eraser The temporal model of the Eraser is shown in Figure 13.
+The Eraser's TC1 was very close to the baseline's TC1 .
+This means there was no extra effort required while drawing a gesture, although a participant needed to flip the pen, which took about 737ms for engaging the gesture mode.
+This tells us that the Eraser technique should be used in situations where mode switching is less frequent and the gesture mode needs to be maintained for a relatively long time.
+The temporal model of the Eraser technique.
+We apply subtraction again to get an estimate for inverting and reverting the pen.
+The time for inverting the pen was 661ms based on the TP1 difference and the time for reverting the pen was 555ms based on the TP2 difference.
+At first glance, they should be the same since it requires a similar effort to flip the pen both ways.
+We found the 100ms difference was because the eraser end was too blunt for drawing.
+We often observed that the tablet did not detect the eraser's contact with the screen.
+Participants had to press the eraser extra hard, which consumed extra time.
+Validity of Subtraction Some of our analyses of the time performance were based on a subtraction methodology that is similar to that of Dillion et al.
+The subtraction was conducted under the assumption that both baseline and compound tasks required a similar amount of movement effort for crossing and positioning.
+Our pie-crossing task captures the informal and quick nature of sketch-based interactions.
+However, it may have relaxed the constraint on drawing of the pointconnecting task in Dillion's experiment.
+But, the data of our experiment indicated that the difference on the mean total movement distance of a full cycle, including two positionings and two crossings, between baseline and compound tasks, is less than 20 pixels.
+This is very small compared to the mean total movement distance of 580 pixels.
+It seems to work better than the traditional Hold, although no formal evaluation has been done on it.
+Improving Synchronization Since the BarrelButton and the NonPrefHand techniques both require a button to be pressed while the pen is down, synchronization is a main cause of mode errors.
+While using the BarrelButton, the data showed that 93% of ModeIn errors were caused by late button pressing and 7% of them were caused by early button releasing.
+If a barrel button is allowed to be pressed within the first 37ms after the pen is down for gesturing, which is a small percentage of time compared to the whole drawing time of 243ms , 50% of the Mode-In errors can be eliminated.
+Thus, the BarrelButton technique can be greatly improved by adding a short detection phase after the pen is pressed.
+However, while using the NonPrefHand, when the two hands were not synchronized correctly, the mode button was usually pressed long after the pen was down, and in half of these, the button was pressed after the drawing was completed.
+Thus, using a 37ms detection phase can only reduce 14% of the NonPrefHand Mode-In errors.
+FUTURE WORK Because our goal was to reveal the performance attributes of different mode switching techniques, we designed and conducted this experiment in a lab setting that allowed us to efficiently collect a large amount of data and to conduct a quantitative analysis with high accuracy.
+However, information from actual deployment of these techniques in an application will complement these results.
+Based on these results, we have been further studying how well these techniques can perform in a more natural setting, e.g., the technique of using a non-preferred hand has been deployed in DENIM.
+We will continue to improve the pressure-based mode switching technique and we will also consider the impact of mode switching frequency as well as gesture complexity on the performance of mode switching techniques.
+It is also worth investigating how using different mode feedback, such as audio, can improve the performance of these techniques.
+CONCLUSIONS In this paper, we investigated five techniques for switching between ink and gesture modes in pen interfaces, including a pen-pressure based mode switching technique that allows implicit mode transitions.
+An experimental study was conducted to evaluate the performance of these techniques, which was the first study to offer a quantitative analysis of methods for switching between ink and gesture modes.
+The results suggest that pressing a button with the non-preferred hand offers the fastest performance, while holding the pen still is significantly slower and more prone to error than the other techniques.
+Pressure, while promising, did not perform as well as the non-preferred hand button with our current implementation.
+But the experiment did show that pressure-based mode switching can be improved by using a personalized pressure space.
+The experimental results and the methodology of this study can be employed for further exploring mode switching techniques for pen-based user interfaces.
+The results also give designers the tradeoffs to consider for particular types of applications as well as available hardware when using any of these techniques.
+ACKNOWLEDGMENTS We would like to thank Brian Youngstrom, Zile Wei, JiaChi Wu and Xin Dong for their help.
+This work was supported by NSF under Grant No.

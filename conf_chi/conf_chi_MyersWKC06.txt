@@ -1,0 +1,300 @@
+Modern applications such as Microsoft Word have many automatic features and hidden dependencies that are frequently helpful but can be mysterious to both novice and expert users.
+The "Crystal" application framework provides an architecture and interaction techniques that allow programmers to create applications that let the user ask a wide variety of questions about why things did and did not happen, and how to use the related features of the application without using natural language.
+A user can point to an object or a blank space and get a popup list of questions about it, or the user can ask about recent actions from a temporal list.
+Parts of a text editor were implemented to show that these techniques are feasible, and a user test suggests that they are helpful and well-liked.
+A command that hides all the windows can be invoked by accident, making users wonder where their windows went.
+All of these features, and the dozens of others that we collected , are quite useful to most users, and have been added to user interfaces because they help most people most of the time.
+However, when a novice or expert is unfamiliar with these features, or when something happens that is not desired, there is no mechanism to figure out why the actions happened, or how to control or prevent them.
+It is even more difficult when an expected action does not happen, for example, why did the spelling not get corrected?
+No help system built into any of today's systems can answer these questions.
+As applications inevitably get more sophisticated, such a facility will be even more necessary.
+Inspired by the Whyline research  that answers "why" and "why not" questions about a program's execution to aid debugging, we created an application framework called Crystal that helps programmers build applications that can answer questions about an application .
+Crystal provides Clarifications Regarding Your Software using a Toolkit, Architecture and Language.
+The idea is that the system makes things "crystal clear."
+One of the classic guidelines for user interface design is to have "visibility of system status" to "keep users informed about what is going on" .
+And yet, in an informal survey of novice and expert computer users, everyone was able to remember situations in which their computer did something that seemed mysterious.
+For example, sometimes Microsoft Word automatically changes "teh" into "the", but it does not change "nto" into "not".
+The spacing above a paragraph can be affected by properties in the "Format Paragraph" dialog box, along with the heights of the actual characters on the first line of the paragraph .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Instead of supporting natural language, Crystal builds question menus dynamically based on the current state of the application.
+The user can ask questions either by hitting a key  while the mouse cursor is over the item of interest, as was done in Figure 1, in which case Crystal automatically builds a menu of questions about the objects under the mouse.
+Crystal provides invisible objects under every point in the window so users can ask questions by pointing to where there are apparently no objects, such the white space around paragraphs.
+Alternatively, a "why" menu displays a list of the last few operations that were or were not performed.
+This includes explicit user actions , along with automatic actions like spelling correction, and other actions which are normally not logged .
+This list also includes actions that the user tried to perform but did not actually execute, such as hitting Control-C for Copy with nothing selected.
+The application designer can add to the menus questions about other things that did not happen which might be mysterious to users.
+Examples include when interdependencies or constraints prevent an object from moving or cause automatic correction to not happen.
+In response to any of these questions, Crystal displays a window containing an automatically-created explanation .
+Whenever possible, the elements of the user interface that contributed to the value are displayed, and a red highlight is put around the user interface controls  relevant to the question.
+In Figure 1, the "Replace text as you type" checkbox of the AutoCorrect dialog is highlighted.
+In cases where the user interface controls cannot be so easily displayed, Crystals adds a "How Can I..." question to the bottom of the explanation window, to allow the user to ask how to control the features that were involved in the operation.
+Other systems have supported such "How Can I" questions, but not in the context of "why" questions, and Crystal also differs in that it automatically determines how to enable the actions.
+Like the Whyline , Crystal must store extra information about a program's execution to support answering the questions.
+Therefore, the question-answering cannot simply be plugged into an existing application like Microsoft Word.
+Instead, the application must be built in such a way as to collect the appropriate information during execution.
+The Crystal framework adds novel extensions to the commandobject model  to store the appropriate information.
+This makes it easy to build applications which will support the asking of questions.
+To demonstrate the effectiveness of this framework, we used it to build parts of a sample text editor which has some automatic transformations like Microsoft Word.
+The results suggest that Crystal is effective in teaching users about these complex features, and the interaction techniques were easy to use and well-liked.
+Participants with the "why" features were able to complete about 30% more tasks than those without, and of the tasks completed, participants with the "why" features were about 20% faster.
+The Crystal framework is primarily intended to help explain complex behaviors and interdependencies among the various features.
+It is not intended to help the end-user find out why things happened if the programmer introduced bugs into the application.
+The assumption that Crystal makes is that all the resulting behaviors are intended.
+If the programmer does not know why something happens, it is unrealistic to expect end-users to!
+The rest of this paper summarizes the related work, describes the user interface features, and then explains in detail the software architecture that makes asking the questions possible.
+The user study is then described, followed by future work and conclusions.
+Help systems for interactive applications have been studied extensively.
+Norman discusses two important "gulfs" in people's use of their systems .
+Many help systems  are designed to help with the gulf of execution: teaching users how to perform actions, primarily to learn about a command they already know the name of, or learn how to perform tasks.
+For example, Cartoonist  displays animated help showing the steps required, but it must explicitly be given the name of a command or task.
+In contrast, we believe that Crystal provides the first help system to specifically target the gulf of evaluation: helping users interpret what they are seeing on the screen and determine how to fix it if it is not what they intended.
+Many recent help systems focus on giving tutorials for how to use a system.
+For example SmartAide  uses AI planning methods to give step-by-step instructions when the user has a goal in mind but does not know how to execute it.
+The Crystal framework would probably be helpful in building such systems, since it provides an explicit representation between the user actions and the underlying behaviors, but creating tutorials using Crystal is left for future work.
+A number of systems have allowed the user to go into a special mode and click on controls in the interface to get help on them.
+This was available, for example, in the first version of LabView  in 1986, and the "?"
+The infopops can contain links to various topics.
+In these kinds of systems, however, the help text is statically written by the programmer and does not help with questions about why actions did or did not happen.
+In Crystal, the question and answer text is automatically generated from the program's execution history.
+In its answers, Crystal highlights the actual widgets of the interface.
+This approach has been used in Apple Guide , Stencils , and the "Show me" feature of some modern help systems.
+A difference from these is that Crystal automatically determines which widgets should be highlighted.
+The only systems we are aware of that try to use tracing and dependency information to help users are programming systems such as spreadsheets and debuggers.
+For example, Microsoft Excel 2003 will show the cells on which the current cell depends.
+Forms/3 goes further in providing visualizations that try to focus the user's attention on from where faulty values may have come .
+Production systems, such as ACT-R, have long had the ability to ask why productions did or did not fire , and the Whyline  generalizes this to any output statement in the program.
+Dourish  speculates about how an open data model   might help applications explain their behavior, and provides motivation and technical guidelines, but does not describe any implementation.
+We are not aware of any applications for end users that dynamically generate a list of "why" questions about the context, or dynamically create the answers based on the history of users' actions.
+Examples include when a setting in one part of the user interface controls whether other things happen, such as the autocorrections in Figure 1, and whether meta-information, such as paragraph marks , are displayed or not.
+These must be added to the question menus as well.
+However, the application designer must guard against having too many questions in the menu, because then it will take too long for the user to find the desired question.
+Crystal therefore provides a way for the designers to note that certain actions should be omitted from the question menus.
+For example, when implementing the sample text editor, we decided not to add regular typing to the menu, because it seemed unnecessary to let the user ask why "b" appeared, with the answer being "because you typed it."
+Similarly, we do not add questions about why characters move around .
+In general, these are excluded because the actions and their feedback are so common and so immediate that users already know the answers.
+In other application domains, there are similar types of basic operations that would be excluded by the application designer .
+Note that designers use similar heuristics today to decide what should go into the undo menus, and at what granularity - scrolling is not on the undo menu at all, and typing is grouped into chunks for undo.
+In the sample text editor, there are questions for all other explicit user actions, including when typing causes the selected text to be deleted.
+If the editor supported complex mechanisms that moved text in non-intuitive ways , then these would be added to the menu as well.
+The "why" menu also contains some actions that did not happen.
+Of course, an infinite number of different things could be added, but users only need to be able to find out about things they expected to happen.
+Some of these can be handled automatically by Crystal, including non-actions that stem from explicit user input.
+For example, Crystal adds to the menu questions for keystrokes that have no effect, such as typing Control-C with nothing selected .
+Also added are questions about actions that did not do anything because they were explicitly disabled.
+For example, if the auto-correct shown in Figure 1 was turned off, and the user types "Teh", the menu will let the user ask why it was not corrected .
+For background tasks, however, the application designer will have to notify Crystal when menu items should be added.
+The programmer specified that spelling corrections should be added to the menus, but "Why Not" questions are not added for words that are spelled correctly and therefore not corrected, since this would quickly fill up the menu with questions that are never likely to be of interest.
+Crystal makes contributions in two areas: the interaction designs for asking and answering questions, and the framework to make implementing this easier.
+Research has shown that users are often reticent to use help systems and that the help system's own user interface can be a barrier to its use .
+Therefore, a key requirement for Crystal is that it be very easy to invoke and that the answers be immediately helpful.
+To address these issues, we designed the interface to the "why" system with just two simple interaction techniques: the F1 key and the "why" menu.
+The "why" menu also contains an item to go into a mode that allows invoking location-based questions, in case the user does not know how to use the F1 key.
+Our observations suggest that virtually all of the user's questions will be about things that are visible  in their application, or things that happened recently.
+The next important design issue is what questions belong in the menus.
+In a simple direct manipulation application, such as a drawing editor, the only things that happen are what the user explicitly does, so the question menu will simply have one entry for each user action.
+In this case, the question menu is automatically built by Crystal from the commands that are executed.
+When the F1 key is hit, Crystal looks at all objects under the cursor to generate the list of questions.
+For example, before getting the windows shown in Figure 1, the menu at the left of Figure 3 would have appeared.
+The first level menu has questions about the character and paragraph under the mouse, and any global operations performed on that object.
+Figure 1 resulted from choosing the last item in the first menu.
+In Figure 3-a, the user has selected the question about the properties of the character "h".
+The questions in the menus are designed to feature the values in an easy-to-find place  so that a quick scan will show all the properties' values.
+To display each value, Crystal uses a variety of built-in rules so the menus are concise yet readable.
+For Boolean properties, the value name or "not" the value name is used, such as "bold" or "not italic".
+For numeric properties, we use property = value.
+These automatic rules can be augmented by the designer with rules for application-specific types.
+For example, for the sample text editor, we added a custom rule to just use the style name for style values .
+If the F1 key is hit while the mouse is over a blank part of the window, Crystal includes questions in the menu about why that white space is there.
+In Figure 4, the paragraph is listed because it has an invisible portion that extends to the left edge of the window, since paragraphs control indenting.
+The designer of the editor has also added to the menu an additional question about whitespace, which summarizes all the different contributions to that whitespace .
+Answers to the questions typically have two parts: a textual explanation and highlighting of the relevant user interface controls .
+The motivation is that users typically want to know more than why something happened-- they also want to know what they can do about it, such as changing it to be different.
+Therefore, whenever possible, answers highlight specific actions that users can take.
+When the referenced control is in a dialog box, Crystal also highlights all the controls necessary to making it appear, so the user does not have to figure out how to get what the answer discusses to happen.
+For example, in Figure 1, Crystal has highlighted the AutoCorrect Options menu item in the Tools menu, and the specific control used on the resulting dialog.
+All dialogs are "live" while they are highlighted, so the user can operate them normally.
+This will often save the user a number of steps if the property needs to be changed.
+In fact, it is sometimes quicker to use the F1 fea-
+While we expect that the controls and dialog boxes of the application will be the primary focus for the user's answers, the textual explanation is necessary in some situations, such as when there is a chain of causes for the situation.
+For example, Figure 6 shows the answer explaining why the text is size 20, which is inherited from its style.
+The explanation is also useful when the user wants to learn how the application works in detail.
+When there are multiple causes and actions as part of the explanation, Crystal adds to the bottom of the answer window a link for each one .
+When clicked, the text window provides the answer and the appropriate controls are highlighted.
+The back button in the answer window can then be used to return to the original question.
+When the user closes the answer window, the highlighting is removed from all controls.
+An important contribution of this research is an objectoriented framework that makes it easy to create applications that support "why" and "why not" questions.
+The Crystal framework is implemented on top of Java Swing 1.5 and makes use of the standard Swing controls and architecture.
+The key additions in the Crystal framework are abstractions to represent application objects and their properties, and command objects that support undo and questions.
+The result is a framework where only a small amount of additional code is needed to support the "why" questions, beyond what is needed anyway to support undo.
+We used this framework to implement a sample text editor as a test application.
+We chose a text editor because it is a particularly difficult kind of application to build.
+Also, the Microsoft Word text editor contains many complex features that we wanted to see if our system could help explain.
+Implementing a graphical editor, as has been used to test most previous frameworks , would be straightforward.
+Crystal uses a "Command Object model"  to implement all of the actions.
+As commands are executed, they are stored on a command list which serves as a history of all the actions that have been taken.
+This command list is used for undo and the why menus.
+Crystal uses hierarchical command objects .
+The toplevel command objects are all the user-executed commands .
+The lower-level command objects are for the individual actions that a command may include.
+For example, setting some text to the "Heading" style might change the size, the font, and make the text bold.
+Crystal separates these into three different sub-commands of the Set-Style top-level command.
+Each command object contains a variety of methods and fields, as shown in Figure 7.
+The first six are typical of other command object systems , but the second six are novel with Crystal, and are described next.
+Dependencies: Crystal needs to know the dependencies among commands and values.
+In particular, many commands' actions depend on the values of controls.
+For example, the auto-correct command of Figure 1 depends on the value of the Replace-Text-As-You-Type property, and the answer wants to describe this for users.
+Using the saved old values, the answer generator can fetch the value of the control at the time when the command was executed.
+This allows Crystal to generate a message like "the auto-correct preference was disabled" even if the property is now enabled.
+When values are inherited for properties, such as when the font size for a character comes from a named style, the Dependencies parameter is used to record where the value came from.
+Figure 6: The answer shown for when a property's value is inherited from a style.
+Function Performs the action, e.g.
+When a command's Enabled property specifies that it is disabled, but the user tries to execute it anyway , then a command object is put on the command list with its Enabled property set to false to show that it was not actually executed.
+These unexecuted commands allow Crystal to support asking of "why not" questions .
+Of course, these commands are not undoable, since they were never executed.
+Questions-Method: When more specific questions and answers are needed for an application, the designer can implement this method.
+It can also be useful when the designer wants to improve the naturalness of phrasing of the answers.
+The method returns an object that contains a method to generate the corresponding answer.
+This is used in the sample text editor for example, by the background auto-correction process.
+For standard property setting  and actions like creation and deletion, Crystal automatically creates the questions and answers, and the designer does not need to supply a method here.
+Undoable/Undone: Whether this command can be un-
+In the Crystal framework, an application object, such as a character in a text editor or a rectangle in a graphics editor, is represented as a set of "properties."
+Examples of properties for a character include the value  and the font.
+In order to support undo, the old values of properties must be remembered.
+The Amulet command objects  stored the old values in the command objects themselves.
+Instead in Crystal  each property of an object contains a list of all of the old values.
+Each value is marked with a timestamp, which makes it easy to revert an object to all the correct values at any previous point in the history.
+If the old values were in the command objects instead, this would require searching all the commands for the appropriate values.
+Each old value also contains a pointer to the command object that set it, and that command object will contain the same timestamp.
+Note that making the properties be first-class objects like this is common in many modern toolkits.
+For example, Swing requires that some properties be objects so that other objects can install propertylisteners on them to be notified of changes.
+When the user performs undo and then performs a new command, the undone commands can never be redone, so most previous systems throw away the command objects.
+However, in Crystal, we keep a complete history of all previous actions, even if they were undone, so nothing is ever popped off the command list.
+Instead, undo causes a new Undo-Command object to be added to the head of the list, with a new sub-command that undoes the appropriate action.
+Then, the command that was undone is marked as undone, so future undo commands will know to skip it.
+Note that, as in Microsoft Word, the automatic correction features are added as undoable commands, so, for example, when the user types "teh " and Crystal changes it to "the ", the auto-correct-command is added to the command list, so the user can undo the auto-correction separately from undoing the typing of the space.
+Show-In-Why-Menus: As discussed above, the programmer might determine that some commands should not be shown to the user as part of "why" menus even though they are undoable.
+For example, the Crystal text editor allows regular typing to be undone, but does not add to the "why" menus.
+The programmer can set Show-In-Why-Menus to false for these kinds of commands.
+Conversely, normally sub-commands are not shown to users in the "why" menus, and instead just the top-level command would be included.
+However, if the programmer wants to allow the user to ask about a sub-command, then its Show-In-Why-Menus can be set to true.
+An example is that when a new character is typed, the top-level typing command is not displayed in the "why" menus, but if the new character inherits its formatting from a named style, the programmer might want the sub-command that sets the character's properties from the style to appear on the "why" menus, since that may be mysterious to some users.
+As mentioned above, each property of objects in Crystal contains a current value and a list of old values .
+Each value is associated with a timestamp and a reference to the command object that caused it to have the current value.
+Values that are inherited, for example from styles, will still have a local value but there will be an associated property that specifies that the value is inherited.
+As discussed above, some commands, such as regular typing, are not added to the "why" menu as controlled by the Show-In-Why-Menus flag on the commands.
+The questions used both fixed and dynamic information about what happened .
+Generating the list of questions for the F1 menu is more involved.
+First, Crystal uses a Swing mechanism to iterate through the components under the mouse, and checks each to see if it implements the Question-Askable interface, and if so, calls it.
+There are three basic ways this interface is implemented by the Crystal framework.
+The first is used when F1 is hit on a Swing control, such as a menu or toolbar item, and then associated the command object is used.
+The programmer can provide a string explaining what the command does.
+The Enabled property of the associated command is automatically checked to see if an additional question should be generated about why the control is disabled.
+In this case, the programmer can provide a string to explain how to make it be enabled.
+The second way is used for objects that have properties.
+In this case, the framework can handle the questions and answers without help from the programmer.
+All the uservisible properties of the object, along with their current values, are added in a sub-menu, as shown in Figure 3.
+For example, if a character's font size is 18, which is inherited from a style named "Header", the character's font-size property will contain a value 18 with a reference to an Inherit-From-Style-Command object, which in turn will reference the Header style object.
+The character will also have an internal Font-SizeInherited property with the value true.
+Properties in Crystal have a number of additional parameters beyond those needed just to support undo .
+Internal properties like Font-Size-Inherited have Show-In-Why-Menus set to false so they will not be made visible to users in the "why" menus.
+Each property also knows the full set of controls that can affect it directly.
+For example, the bold property of a character knows about Control-B, the "Toggle Bold" item in the Edit menu, and the "b" button in the toolbar.
+However, the character bold property does not need to know about the "b" button in the paragraph window, since that operates on the bold property of paragraph styles, and when appropriate, Crystal can deduce that it was used by following the dependency information.
+The list of controls is used to tell the user how the property can be changed.
+To explain to the user how values were derived for properties that are never explicitly set, the application designer must add a special non-undoable command to the beginning of the command list which represents all the default, initial values.
+Then, question and answers can be handled automatically by Crystal, as can be seen in Figure 1, where auto-correct has its default value.
+For systems such as Microsoft Word where initial values can come from many different places: such as various options, Normal.dot, etc., the designer would add multiple initialization command objects with custom question methods, so each can describe how the user would change the corresponding default value.
+The third way is used for describing why graphical objects were created or deleted, and is also automatically handled by Crystal.
+All graphical objects have a pointer to the command that created them so it can be added.
+Auto-correction is actually implemented as a special kind of create, so a question about auto-correction will be displayed for the appropriate text.
+However, in this case we added a custom question method to specifically describe the automatic features and dependencies.
+Objects that are deleted by the user leave invisible objects where they used to be, linked to the commands that deleted them.
+In a regular graphical editor, this would make it easy to ask about the object that used to be at a location.
+In the sample text editor, the objects are invisible markers that flow with the text .
+In the text editor, we added a custom method for whitespace that adds an extra question that asks about the whitespace itself.
+Alternatively, the programmer can provide special invisible objects in all the blank areas, and let them generate questions about why the area is empty.
+For most questions, Crystal has built-in techniques for generating the answers.
+For properties of objects , the answer for why it has its current value is provided by showing the operation that caused it to have that value, and recursively, why that operation happened.
+Therefore, asking about a property of an object is the same as asking about the command that caused that property to have its current value.
+This observation was also made by the Whyline study  where the "Why is..." questions that were originally in the menus were removed because users were confused about the difference from the "Why did" questions.
+For a property that was set locally on the object , the answer says that it was set by the user, as in Figure 5.
+The corresponding control is also highlighted, by referencing the InvokingControl of the command.
+When the property's value is inherited, for example when a font size property comes from a named style, then the answer must include a discussion of the inheritance, as well as the final place in which the value was set, as in Figure 6.
+This required a custom answer method in the sample text editor, to generate understandable messages.
+However, facilities in the Crystal framework automatically traverse the command's Dependencies to determine the properties that contributed to the current value.
+If any of those properties themselves were inherited, then Crystal recursively goes to those properties' commands, and then to their Dependencies, etc.
+At each step, Crystal checks to see if the property is marked as Show-In-Why-Menus.
+If so, another sentence is added to the answer window.
+When there are multiple steps, then a "How can I..." question is added to the end of the answer, so the user can ask about each step individually.
+To highlight the controls, Crystal needs the ability to bring up widgets programmatically, set them to specific values, find their location, and highlight them, while still having them be operational for the user.
+Furthermore, the dialog boxes need to keep track of what causes them to be displayed, so Crystal can highlight the appropriate menu item.
+We were able to implement all of these using the Swing toolkit.
+Such support is also available in other commercial toolkits such as Mac OS X's Cocoa, where it has been used to implement several types of universal access features.
+A marker moves with the characters to its left , and can never be deleted .
+Styles are implemented as objects with sets of properties that can be inherited by characters.
+There are no additional structures needed for words or paragraphs in Crystal.
+About 10% extra code  was needed to add support for answering why questions to the text editor.
+We believe it would be straightforward to use the Crystal framework to implement other types of applications.
+We chose to implement a text editor because it seemed like the most difficult.
+For a drawing editor like Microsoft PowerPoint, each graphical object would have a list of usersettable properties and Crystal would automatically keep track of which commands set them.
+For "smart" operations, such as the automatic adjustment of font sizes, and moving of attached lines when boxes are moved, the developer would add extra commands to the command list to explain why these happened.
+When the user hits F1, the system should return all objects under the mouse, including individual objects, groups, and background  objects, and put these into the first-level menu.
+An implementation for spreadsheets might combine the techniques described here with techniques discussed elsewhere   that explain how the values were calculated.
+We implemented parts of a sample text editor using the Crystal framework as a test.
+We used a Model-View design, where the view uses the Java Swing TextLayout to format each line.
+Like Glyphs , Crystal's model uses an object for each character that stores the letter and all of its properties 
+We used a between-participants design, because the key issue is learning about how to use the system.
+One group used the Crystal sample text editor as shown here, and the other used the identical text editor, but with the "why" menu removed, and F1 disabled.
+Each group contained 10 participants, all between the ages of 18 and 53 with an average age of 24.
+12 participants were male and 8 female.
+We recruited participants who reported "little or no" experience with Microsoft Word, although they all had extensive general computer experience, and all but two had experience with other text editors.
+Those two happened to both be in the group with the "why" menus.
+Participants were randomly assigned to one of the two groups and were paid to participate.
+The experiment was conducted on a laptop and was recorded.
+Both groups received the identical six tasks.
+These were derived from real observations of Microsoft Word users, published articles about difficulties with Word, and an inspection of Microsoft's support pages.
+The tasks represent common issues that real Word users encounter.
+However, the tasks were not presented this way.
+We demonstrated a problem or a surprising behavior , and then asked them to fix it.
+For example, the experimenter read the following script as the stimulus for the first task:
+Type in the following sentence "The abbreviation fl.
+You notice that the word processor has capitalized some characters for you, but you don't want this to happen.
+Your task is to make the automatic capitalization not happen again.
+When you think you're done, type "fl.
+The participants who saw them really liked the "why" features.
+Each of the statements got an average agreement value of greater than 6.2 out of 7: "I understand how to use the Why feature in Crystal", "I found the Why feature easy to use", "The Why feature improved my word-processing experience", "The answers provided by the Why feature were easy to understand", "The answers provided by the Why feature were what I wanted to know", "I was comfortable using the Why feature", and "I would really like a Why feature like this in the programs I use."
+In order to make the experiment somewhat realistic, we copied Microsoft Word 2003's "Tools" menu and the "Options" and "Auto Correct Options" dialogs that are invoked using the Tools menu .
+All of the submenus and the various tabs on each of these were live, so the users would have to search through more places.
+Both tasks 1 and 2 required using the "Auto Correct Options" dialog , and no task required using the Options dialog.
+Tasks 3, 5 and 6 required using the paragraph styles dialog .
+The dependent measures were whether the participants were able to complete the tasks at all and how long they took for the ones they completed.
+A few users got stuck and required hints, and then we counted them as unsuccessful.
+We were also interested in usability observations.
+Because not all participants completed all tasks successfully, the data could not be analyzed using a standard repeated-measures ANOVA.
+Therefore, we analyzed both the number of tasks completed and the mean time per completed task using between-participants ANOVA.
+As shown in Figure 10, participants with "why" menus had an advantage in each of the six tasks.
+Figure 11 shows the average time per task for those participants who could finish it.
+The anomalous value for task 6 seems to be due to a few participants in the "without" group accidentally figuring out a workable strategy during task 5, compared to the "why"
+Clearly, the "why" menus were helpful to users.
+It is not surprising that the later tasks fared worse, since these tasks were quite difficult, even for some experts.
+For some people, the "why" features played the crucial role of explaining the concept to some of the participants, which directly led to successful task completion.
+However, Crystal is not necessarily designed to serve as a tutorial, and it probably did not teach participants about the concept of inheritance if they did not know it already.
+We had a number of usability observations about the system.
+Most of the participants preferred using the F1 key to have more control over the questions they could ask.
+Some participants were reticent to use the F1 key--this apparently was not a natural interaction for them.
+They used the "Ask about a location..." item in the "why" menu when the desired question was not in the "why" menu directly.
+Participants using the "why" features generally knew which objects they should ask questions about, and the questions that showed up matched their expectation.
+A lot of trialand-error clicking of menus happened for participants who did not have the "why" features, while the "why" people did not, and seemed to be more purposeful and effective.
+An obvious next step for Crystal is to do a more complete implementation of the framework so full applications can be built with it, to verify that the ideas scale up and work well in different domains.
+It would be useful to be able to field-test applications supporting the "why" menus to see to what extent they really help in practice.
+It would be interesting to see if the Crystal framework would be easier to implement on top of a toolkit with a constraint system such as Citrus .
+Another open question is how important it is to save the Why information across sessions, so that later users can ask questions about the contents of files read from the disk.
+We know of no system that saves the undo or command history with the files.
+The current framework cannot answer questions about operations that are no longer part of the command history.
+Everyone to whom we have described the ideas in Crystal has remembered situations in which they wished they could have asked their applications and operating systems why things happened.
+As even more sophisticated and "intelligent" operations are increasingly added to future systems, asking why will be even more important.
+Even if natural language processing were to become successful, making the need for Crystal's popup "why" menus unnecessary, the Crystal architecture would still be useful for collecting and organizing the needed information.
+Thanks to Susan Fussell for extensive help with the statistics for this paper.
+Thanks also to Jake Wobbrock and Andrew Faulring for help with this paper.
+This work was partially supported under NSF grant IIS-0329090 and by the EUSES Consortium via NSF grant ITR-0325273.
+Opinions, findings and conclusions or recommendations expressed in this material are those of the author and do not necessarily reflect those of the NSF.

@@ -1,0 +1,85 @@
+We demonstrate that front-of-screen targeting on mobile phones can be predicted from back-of-device grip manipulations.
+Using simple, low-resolution capacitive touch sensors placed around a standard phone, we outline a machine learning approach to modelling the grip modulation and inferring front-of-screen touch targets.
+We experimentally demonstrate that grip is a remarkably good predictor of touch, and we can predict touch position 200ms before contact with an accuracy of 18mm.
+Touch input has become the dominant form of interaction with mobiles.
+There have been a number of proposed enhancements to touch interaction recently described to overcome input space constraints and extend the capabilities of touch, including hover tracking, full finger pose estimation and back-of-device/around-device interaction.
+Standard front-of-device touch is, however, likely to remain the most common modality for the forseeable future, because of its direct link between control and display.
+In this paper we explore how back-of-device sensors can improve front-of-device interaction by predicting the contact of fingers before they reach the touchscreen.
+This is based on the observation that, when holding a phone single-handed, it is impossible to target with the thumb across the whole display without adjusting grip .
+This paper explores implicit back-of-device interaction for the purpose of estimating front touch position.
+We focus on finding structures in the hand grip modulations and correlating these with touch actions.
+We use standard machine learning techniques to do prediction, forming a regression model which predicts x, y position and expected time of contact t from a capacitive sensor time series.
+Off-device, cloud-based processing offers many opportunities for mobile interaction.
+One of the key issues holding back cloud applications is extended UI latency.
+Retrieving content over a wireless link introduces a substantial necessary latency; even a fast connection may have latencies of 100200ms.
+This level of delay is very noticeable, and can disrupt the rhythm of an interaction.
+Another potential application of touch contact prediction is enhancing auditory and tactile touch feedback.
+A delay of just 30ms between touch and response is clearly apparent.
+By predicting touch contact times, audio or vibrotactile feedback can be queued to trigger exactly on the predicted touch time.
+This requires high predictive accuracy, but only at the fraction of a second immediately preceeding a touch.
+In order to overcome occlusion problem, new interaction technique using back of the device has been proposed.
+This is by using a see through mobile device that allows direct touch input to be made precisely .
+Apart from the occlusion problem, back of device interaction also has shown to be useful in increasing privacy by preventing shoulder-surfing , and to overcome fat finger problem in small devices .
+Back of device interaction also allows the creation of grasp-based technique that could predict users' intention by the way they hold the device .
+The Bar of Soap is a multifunction prototype device that used grasp interaction to switch between several hand-held modes .
+Similarly, HandSense discriminates between different ways of grasping a device which can be used as interaction cues in both explicit and implicit ways .
+The use of back of device sensing also allows mobile devices to be more adaptive to the dynamic nature of user interaction such as soft keyboard positioning in iGrasp  and screen orientation in iRotate .
+Besides capacitive technology, users' hand postures also can be inferred using combination of built-in sensors found on most commodity mobile phones .
+Alternatively using active acoustic sensing, rough positions of touch and different postures of touch on solid object can also be estimated .
+In order to collect touch grip samples, 20 users were recruited locally .
+For each user, we recorded 250 unique touch targets with each hand, while seated on a chair, in front of their desk.
+We are not interested in how the users initially pick up the phone, therefore the recordings begin when the phone is held by the users.
+We used 5 sessions for each hand, each with 50 targets, for 500 targets in total, alternating hand between each session, for 250 targets for each hand.
+Each hand therefore has an equal number of touches.
+This is to ensure that we are not observing only a single grip pattern, but a range of plausible grips for each user.
+It is worth mentioning that each session was separated by a 5 minute break to minimise the repetition effects.
+The experiment required the user to touch random targets distributed randomly on the prototype screen using their thumb, while holding the phone single handed.
+A half second delay is used between targets to encourage the user to return to a rest pose before next target is shown.
+Audio feedback is given if the user touches the target correctly.
+A legitimate touch requires a stable thumb contact within the minimum target area for at least 60ms.
+The target area used in our setup is 1 cm in diameter or 98.8 pixels on our device.
+We recorded timestamps, both target and touch coordinates  in pixels and capacitive readings from the back of the device into the prototype's internal storage for subsequent off-line analysis.
+Current smartphones do not typically have grip sensing around the device, and so we fabricated a custom prototype system .
+The prototype based around a Nokia N9, which has been modified to include around device sensing using a 0.1mm thick flexible PCB, interfaced directly to the phone's internal I2C bus with custom electronics.
+The prototype has 24 capacitive sensors distributed around the back and sides of the device  to capture user's hand grip.
+We use 2x AD 7147 programmable touch controllers.
+The total size of this prototype is fractionally larger than the device itself, with dimensions of 116.5 mm x 61.2 mm x 12.1 mm and a weight 135 g. The N9 prototype has a screen density of 251 pixels per inch .
+Capacitive sensing technology is used because it is a well proven touch sensing technology which is practically implementable on mobile devices.
+The flexible PCB solution gives us a prototype which is almost identical in form factor to a standard mobile device.
+The capacitive sensing has a raw bit conversion depth of 16 bits.
+From the recorded samples, we performed Principal Component Analysis  to visualise the structure of the capacitive signal coming from the back of the device.
+In particular, we are interested to see whether there is a correlation between grip  and touch target .
+We used Canonical Correlation Analysis  to study this relationship.
+Drawing the results from CCA, we performed regression to see if touch target predictions can be made from the way the device is being grasped.
+CCA  measures linear correlation between two multidimensional datasets.
+The first pair of projection vectors provide the most correlated linear combinations and the second pair define the most correlated linear combinations that are orthogonal to the first, etc.
+There is clear correlation between the back-of-device sensor values and the touch position.
+Gaussian Process Regression   is a flexible, non-parametric approach to regression analysis.
+To define a GP, we define a prior mean regression function  = 0 and a prior covariance function that defines the smoothness of the regression function.
+We train a separate, independent GP for each co-ordinate axis.
+In this work, we use the popular Gaussian covariance function.
+We used the gpml GP package for Matlab.
+In all experiments, the data are split into independent training and test sets.
+The hyper-parameters are optimised by maximising the marginal likelihood on the training data .
+We start by identifying the structure of hand grip data during the touch.
+We used Principal Components Analysis  on hand grip to project the 24-dimensional capacitive values, s to two-dimensional space.
+This allows us to observe patterns in the data.
+Figure 3, shows the first two components from right hand data from all users, and we can see that most of the users have different ways of holding the phone during touches.
+This diversity suggests that any model based from hand grip may have poor generalisation ability and is likely to be user-specific.
+In order to understand the correlation between grip and touch, we use CCA to measure the linear relationship between capacitive sensors, s and touch targets, x. CCA provides 2 bases, one for each variable, that are optimal with respect to correlation.
+The plot of correlation coefficients in Figure 4 shows that the two variables are correlated.
+Based on the touch-grip examples, we train the GP to predict touch targets before finger contact.
+We use root-mean-square error  in millimetres to evaluate prediction error  and compare our results with a baseline defined by RMSE of always guessing the centre of the screen .
+To predict touch target before time of contact, we train the GP using grip data prior to the touch contact and measure the RMSE of the prediction on a separate test set.
+Figure 6 show the error against time before contact.
+The results show that there is a surprisingly strong correlation between grip modulation and touch target, and we can predict touch contact position reasonably well several hundred milliseconds before touch.
+Time-of-contact is also remarkably predictable.
+Prediction accuracy is similar for both left and right hand use, regardless of the user's handedness.
+We have focused on a specific targeting paradigm in this study - touching randomised abstract targets with one thumb.
+Other interaction poses, such as two-thumb interaction and single-finger tapping, are also likely to have substantially different grip models.
+Although our results suggest that the model may not be suitable for generalisation, however it could be possible to establish a group of people , and generalise the model based on this group.
+The grip manipulations required to touch targets on a mobile touch screen have a distinct signature.
+Our methods are able to use this to predict finger contacts with a degree of accuracy that could enhance a wide range of mobile applications by reducing apparent latency.
+Gaussian process regression is efficient in learning a compact and robust mapping from a fairly low-resolution grip sensor to target positions and contact times.
+Although we used user-specific grip models a system using a pooled model combined with a small individual training sample may provide adequate performance without requiring a lengthy enrolment process.
+The use of back-ofdevice interaction for explicit interaction is a well explored area.

@@ -1,0 +1,190 @@
+This paper introduces new interactive ways to create, manipulate and analyze shapes, even when those shapes do not have simple algebraic generators.
+This is made possible by using pixel-pattern rewrites to compute directly with bitmap representations.
+Such rewrites also permit the definition of functionality maps, bitmaps that specify the spatial scope of application functionality, and organicwidgets, implemented right in the pixels to have arbitrary form, integrated with the shape needs of the applications.
+Together these features should increase our capabilities for working with rich spatial domains.
+The remainder of this section gives a brief introduction to pixel rewriting, and a survey of related work.
+The second section shows how new pixel rewriting algorithms for computation with shapes can be coupled to user input to provide new, pixel-based interactive application functionality.
+The conclusion gives a summary and suggests future work.
+Many shapes in nature have no simple analytic description: the ragged boundaries of a marsh, the meandering and branching path of a river, the subtle outline of a thighbone.
+For advanced analysis or computer manipulation, scientists typically convert images of such shapes, by a process called "vectorization," into complex models in analytic geometry.
+Similarly, designers work predominantly with algebraic, "vector-based" models of CAD systems, and as a result it can be a struggle to create more naturalistic shapes .
+The work here is part of a research program to explore the possibilities offered by an alternative computational approach, one working directly with bitmap representations of shape.
+The basic inspiration is that bitmaps can easily capture shapes that are difficult for algebraic expressions - a digital photograph easily captures the shape of the marsh, river, or thighbone outline.
+New pixel-based shape manipulation algorithms allow increasingly powerful computation directly with these bitmap shapes, opening the way for their more serious use.
+Making such pixel-based computations available for human interaction in shape-rich tasks is, however, a research issue in itself.
+In this paper, following preliminary work by ,
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+To work with pixellated representations of shape we use a Pixel Rewrite System  .
+A PRS is essentially a graphical version of a rule-based production system from Artificial Intelligence : rules match specified local pixel patterns on a canvas or "field" and then rewrite them as different patterns.
+As carefully crafted sets of rules repeatedly match and rewrite, the content of the pixel field evolves over time, and shapes and contours change in ways contingent on their contexts.
+The result is a type of versatile pixel computation that can work with arbitrary pixel shapes without ever having to convert them to algebraic representations.
+Figure 1 shows some simple rules, building blocks often used in complex rule sets.
+The rule in  we call a "Flood" since it will cause any pink color to spread out and take over any neighboring white.
+It does this one pixel at a time, by rewriting any white neighbor of a pink pixel to be also pink.
+A rule like this can, for example, tell if two things are connected - start the flood at one and see if it reaches the other.
+That capability is used, for example to identify the full extent of a "blob" to be manipulated , or to send a "signal" from one part of a shape to other connected parts.
+Control flow in a pixel rewrite system is accomplished using conflict resolution: When there are multiple matches, a "winner" is selected based on factors like explicit rule priorities and recency of match.
+For example, resolving conflicts based on "other things being equal, fire the oldest existing match" is what allows Flood  to spread out breadth-first.
+Figure 1: Four single-rule systems.
+The rules can match rotated or reflected versions of their patterns if so indicated.
+Other rules can be used to mark special visual attributes of successively shorten such long pixel curves, right in the the bitmap for further processing.
+One example, in , is pixel array.
+Still other rules provide the As another example, it is common in graphical design to basics of moving things around, as shown in  where the want to move groups of things closer together, or to spread rule simply moves orange pixels to the right.
+Yet other them out evenly over arbitrarily shaped areas.
+Typically, rules explicitly change the shapes of things.
+For example, such positioning is done by hand.
+We can do this the rule in  removes the square corners from curves.
+First is a "pixel-radar" algorithm that starts at simple rules can be used in many ways, as building blocks some location and can tell in what direction the nearest of more complicated algorithms for working with shape.
+It sends out a radiating "radar" For example, a monochromatic "blob" of arbitrary size and signal via a flood which, upon hitting another object, shape can be moved over one pixel quite simply with only initiates a reverse flood, or "echo".
+The reflected echo local rewrites.
+First, it is flooded to identify its total eventually reaches the original source, and its direction of extent.
+Then the external leading edge is marked for arrival can be used by subsequent algorithms.
+For extension and the interior trailing edge marked in a example, combining it with the blob-move algorithm, we different color for deletion.
+A rule then deletes the marked can get a blob to re-position itself closer to the reflecting trailing edge pixels, and another converts the marked object.
+Running this iteratively in parallel for a set of leading edge to the original blob color.
+The result is a blob blobs, we create an "auto-converge-by-radar" capability, of the original shape moved over one pixel.
+If they are in the pixels we can move them.
+In those systems, typically a single "rule" avoiding obstacles, deforming around them, recursively applies simultaneously at all locations to transform pushing them out of the way, as desired.
+These The primary interest here is in those algorithms that accomplish operations like blurring, edge enhancement or provide functionality valuable for end user interactive repairs of small gaps.
+In a PRS, the complexly selfapplications.
+For example,  presents a pixel-rewrite sequencing sets of rules, each of which has rich non-linear algorithm to find the shortest paths between arbitrarily dependence on local context, accomplish more qualitatively shaped objects through arbitrarily shaped obstacle fields.
+The algorithms can also build on each other.
+For example, suppose a user draws some such connecting curve by hand and then decides she has drawn it to be too long and loose, and wants to "tighten it up".
+If she had drawn the curve right in the pixels, she previously would have had to do a lot of erasing and redrawing.
+Instead we can use the shortest-path Figure 2: "Tightening up" a curve.
+The endpoints are fixed, algorithm as a component in a larger algorithm that can but the curve  is one iteration shorter in , and several more iterations shorter in .
+The rewrites used in PRSs are technically most closely related to formal systems called Array Grammars , that rewrite elements in a two- or higher-dimensional grid.
+In most AG work, like other grammar-based systems for shape , the primary interest has been on parsing and generating shapes, and as a result work has focused on the highly tractable but less powerful Context Free  or Context Sensitive  grammars - systems that make very restricted use of context in the match and rewrite process.
+This rather technical point is important because the unrestricted rewrites we use in our PRSs are formally known to be much more powerful - they can implement any computable function.
+Such power, enhanced by a so-called conflict resolution scheme  allows us a versatile way to manipulate and transform, in quite arbitrary ways, shape on the canvas.
+Several of these sorts of powerful grid-based rewrite systems have been explored in the HCI community.
+Furnas  proposed BITPICT, a pixel rewrite system, as a possible model for a kind of forward chaining graphical reasoning.
+Yamamoto  devised several powerful programming extensions to the BITPICT language.
+In neither of these was there any special focus on the potential for interacting with rich shapes.
+Several other systems  have pursued grid-based rewrites with an emphasis on the ability to make simulations for teaching programming or fostering scientific understanding of processes.
+Though they explored various technical complexities along the way that are useful to us , many aspects of these systems  were designed to support the simulation and teaching aims.
+Here by contrast, we are interested in manipulating and analyzing rich shapes.
+As a result, the system is optimized to work with individual pixels, bitmaps are the main data structure throughout, and rule sets of interest here are for useful shape manipulations, not simulation.
+The pixel rewrite process at the core of a PRS amounts to a kind of graphical search and replace capability - each rule "searches" for a match to its left-hand side and "replaces" the match with the rule's indicated right-hand side.
+Understood this way, it is useful to compare a PRS to the powerful graphical search and replace capability Kurlander&Bier  developed for interactive graphical editing.
+Users could make global changes to graphical objects, such as changing all red rectangles to green ovals.
+This differs in two important ways from the work here.
+First, they focused on changing attributes of "draw"-type vector graphical objects .
+We are interested in complex manipulation of raster shapes, so we work directly with the pixels of the raster array.
+Second, in their system a single pass of the search and replace operation was conceived of as the user's desired unit task.
+The complex graphical manipulations that result are the unit task for the user 
+Kurlander and Bier mentioned that they could work with pixels, and even could do recursive calling, to create fractals, for example, but the rich pixel computation for shape manipulation was not the focus of their exploration.
+Finally, viewers often find the grid computations of a PRS reminiscent of the computation seen in Cellular Automata .
+In a CA, cells in a grid change state as a function of the states of their neighbors, causing a starting configuration of cells to evolve over time.
+Such systems help scientists explore the emergent consequences of various neighborhood-dependent transition rules.
+Classical CAs are, however, often considered hard to program to achieve desired  results - a critical handicap if the goal is to provide some particular useful shape manipulation capability to a user.
+Since the patterns in rules of PRSs are often explicitly relevant to the desired resulting functionality, we find them easier to program than CAs, and therefore well suited for giving users specific shape-interaction capabilities.
+The most basic, important impact of the new PRS algorithms for shape manipulation is that the new functionality can be made available, in a straightforward way, to end users.
+For example, it has not been possible before for users to draw freehand scribbles and then fix them up without having to erase and redraw.
+Simply by invoking the algorithms on an indicated input, users can smooth portions of their scribbles, or globally shorten  their pixel-curves.
+The algorithms of  and  easily suggest end-usable functionality for manipulation of shape.
+Other algorithms allow the interactive analysis of shapes as well.
+For example, imagine a species of exotic snail has invaded a watershed in the Lake District .
+An ecologist assessing the threat wants to know which other water system is nearest.
+Working directly with a pixel map of the area, she clicks on the infected lake, launching a process that basically floods out from the original infected lakesystem to find the first uninfected one it hits.
+Rewrites first "flood" the original water system from her seed click-point .
+Then a second, "search"-flood  begins from the boundary of the infected lake, spreading until it first touches another water-colored pixel.
+The touch is identified by a high priority rule, which then marks the location of the touch .
+The mark acts as a seed for another flood which recolors the touched watershed.
+The recolored watershed is thereby visually identified as "nearest."
+The mark also seeds a high priority reverse flood  to overwrite and terminate the search-flood, so it will not go on and mark other watersheds.
+User analysis of exotic species invasion threat.
+To count nearest's lakes,  they are copied to a second layer, and hollowed.
+Suppose she now wishes to know how many lakes are in using "voxel" rewrites instead of pixel rewrites - a the threatened system  is a useful capability.
+The pixel level algorithm she Designers are not infrequently given constraints on total launches to do the count is complex, and shown only area, volume or weight.
+A landscape architect may be given briefly in Figure 3.
+Basically it uses a second, scratch a budget for a 10m2 garden, and would like to be able to pixel layer below the first where it hollows the lakes to manipulate its shape to some pleasing, even complexly become loops and nibbles away the rivers.
+Each loop is "organic" looking one, knowing the area will always meet then broken, with one of its broken ends marked.
+Agricultural land-use planners of the marks are contracted together for local counting, and the future may want to transform a hilly terrain in southern result displayed to the user back on the original surface.
+China to terrain-following, "organically" sculpted rice Operations like finding the closest among complex and terraces.
+In this 3D shape deformation task, the planners inter-digitating pixel-shapes, and analyzing certain cannot come up with a new landscape that will require topological features of those shapes, require computation to bringing in or removing billions of tons of earth; their work very closely with the pixel representations.
+Pixel planned deformations must be volume preserving.
+Second, rewrite systems are well suited for providing this kind of such area-  preserving properties are difficult to end-user functionality.
+Most algebraic representations focus on the position of features of This "setup, launch and wait" style of interaction is a the bounding curve .
+Other properties, like the straightforward way to bring the new shape algorithms to enclosed area are difficult to compute, and hence to preserve the user - basically at the "unit task level".
+A more "live" under deformation.
+In pixel rewrites, one must simply feel to the interaction is possible when the underlying pixel ensure that individual rules neither create nor destroy claycomputation is fast and simple, and can keep up with the pixels, and start-to-finish area preservation is guaranteed.
+A basic example is shown in This illustrates one of the basic points of the underlying Figure 4.
+If two of the simple rules from Figure 1 are research program - that these new sorts of computation active during the drawing process, the user automatically draws, in real time, purely-8-connected, haloed curves - a capability we will use later.
+The active rules essentially force a kind of constrained drawing.
+In a more complex example, we can allows users to manipulate a shape on the screen as if it were a blob of clay.
+To do this we couple user interaction to an area    preserving deformation algorithm  allowing a user to massage a blob of pixels into a desired shape without altering its total area, creating a kind of interactive "pixel  clay" .
+The user interacts by either clicking near Figure 4.
+Adding  front to deform the "clay."
+A core goal of our research is to support shape-rich activity using the computational power of rewriting bitmaps - we are always seeking "to bring shape into the picture" metaphorically and literally.
+This has led, not just to new end-user application functionality, but to new spatially rich ways to control that functionality appropriately.
+Such capabilities are often discovered using a "convert and vary" strategy.
+We take some conventional capability and convert it - re-implementing it using only pixel-rewrites.
+The mechanisms for the new, pixel version often have a completely different set of natural variants and extensions, compared to the standard version, often ones that indeed "bring shape into the picture".
+Consider the conventional capability provided in a GUI interface by a radio button widget.
+It allows a user to switch between two different application functionalities, e.g., the user clicks Button-1 for pencil-draw or Button-2 for spray-paint.
+A similar need, of course, arises in pixel rewrite interactions.
+For example, a graphic designer using the "radar"-based auto-positioning algorithms might want to switch between the auto-converge and auto-disperse functionality.
+Following the "convert and vary" strategy, we begin by creating a pixel-rewrite version of the basic "radio button" functionality.
+Because the later "vary" part of the strategy depends on the internals of the pixel implementation, we go through it in some detail.
+First we need a basic control capability, a way to have only one subset of rules firing at a time  even though both are nominally active in the system.
+Whether an active rule fires or not depends on whether its pattern matches somewhere in the field.
+Part of a primitive widget to flood the control region.
+Rule  then seeds  a red flood in  and , filling the control region.
+To resolve this seeming paradox, we create a "control" layer, a second pixel layer beneath the application layer.
+The patterns in all rules are augmented to require a specific color match in the local pixels of this control layer .
+If the control layer is of the wrong color for a given rule, the rule cannot fire.
+In this way, subsets can be turned on and off simply by flooding the control layer with the appropriate color.
+Providing interactive control of which suite of rules is active is then just a matter of writing pixel rules for selectively coloring the control layer in response to user mouse-clicks.
+We simply set up pixel "buttons", where each, when "selected," colors the control layer correspondingly.
+Details are shown in Figure 6.
+The initial state in , at time t0, shows the "widget" to the left of the black bar.
+The "controlled area," normally a whole separate layer, is here shown as the region to the right.
+In this case, the three colored pixels are the "buttons".
+In , at time t1, the user clicks white by the desired color "button".
+Rule  recognizes this pattern and, at time t2, places a color seed  in the controlled area.
+A simple flood rule operating in  and   then fills the controlled area with the desired color.
+If this were a true control layer, the overlying application functionality layer would then start running its "red" rules.
+Finally, to create a real pixel radio-button widget, we need some control logic to provide the XOR functionality, turning off the old button, before turning on the new one.
+Again because the pixel rewrites are local, the mechanism must work within the basic spatial structure of the pixel array.
+The implementation  basically involves a vertical-only "flood" that "searches" up and down in space for the old selection.
+When it finds it, it turns it off and erases its color before flooding the control region with the newly selected color.
+Radio Button Widget implemented in pixel rewrites.
+Time  shows the initial state.
+XOR vertical SearchFlood goes up & down.
+Although perhaps interesting in its own right, what we have really gained by converting this standard functionality to the pixel domain is the ability to make totally new variations.
+Specifically, the spatial nature of the implementation mechanism allows natural extensions that "bring shape  into the picture."
+A second layer  runs the XOR mechanisms.
+It is, for example, trivial now for application functionality converting to a pixel implementation, we can vary it easily to have spatial scope.
+To get the conventional basic to provide spatially scoped functionality, a capability quite control of rule subsets we had to make the appropriate alien to the conventional widget.
+Having done so, however, we are now logic was implemented in a spatial structure, so that the free to make locales differ.
+If different regions of the control controllers themselves can be richer in shape, more layer have different color, they enable correspondingly organically incorporated into the regions they control.
+The control layer becomes Standard rectangular radio-button widgets would typically what we call a functionality map.
+As shown in Figure 8, either obscure the application canvas, or be set off to the the radio button mechanism can easily control these side possibly confusing their correspondence to the regions arbitrarily shaped regions.
+One need only draw boundaries controlled.
+Here the commanding General working over his to block the propagation of the flooding functionality map  could have the kind of spatially buttons -- trivially possible by putting sections of the scoped control of functionality described above, but with control colors  convenient spatially-local controls - built "organically" along the border of the widget region adjacent to the region right into their arbitrarily shaped boundaries.
+In Figure 9, to be controlled.
+Active rules from Figure mountainous region to indicate that troops in some 4, keep the curves cleanly 8-connected and surrounded by a Regions 1 and 2 should be dispersing as indicated  while those in down to control layers below.
+The halo, with its shape Region 3 should be gathering together .
+This is a kind of for the radio button internal mechanisms.
+The XOR upgraded version of bitmasks used in, for example, "search" flood propagates along the curves halos in Layer 2 Photoshop, to control where some image processing , instead of propagating vertically as in Figure operator will work.
+Here several regions can be "live" at a 7.
+The General simply picks up control colors from a time, their boundaries changing interactively by the user in palette at the bottom of the field and places samples of real time, or even computed by other pixel processes them as radio buttons in any convenient place in the halo working directly with the control layer.
+And of course, the of the border of any region to be controlled.
+Placing a regions control the arbitrary pixel computations of the selection dot in any of those "buttons" triggers the application, instead of just photoshop operations.
+In this paper, pixel level computations have enriched users' ability to work with any arbitrary shapes in several ways.
+First, new application functionalities can work with bitmap-shapes, including smoothing curves, pixel clay, and radar auto-positioned shapes.
+Second, functionality maps, dictated by arbitrary bitmaps, allow different regions to behave differently.
+Finally, organic widgets, implemented in the pixels, can be integrated closely with the spatial structure of the user's activity.
+The almost "raw" spatial nature of the computation increases the spatial richness of the user's interactions.
+Future work will in part focus on the underlying shape computation: exploring multi-resolution, non-rectangular and 3D grids, and accumulating more shape manipulation and analysis algorithms.
+As the work here shows, changes in the computational capabilities lead to changes in opportunities for users' interaction.
+Another important direction involves exploring how users might best bring this new power to bear.
+Will there be commonly desired nuggets of pre-programmed pixel functionality, to populate the pixel-rewrite tool palettes of the future?
+Or will enduser customization and programming be required, with its consequent complexities?
+Yet another direction we wish to explore is "shape-based" input.
+The simple mouse-clicks used as input here, seeding a cascade of rewrites from a single point do not have much "shape".
+One could go much further using video input.
+Users could use the shapes of their hands to interact directly with the pixel rewrites to further the efforts to bring shape into the picture interactively.
+This work was supported by grants from NSF  and the Intel Corporation.
+The authors would also like to thank Maria Slowiaczek for her many insightful comments on early drafts, Greg Peters for his programming efforts, Sanjeev Shrivastava and Nikhil Sharma for their varied assistance, and the helpful comments of the reviewers.

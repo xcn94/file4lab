@@ -1,0 +1,309 @@
+Gesture-based interactions have become an essential part of the modern user interface.
+However, it remains challenging for developers to create gestures for their applications.
+This paper studies unistroke gestures, an important category of gestures defined by their single-stroke trajectories.
+We present Gesture Script, a tool for creating unistroke gesture recognizers.
+Gesture Script enhances example-based learning with interactive declarative guidance through rendering scripts and interactively trained parts.
+The structural information from the rendering scripts allows Gesture Script to synthesize gesture variations and generate a more accurate recognizer that also automatically extracts gesture attributes needed by applications.
+The results of our study with developers show that Gesture Script preserves the threshold of familiar example-based gesture tools, while raising the ceiling of the recognizers created in such tools.
+The continuing rise of ubiquitous touchscreen devices highlights both needs and opportunities for gesture-based interaction.
+Symbolic gestures are an important category of gestures, defined by their trajectories .
+Symbolic gestures have been extensively studied , and are increasingly common in everyday interaction.
+However, implementation of gesture recognition remains difficult.
+Because of this difficulty, many developers either decide against adopting gesture recognition or instead limit themselves to simple gestures to make recognition easier.
+Extensive research examines tools to support developers creating gestures for their applications .
+Copyrights for components of this work owned by others than the author must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Copyright is held by the owner/author.
+Publication rights licensed to ACM.
+This paper addresses symbolic, unistroke gestures.
+Current approaches to tool support focus on example-based training.
+One well-known exemplar of such tool support is the $1 Recognizer .
+The $1 Recognizer allows developers to create a gesture recognizer by providing examples of each class of gesture.
+It then recognizes gestures using a nearest-neighbor classifier based on a distance metric that is scale and rotation invariant.
+At runtime, the recognizer compares new gestures to the provided examples and outputs a recognized class.
+Such an example-only approach hides recognizer complexity, but has key limitations.
+First, example-only approaches provide little control to developers creating a triangle sector recognizer.
+Consider a scenario where a recognizer is having trouble reliably distinguishing between a triangle and a sector.
+In a strictly example-only system, a developer's only recourse is to provide more examples and hope the system eventually learns to differentiate the gestures.
+A better approach would allow developers to provide more information about the gestures.
+For example, a developer might indicate that a triangle is made of three lines, while a sector is made of two lines and an arc.
+Second, example-only approaches limit the complexity of gestures developers can create for applications.
+Without any other knowledge, it is hard to efficiently learn gestures from only examples.
+For example, consider a spring gesture that can contain a varying number of zigzags.
+Such a gesture does not have a fixed shape, so it will be difficult for the $1 Recognizer to learn.
+Figure 2: The main Gesture Script interface.
+Developers use the gesture bin on the left to define gesture classes and understand recognition accuracy for each class.
+They also work with example gestures and the gesture canvas in the center to define and inspect gestures and parts.
+On the right they author rendering scripts and incorporate examples synthesized from these scripts.
+This can be tedious and inefficient, and it often still does not yield an acceptable recognizer.
+Third, many applications require attributes of gestures beyond just their recognized class.
+For example, an application that recognizes an arrow gesture may also need to know its orientation and length.
+Prior work has focused on recognizing the correct class , so a developer is generally left to recover such attributes on their own.
+In our example, a developer might write custom code to infer an arrow's orientation and length by analyzing the gesture's two most distant points.
+Although straightforward for an arrow, some attributes can require analyses that are as complicated as the recognizer .
+A better approach would allow developers to leverage the primary recognizer to recover attributes of a gesture needed by an application.
+This paper presents Gesture Script, a new tool for developers incorporating gesture recognizers in their applications.
+As in previous example-based tools, Gesture Script allows developers to create a recognizer by simply providing examples of desired gestures.
+But we also enhance this core capability with several novel and powerful techniques as shown in Figure 1.
+Gesture Script allows developers to describe the structure of a gesture using a rendering script.
+A rendering script describes the process of performing a gesture as drawing a sequence of user-defined parts.
+The parts of a gesture can be learned from provided examples, and they can also be interactively specified.
+Scripts and their parts allow synthesis of new examples, helping developers quickly add greater variation to their training examples.
+Taken together, these capabilities allow developers to create more powerful gesture recognizers than prior example-based gesture tools.
+The contributions of this work include:  Introduction of rendering scripts as a technique to allow developers to combine example-based training with more explicit communication of gesture structure.
+A novel developer tool that uses rendering scripts to learn more accurate gesture recognizers, gives developers additional control over learning, and supports automatic recovery of gesture attributes.
+A set of interactive techniques for specifying the primitive parts of gestures and for adding greater variation to an example gesture set.
+A set of algorithms for learning the primitive parts of gestures from example gestures, rendering scripts, and interactive feedback on primitive parts, as well as algorithms for learning a gesture recognizer.
+Validation of Gesture Script in both initial experiments with developers and in detailed analyses of recognition reliability for multiple gesture datasets.
+The next section discusses how a developer uses Gesture Script to interactively create a recognizer for a set of unistroke gestures and how they extract important attributes from those gestures.
+We then more formally introduce our rendering scripts and discuss what gesture structures can be described.
+Next, we discuss our algorithms for learning user-defined parts, synthesizing gesture examples, and learning the final gesture recognizer.
+We then evaluate Gesture Script through an initial study with developers and examination of recognition rates on multiple gesture datasets.
+Finally, we survey related work, discuss limitations and opportunities for future work, and conclude.
+We introduce Gesture Script by following a developer as she implements a recognizer for a small set of unistroke gestures.
+Ann needs to recognize four gestures in her application, as shown in Figure 2: Arrow1 will create a solid arrow of the same orientation and length as the gesture, Arrow2 will create a hollow arrow in the same orientation and length as the gesture, Spring1 will add a resistor with the same number of zigzags as the gesture, and Spring2 will add an inductor with the same number of coils as the gesture.
+Note that Ann's application needs to know the orientation and length of arrows as well as the number of zigzags and coils in springs in order to support simulations informed by the gestures.
+Like prior example-only systems, Gesture Script allows developers to quickly create a recognizer simply by demonstrating examples of each gesture class within the Gesture Script interface.
+Ann first creates four gesture categories in the gesture bin and names them accordingly .
+For each gesture category, Ann records a few examples by drawing on the gesture canvas in the center column of Figure 2's view of the interface.
+After the examples are recorded, Ann immediately has a gesture recognizer.
+Although Ann will extend the capabilities of her recognizer beyond what is possible with prior example-only systems, Gesture Script preserves the core interaction of quickly training a recognizer by example .
+To experimentally test her recognizer, Ann clicks the blue button in the upper-left corner of Figure 2's gesture bin.
+Gesture Script performs a random 10-fold cross validation on the recorded gesture set and updates the blue button to show result of the cross-validation as an estimate of the accuracy of the current recognizer.
+Gesture Script also displays the recall value for each gesture class next to its thumbnail to inform the developer how many of the provided examples are correctly recognized.
+The cross-validation can only be interpreted as recognition performance over the recorded gestures.
+When the recorded gesture set fails to capture the qualities of real-world gestures, the cross-validation can report high accuracy for a recognizer that will actually perform poorly in practice.
+This can occur if the gesture set is too small to illustrate a space of gestures, or if the example gestures are too similar and fail to demonstrate real-world variation within a class.
+To produce a high-quality recognizer, Ann therefore needs a good cross-validation result on a realistic set of example gestures demonstrating real-world variation.
+Ann creates a simple rendering script that uses a sequence of draw commands to describe Arrow1 as drawing a part called Line followed by a part called Head1, as in Figure 3.
+Similarly, Ann defines the slightly different Arrow2 as first drawing a Line and then a Head2.
+Importantly, parts are all user-defined.
+Gesture Script does not have any pre-existing notion of a line or an arrowhead, but will learn these parts from Ann's examples and interactive guidance.
+Part names are globally scoped, so the Line part in Arrow1's script is the same as the Line part in Arrow2's script.
+Spring1 and Spring2 are a bit more complicated, as the bodies of the gestures contain repetitive patterns.
+Gesture Script supports such gestures with a repeat command.
+Ann describes Spring1 as first drawing a Spring1Head, then a series of one or more Cap parts, and finally a Spring1Tail.
+She similarly defines Spring2 to include a Spring2Head, one or more Coil, and a Spring2Tail.
+Even for the same script, multiple interpretations of the named parts might be consistent with provided examples.
+Figure 3 shows example alternative scripts for each of Ann's gestures as well as two different interpretations of the parts in her Spring1 script.
+Some scripts are more effective in improving recognition.
+In our experience, a good strategy is to reuse parts among scripts when possible, as this helps the recognizer isolate and focus on the other more discriminative parts of gestures.
+Scripts define a global set of user-defined parts.
+However, the shapes of those parts are unknown .
+When a gesture class is selected, Gesture Script shows its current understanding of the appearance of each part defined in the gesture's rendering script .
+An empty box is shown if Gesture Script has not yet learned a shape.
+After defining her scripts, Ann clicks on the refresh button in the center of the Gesture Script interface.
+Gesture Script then tries to learn all of the parts defined in Ann's scripts.
+It tries to learn the appearance of each part from the example gestures .
+The learned parts are then visualized.
+Unfortunately, the space of possible shapes for parts is very large.
+Given computational constraints, Gesture Script is only able to find a set of local minima and pick the best.
+When gestures are simple, Gesture Script is generally able to find parts that match the developer's intent.
+However, it does not always find the best shapes for parts.
+Figure 4 shows an example where Gesture Script has not identified the intended distinction between Line and Head2 in Ann's Arrow2 gesture.
+Gesture Script provides developers with two methods for interactively guiding part learning.
+A developer can interactively specify one or more segmentation points in any of their example gestures by clicking that point in the gesture visualization.
+For example, Ann can label the end of the Line in any of her examples of Arrow2.
+Interactively provided segmentations thus guide search to the intended part shapes .
+With a large number of examples, labeling segmentations can be laborious.
+Gesture Script also allows providing a rough part shape by directly drawing the part within the box intended to visualize that part .
+The demonstration is then used as a rough indication of the desired shape of that part and guides search to the intended part shapes .
+Synthesizing Additional Examples Providing Examples of User-Defined Parts Interactively Labeling Part Segmentation Interactively Training User-Defined Parts Figure 4: Gesture Script presents feedback in red when developers interactively define parts.
+When an undesired shape is learned for a part, developers have two options: they can manually label a segmentation point, or they can draw over the visualized part to define its appearance.
+To help developers include greater variation in their example gestures, Gesture Script uses rendering scripts and learned parts to generate new potential examples of gestures, as displayed in the bottom right of Figure 2.
+Gesture Script introduces variation by changing the relative scale of each part and the angles of rotation between parts.
+Ann can quickly scan the synthesized examples, select interesting cases, and add them to her training set.
+When she finds examples that demonstrate so much variation that she no longer considers them an example of the gesture, she selects them and clicks the "Reject and Refresh" button.
+Gesture Script uses this feedback to guide its generation of additional examples.
+Gesture Script allows developers to include variables in scripts that specify attributes that should be recovered from a recognized gesture.
+Specifically, we currently support recovering the number of times a part is repeated within a given gesture as well as the angles between parts in a particular gesture.
+For example, in Figure 5 Ann recovers the orientation of the Line in Arrow1 gesture by adding a rotate command using the dir variable.
+Similarly, she recovers the number of repeated Cap parts in a Spring1 gesture by adding the variable n to her repeat command.
+When using the recognizer in her application, Ann can access these attributes by simply accessing the variables dir and n on recognized instances of these gestures.
+Gesture Script also allows Ann to interactively test her current recognizer.
+When Ann gestures in the test window, Gesture Script presents the current recognizer's predicted class and any extracted gesture attributes.
+If Ann creates an example that is misrecognized or otherwise interesting, she can directly add it to her example gestures.
+When complete, Ann has a reliable recognizer that automatically extracts gesture attributes.
+This paper focuses on creating the recognizer.
+After a recognizer is created, incorporating it in the developer's application is analogous to prior work .
+Ann will add two things:  the recognition module containing the algorithms and  the model files for her gestures as created, trained, and exported from Gesture Script.
+As a high-level overview, we first heuristically generate a shape for each part.
+We then use these initial part shapes to segment each example in the way that best matches the corresponding parts in its script.
+We score the match that results from segmentation of each example and then compute a total score over all examples.
+After segmenting all the examples, we have a set of gesture segments corresponding to each part, which we then use to update our estimate of the shape of the part.
+We iteratively improve our estimate of the shapes of parts until there is no improvement in the total score.
+We repeat this process several times , each time with different initial random part shapes.
+This subsection details each step and how we incorporate interactive feedback .
+Prior to discussing our implementation, we first detail our rendering script language, as it defines how developers can communicate the intended structure of gestures and is important to the effectiveness of Gesture Script.
+Unistroke gestures have been extensively studied, and we surveyed gestures found in the research literature and commercial applications .
+Unistroke gestures can be arbitrarily complex in theory, but in practice are much simpler.
+One reason is that people must be capable of remembering and reliably producing the gesture.
+We have found most unistroke gestures can be broken into a fixed number of parts, while others contain repetition.
+Our script language supports this, describing gestures as a sequence of structures.
+Each structure can be either a user-defined part or a repetition of a user-defined part.
+Under such a description, possible gesture attributes include the angles between structures, the number of repetitions of a part, and the angle between repetitions.
+The size and location of a particular part can also be useful and is easily retrieved from the bounding box of a part.
+The syntax of our script language is defined as:
+Gestures typically contain hundreds of points, and considering every point as a segmentation boundary becomes computationally prohibitive.
+We therefore first approximate the gesture as a sequence of line segments using the bottom-up segmentation algorithm described by Keogh et al.
+We then only consider endpoints of these line segments as candidates for boundaries between parts.
+As in prior instance-based gesture recognition , we represent a part by sampling a set of equidistant points along its trajectory, normalized by its vector magnitude: , with n = 32 in our implementation.
+To generate initial part shapes, we find the simplest example corresponding to a script that contains the part .
+We then randomly pick a segment as the initial part shape.
+To segment an example gesture to match a script, we first define our similarity metric.
+Our similarity metric is based on Protractor .
+When a gesture segment is matched to a simple part, their distance is the cosine distance defined as:  d  = arccos seg seg where V is a resampling of G rotated to an aligned angle.
+We assume vectors are normalized by magnitude.
+When a gesture segment is matched to a repetition, we find the best way to break it into subsegments that each matches the part shape, then use the average distance of the subsegments to the part shape as a distance measure:
+Given these metrics for the distance between a gesture segment and an individual part or a repetition, the overall distance between an example gesture and a script can then be defined as the average distance of its segments to the corresponding structures:
+Randomly generated parameters are unlikely to generate helpful suggested examples.
+We therefore choose to vary one parameter at a time.
+We first use our part matching algorithm to find the values of one parameter in the existing examples, then map them in one dimension.
+We identify the largest gaps in this space , as these are promising regions for exploring variation.
+We then vary the parameter using values from these gaps.
+When developers reject generated examples, those parameter values are marked in their value space.
+We then prioritize the gaps between positive and negative example values, which may contain the most information.
+For equation , we use a greedy algorithm.
+Although dynamic programming can be used, it has many states  and it is nested within the dynamic programming for equation .
+Solving equation  using dynamic programming is therefore costly.
+We instead scan the end points in Gseg and find the segment with the lowest distance to equation 's part Vpart.
+We use this as the first segment.
+We then repeat and update  and  along the way until we reach the end point.
+To compensate for a lack of lookahead in the greedy approach, we then perform a back scan to merge segments that further reduce the distance.
+We now discuss creating the recognizer from examples, scripts, and parts.
+We compute features for each example, and then we train a linear SVM multi-class classifier.
+If there are N gesture classes, the features for a gesture consist of N+1 groups of features.
+The first group of features can be represented as {f0, f1, ..., fN-1}, where fi is the minimum cosine distance of the gesture to example gestures in the i-th class.
+These features are the same distances used in Protractor , and including them preserves Protactor's strong example-only performance.
+The remaining N feature groups are generated from the script of the i-th gesture class, giving the recognizer access to additional information the script provides about gesture structure.
+The example gesture is first matched to the script using our matching algorithm.
+We then compute features as follows: di is the distance between the i-th structure to the corresponding gesture segment per equation  or ; ri,i+1 is the angle between the aligned angle of the i-th structure and that of the -th structure; and si is the scale ratio of the i-th matched gesture segment to the first matched gesture segment.
+In essence, these features encode how well an example matches the parts in a script and how an example's parts are arranged in terms of their relative angles and relative scales.
+We scale each feature to the range of -1 to 1, then train a multi-class SVM classifier with a linear kernel.
+At runtime, the SVM predicts gesture category and we use the results of our matching to extract gesture parts and attributes.
+The computational cost of our recognizers is comparable to Protractor.
+In the simplest case with no scripts, the cost is that of Protractor plus a smaller cost from a linear SVM.
+We then iterate between segmenting gesture examples and updating parts until the total distance between gestures and scripts can no longer be improved.
+As previously discussed, developers can improve learning of parts by manually labeling the part segmentation points and by drawing examples of individual part shapes.
+We can integrate this interactive guidance into our unsupervised learning.
+For interactively labeled part segmentation points, we modify our matching algorithm in equation  and  to require selection of interactively labeled segmentation points.
+In the case of interactively provided examples of part shapes, we use them as the initial shapes in the search.
+This explicit developer guidance is more effective than random selection of an initial part shape.
+After part shapes are learned, we can synthesize gesture examples by following the procedural steps specified in a rendering script.
+The goal is to help developers introduce variation into their examples.
+Synthesized examples can vary in their parameters .
+However, we cannot simply use random values for these parameters.
+To validate and gain insight into Gesture Script, we now present a series of experiments.
+First is an initial laboratory study with four developers, observing their use of and reactions to Gesture Script.
+Second is our collection of data to evaluate the performance of Gesture Script's recognition.
+Finally, we analyze recognition performance from several perspectives:  we test recognizers that developers created in our study,  we examine recognition with a larger set of gesture classes, and  we examine recognition of simple, compound, and high-variation gesture datasets.
+In the post-study questionnaire, all participants agreed Gesture Script is useful, easy to understand, and that it was easy to improve recognition.
+Figure 7 presents all Likert scales.
+When asked what they liked best, all participants mentioned Gesture Script's ease of use.
+One commented "it provides a very high-level API for developers to construct a recognizer."
+Another participant liked that they could "write scripts to break down a complicated gesture into parts."
+When asked what had been most confusing, participants expressed the frustration of understanding why a recognizer was failing: " the reason behind why one gesture is confused with another gesture."
+Consistent with prior machine learning tools , participants adopted iterative and exploratory strategies to improve their recognizers.
+Participants wanted an ability to see misclassified gestures, as they found accuracy and recall helpful to understand overall performance but also wanted to see how specific instances failed.
+We also added two features based on feedback from the participants.
+First, we added support for adding misclassified gestures directly to the training set from the testing window.
+Second, we added the ability to clear all user-labeled segmentations.
+As the participants iterated on scripts and parts, previously labeled segmentations could become incorrect and a hassle to remove or correct.
+3 participants suggested in the post-study questionnaire that they wanted the script language to be more powerful.
+They suggested being able to specify constraints on aspects of a script, such as referencing variables from multiple locations in a script.
+This aligns with our vision for future work.
+We asked each participant to train a gesture recognizer for the seven gestures in Figure 6 and to extract gesture attributes including the direction of each arrow and number of repetitions in each spring.
+The size of the gesture set was chosen to be appropriate for a laboratory study.
+The specific gestures were chosen so they are not easily distinguishable to a simple instance-based recognizer.
+They require non-trivial effort to add examples, iterate on scripts, and train parts to achieve a good recognition performance.
+We first gave participants a tutorial on Gesture Script.
+We then walked through the process of creating a recognizer for two simple gestures, a triangle and a rectangle.
+Next, participants completed a warm-up task to train a recognizer for Figure 8's "v" and "delete".
+We then asked participants to work on the main task, creating a recognizer for the seven gestures from scratch.
+We asked participants to think as developers looking to create the recognizer for their software.
+The goal was to train a quality recognizer and to improve its recognition until satisfied.
+We limited the task time to one hour.
+Finally, participants completed a post-study questionnaire.
+The study was conducted on a ThinkPad X220 Tablet PC with stylus support.
+Participants had a keyboard and mouse, and all used the stylus for gesture input.
+All 4 participants completed the study with satisfactory recognition performance.
+Participants added a total of 341 gesture examples  and wrote a total of 26 scripts .
+To obtain additional data for further evaluating Gesture Script, we collected 24 gesture classes from 10 participants.
+Each participant was asked to perform 10 gestures for each class, yielding a total of 2400 gestures.
+Data collection was done on a ThinkPad X220 Tablet PC, and all gestures were input with the stylus.
+All participants were right handed.
+We explicitly asked participants to include variation in how they performed gestures of the same class.
+The 24 gestures are illustrated in Figure 8.
+The leftmost 16 are from the website for the $1 Recognizer .
+The rightmost 8 are new gestures with more flexible structures.
+For instance, the springs can have an arbitrary number of repetitions and the circle in the "w_o" gesture can be placed at any position relative to w. All these gestures are from the literature or commercial contexts, and have practical applications.
+In the remainder of our analyses, we refer to the leftmost 16 gestures as simple.
+We refer to the rightmost 8 as compound gestures.
+We first tested the four recognizers created in our study against the newly collected data.
+We tested only the 7 gesture classes the developers had trained, a total of 700 gestures.
+We compare the results against recognizers trained using the $1 Recognizer, Protractor, and Gesture Script without scripts.
+Results are presented in Figure 9.
+With an average accuracy of 89.6%, these results show that the recognizers from the study have much better accuracy than existing example-only methods.
+The best recognizer is from P4, whose accuracy is 94.7%.
+When scripts are not used, as in the other three conditions, accuracies drop to an average of 68.7%.
+Enabling a developer who has never programmed gestures to build an accurate recognizer for a non-trivial set of gestures in less than an hour is promising.
+To further examine Gesture Script recognition, we next conducted cross-validation experiments with our full dataset.
+We expected recognition of compound gestures to be more difficult, so we considered them separately from simple gestures.
+To examine the impact of the number and diversity of training examples, we conducted two cross-validations.
+Train-on-1 considered limited training data, training on examples from 1 person and testing on examples from the other 9.
+Train-on-9 considered greater training data availability, training on examples from 9 people and testing on examples from the other 1.
+We again compare Gesture Script with the $1 Recognizer, Protractor, and Gesture Script without scripts.
+In the Gesture Script condition, the authors created a script for each gesture.
+Results are presented in Figure 10.
+For compound gestures, Gesture Script obtains the best results in both the train-on-1 and train-on-9 conditions.
+Gesture Script obtains 89.6% accuracy in the compound train-on-1 data, compared to an average of 68.0% for example-only conditions.
+Gesture Script obtains 99.5% accuracy in the compound train-on-9 data, compared to an average of 92.1% for example-only conditions.
+On simple gestures, all recognizers have similar performance.
+These results are consistent with our goal of raising the ceiling for gesture creation tools while preserving the low threshold of existing example-only tools.
+Given the extreme accuracy of all train-on-9 recognizers for simple gestures, we suspected a ceiling effect .
+We suspected this is because of the high consistency in simple gestures .
+As an early investigation, we created a new high-variation dataset.
+This consists of 10 examples of each simple gesture, created by the authors to exhibit high variation in form.
+We then tested the recognizers from our previous train-on-1 and train-on-9 cross-validations against the high-variation data.
+Results are shown in Figure 11.
+This provides an early indication that Gesture Script is overall more accurate and robust to variation, even in simple gestures.
+We also examined performance of our parts matching by randomly verifying 5 example gestures per script from the 26 scripts collected from the 4 developers in our study .
+We marked a match as correct if we would have matched the parts in exactly the same way; partially correct if one or two segmentation points were slightly off; and otherwise incorrect.
+Figure 12 illustrates a correct match and two examples of erroneous matches.
+This indicates the matching is largely effective.
+Many symbolic gesture recognition algorithms have been developed, with learning-based approaches gaining significant popularity.
+Instance-based approaches have recently received extensive attention, due to their ease of implementation and good performance.
+Protractor instead uses cosine distance .
+Although Gesture Script learns its gesture recognizer from examples using a SVM, Gesture Script enhances example-based learning with declarative guidance through explicit structures in rendering scripts.
+Moreover, existing tools only recognize gesture class.
+Gesture Script is able to extract gesture attributes to support application needs.
+From an algorithmic point of view, a symbolic gesture is largely the same as a sketched symbol.
+Extensive work has examined recognizing and understanding sketches .
+While enhancing example-based learning with rendering scripts is a novel approach, our work relates to this rich body of work in several ways.
+First, declarative scripts are used to define gestures in systems such as LADDER .
+While Gesture Script also includes scripts, our rendering scripts are not gesture definitions but serve as optional information in addition to the example gestures.
+As a result, our scripts are much simpler and developers can be less precise.
+Second, many sketch recognition systems use parts in recognition , most based on identifying predefined primitive shapes using perceptual attributes such as curvature.
+In contrast, our parts are user-defined and can be of arbitrary shape, and we currently do not rely on perceptual attributes.
+While other systems have looked at arbitrary part shapes  and features , no prior work has the problem of learning user-defined part shapes across classes in an unsupervised setting.
+Third, Hammond and Davis  also study generating examples from scripts.
+Moreover, in addition to having a different script language, our method considers both scripts and developer-provided examples.
+The example-based approaches  allow developers to create and test gestures by recording examples.
+Gesture Script preserves this core interaction, but enables much more.
+We support interactive user guidance about the structure of a gesture, and believe this general strategy can be extended to recognition tools for other types of data.
+Gesture Script is implemented using Java.
+The parser for rendering scripts is implemented using ANTLR .
+The SVM within the gesture recognizer is provided by LIBSVM .
+Our code and data are available under open license at https://code.google.com/p/gesture-script/.
+As in Figure 11, and as discussed by Kane et al.
+Because gesture tools capture gestures outside any application context, it is important for developers to include gesture examples that exhibit the gesture variation expected in real use.
+In our data collection, although we explicitly asked the participants to vary their performance of gestures, the amount of variation was still limited.
+One hypothesis is people tend to perform gestures consistently and it is hard to manually introduce variation.
+Gesture Script synthesizes gestures to introduce additional variation.
+The initial feedback from developers was positive.
+One opportunity for future work is to investigate the impact of synthesized gestures on the recognizer performance.
+Instance-based learning is robust to multiple alternative demonstrations of the same class, but rendering scripts face challenges due to:  assuming a unique way to perform each part, and  assuming a unique ordering of parts.
+One future direction is to support multiple alternative rendering scripts for each class of gesture.
+We present Gesture Script, a tool for creating unistroke gestures.
+It enhances example-based learning with declarative guidance through rendering scripts, preserving the low threshold of example-based gesture tools while raising the ceiling of the recognizers created in such tools.

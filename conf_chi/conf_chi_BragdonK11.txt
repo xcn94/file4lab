@@ -1,0 +1,308 @@
+When working at a large wall display, even if partially utilized, many targets are likely to be distant from the user, requiring walking, which is slow, and interrupts workflow.
+We propose a novel technique for selecting remote targets called Gesture Select, in which users draw an initial mark, in a targets direction; rectilinear gestures represented as icons are dynamically overlaid on targets within a region of interest; the user then continues by drawing the continuation mark corresponding to the target, to select it.
+Extensions to this technique to support working with remote content for an extended period, and learning gesture shortcuts are presented.
+A formal experiment indicates Gesture Select significantly outperformed direct selection for mid/far targets.
+Further analysis suggests Gesture Select performance is principally affected by the extent to which users can read the gestures, influenced by distance and perspective warping, and the gesture complexity in the ROI.
+The results of a second 2-D experiment with labeled targets indicate Gesture Select significantly outperformed direct selection and an existing technique.
+Large, high-resolution display walls are growing in popularity and are now available as commercial products  .
+A long history of research applications in this area demonstrates the value of these systems in various domains, such as interactive whiteboards  and scientific visualization .
+When standing in front of the display, users can write with a pen to annotate or manipulate objects with their hands directly on the display.
+They can also collaborate with other users gathered around the display, similar to a very large whiteboard.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+However, when working at a large display, selecting remote targets requires the user to walk to select targets that are out of reach, something that is likely to occur frequently on a 15foot wide display that is even partially utilized, even if the user is standing in the center.
+Such interruptions may hinder user workflow on a large display.
+The technique differs from prior approaches in that it does not use pointing-based selection.
+Rather, users select targets by first drawing a line with a pen or finger in the general direction of the desired target.
+Simple continuation mark gestures are then dynamically overlaid on targets within a region of interest defined by this direction.
+The user then continues their initial stroke by drawing the continuation mark overlaid on the target.
+We analyze the performance of Gesture Select through two formal experiments.
+We also explore several extensions of the technique for manipulating remote targets for an extended period, and teaching persistent command gestures.
+The contributions of this paper are: - The design of Gesture Select, a novel selection technique for large displays based on gestures - Extensions to this technique that support portal invocation and gesture shortcut learning - A formal experiment which indicates that selection time with Gesture Select significantly outperforms unaided direct selection.
+Tivoli  provided users with an interactive whiteboard environment for supporting meetings.
+Flatland  let users define semantic types for content on the whiteboard, and then manage the content and its history.
+Rekimoto  explored moving objects between networked computers using pen identification.
+Pushand-pop  brings all targets near the user at the original size.
+Another approach, The Vacuum , also uses a sector of influence, but shrinks remote targets, thereby preserving spatial relationships, and also scaling to larger numbers of targets, but incurring the cost that targets are now smaller and thus harder to select.
+A comparative study of single selection in the presence of path and area distractor targets found no significant difference in performance between The Vacuum, Drag-and-Pick and unaided direct selection.
+A second study showed benefits for multi-selection.
+Based on this result we believe there is the potential to create a technique which can outperform unaided direct, single selection on large displays.
+This approach showed improved performance over ray casting approaches, however it requires speech, which may be undesirable in local/remote collaborations, and ray casting, which slows at large distances as the effective size of remote targets is small and thus difficult to pick, even if effective size is increased.
+Ninja Cursor  uses multiple cursors to reduce the average distance from cursor to the target, coupled with a delay algorithm for handling ambiguities that arise so a single cursor is active at a time.
+Marking menus  lay out menus using sequences of rectilinear marks, typically in 8 compass-aligned directions; the simple rectilinear marks inspire our gesture design.
+FlowMenus  integrate marking menus with other actions such as data entry or direct manipulation in one fluid stroke, inspiring our approach of integrating two actions in one stroke.
+Escape  aids users in selecting small targets on smart phones by displaying each target as a directional icon; users first identify the targets direction, then touch that area of the display, and finally flick in the direction.
+This gestural selection technique inspires the present work with large displays.
+Move-and-stroke overlays animated mouse gesture demonstrations on targets; users mimic the gestures with a mouse and then disambiguate errors using a pie menu ; though likely slower than pointing for desktop tasks, it can be applied to situations in which there is no pointer, or pointing is costly.
+Techniques have been developed for "throwing" objects to remote locations on a large display; we refer to  for a summary of work in this area.
+Systems for teaching gestures on demand such as  and  have also been developed.
+A number of techniques have been developed to allow the user to interact with live clippings of content from other areas of the display.
+Frisbees  let users position a remote target; the contents of this remote target is rendered inside a Frisbee display near the user, from which it can be interacted with.
+Hopping  lets users select targets not currently visible onscreen through a similar interface.
+The canvas portal framework , explored using Frisbee-like portals to access, semantically filter and scale remote content.
+Shoemaker and Gutwin explored several multi-point interaction techniques that preserve visibility and scale for multiple regions of interest .
+WinCuts  lets users cut out pieces of a live window and interact with these cutouts.
+These techniques inspire our use of portals.
+We note, however, that these techniques are best-suited for working with remote content for a period of time, rather than brief transient selections.
+Our approach is founded on the idea of using gestures to select arbitrary remote targets.
+Several approaches let users interact with display walls at a distance.
+We believe that, while this is valuable in some situations, there is also value in working at the display as well, e.g.
+While users can "step back" to perform an interaction from a distance, we note the time cost incurred for such transitions may interrupt users workflow.
+The "dollhouse"  or world-in-miniature approach lets users interact with small proxies for large targets.
+Bubble radar  lets users interact with a miniature of a large display on a tablet with the aid of a bubble cursor.
+We began the design process with 4 design principles: Eyes-on: In order to make a selection, users should have to look only at the target itself.
+More specifically, users should not have to shift their gaze from the desired target to a second location, nor should they have to perform an additional visual search to locate a proxy of the original target to complete a selection, both expensive operations.
+Lightweight: The design should be transient, only opening briefly when needed, and should not require an explicit, heavyweight mode switch or tool invocation.
+Scalable: The design should be scalable to various scenarios: small/large targets, mid-range/remote targets, dense/sparse arrangements, and up to at least several hundred targets .
+User identifies a remote target she wishes to select , draws an initial mark with the pen in the general direction of the target , continuation marks appear on the targets , user continues the initial mark by drawing the continuation mark of the desired target , the target is selected on pen up .
+Inspired by prior work  , our technique begins by drawing a line  in the direction of the target.
+Based on this line, a region of interest  26 on each side of this line is defined and displayed visually on the screen as a filled pie wedge.
+As soon as the length of the initial mark exceeds 1.2" in length, the region of interest is shown .
+Pilot testing was used to find an angle that made it straightforward to be imprecise and still open a region of interest containing the desired target.
+For comparison,  used a dynamically adjustable arc angle ranging from 10 to 60.
+The region of interest lets us assign simpler gestures to areas nearer the users target , and also constrains the visual distraction of the selection process to a specific scope.
+When the ROI is shown, icons are overlaid on targets that lie within the region of interest.
+Each icon is scaled to fit such that it is inscribed inside the target.
+Several corner cases exist, such as very small sparse targets, or very small densely packed targets .
+This section discusses the typical case of targets with shortest side approx.
+Each icon depicts a simple rectilinear gesture that we call a continuation mark.
+To select the desired target, the user simply continues the initial mark by now drawing the continuation mark without picking up the pen, thus drawing them together as one fluid stroke.
+When contact is released, a segmentation algorithm segments the initial mark from the continuation mark; segmentation is necessary since users tend to draw initial marks of varying lengths.
+The continuation mark is then recognized using a simple mark-based gesture recognizer, and the appropriate target is selected.
+From this set of possible gestures, we prune several possibilities.
+First, if the users initial mark is within 15 of a major axis, we prune any marks beginning with that direction, except the single special case of a 1-segment continuation mark that is in the same direction as the initial mark.
+This solves a potential scale invariance ambiguity problem: if the user draws an initial mark to the left, and then draws a continuation mark that is left followed by down, the system cannot be sure whether the user drew a continuation mark of left followed by down, or just down; in pilot testing, users found it difficult to precisely draw the length of marks without looking.
+For the same reason, we also prune marks in which two consecutive marks are in the same direction.
+We observed in initial testing that marks longer than length 3 became too small/perspective-warped to read easily for smaller-sized targets.
+We discuss the performance of pigtail marks below.
+This produces a base set of 260 marks1  for 1 - 3 segment gestures.
+We felt this was sufficient for most large wall applications, since the region of interest will intersect 37.5% of the targets2 onscreen if opened to the right in the center.
+We do note, however, that for very large numbers of targets more gestures may be required.
+However, this requires a "transient mode": if the user has inputted 2 strokes and may input a third, the system must wait, for some time threshold for the third mark, because it does not know whether the user is done.
+We were concerned adding this mode would add weight to the technique, violating our Lightweight design principle.
+We therefore used single-stroke marks to keep the mode implicit, although we note accuracy could be improved with simple marks.
+For efficiency, we chose rectilinear mark-based gestures, inspired by marking menus .
+This let us create a fairly large vocabulary of gestures with simple axis-aligned  marks.
+In pilot testing with four users, we found error rates were substantially higher when diagonals were introduced; we believe this is because users drawing the mark are typically looking at the target itself/continuation mark icon, and therefore are not looking at their hand as they draw, since it is out of their field of view, given the large distances.
+Thus we do not use diagonals.
+Each mark has an associated difficulty weight.
+We sort the targets by their distance from the center line of the region of interest; the simplest marks  are assigned to targets that are closest to this center line, and marks are then iteratively assigned outward by distance in increasing order of difficulty weight.
+Difficulty weight has integer units and is determined primarily by the number of strokes in the mark, one unit per mark; however, there are several additional considerations.
+Marks containing pigtails have a greater difficulty weight  than marks without; marks containing doubling back also have a higher difficulty weight .
+This weighting system was implemented based on pilot study observations with four users, in which users ranked the marks by difficulty after completing a study similar to Experiment 1.
+Note that this approach is heuristic in nature, but we expect it tends to assign the fastest marks closest to desired targets.
+Finally, for marks inside the region of interest that are within easy arms length of the user , based on the start point of the initial mark, no continuation marks are assigned.
+This was done for two reasons.
+First, we observed that it was faster to select directly when targets are within arms length, so we would be doing users a disservice by encouraging them to select nearby targets more slowly.
+Second, by excluding these targets, more "fast" gestures are available for targets that the user actually needs assistance with.
+We observed during testing that this was intuitive for users, with the intuition being "can I easily reach the target without moving?
+We note this might be a problem in an ecologically valid setting with no instruction.
+Note that, with the exception of command gestures , gestures are not persistently assigned to a particular target.
+We explored several possibilities, but concluded that it would be difficult to persistently assign gestures to targets in a predictable way, and so gesture assignment is dynamic.
+We expect this will not be a major problem since in many cases we believe the target set will change frequently .
+We also note that during pilot testing, no users commented on the fact that gestures changed each time the region of interest was invoked.
+Users preferred the triangular arrowhead to no arrowhead, and the minimal arrowhead because it helped them identify both the starting and the ending point.
+Icons are rendered semitransparent and shown in red with a white stroke.
+This twocolor design helps in situations where the target may be allred or all-white rendering a single-color arrow invisible.
+To avoid covering such small icons completely with the overlay, we align the icons with the outer edge rather than center them.
+We found that icons as small as the worst-case minus icon are typically centered, decreasing the likelihood of this occurring.
+The disclosure icons are designed to clearly illustrate the continuation mark for a particular target, while attempting to minimize the extent to which the underlying target itself is occluded.
+To support dense arrays of targets, the icons are inscribed inside the target and scaled  to fit.
+The disclosure is absolute, that is, it does not depend on the direction of the initial mark.
+During pilot testing with 2 users, we explored several forms of the disclosure icons.
+Users felt it was important that to easily identify the starting point of the mark, so that they can begin drawing quickly, so we indicate this with a white dot.
+Since our approach relies on disclosure icons, several corner cases must be considered for small targets.
+While most targets on a large display are likely to be more than 3" wide , there may be some exceptions.
+For very small targets , the icons are too difficult to read at a distance.
+The other  case to consider is a grid of small, tightly packed targets, such as a multiline text box: each character is essentially a small target.
+To handle this case, we group the small targets together using a simple adjacency-based clustering algorithm, with a join threshold of 1.5", and display a single gesture icon for all targets in the cluster.
+If the user selects this cluster by performing the gesture, a live copy of the cluster is brought to the user at full size for continued interaction using a Portal .
+We felt there would be cases where users would want to multi-select or otherwise interact with a remote region for an extended period.
+To support this, we adapt the Portals  approach.
+Portal-like live copy of that region of the screen with default width and height 17.5"x17.5" centered on the target.
+The user may then interact with the remote content, resize this view by dragging on its border or close it by tapping a close icon.
+By integrating portal invocation with Gesture Select, users can open the portal directly over the desired target, without having to invoke, and then manually position a portal target.
+The Fittslaw model is conceived for pointing, and does not account for this walking component.
+We are unaware of an adaptation of Fitts law that has been tested to account for a walking subtask, so we opted to analyze target selection in the presence of varying target size and distance only.
+Many targets are dynamic in nature, e.g.
+However, some may be persistent commands, e.g.
+We give applications the option of using Gesture Select to teach gestural shortcuts for persistent commands.
+Applications can define custom, free-form or mark-based gestures to be associated with a specific target; e.g., the application might assign a spiral gesture to Save.
+Much like marking menus, users could learn over time that Save is done via a spiral gesture, so it would no longer be necessary to invoke the region of interest ; they could simply draw the spiral to Save.
+It is notable, however, that other prefixes could be used.
+A 1-D reciprocal pointing task was used, with the addition of a start target.
+Two goal targets were spaced an equal distance along the horizontal axis from the red start target.
+One of the two goal targets, the active goal target, was highlighted in green, while the other  goal target was gray.
+Users first tapped the start target and then selected the goal target.
+After selecting the active goal target, the active and inactive goal targets switched, with the active goal target now highlighted in green.
+Users completed four trials for each condition.
+The start target, based on , was used to control the distance between the user and target.
+Gestures were dynamically assigned , so would not be predictable by the user, and were not the same within each set of reciprocal trials.
+We used three target sizes; the smallest was based on a simple calculation: in the Windows 7 OS, desktop icons use 6.51% height of a 1024x768 screen; a proportional height on our display is 3.01".
+We avoid very small targets as in , as we feel these are less representative on a display of this size.
+Since Gesture Select does not require users to pick a target using a conventional pointing-based approach, we wanted to determine whether this new technique is dependent on target distance or size.
+We also sought to determine selection time and error rate compared with unaided direct selection.
+Note that we do not apply Fitts law  here.
+We considered applying this highly successful model of pointing, however, in the case of the large display there is an important issue: walking.
+In addition to the goal targets, gray distractor targets were placed as well.
+Therefore, in this experiment, we varied the number of area distractors close enough to the target to affect gesture complexity.
+The distractors were laid out in a dense random arrangement around the goal target.
+48 was the maximum number of targets that would fit vertically in a dense circular formation on our large display for the large target size.
+Ten participants  were recruited from the general population of Brown University.
+Two participants reported owning or using a device that has gestures.
+Participants used a stylus in their right  hand and were compensated.
+The center SmartBoard-based portion could sense pen or touch contacts, whereas the two flanking screens were passive/projection only.
+The lack of input on the passive screens was not a problem for two reasons:  for Gesture Select there was no reason to walk any distance to pick remote targets, and the start target kept users centered after each task, and  for unaided direct selection  we used a camerameasurement/Wizard-of-Oz approach.
+Video cameras recording the session displayed on screens hidden from the user, allowed the "Wizard" to advance to the next task when appropriate.
+Note that the Wizards actions only advanced the task; videos were analyzed offline at the frame level to get timing/accuracy information.
+This approach is similar to prior work, e.g.
+The effect of shadows from users hands was minimal as the short throw allowed the projectors to be placed very close to the surface of the screen .
+Our software was C# and WPFbased, and ran on 3 networked dual-core computers with 2GB of RAM; each computer outputting to one projector.
+There were no other interaction effects .
+Post-hoc pairwise means comparisons were conducted with 2-tailed t-tests using Holms sequential Bonferroni adjustment for multiple means comparisons .
+Gesture Select was significantly faster than unaided direct selection for 21 of 27 conditions ; six near conditions4 were not significant.
+Two of the near conditions were significant, few distractors with large and medium-sized targets .
+Thus, Gesture Select significantly outperformed unaided selection for the mid  and far distances .
+We modeled Gesture Select performance, T, as 5 variables: initial reaction time, T0; time to open the region of interest, TROI; time to stop moving after the region of interest opens, TS; time to read/identify the gesture disclosure icon, TR; and finally the time to draw the gesture and release contact, TG.
+Stopping movement and reading/identifying the gesture together took 28.4% of the time, very close to the 32% of the time drawing the gesture.
+It is interesting to note that opening the ROI increased just 5%, while reading and drawing the gesture slowed down.
+This suggests that opening the ROI was not the source of the increase in selection time, but rather that identifying, reading, and copying the gesture was harder to do when it was smaller/more perspective-warped.
+Indeed, users commented that small targets were harder to see at the farther distances; we believe this may explain why only small targets were significantly affected .
+However, Experiment 1 may not have been sufficiently representative of real-world tasks in that its selection was 1-D, goal targets were highlighted, and users did not identify targets via a visual icon or label.
+Thus, the goal of Experiment 2 is to compare performance of Gesture Select to a previous technique, the Vacuum , and to unaided direct picking, for 2-D, single selection of labeled targets.
+We hypothesize Gesture Select will perform similarly to Experiment 1, and outperform the other techniques.
+Since the goal of our technique is similar to The Vacuum, we adapted the experimental design closely from .
+We did not include Drag-and-Pick as  found no significant difference in selection time between Drag-and-Pick and the Vacuum .
+Since the Vacuum can scale to a greater number of targets but had very similar performance to Drag-and-Pick, we chose to compare our approach to the Vacuum.
+We thus implemented a slightly simplified version of the Vacuum for single selection that included no hover dismissal .
+We recruited 10 participants from the general population of Brown University .
+As in Experiment 1, participants used a stylus in their right  hand and were compensated.
+Three participants reported owning or using a device that has gestures.
+Users first tapped a start target and then selected a goal target from amongst distractor targets.
+As in , targets were rendered as gray squares each with a number inscribed; the goal target was gray, like the distractor targets, but was always numbed 1 whereas the distractor targets had other distinct numbers.
+Since the goal target was not highlighted, users had to identify it via its unique label.
+The start target let us control the distance to the goal target.
+Participants could not continue to the next task until correctly selecting the goal target.
+As in , all targets were visible from the trials beginning.
+For consistency with , a stylus was used for all tasks.
+We used a repeated measures within-subjects full factorial design with controlled variables technique , distance , direction , and path distractor density : 10 participants x 3 techniques x 4 blocks 
+For each technique, participants completed 4 blocks, each of which included all combinations of distance, direction, target size, and path distractor density.
+The first block for each technique was a training block and was not included in the analysis.
+The condition order was counterbalanced with randomization.
+We felt that 6" targets, while representative of some applications, are larger than many items users might want to select, e.g.
+Therefore, we used 3" targets, as in Exp.
+Also as in , we used 6 target directions, relative to the start target; excluding the N and S directions, as this requires reaching to uncomfortable positions.
+The start target was placed in the center of the screen.
+As in , users were required to select the start target before selecting the goal target.
+Also as in , all targets were visible at the beginning of the trial, mimicking a scenario in which users are familiar with the interface layout.
+Emanating from this point, in the six directions, at each distance, goal targets were placed.
+As in  we used two types of distractors: path and area distractors.
+As in , path distractor targets were added between the start and the goal targets, filling in 0%, 40%, or 80% of the space between.
+We found in Experiment 1 that the number of targets inside the ROI had a significant effect on Gesture Select performance; thus, we used 35 area distractors placed densely around the goal targets, supplementing the path distractors.
+Users had to complete tasks correctly .
+Interestingly, path distractor density induced no significant difference in selection time for Gesture Select .
+This result shows that in the presence of substantial numbers of distractor targets, in a 2-D selection task where targets are not highlighted, Gesture Select significantly outperforms unaided selection and the Vacuum, and performs comparably to the idealized task in Experiment 1.
+A histogram of the gesture difficulty classes of goal targets is shown in Fig.
+This indicates complex gestures with weight greater than 3 were rarely used, despite the large number of targets onscreen , and the fact that most of the gesture set have weight greater than 3 .
+This suggests the region of interest, and the heuristic of assigning simpler gestures to the ROI center may have simplified gestures over randome assignment, as that would have assigned greater numbers of  4 weight gestures given the distractor target count.
+The mean selection time for each class is shown in Figure 11 as well .
+Overall, there was an increase of 26.05% from weight 1 to weight 4.
+This suggests the weight heuristic helped represent the increasing gesture difficulty.
+Distance and density had no significant effect on error rate .
+There were also no interaction effects between distance, density and technique on error rate .
+Post-hoc multiple means comparisons were conducted, using the same adjustment procedure as above.
+Unaided direct selection had an error rate of 1.85%, while the Vacuum had an error rate of 6.54%, and Gesture Select 8.24%.
+There was a significant increase in error rates from unaided direct selection to the Vacuum , and a significant increase in error rates from unaided direct selection to Gesture Select .
+Interestingly, there was no significant difference in error rates between Vacuum and Gesture Select .
+We note that Vacuum error rates and selection times are higher than those reported in ; this is likely the result of the smaller targets used, both directly in that smaller targets are harder to select, and also as there were more individual targets to search, as the path distractors are density-based.
+The Vacuum improved performance by 257 ms  over the experiment, while the other two techniques changed less than 3%.
+Informally, we observed that earlier on in the experiment users had a tendency to spend more time adjusting the Vacuums size, compared with minimal adjustments later on.
+This is not surprising, since the large target size made it difficult to miss with unaided selection.
+When asked which of the techniques was preferred overall, 9 of 10 users chose Gesture Select, and 1 of 10 chose Vacuum.
+Users felt Gesture Select required "little physical effort" was "really cool" and was "fast and easy to use."
+The user who preferred Vacuum felt it was useful to be able to see the targets in miniature.
+Interestingly, despite the fact that 7 users did not use gestural devices, no users mentioned difficulty learning or performing gestures.
+To determine to what extent the errors for Gesture Select were the result of user error vs. bugs in the recognizer an independent, human, single-blind verification of the recorded gesture performances was conducted.
+For each participant, 5% of the recordings were sampled randomly, and then recognized using a simple "recipe" set up a priori.
+Overall, there was 97.1% agreement between the human and software recognizer.
+When looking at trials considered by the system to be successful attempts, there was 100% agreement, indicating false positives were minimal.
+When looking at trials considered by the system to be failed attempts we found 64.7% agreement, indicating that as much as 35.3% of Gesture Select errors could be false negatives.
+This suggests user error rate could potentially be lowered with an improved recognizer; it is also possible selection time could be improved as well.
+Of the gesture errors as a whole, 23.5% were cases in which the user performed the wrong gesture, 41.2% were failures to correctly perform the gesture, and 35.3% were recognition failures.
+The controlled nature of the study may limit the generality of the results.
+We also did not simulate distractions, situational awareness, or collaboration , which might affect performance in ecologically valid situations.
+Gesture Select significantly outperformed the Vacuum, as well as unaided direct selection in selection time in Experiment 2, and was preferred overall by 9 of 10 users.
+It is notable that distance had a 7.55% impact, but path distractors had no significant effect on Gesture Select performance.
+Interestingly, despite not involving pointing, Gesture Select is affected by target size and distance.
+In Experiment 1, we found a 9.84% significant difference between 3" and 6" targets, but no other significant differences.
+We also found that nearby targets were 5.78% faster to select than medium targets, and 11.56% faster than far targets, but no significant difference between medium and far targets was found.
+A keystroke level analysis of Gesture Select performance suggests that small or far targets are harder to see, due to smaller size and perspective warping, thus slowing the gesture identification and copying process.
+This was consistent with user comments to this effect.
+This suggests that for a given target size, there may be an effective limit on how far the targets can be from the user and still be legible.
+A possible solution to this problem for very far targets, would be to apply the clustering approach already used for very small targets, and cluster the targets into larger groups, overlaid with large disclosure icons; executing these gestures could then open a portal.
+Performance of Gesture Select was also affected by gesture complexity.
+We saw a 26.05% increase in selection time from weight 1 to weight 4 gestures, for example.
+The heuristic of assigning simpler gestures nearer the center of the ROI appeared to benefit users, as a disproportionate number of weight 1, 2 and 3 gestures were used , as there are fewer such gestures.
+Thus Gesture Select has the interesting property that the number of nearby targets affects performance.
+For accuracy, Gesture Select and the Vacuum have a higher error rate than unaided selection.
+However, there was no significant difference in error rate between the Vacuum and Gesture Select.
+Gesture Select had an error rate of 6.5% in Exp.
+A single-blind human analysis of the errors in Exp.
+2 revealed that as many as 35.3% of these errors were false negatives caused by software recognizer imperfections.
+We hypothesize that further refinement, or by using simple marks , error rates could be reduced.
+Distance, target size, and distractor count had no significant effect on error rate.
+We believe these results are promising, and indicate Gesture Select represents a performance improvement for single selection over the techniques tested.
+Bezerianos, A. and Balakrishnan, R. The vacuum: facilitating the manipulation of distant objects.
+GestureBar: improving the approachability of gesture-based interfaces.
+Improving drag-and-drop on wall-size displays.
+Fekete, J., Elmqvist, N., and Guiard, Y. Motion-pointing: target selection using elliptical motions.
+Fitts, P. M. The information capacity of the human motor system in controlling the amplitude of movement.
+Guimbretiere, F. and Winograd, T. FlowMenu: Combining Command, Text, and Data Entry.
+Guimbretiere, F., Stone, M., and Winograd, T. Fluid interaction with high-resolution wall-size displays.
+Harrison, C. and Hudson, S. Providing dynamically changeable physical buttons on a visual display.
+Design and analysis of delimiters for selection-action pen gesture phrases in scriboli.
+Stitching: Pen gestures that span multiple displays.
+Holm, S. A Simple Sequentially Rejective Multiple Test Procedure.
+Humphreys, G. and Hanrahan, P. A distributed graphics system for large tiled displays.
+Improving selection of offscreen targets with hopping.
+A Remote Control Interface for Large Displays.
+Kobayashi, M. and Igarashi, T. Ninja cursors: using multiple cursors to assist target acquisition on large screens.
+Kurtenbach, G. and Buxton, W. The limits of expert performance using hierarchic marking menus.
+Interacting with Large Displays from a Distance with Vision-Tracked Multi-Finger Gestural Input.
+Mynatt, E., Igarashi, T., Edwards, W., and LaMarca, A. Flatland: new dimensions in office whiteboards.
+A Survey of Large High-Resolution Display Technologies, Techniques, and Applications.
+Tivoli: an electronic whiteboard for informal workgroup meetings.
+Superflick: a natural and efficient technique for long-distance object placement on digital tables.
+Pick and drop: A direct manipulation technique for multipe computer environments.
+Shoemaker, G. and Gutwin, C. Supporting Multi-Point Interaction in Visual Workspaces.
+Swaminathan, K. and Sato, S. Interaction for Large Displays.
+WinCuts: manipulating arbitrary window regions for more effective use of screen space.
+Speech-filtered bubble ray: improving target acquisition on display walls.
+Vogel, D. and Balakrishnan, R. Distant freehand pointing and clicking on very large, high resolution displays.
+Escape: a target selection technique using visually-cued gestures.
+Zelenik, R. and Miller, T. Fluid inking: augmenting the medium of free-form inking with gestures.
+Zhao, S. and Balakrishnan, R. Simple vs. compound mark hierarchical marking menus.
+There are several limitations in the present work.
+We did not evaluate Gesture Select in a colocated collaboration scenario; it is possible that the icon overlays could distract other users.
+In addition, it may be difficult to see disclosure icons if occluded by other users.
+Given this positive initial result, further work is warranted to evaluate Gesture Select in collaborative scenarios to determine if refinements are required.
+Another limitation of the technique is that, if more targets are in the region of interest than 260  targets near the edge of the region of interest will not be selectable.
+However, we expect this problem will be relatively rare, since targets on a display of this size are likely to be large and since we group very small, dense targets together using clustering.
+The recognizer used in our prototype is imperfect.
+In a product implementation, a more robust recognizer would be required, or simple marks  could be used.
+Extensions of the core Gesture Select technique were not evaluated formally.
+Future work is warranted to determine how performance of these extensions compares with prior approaches.
+In addition, while our technique is usable with direct-touch input as well as pen input, direct-touch input was not tested.
+Gesture Select is not inherently self-disclosing.
+A gesture disclosure approach such as  could potentially be adapted to address this approachability issue.
+We have presented Gesture Select, a novel technique for selecting remote targets on large displays.
+We further presented several extensions to this design for working with remote content for an extended period, and teaching gesture shortcuts for commands.
+The results of a formal experiment indicate that Gesture Select significantly outperforms direct selection for mid/far targets, and that selection times are affected by target size, and distance within 12% when doubling the distance, and halving target size.
+Gesture complexity, driven by the number of targets in the ROI had a 15% impact.
+Further analysis suggests that Gesture Select is principally affected by the extent to which users can easily read the gestures, and the complexity of the gestures in the ROI.
+The results of a second experiment indicate Gesture Select significantly outperforms unaided direct selection and an existing technique in selection time.
+We wish to thank Andries van Dam for his advice and insight, Alice Liu for her illustrations, and Ronald Dunleavy, Steven P. Reiss, Noah Zimmt and Robert Zeleznik for their assistance.
+This material is based upon work supported under a National Science Foundation Graduate Research Fellowship and in part by NSF grant CCF-1012056.
+Aliakseyeu, D., Nacenta, M., Subramanian, S., and Gutwin, C. Bubble Radar: Efficient Pen-Based Interaction.
+Bau, O. and Mackay, W. OctoPocus: a dynamic guide for learning gesture-based command sets.
+Drag-and-Pop and Drag-and-Pick: techniques for accessing remote screen content on touch-and-pen operated systems.
+View and Space Management on Large Displays.

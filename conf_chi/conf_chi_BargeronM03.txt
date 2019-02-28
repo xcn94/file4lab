@@ -1,0 +1,226 @@
+Annotating paper documents with a pen is a familiar and indispensable activity across a wide variety of work and educational settings.
+Recent developments in pen-based computing promise to bring this experience to digital documents.
+However, digital documents are more flexible than their paper counterparts.
+When a digital document is edited, or displayed on different devices, its layout adapts to the new situation.
+Freeform digital ink annotations made on such a document must likewise adapt, or "reflow."
+But their unconstrained nature yields only vague guidelines for how these annotations should be transformed.
+Few systems have considered this issue, and still fewer have addressed it from a user's point of view.
+This paper reports the results of a study of user expectations for reflowing digital ink annotations.
+We explore user reaction to reflow in common cases, how sensitive users are to reflow errors, and how important it is that personal style survive reflow.
+Our findings can help designers and system builders support freeform annotation more effectively.
+Now that email and the World Wide Web are well established, the number of digital documents people interact with on a daily basis has increased dramatically.
+Unlike their paper counterparts, these documents are read in many different formats, and they are displayed on diverse devices and in different-sized windows.
+They may also be edited, included in other documents, or they may even dynamically adapt their contents.
+All of this means that any given document may reflow to many different layouts throughout its lifetime.
+The lack of a permanent layout poses a unique challenge in the adaptation of freeform pen-and-paper annotation to the digital domain: Each time the content of a digital document reflows to a new layout, any digital ink annotations must also reflow to keep up with it.
+This represents a significant technological challenge.
+Second, we must anchor each annotation to its surrounding context in the document.
+And third, when the layout of the underlying document changes, we must transform each annotation to agree with the new layout of its context.
+This third and final step is the primary focus of this paper.
+We have implemented an initial, straightforward approach to the problem of reflowing ink annotations, and there is much work left to do in refining it and developing it into a working solution.
+Before we develop our approach further, however, there are significant empirical questions we must answer in order to guide our future research.
+For instance, what do people expect to happen to their annotations when the underlying document reflows?
+Does our initial approach achieve the most basic requirement of reflowable annotations, to preserve each annotation's contextual meaning?
+And do users prefer their own original ink when viewing their own annotations, or are more formalized versions  acceptable?
+Free-form document annotation is a crucial part of every knowledge worker's life.
+Despite the exponential improvement in computer performance, when it comes to reading and annotating documents people still turn to pen and paper.
+This is reasonable, as pen and paper offer many advantages.
+One key advantage is the ease with which the reader may sketch unstructured notes and drawings in response to document content.
+There are definite advantages to emulating this annotation ability on a computer.
+While real ink annotations often end up in the recycle bin, digital annotations can persist throughout the lifetime of a document.
+They can be filtered and organized, and, like digital documents, they can easily be shared.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Many groups have addressed handwriting and diagram recognition issues, some have looked at annotation anchoring, and some have even looked at modifications to existing ink , but none to our knowledge has addressed the issue of how users react when their free-form digital ink annotations are automatically reflowed.
+This paper therefore offers three key contributions.
+First, after a brief outline of related work, we propose a simple framework for thinking about the issues involved in reflowing digital ink annotations.
+Second, we report on user reaction to having their annotations reflowed.
+And third, we outline the important lessons we learned from our early experience implementing and user-testing reflowing digital ink annotations.
+A number of groups have explored the problem of anchoring annotations so they "keep up" with the document when its layout changes or its content is edited.
+Phelps and Wilensky  proposed a framework for robustly anchoring annotations in a digital document using features extracted from its structure and content.
+Although their framework is useful, they only dealt with logical anchor position and did not investigate how layout changes would affect the appearance of annotations.
+Similar to our work, they evaluated the effectiveness of their algorithm before real users.
+Unlike our work, however, users of their system explicitly selected the text to which each annotation was anchored, and they only used formalized text and highlighter annotations rather than freeform ink annotations.
+Most of the effort in digital ink recognition has historically centered on handwriting recognition .
+Yet while interpreting a handwritten comment may help in selecting a suitable anchor for it in the document text, it is sufficient to know that a set of ink strokes is handwriting -- without knowing what it says -- to do a good job of reflowing it .
+We currently do no automatic handwriting recognition in our prototype system.
+More recently, researchers have looked at ink shape recognition to support a variety of sketch-based interfaces.
+Their work is partially grounded in Rubine's work on pen gesture recognition .
+Similarly, Gross and Do have looked at recognizing and parsing sketched architectural diagrams .
+These systems use heuristics or machine learning techniques to recognize a set of shapes or gestures, and similar techniques could be brought to bear on reflowing annotations.
+However, these systems do not associate strokes with an independent context such as an underlying document, and so did not need to modify the user's ink to agree with changes in this context.
+Golovchinsky and Denoue have experimented with shape recognition for digital ink annotations .
+They initially tried simple heuristics; however they found these to be insufficient.
+Instead, they propose using automatic machine learning techniques.
+Our prototype system currently relies on manual classification of annotations.
+While this is clearly not a satisfactory working solution, there may be a middle ground where automatic classification is performed when possible, and the user is consulted when it is not.
+When reflowing ink annotations it may be useful to separate the drawing style of the annotation from its substance, and then reapply the style later on.
+Several projects have successfully examined this approach for free-form drawings , but have so far only considered local features as candidates for style.
+However, global properties of an ink annotation are an important aspect of its style.
+For instance, if the kink in the middle of a curly bracket is applied as a local stylistic feature it may be erroneously reproduced several times in the reflowed figure.
+Other systems have attempted to recognize and convert users' ink strokes to formalized structures .
+This is similar to the "clean" version of annotations that our system produces.
+Indeed, Arvo  and Zanibbi  have done work on automatically cleaning up user ink strokes after they have been interpreted.
+Although their results are very relevant to reflowing ink annotations, their work did not deal with adaptation to an underlying context.
+Golovchinsky and Schilit  describe XLibris, an active reading system that allows for freeform digital ink annotation of documents.
+The system reflows annotations using a stretching and splitting approach that is similar to the style-preserving reflow technique in our software.
+While XLibris was used to study novel uses of digital annotations, no formal studies were performed on user reactions to reflowed annotations or their expectations of such a system.
+Figure 1: Annotation Reflow Framework.
+Manual grouping and classification is shown.
+First, as the user writes or draws on a document , we must be able to group and classify individual ink strokes into annotations, at roughly the same level of abstraction and with the same accuracy as a human would .
+Ideally, this would be done with the least possible interference in the primary annotation task.
+Thus, an automatic approach may be preferable to one directed by the user.
+There are several choices for when automatic grouping and classification should occur.
+If they occur after each ink stroke is created, the system may appear more responsive when the document is reflowed, however it may also make it less responsive while the author is creating annotations.
+On the other hand, if they are only performed when the document is reflowed , it will have the opposite effect.
+Grouping ink strokes may be based on the temporal order of strokes, the spatial arrangement, or a combination of both.
+Relying on temporal order is fast and easy, and it exploits the fact that the strokes comprising most annotations are created sequentially.
+However, there are times when strokes are created out of order , in which case spatial arrangement may be a better criteria for grouping.
+Finally, ink annotations are ambiguous by nature, and improper classification can yield confusing behavior.
+For example, if a horizontal arrow pointing into the text is erroneously classified as an underline, the arrow might get split across multiple lines when reflow occurs.
+Thus, totally automatic grouping and classification may not be feasible.
+Instead, a hybrid approach may be taken, such as requesting the user's help when automatic grouping and classification yield a low confidence decision.
+This approach has its dangers, though, as anything that interferes with the user's primary task of annotating the document may be confusing or annoying.
+See Figure 1B for an example of a manual classification user interface.
+Real pen-on-paper annotations are affixed to a particular position on a page.
+However, physical position in a digital document loses meaning when the document reflows.
+Instead, the annotation must be anchored to its surrounding logical context .
+This is challenging for two reasons: First, digital ink annotations often do not offer a strong indication of what they should be anchored to.
+Comments in the margin, for instance, may pertain to a text range in the immediate vicinity, or on the other side of the page.
+Second, the document may be edited between when it was originally annotated and when the annotation is displayed, making it harder to recover the logical context.
+An effective anchoring scheme must therefore accommodate these possibilities.
+One way to achieve this is to employ sophisticated automatic analysis of document contents to determine a "robust" anchor, such as in .
+This approach can still result in errors, though.
+Another possibility is to ask the user to explicitly specify what the anchor is for a given annotation.
+As in grouping and classification, though, this approach may distract the user from their primary annotation task.
+Finally, after an annotation has been anchored to a document, we must be able to modify it in such as way that if the document layout changes, the annotation naturally "keeps up" with its context, yet it retains its visual meaning and style .
+A user of an annotation system may expect reflowed annotations to be visually similar to the originals.
+However, redrawing an annotation so that it is as similar as possible to the original is both an ill defined problem and technically difficult.
+We consider two possible approaches.
+The first is to manipulate the user's original ink so that it fits the new context.
+However, this manipulation may introduce visual artifacts and is difficult to perform on many annotation types .
+A second approach is to draw a stylized version of the interpreted annotation.
+While this is significantly easier to do, it may prove disorienting to the user.
+Moreover, the system's rendering style may not suit the tastes of its users.
+We conducted our study using the Callisto digital ink annotation plug-in for Microsoft Internet Explorer .
+We designed and implemented Callisto based on our framework.
+It supports an IE toolbar with a pen and a highlighter tool that allow a user to mark any part of any web page with digital ink.
+Ink strokes persist in a local cache on the user's machine.
+To group and classify raw ink strokes into annotations, the user manually selects a set of strokes with the Callisto selection tool, and then chooses a classification from a predetermined list of annotation types .
+Choosing one of these categories automatically anchors the set of strokes as an annotation to a context in the document, using a set of simple heuristics .
+Even though Callisto supports automatic ink stroke grouping and classification, we chose to use Callisto's manual classification interface in our study in order to marginalize the effects of automated classification errors in our results.
+We conducted a user study to gauge people's reaction to having their annotations reflowed by software written to conform to our framework.
+We wanted to examine what people expect of annotations when a document reflows, and under what conditions reflowed annotations are effective.
+We determined to test three main hypotheses: First, we expected that users would want their annotations to reflow with document content.
+This is a key question for our research.
+Perhaps, for instance, the ability to view a document at different aspect ratios is not as important as preserving annotation placement.
+Second, we expected reflowed digital ink annotations to preserve their original context and interpretation.
+Any annotation reflow strategy must meet this criterion.
+The interpretation of most annotations is highly dependent on their context.
+The meaning of a star drawn beside a particular sentence, for example, changes dramatically if it moves down a line or two.
+We expected our prototype system to be moderately successful in preserving context, and wished to study under what conditions it fails to preserve it.
+Finally, we expected that people would occasionally prefer "cleaned up" versions of their annotations.
+For instance, they may prefer that their annotations be cleaned up before sharing them in collaborative scenarios, or in compensation for the difficulty of writing with a stylus.
+After classification, whenever the IE document window is resized, Callisto automatically rerenders any annotations on the current page so that they keep up with their contexts .
+When redrawing an underline annotation, we retrieve the line of text each underline ink stroke is associated with.
+Wherever a line of text breaks into two lines, we split the corresponding stroke.
+Wherever two consecutive lines of text become one, we join the two strokes and apply a lowpass filter to the new stroke to eliminate any artifacts caused by the join operation.
+Since circles are anchored to a single line of text, we simply scale each circle relative to the bounding rectangle of the anchor text.
+If the anchor text splits over two or more lines, we copy the circle and scale each copy to each section of anchor text.
+While this technique produces reasonable results for circled words or short sentences, it does not work well for large sloppy circles, or for circled passages or paragraphs.
+The content of margin comments varies greatly.
+We do not modify them, but rather reposition them vertically to align their peak with the top of the anchor text.
+We position margin bars in the same manner, except we scale them to the new height of the anchor text.
+Besides rerendering annotations to preserve the user's original drawing style as in Figure 3B, our system can also draw formalized "cleaned-up" versions of annotations .
+Figure 3:  The user's annotations are anchored to neighboring text .
+Since we do not parse margin comments and symbols, we simply leave them as the user drew them .
+Participants in our study were asked to perform two tasks.
+The first was to read and annotate an unpaginated 1500 word general interest science article on the Tablet PC in a portrait-mode window.
+Participants were told they had to give a brief talk about the article to a class or club they belonged to, and to make whatever type of marks they would usually make to help them understand the document and remember their reactions to it.
+When a participant completed the first task, an experimenter manually grouped and classified the participant's annotations.
+Then the participant was asked to perform the second task, rating the annotations under a number of reflow conditions.
+We designed six experimental conditions to explore user reactions to reflow.
+The first three conditions--narrow, wide, and edited--focused on common causes of reflow, namely change in the width of the document window, and modification of the document text.
+In the narrow condition we displayed the document in a window comparable in width to the screen of a PDA .
+In the wide condition we switched the Tablet PC to landscape mode to display the article in a window such as might be found on a desktop computer.
+The next two conditions explored the desirability of "prettying" annotations: In the cleaned-original condition, annotations were rendered in a stylized manner as described in section 4.1.1 at the same page width used for the annotation task.
+In the cleaned-wide condition, stylized versions of the annotations were displayed on the document at the same width as in the wide condition.
+We designed the last condition, jittered, to measure how sensitive user perception of different types of annotations is to reflow errors.
+For this condition we displayed the document in a wide sized window, where each annotation was randomly offset from its correct position.
+Each participant evaluated their first 20 annotations in 2 or 4 of the 6 conditions .
+13 participants evaluated their annotations in the narrow and wide conditions, 6 evaluated the edited and jittered conditions, and 9 evaluated the cleaned-original and cleaned-wide conditions.
+We counterbalanced the order in which participants encountered the narrow, wide, edited, and jittered conditions to reduce ordering effects.
+The cleaned-original and cleaned-wide conditions were always evaluated last.
+For each annotation, participants were asked to rate the following five questions in the narrow, wide, edited, and jittered conditions : 1.
+The original intent of the annotation has been preserved.
+The appearance of this annotation is acceptable.
+This annotation is noticeably different from the original.
+Given the current document layout, I would have made a different mark here.
+It would have been better to "freeze" the document than to redraw this annotation.
+Participants responded on a six point Likert scale where a rating of "1" indicated strong disagreement, and a "6" indicated strong agreement.
+In addition, the following extra question was asked in the narrow and edited conditions: 6.
+How important is this annotation to you?
+For this question, a response of "1" indicated the annotation was not at all important, while a "6" indicated it was very important.
+In the two cleaned conditions, participants gave ratings for the same first two questions as in the other conditions, however questions 3 and 4 were replaced by the following : 3.
+For my own use, I prefer the cleaned up annotation to the original.
+For sharing with others, I prefer the cleaned up annotation to the original.
+The survey also asked the participants to comment on what they liked and disliked about each annotation in each condition.
+Participants were 18 residents of Redmond, WA and the surrounding area, aged 20 to 50.
+They all had at least some college education, and all spent a minimum of 30 minutes a day using a computer for tasks such as surfing the web.
+The participants received software-packages of their choosing for taking part in the study.
+We analyzed individual participant ratings using SPSS, a standard statistical analysis package.
+Among other things, we observed that ratings for the first four questions asked about each annotation were highly correlated.
+Based on this observation, we calculated a single scalar goodness score for each annotation in the narrow, wide, edited, and jittered conditions.
+We did this by grouping each set of answers to questions 1 through 4 into a list of vectors .
+We then ran Principal Components Analysis  on these vectors, and projected each onto the first eigenvector .
+This resulted in a single scalar score for each annotation, which was then normalized to fall between 1 and 6.
+We performed a similar procedure to calculate a goodness score for annotations rated in the cleaned-original and cleaned-wide conditions.
+The 18 participants in our study made and rated 415 annotations.
+36 of these annotations were affected by bugs in the Callisto software, and the ratings for them were excluded from our analysis.
+Table 1 shows the remaining 379 annotations grouped by type.
+The distribution of types in Table 1 closely resembles the distribution of types made in previous studies .
+To discern whether people indeed want their annotations to reflow with the document content, we examined responses to the question of whether it would have been better to freeze the document than to reflow a given annotation.
+We found a significant correlation between this question and all of the others asked for each annotation.
+In particular, there is a strong negative correlation with the appearance acceptability question  = -0.698, p < 0.01, indicating that users only prefer the document to be frozen if the appearance of the annotation is not satisfactory.
+Essentially, users wanted their annotations to reflow if reflow was done right, and not if it wasn't.
+This is not a surprising finding, however it is encouraging.
+It indicates that there is no otherwise unexplained resistance to reflowing ink annotations, so if a system can be built to do it well, people will accept it.
+It may also indicate a strategy for automatically choosing when to reflow a document against when to freeze it: If there are known annotations that will fail under reflow, then freeze the document.
+Unfortunately, running three-way analysis of variance  on each of the ratings questions turned up no significant main effect for annotation type or reflow condition, indicating that there may not be a simple criterion for automatically deciding when to reflow and when not to.
+When we look at whether reflowed digital ink annotations preserved their original context and interpretation, we find some interesting data.
+First, the direct preservation rating question we asked participants to answer did not yield any significant main or interaction effects when we ran a threeway ANOVA on it with annotation type and reflow condition as factors.
+So we look to other evidence.
+In post hoc comparisons comparing different conditions against one another for the appearance acceptability question, we found that the jittered condition was not significantly different from any of the other narrow, wide, or edited conditions.
+Also, the importance question asked in the narrow and wide conditions was not strongly correlated to any of the other questions asked.
+This all indicates that when users' original ink strokes are reflowed, precise preservation of context does not matter as much as we had expected, as long as the gross context is preserved.
+When we look to whether people occasionally prefer cleaned up versions of their annotations over annotations that preserve their own style, we find that in fact they overwhelmingly do.
+For this, we examine the goodness scores of annotations rated in the narrow and wide conditions , and we compare them to the goodness scores of annotations in the cleaned-original and cleaned-wide conditions.
+Results of this comparison appear in Table 2, and they show that annotations in the cleaned conditions were generally rated higher relative to each other than those in the non-cleaned conditions.
+Clearly, there is much work left to be done before ink annotation reflow works well across the wide variety of common cases in which it may occur.
+However, the preliminary results we have obtained so far are encouraging.
+We learned many valuable lessons from our user study, and we offer the following key observations.
+Many participants in our study seemed to have higher expectations for their "cleaned-up" annotations than for their non-cleaned annotations.
+One participant looked at one of her cleaned-up underlines and told us that " should have underlined the whole sentence for me."
+Another participant told us that his "underlines should have been turned into bold text".
+This is all the more intriguing when contrasted with the fact that fine-grained context did not matter as much as expected to participants when they considered how their original ink strokes were reflowed in the non-cleaned conditions.
+Apparently, participants took cleaned-up annotations to indicate that the system had understood their intentions , whereas they were more forgiving of reflow mistakes when annotations were not cleaned-up.
+Of all annotations users made during our study, 24% were manually classified as marginalia.
+Hidden in this figure are a number of annotation types that our system does not currently support.
+Others are annotation types such as connectors, which are more difficult to implement due to possible ambiguities in interpretation and rerendering.
+Although a free-form digital ink annotation system such as Callisto may cover a majority of annotation types with a fixed list of five or six types, it may also be prohibitively difficult to design a system to handle all possible types of annotations upfront.
+Instead, this may be an area where machine learning techniques could be employed to gradually learn a user's set of annotations  over time.
+Sometimes, for instance, when the user intended a margin comment annotation to correspond to just a few words in the text, our anchor identification algorithm chose the entire paragraph in which the intended text appeared.
+More work is needed to explore the nature of implicit anchoring, the model of user expectation underlying implicit anchoring, and how automatic algorithms might accommodate it.
+Some participants in our study were surprised by how Callisto reflowed their annotations.
+One participant asked "why did  put my underline over this picture?"
+Another commented "this  does not belong here, it belongs beside the paragraph just above."
+Users should be able to understand how the system has interpreted their annotations -- and the ambiguities the system faces in reflowing their annotations -- before reflow occurs, since afterwards it is too late.
+They should also be given the opportunity to fix reflow mistakes when they occur.
+Yet feedback of this form must also avoid interrupting the flow of the user's primary annotation task.
+Several projects have attempted to provide such feedback , but several questions remain open for study: What is a user's tolerance for making corrections?
+For example, many people disable the as-you-type spelling checkers built into some word processors, finding them disruptive enough to warrant the risk of sending out an un-spellchecked document.
+Also, since annotations are generally informal, it seems unlikely that users will be willing to run a batchmode classification error checker as they sometimes do with traditional spelling checkers.
+Will users risk improperly anchored annotations rather then spend time fixing inaccurate classifications?
+Can software feedback be made unobtrusive enough to avoid distracting the user, yet clear enough to avoid surprising the user?
+Reflowing digital ink annotations is an important advance over other digital annotation technologies.
+Though there is still much work to be done, we have described a flexible framework for handling reflowable ink annotations, and the results of our study indicate that this framework is a valid starting point for further research.
+We hope our research can help establish principals for support of natural, freeform ink annotation on every digital document!

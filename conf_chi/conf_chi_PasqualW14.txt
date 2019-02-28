@@ -1,0 +1,242 @@
+We present a new method of predicting the endpoints of mouse movements.
+While prior approaches to endpoint prediction have relied upon normative kinematic laws, regression, or control theory, our approach is straightforward but kinematically rich.
+Our key insight is to regard the unfolding velocity profile of a pointing movement as a 2-D stroke gesture and to use template matching to predict the endpoint based on prior observed movements.
+We call our technique kinematic template matching , which is simple to implement, useradaptable, and kinematically expressive.
+In a study of 17 able-bodied participants evaluated over movement amplitudes ranging from 100-800 pixels, we found KTM to predict endpoints that were within 83 pixels of the true endpoint at 50% of the way through the movement, within 48 pixels at 75%, and within 39 pixels at 90%, using 1000 templates per participant.
+These accuracies make KTM as successful an approach to endpoint prediction as any prior technique, while being easier to implement and understand than most.
+Despite steady advances in input and interaction techniques, mouse pointing remains a dominant form of interaction with computers.
+Some studies show that mouse pointing comprises up to 65% of our desktop computer usage , and that our use of the mouse is 3-5 times our use of the keyboard .
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+If we could create a means of knowing an endpoint in advance of its delivery by a mouse-click, we could increase the efficiency of mouse pointing, perhaps considerably, with techniques such as target expansion  or gravity wells .
+Such is the goal of endpoint prediction, an attempt to predict the future when pointing.
+Past attempts at endpoint prediction have relied upon simple regression , normative kinematic laws  , Kalman filters , neural networks , or inverse control theory .
+Heuristics and normative laws are known to be brittle, as individual humans often deviate from these prescriptions.
+More sophisticated mathematical approaches are more adaptable but are highly complex, and are difficult to implement and scrutinize.
+While mouse movements themselves have been regarded as 2-D gestures in the past, we are the first to regard velocity time series data as a "stroke" in 2-D space.
+By employing this concept, we are able to then utilize template matching to determine which of a set of prior movements is most like the current unfolding movement, and predict endpoints accordingly.
+We call this approach kinematic template matching , and find its simplicity, adaptability, and accuracy to be its biggest advantages over prior techniques.
+Another significant advantage over some prior techniques is that it is entirely target-agnostic, requiring no information about actual targets on the screen.
+To evaluate KTM, we conducted a study of 17 participants.
+We found that on average, KTM is able to predict within 83 pixels of the true endpoint when 50% of the movement duration has been completed, within 48 pixels at 75%, and within 39 pixels at 90%, using 1000 templates per participant.
+The key contributions of this work are:  the conceptualization of time-series velocity data as 2-D stroke gestures for the purpose of stroke gesture recognition;  the creation of a specific template matching algorithm to determine the endpoint of the current movement based on prior movements; and  empirical results showing that KTM outperforms prior approaches while being significantly simpler and more adaptable than prior techniques.
+Van Oirschot and Houtsma  find that doubling the distance of a movement's peak velocity roughly predicts the final movement length.
+In general, these linear regression techniques, while simple, do not produce high-quality predictions.
+By contrast, our approach based on KTM enjoys much of the simplicity of these techniques while being capable of much more accurate predictions.
+Taking a more advanced approach, Lank et al.
+Built upon the minimum jerk law , Lank et al.
+First, the points of an unfolding movement are used to create a velocity-overdistance profile.
+This profile is fit with a quadratic curve using least-squares regression, and the endpoint is calculated to be the non-zero x-intercept of this curve.
+Second, due to the numerical instability of this process, predictions commonly overshoot the actual endpoint.
+To correct for this overshoot, a coefficient from a precalculated table is applied.
+To better accommodate the numerical instability of extrapolation, the authors altered their algorithm in later work .
+Instead of applying tabulated coefficients to correct the endpoint after extrapolation, the stability of a new prediction is checked directly.
+With this newly refined method, Ruiz et al.
+Results for Ruiz et al.
+For the single shot algorithm, target accuracy was only 33.7% when 85% of the motion had been completed.
+As we show in our results, our approach compares favorably to our recreated version of Ruiz et al., being about 25.2% more accurate overall.
+By contrast, our approach allows for user-specific adaptability, as it is not built on normative kinematic laws, from which certain users may deviate.
+Based on prior research which revealed a relationship between the peak velocity of a movement and its final distance , Asano et al.
+Their process involves first calibrating the system for each user based on previously collected pointing tasks.
+The distance of the target is then given to be: where and are user-specific constants provided by the linear regression model from the calibration stage, and is the peak velocity of the movement.
+Related to endpoint prediction is target prediction--that is, from among a set of possible targets, predicting which one the user intends to select.
+Classification techniques have been used in this regard, and unlike the regression-based approaches discussed above, they must be target-aware, making them very difficult to deploy .
+Work by Murata et al.
+At each sampling interval, the system calculates the angle between the movement direction vector and the vector connecting the current position to each potential target.
+The resulting angle is then added to the cumulative score for each target and the predicted target is selected to be the target with the lowest cumulative score; that is, the target most "on line" with the direction of movement.
+The most recent work in target classification contributes two techniques .
+In the first technique, the authors train a neural network on the angle, velocity, and acceleration of a movement to predict whether it has entered the corrective submovement phase.
+If it has, the direction of the movement is calculated and the intended target is chosen to be the nearest target in that direction.
+In the second technique, the authors use a Kalman filter based on the angle and distance to each potential target.
+Probabilities are then assigned to each target based on the model and the target with the largest probability is selected.
+Evaluating the two techniques with both able-bodied and motor-impaired users, target prediction accuracies of about 60% were achieved.
+Their technique first casts pointing as a control problem.
+Specifically, the authors represent an instantaneous pointing state to be the combined position, velocity, acceleration, and jerk at a given time.
+They represent the transitions between such states to be based on changes in velocity.
+Taking this perspective, inverse optimal control techniques are used to create a probabilistic model of pointing movements based on the target locations of previously collected movements.
+Then, assuming a uniform prior distribution over all targets, Bayes' rule is applied to provide a probability for each target.
+Results show that approximately 60% target accuracy is achieved when 90% of a movement has been completed.
+Additionally, the authors achieve higher target accuracies than previous approaches when less than 60% of a movement has been completed.
+While the sophistication of the above target classification techniques varies from simple to complex, they all have the disadvantage of being target-aware.
+By contrast, our approach is target-agnostic, user-adaptable, and easy to implement.
+By framing the velocity profile of an unfolding movement as a 2-D stroke gesture, we achieve good results while balancing simplicity and sophistication.
+Second, preprocessing is performed on the templates to prepare them for comparison to a candidate movement, which is preprocessed similarly.
+Third, the best-matched template is chosen and the predicted endpoint is calculated based on the total distance the matching template movement traveled.
+To the best of our knowledge, we are the first to conceive of time-series velocity profiles as stroke gestures and to employ template matching for endpoint prediction.
+The above steps are described in more detail in the following subsections.
+A library of templates is built using previously collected pointing movements in order to compare them to future movements a user makes.
+Each template is created from a distinct sequence of position-time points  that describe a pointing movement; these points are first filtered and then used to produce the template's velocity profile.
+The movement points, velocity profile, and total distance traveled are stored as part of the template in order to reduce computational complexity while matching candidates.
+The predictive accuracy of KTM is dependent on the number of templates in the library.
+We hypothesized that as the number of templates increased, so would the predictive accuracy.
+However, empirical evidence revealed that the accuracy did not significantly increase when using more than 1000 templates .
+Therefore, we found 1000 templates to be sufficient for accurate predictions when target amplitudes were between 100 and 800 pixels, which was the range of pointing movements tested.
+When creating the template library, the goal is to create a mapping that relates velocity profiles to distances traveled.
+As a result, movements that overshoot their endpoint produce a velocity profile that misrepresents the final distance of a movement and, if matched by KTM, lead to overshooting the candidate movement's endpoint.
+Employing this filter is advantageous to our technique, as it allows KTM to make use of movements with overshoots, which are common when pointing with a mouse .
+Once the filter has been applied, the points in are temporally resampled at 20 Hz in preparation for smoothing before comparisons.
+The resampled points are then used to create the complete velocity-over-time profile of the template.
+Note that each template needs to only be preprocessed in this way once, not prior to each comparison to a candidate movement.
+Therefore, before smoothing, if a template's velocity profile ends at a later time than the candidate's, the template's velocity profile is shortened to the same length as the candidate.
+Alternately, if a template movement is temporally shorter than the candidate, its velocity profile is left unmodified .
+While a candidate pointing movement is being made, new points are appended in real-time to a cumulative list of position-time points, or  values.
+As each new point is collected, the list is temporally resampled at 20 Hz and used to produce the candidate movement's partial velocity profile.
+The velocity profile is then smoothed using a 1-D Gaussian kernel filter with a standard deviation of 7 to reduce noise  .
+The chosen resampling rate and standard deviation were based on comparing different resampling rates ranging from 20-200 Hz and different kernel filters with standard deviations ranging from 3-7 .
+The  combination resulted in the best predictions overall.
+It is tempting to consider smoothing all of the template velocity profiles immediately after data collection to reduce computational complexity.
+However, it is important to note that truncating a template's velocity profile after smoothing produces a different profile than first truncating the same template's saved movement points and then smoothing.
+As a pointing movement unfolds, it is only possible to smooth the movement points received thus far.
+Therefore, it is no surprise that truncating each template's movement points to match the candidate movement's points before smoothing leads to better-matched templates and higher accuracies.
+Once the candidate's smoothed velocity profile has been created, the velocity profile of each template also needs to be smoothed.
+However, when the library is constructed, the velocity profile of each template is representative of a complete pointing movement.
+Conversely, the candidate is still in the process of unfolding and has a velocity profile that reflects movement only up to a certain point in time.
+Once S is computed, it will become the next S upon the arrival of the next movement point.
+In the case that , the score is simply the normalized total difference between the velocity values at each , it becomes timestamp .
+However, when as the best-matched template less likely that selecting will produce a desirable prediction.
+In order to negatively weight these shorter templates, the candidate's remaining velocity values are added to increase the score .
+We found using a cumulative scoring function to be crucial in the success of KTM.
+As stated, once S is computed in Equation 1, it becomes the next S upon the arrival of the next movement point.
+The resampled velocity profile of a candidate movement changes as each new point is added and, in most cases, a template's smoothed velocity profile will change as well.
+Assuming that movements that unfold similarly over time cover similar distances, a cumulative score effectively assigns higher weight to templates that consistently scored well over the arrival of each new candidate movement point.
+Once the candidate has been compared to the entire template library, the template with the lowest cumulative score is chosen as the best-matched template.
+Finally, the total as-the-crow-flies length of the best-matched template  is calculated and the candidate movement's endpoint is pixels away from its original start point predicted to be in the current direction of motion.
+Seventeen able-bodied participants  participated in our study with an average age of 25.0 years .
+All but two participants were right-handed and when asked to self-rate their computer proficiency , results ranged from 4 to 10 .
+Subjects were given a small payment for participating in the study.
+We created a custom C# application to administer the tasks, log data, and calculate results.
+Our application ran on a 27inch Apple iMac desktop running Windows 7 64-bit displaying a screen resolution of 2560 x 1440.
+The computer was equipped with a 2.7 GHz Intel i5 processor, 8 GB of RAM and a Microsoft Basic Optical Mouse v2.0, which was used as the input device.
+The complete process for predicting the endpoint of a candidate movement in real-time is as follows: For each new movement point added to the candidate: 1.
+Temporally resample the points of the candidate movement at 20 Hz; 2.
+Construct the velocity-over-time profile of the candidate by taking the derivative of the temporally resampled points; 3.
+Smooth the newly constructed velocity profile using a 1-D Gaussian Kernel filter with a standard deviation of 7; 4.
+For each template, , in the library: a.
+If necessary, truncate the velocity profile of as shown in figure 4; b.
+Smooth the velocity profile of ; c. Compare the candidate C to using Eq.
+Participants were asked to complete two sets of 1100 trials, where a "trial" consisted of clicking a single target.
+Targets were sequentially displayed on the screen in blocks of 21 trials.
+Each trial displayed only one target on the screen and consisted of a single click, which initiated the next trial.
+If the target was missed, a ding!
+Subjects were asked to click the targets "as quickly and accurately as possible" and were allowed to take a break between blocks to avoid fatigue.
+Each set of 1100 trials took approximately 20 minutes to complete.
+The first set used vertical ribbon targets 32 pixels wide to collect data on 1-D pointing movements.
+The first target of each block was placed in the center of the screen and data for this trial was not recorded.
+A random distance between 100 and 800 pixels was generated at the start of each consecutive trial and the new target was placed this distance away from the previous target.
+Once all blocks had been completed, participants were encouraged to take a break before starting the second task.
+The second set used circular targets 32 pixels in diameter to capture 2-D pointing movements.
+The targets of each block were displayed one at a time using a layout similar to the ISO 9241-9 ring-of-circles arrangement.
+The first target of each block was chosen to be the top-most circle in the ring.
+However, distances from one target to the next were randomly set between 100 and 800 pixels.
+For both sets of trials, the goal of using random distances between targets was to generate sufficient data for a continuous range of target amplitudes, and to more closely simulate pointing in the real world.
+We created two separate template libraries for each of the 17 subjects: one using data from the 1-D task and one using the data from the 2-D task.
+The template libraries were evaluated independently of each other.
+The 1-D and 2-D trials had average error rates of 7.1% and 6.3% respectively; trials marked as errors were nevertheless included in the evaluation of KTM.
+The evaluation of KTM proceeded as follows.
+First, a template was chosen at random from the template library and removed.
+The points from the selected template were appended to a new list, one at a time, which was used to simulate a candidate movement.
+The overshoot filter was not used on the selected template in order to produce a natural, unaltered movement path.
+The KTM algorithm was used to predict the final distance of the simulated candidate each time a new point was added.
+Each predicted distance was compared to the movement's ground truth distance to calculate the accuracy of a prediction.
+After the final prediction was made, the selected template was admitted back into the library and a new template was chosen at random.
+This process was repeated 100 times for each template library.
+To compare the predictive accuracy of KTM to the current state of the art in target-agnostic prediction, we also implemented the revised kinematic endpoint prediction  algorithm of Ruiz et al.
+KEP was evaluated using the same data as we used to evaluate KTM; however, trials marked with errors were not used, as per KEP's formulation.
+Movements were selected from the log files and fed pointwise through KEP.
+Distances were predicted as each point was added, which were then compared to the ground-truth distance of the given movement.
+KEP performance was tested for both 1-D and 2-D tasks.
+The predictive accuracy of both KTM and KEP was evaluated at movement-distance-percentage intervals from 10% to 90% in 10% increments.
+Although we evaluate KTM in isolation based on percent time complete, we compare KTM to KEP using percent distance complete because with so few collected points at early times in a movement, KEP tends to return predictions with extremely high error rates, which is a side effect of extrapolating.
+We felt, therefore, it was fairer to KEP to report results based on percent distance complete, which was calculated by dividing the distance traveled at the moment of evaluation by the total distance of the completed movement.
+Figure 6 shows a box-and-whisker plot of the predictive accuracy of KTM at different percentages of horizontal 1-D movements.
+Boxes contain the upper and lower quartiles of the error values and whiskers extend to the most extreme data point within 25%-75% of the error range.
+Predictions are generally centered around the true endpoint , but do seem slightly more prone to overshoot rather than undershoot, particularly in the 20%-40% range .
+That the spread looks to be well balanced around the center confirms that our prediction approach using kinematic template matching is not systematically biased with respect to the true endpoint.
+As it can be seen from Figure 7, in the case of onedimensional horizontal movements, KTM predicts with significantly better accuracy than KEP for the first 40% of distance traveled.
+When more than 40% of a movement has been completed, KTM and KEP preform similarly, although KEP slightly outperforms KTM during the last 20%.
+Not surprisingly, both KTM and KEP reach their peak predictive performance when approximately 90% of a movement has been completed and predict, on average, to within 69 and 51 pixels of the true distance, respectively.
+Additionally, when we examine KTM at 90% of completed movement duration , we see predictions within 48 pixels of the true endpoint.
+Importantly, both KTM and KEP are target-agnostic and not using any knowledge of target locations or dimensions to predict endpoints.
+That said, given that 1-D targets of 32 pixels in width were used to collect this data, we can show how often the predicted endpoint actually landed within the target.
+Table 1 below shows the percentage of times 1-D targets would have been hit for both KTM and KEP at each movement distance increment.
+The hit-rate for KTM is significantly higher than KEP according to a Wilcoxon signed-rank test .
+Both KTM and KEP perform more accurately overall for 2-D pointing tasks than they did for 1-D pointing tasks.
+KTM predicts with lower errors throughout most of the movement, although KEP is slightly more accurate when movements have traveled approximately 90% of their total distance .
+Again, both approaches predict with increasing accuracy throughout and reach their peak accuracy at 90%.
+At this point, KTM on average predicts within 55 pixels of the true endpoint and KEP predicts within 47 pixels.
+As for 1-D movement, because of the large advantage of KTM in the first half of movement, KTM is significantly more accurate than KEP overall .
+Additionally, when we examine KTM at 90% of completed movement duration , we see predictions within 39 pixels of the true endpoint.
+Figure 8 shows a box-and-whisker plot of the predictive accuracy of KTM at different percentages through 2-D movements.
+The boxes and whiskers show the same ranges of values as displayed in Figure 6 for the 1-D task.
+Similar to the 1-D task evaluation, KTM seems to overshoot the endpoint more often than fall short of it, but the spreads still look to be well balanced around the center .
+Additionally, the distribution of 2-D prediction errors is much tighter than that of the 1-D task.
+These differences in the distribution of undershoots and overshoots between 1-D and 2-D tasks were significant .
+This finding indicates that KTM is generally more accurate in 2-D than in 1-D.
+The hit-rate for KTM is again significantly higher than KEP according to a Wilcoxon signed-rank test .
+These accuracies are notably lower than those reported by Ruiz et al.
+We discuss possible reasons for this in our discussion, below.
+However, we believe that our method of evaluation is fairer, as it is based on ground truth instead of predicted values, which are sometimes quite different from the true distance.
+The backbone of KTM is the library of prior movements it compares to as templates.
+While endpoint prediction techniques could be developed that are accurate but computationally expensive, the ability to make predictions in real-time is crucial for deployment in interactive settings.
+Because KTM exhaustively searches through the library to find the best-matched template, increasing the number of templates in the library negatively affects the execution time.
+So, when developing the algorithm, we were curious to find what library size resulted in the best size/speed tradeoff.
+We expected accuracies to increase as libraries grew in size, but it was very interesting to find that after a certain number of templates--1000 in this case--accuracies did not significantly increase .
+Again, our chosen size of 1000 worked well for the given target amplitude range of 100-800 pixels, however we would expect this number would have to increase with a larger range of target amplitudes.
+Although past approaches such as KEP are potentially advantageous in that no "setup" is required, we find that no-setup approaches are either based on theoretical laws of human motion, or are too simple; when presented with non-normative movements, they perform poorly.
+Using a template library, on the other hand, offers levels of personalization that prior target agnostic approaches do not.
+When developing KTM, we originally left movements with overshoots unaltered.
+However, during our initial testing, we noticed that KTM over-predicted many of the endpoints.
+While it occurred to us that the submovements made postovershoot could potentially be used to improve the accuracy of KTM, we settled on filtering out these submovements.
+We felt that adding a special case to the KTM algorithm to utilize these submovements would unduly increase the complexity of the algorithm and detract from implementation ease.
+Also, based on prior work  pointing facilitation techniques benefit the user only if less than 90% of a pointing movement has been completed, but overshoots are usually closer than this.
+Therefore, we were skeptical that such a modification to the KTM algorithm would be useful.
+We found developing the scoring function to be a particularly challenging issue.
+Although the scoring function's effect on prediction time was not as significant as the size of the template library, it was something to keep in mind throughout the process.
+While our final implementation uses velocity values alone, we explored using additional movement profiles, such as acceleration and jerk to score templates.
+However, these additional profiles did not add to our predictive power, and velocity profiles were sufficient in isolation.
+Clearly, these hit rates themselves are not particularly high, but it is important to remember that target-agnostic endpoint predictions can be useful for pointing facilitation even when not directly hitting the target.
+For example, attractive gravity can be put at any screen location while pointing, and even if that gravity is outside by nearby the intend target, it could still facilitate quicker target acquisition, especially if it knew to "turn off" upon seeing a submovement correction at odds with its attractive force.
+Also, prior work  has shown that predictions even as late as 90% through a movement can be beneficial to pointing performance.
+Our study shows that kinematic template matching  is an effective technique for predicting the endpoints of aimed pointing movements.
+KTM performs with higher accuracy compared to the revised kinematic endpoint prediction  algorithm --the current state of the art for target agnostic techniques.
+Although both approaches predict with similar pixel accuracy at many percentage intervals for 1-D trials, KTM significantly outperforms KEP at nearly all percentage intervals for 2-D trials, in terms of both pixel distance and target accuracy.
+Additionally, KTM performs particularly well in comparison to KEP during the early stages of pointing movements for both 1-D and 2-D trials.
+Although the target accuracies reported are not as impressive as prior approaches, we believe this is mainly due to evaluating KTM using a set target size of 32 pixels as compared to the variable, and larger, target sizes used in other studies.
+As stated above, the target accuracies we report based on our implementation of the revised KEP algorithm are lower than those reported by Ruiz et al.
+We attribute this discrepancy to be mainly due to differences in methodology.
+While heuristics could be added to optimize KTM, doing so would increase the complexity of implementing KTM.
+However, if optimizing KTM was ever a necessity, peak velocity could potentially be used as a simple heuristic filter, as work by Takagi et al.
+Ease of implementation is a cornerstone of our approach and, with this in mind, we are impressed by the predictive accuracy that can be achieved using the velocity profile of movements alone.
+It is our hope that this work will pave the way for the development and deployment of real-world pointing facilitation techniques based on endpoint prediction.
+Kinematic template matching provides an excellent basis for further research in the area of predictive pointing.
+First, while the data used for this paper was collected using a custom test-bed application in a controlled lab environment, we postulate that pointing movements collected "in the wild" using a system such as the Input Observer  would perform comparably well.
+Integration with such a system would ease the burden of collecting a template library, as it could be collected from daily computer use instead of from a specialized application.
+Furthermore, the ability to evaluate KTM with data extracted from actual pointing movements could potentially lead to design insights that we are currently unable to perceive using data gathered from controlled experiments.
+Second, KTM could be used in conjunction with proposed pointing facilitation techniques, such as attractive gravity wells  to speed target acquisition.
+While pointing facilitation techniques are commonly used as motivations in many prior endpoint prediction papers, high prediction accuracy is of high importance when it comes to making these techniques usable.
+KTM outperforms prior techniques in terms of accuracy, making it an important stepping stone to developing an endpoint prediction technique that is deployable in a real-world system.
+Additionally, KTM is unique in that it is not based on regression yet remains target-agnostic; we see KTM as being particularly wellsuited to situations where targets are out of physical reach from the user.
+For instance Baudisch et al.
+Finally, because templates are user-specific, we believe KTM could provide a more beneficial approach for people with non-standard pointing abilities compared to a technique such as KEP, which is based on a normative model.
+The authors thank James Fogarty, Mayank Goel, and Krzysztof Z. Gajos for early discussions of this work.
+This work was supported in part by the National Science Foundation under grant IIS-0952786.
+Any opinions, findings, conclusions or recommendations expressed in this work are those of the authors and do not necessarily reflect those of the National Science Foundation.
+Kinematic template matching treats the velocity profiles of pointing movements as 2-D stroke gestures and employs template matching to predict movement endpoints.
+This approach is user-specific, target-agnostic, and is both easier to implement and more accurate than prior techniques.
+We found that on average, KTM is able to predict within 83 pixels of the true endpoint when 50% of the movement has been completed, 48 pixels at 75%, and within 39 pixels at 90%, using 1000 templates per participant.
+To the best of our knowledge, our work is the first to conceive of time-
+A general-purpose target-aware pointing enhancement using pixel-level analysis of graphical interfaces.
+Proceedings of the ACM Conference on Human Factors in Computing Systems .
+Taming wild behavior: The Input Observer for obtaining text entry and mouse pointing measures from everyday computer use.
+Proceedings of the ACM Conference on Human Factors in Computing Systems .
+Edinburgh, Scotland: University of Edinburgh.
+The coordination of arm movements: An experimentally confirmed mathematical model.
+Multiple haptic targets for motion-impaired computer users.
+Proceedings of the ACM Conference on Human Factors in Computing Systems .
+Office ergonomics: Motion analysis of computer mouse usage.
+Proceedings of the American Industrial Hygiene Conference and Exposition .
+Falls Church, Virginia: American Industrial Hygiene Association, 12-13.
+Cursor displacement and velocity profiles for targets in various locations.
+A process for anticipating and executing icon selection in graphical user interfaces.
+Endpoint prediction using motion kinematics.

@@ -1,0 +1,290 @@
+The Web is a dynamic, ever-changing collection of information accessed in a dynamic way.
+This paper explores the relationship between Web page content change  and people's revisitation to those pages .
+We identify the relationship, or resonance, between revisitation behavior and the amount and type of changes on those pages.
+By coupling our large scale log analysis with a complementary user study we explore the intent behind the revisitation behavior we observed.
+Using the notion of resonance to identify the likely content of interest, we describe a number of ways interaction with changing and revisited information can be better supported.
+We illustrate how understanding the association between change and revisitation might improve browser, crawler, and search engine design, and present a specific example of how knowledge of both can enable relevant content to be highlighted.
+Someone who returns to the SIGCHI page at a frequency similar news updates may be interested in catching up with the latest news, while someone who returns after a long interval may be interested in revisiting the page's static or navigational content .
+Aggregate revisitation behavior of many users can indicate the most common purpose of that page.
+Web content change can be beneficial to the Web user looking for new information, but can also interfere with the re-finding of previously viewed content .
+Understanding what a person is interested in when revisiting a page can enable us to build systems that better satisfy those interests by, for example, highlighting changed content when the change is interesting, actively monitoring changes of particular interest, and providing cached information when changes interfere with re-finding.
+In this paper, we characterize the relationship between revisitation and change by analyzing a large scale Web log trace for 2.3M users and a five week hourly crawl of over 40K Web pages.
+We begin our analysis by exploring how revisitation behavior relates to change.
+The analysis validates a number of hypotheses , but also uncovers some surprising results.
+For example, we find that certain measures of page change  are not linearly related to measures of revisitation --a result with consequences to monitoring tools that use these simple measures to watch for page changes to identify events of likely importance.
+Revisiting Web pages is common , but people's reasons for revisiting can be diverse .
+For example, a person may return to the SIGCHI website, pictured in Figure 1, to be reminded of the group's officers, or to catch up on the latest news.
+While most content on the Web does not change, pages that are revisited change frequently .
+As revisitation is often motivated by monitoring intent , some relationship between change and revisitation is to be expected.
+However, the subtleties of change and revisitation behavior mean the two do not necessarily have a direct correlation.
+For example, while new content may be added to a blog hourly, individual posts may move slowly down the page and not vanish until 24 hours later when the daily content is archived.
+Although the page changes hourly, a user monitoring it may only need to revisit daily to catch up on the content.
+Pages are often composed of many sub-pieces, each changing at different rates, illustrated in Figure 1.
+Advertisements on a page may change on every visit, while navigation content may almost never change.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+We develop a deeper insight into when and how changing content is important by combining more refined measures of change and revisitation.
+An evolutionary view of the page, represented by a two-segment change curve, in concert with the distribution of revisitation intervals , allows us to identify the type of information targeted by revisitation: static , or dynamic .
+These results are supported by a smaller user study used to find the underlying intent and expectations of change of individual users.
+Using peak revisitation for a given page, in conjunction with finegrained changes, we can also identify the interesting content on pages.
+We introduce an automated algorithm for DOM-level analysis that uses the resonance between revisitation and change to break pages into components that are more-, and less-, likely to be of interest.
+Such analysis has previously been impossible without the use of expensive surveys or other un-scalable research instruments such as eye-trackers.
+We conclude with a discussion of how understanding the association between change and revisitation might improve browser, crawler, and search engine design, focusing on an example application that automatically highlights potentially interesting portions of a page identified according to our analysis.
+Studies in this area have typically been small-scale and concentrated on tracking behavior by users rather than website.
+In previous work  we were able to gather enough data for particular Web pages to understand how those pages by studying a very large population.
+We found that pages with certain revisitation patterns were more likely to change, and those initial findings motivate the deeper analysis presented here.
+The analysis presented in this paper explores how revisitation patterns relate to changes in content over time.
+Pitkow and Pirolli  looked at a different facet of Web evolution, in particular they found that "desirable" pages were less likely to disappear .
+The notion of monitoring pages for changes in content is discussed in some revisitation literature .
+They additionally found changes often interfered with long-term refinding.
+The work reported in this paper expands on previous work to give a much richer understanding of how the revisitation and content change relate.
+Specifically, we study both content change and revisitation patterns for pages in a large sample of pages.
+We develop new metrics and methods to characterize amount and type of Web page change and revisitation patterns, and use them to identify complex relationships between the two.
+Prior work has focused on either the study of change or the study of revisitation, but rarely both together.
+By tracking change and revisitation behavior concurrently, on a very large scale and with very fine granularity, we are able to offer a novel perspective on content change in revisited pages, revisitation patterns for dynamic and static pages, and the relationship between the two.
+Numerous previous studies  have found that Web content change occurs relatively infrequently, and identified trends in the change that does occur.
+For example, Fetterly et al.
+Koehler  found that page change levels off as a page ages.
+These studies have provided insights into crawler and search engine design, but have generally ignored actual page use.
+In previous work  we explored how content changed in pages that we knew had been visited.
+We found that revisited pages change more often than pages selected using other sampling techniques, and explore the relationship in greater detail here.
+We sampled pages for study with diverse revisitation patterns using URL visitation data collected from the logs of opt-in users of the Live Seach Toolbar.
+The toolbar provides augmented search features and reports anonymized usage behavior to a server.
+Our previous work  describes the sampling process in more detail, and we only summarize the selection process here.
+We defined three visitation-based page attributes to use for sampling: the number of unique visitors , the median time between a user's visits , and the median number of visits per user .
+URLs were tagged with the three attributes using the log data of 612,000 English speaking, non-robot users in the United States from a five week period starting August 1, 2006.
+Pages were sampled evenly from pseudo-exponential bins for each attribute.
+We used four bins for the unique-visitor criteria, five for the per-user revisit criteria, and six for the inter-arrival time criteria, for a combination of 4 x 5 x 6 = 120 bins.
+Some oversampling of popular pages was added by explicitly including the 5000 most visited pages.
+Research on revisitation stems from early Web navigation studies which reported a large amount of re-access of information .
+Subsequent studies were designed to specifically address revisitation behavior.
+These studies come primarily in two main flavors : Log studies, where browsing patterns are monitored either through proxies or instrumented browsers ; and survey/interview studies, in which a questionnaire or interview is constructed to understand specific behaviors .
+Change curves allow us to quickly understand a Web page's evolution over time.
+An example can been seen in Figure 2.
+The general form of the change curves is that of a "hockey stick."
+In other words, most documents rapidly change from the initial starting point as content shifts off the page or is changed during the first few days.
+For example, in a blog homepage, specific posts move off the page at a certain rate as new posts are made causing a rapid falloff in Dice similarity.
+At the inflection point  the similarity to all subsequent versions is approximately equal.
+This is not to say that the document is unchanged past this point, but simply that these pages are equally similar to the original page.
+Change curve for http://www.youtube.com .
+Pages were automatically labeled with high level categories such as news, sports, pornography, etc.
+URLs were crawled hourly for 5 weeks, starting May 24, 2007, and the pages' HTML stored.
+Following the crawl, we returned to the toolbar logs to find the revisitation behavior of the crawled pages that exactly corresponded to the time of the crawl .
+Using the behavior of 2.3 million English speaking, US based, non-robot users, 40,817 pages were considered in our final analysis .
+To compare different Web pages to each other, and determine the relationship between revisitation behavior and document change, we abstract the change curves.
+As change curves are generally hockey stick shaped, we do this by identifying the curve's inflection point, or knot, and fit two linear regressions to the curve, one up to the knot, and the other following it.
+The knot point reflects the time at which the amount of change slows  and the overlap in content at the steady state .
+In addition to characterizing Web page change, we looked for patterns in how each page was revisited with the hypothesis that there is a relationship between revisitation and change.
+For each page, we looked at the average number of times a URL was visited, the number of unique visitors it received, and the average inter-arrival time.
+To further compare and evaluate revisitation behavior for different URLs we used the concept of a revisitation curve .
+A revisitation curve is a normalized histogram of inter-visit  times for all users visiting a specific Web page, and characterizes the page's revisitation pattern.
+Curves are generated by calculating all inter-arrival times between consecutive pairs of revisits and binning them, generally into exponential bins.
+Because histograms are count based, pages that were visited more had higher counts, so we normalized each individual curve by the average of all curves.
+For example, the Amazon homepage  revisitation curve  peaks to the right, indicating more revisits happen over a day or longer.
+We consider each revisitation curve to be a signature of user behavior in accessing a given Web page.
+Depending on their shape, revisitation curves were classified into four groups: fast, medium, slow, and hybrid.
+For fast revisitation patterns , people revisited the member Web pages many times over a short interval but rarely revisited over longer intervals.
+Slow revisitation patterns , with people revisiting the member pages mostly at intervals of a week or more .
+Hybrid revisitation  is a combination of fast and slow, and displays a bimodal revisitation pattern.
+Finally, medium revisitations  are primarily at intervals between an hour and a day.
+We characterize change in two different ways.
+First, we compute three general change measures--how often a page changes, when it changes, and how different the page is from the previous instance.
+The difference between successive pages is measured using the Dice coefficient on the textual content of the page.
+The Dice coefficient measures the overlap in terms between pairs of pages  where X and Y are the words that appear in two versions of the page.
+If the page changes at time 1, 5, and 7--the number of changes is 3, the average time between changes is 3, and the Dice coefficient is computed for the page between for the pairs: times 1 and 5 and times 5 and 7 .
+A second measure of change is how much a page evolves from some fixed point in time.
+In our previous example, if we pick time 0 as our fixed point, we would calculate the difference between time 0 and time 1, time 0 and time 5, and time 0 and time 7.
+To quantify the change over time of each Web page we use the notion of a change curve, introduced in previous work .
+A change curve represents the amount of textual change  from a fixed point in the document's history.
+For each page we select, at random , up to n starting points .
+We define Dt to represent the Web page content at time t, and Dr1 to be the content at the first randomly selected time.
+Content, for this analysis, is defined to be the page stripped of markup.
+The value of the change curve at each time point, t, is calculated as the average Dice coefficient from each of the randomly selected starting points to the Web page content t time steps in future:
+While the toolbar logs enabled us to associate observable revisitation behavior and change, they do not reveal real user intent.
+For this reason we conducted a complimentary user study to gather information about people's revisitation intent as a function of change.
+Twenty volunteers  participated in the study .
+Several measures of change broken down by revisitation bins.
+The first set of measures represent the mean number of changes for pages in the bin, the mean time between each change, and the mean amount of change.
+The second set of measures represent the location of the knot point of the change curve.
+Table 1 summarizes the findings discussed in this section.
+Both the discussion and the table are broken down by the three measures of revisitation discussed earlier: the number of unique visitors to a page , the median inter-arrival  times for a page , and the average and median number of revisits per user for a page .
+For each behavior measure, Table 1 presents three measures of change  and the coordinates of the knot point .
+The significance of each measure is tested by applying an ANOVA to an ordered binning of the particular metric for overall significance.
+Bolded results are significant against the previous bin through Tukey's HSD post-hoc.
+We begin our analysis by looking at how the number of unique visitors to a page correlates with changes to the page's content.
+Although static pages can be popular, it is more likely that continued popularity is achieved through some dynamic content and maintenance.
+As the number of unique visitors increases, the mean number of changes we observed increases, and the time between each successive change decreases--ranging from ~138 hours between changes for pages with only 2 unique visitors to ~102 hours for those with 36 or more unique visitors.
+However, the mean amount of change  does not have a similarly distinct trend.
+The most and least popular pages both have the biggest changes between versions .
+Thus, while popular sites change more frequently, the same cannot be said about the amount by which they change.
+This is an indication that the amount of change may not be as important as what is changing.
+The knot point does not differ significantly with changes to the number of visitors.
+This may be anticipated as page popularity does not tell us how often revisitation occurs in the specific page only that it occurred more than once.
+Recall that the knot point is measuring the approximate location when pages have "stabilized"--when every subsequent page is equally similar to the starting point.
+If we believe that individuals will try to synchronize their revisitation behavior to catch content before it "decays" off the page , we must look to the number, and interval, of per-user revisitations.
+We recorded visits for the 40K URLs in our crawl as well as a personalized random subset from the user's cache and Web history.
+At the end of the logging period, participants were asked to complete a survey to gather greater detail about ten of the pages they had revisited during the observation period.
+Of the surveyed URLs, 38%  overlapped with the 40K pages in the log study.
+The "personalized" random sample, representing the remaining 62%, was also used in qualitative analysis.
+For each Web page in the survey, participants were asked whether they remembered visiting and revisiting the page.
+If they remembered the page, they were asked to indicate their intent when visiting from a list of options .
+If they recalled visiting the page more than once, they were further asked to describe how often they visited the page, whether they visited it at regular intervals, and how often they expected the page to change.
+By relating actual page change, people's expectation of change, and their stated intent behind their revisitation, we are able to better explain the behavior we observed.
+Analysis of the number of times an individual revisits a Web page  reveals that the pages individuals revisited more times changed more frequently and at shorter intervals.
+For example, revisited pages changed only twice changed every 138 hours, on average, while those that were revisited 6 or more times changed every 81.8 hours.
+However, the amount of change does not appear to trend in a particular direction, reinforcing that the amount of change is not as crucial as the specific information that is changing.
+Unlike the popularity category, we do find a trending in per-user revisitation when compared to knot location.
+The more the average user revisits a page, the earlier the knot point and the more different the eventual steady state is to the original page.
+The implication of this is that users may revisit more often in order to capture content that will vanish from the page.
+In this section we explore the high level relationships between our rich behavioral data and our change data.
+We start with the simple hypothesis that increased user revisitation behavior correlates positively with increased change, and find that the connection between the two is not necessarily simple.
+For example, though we observe that generally pages that change a lot were visited more often and were revisited after shorter intervals,
+Further evidence for this is provided by our smaller user study which indicated that people appeared to have a reasonable understanding of Web content change.
+The knot point for the pages where participants expected meaningful change upon revisiting was sooner than for pages where meaningful change was not expected .
+Because the same number of revisitations can occur very quickly  or very slowly , it is additionally worth considering the average inter-arrival time.
+We might expect that the more rapidly a page changes, the lower the inter-arrival time .
+However, we find that as the inter-arrival time increases, the number of times a page changes increases for inter-arrival times of less than 2 weeks before going down again.
+This is somewhat counter intuitive as it means that pages with both the high and low inter-arrival times are those with the fewest changes.
+It is here that we first begin to recognize situations in which revisitation patterns are not necessarily related to frequency of change--an issue we will return when comparing revisitation curves and change curves.
+The mean time between changes shows a similar bowed pattern, with the longest times for pages that change slowly or rapidly.
+Recalling that the mean inter-arrival time relates to the revisitation peak, a "fast" revisitation curve corresponds to primarily low inter-arrival times.
+As above, pages in the very fast revisitation category, where people revisit a page a lot during a short period of time but never return after a longer interval, change slowly .
+This would again seem to contradict our hypothesis that revisitation should match change.
+However, as noted in previous work , 77% of revisitations in the fast category were preceded by a visit to a page from the same domain--indicating a "pogostick" browsing behavior .
+Since users exhibiting this behavior are simply surfing back and forth from the origin page, they are less likely to be interested in monitoring changes on that page in the short term.
+Thus, we may refine our hypothesis to exclude those fast revisitations that are more likely the result of page and link structure rather than any kind of monitoring intent.
+The remaining categories  do appear consistent with our hypothesis.
+The number of changes , the average time between change , the location of the knot point  and eventual stable state of the change curve  all display significant differences.
+With the exception of the very shortest inter-arrival time, we do find the expected relationship given the knot point.
+The more time it takes for the content to vanish off the page  and the less the eventual steady-state , the longer the inter-arrival time is.
+Again we see less revisitation for content that takes more time to change.
+The figure shows the number of revisits that occur as a function of the knot point.
+The data is further stratified into 5 different revisit intervals .
+The figure also shows the best fitting linear function  for each of the 5 revisit intervals.
+In agreement with our prior observations, the linear functions all have negative slopes indicating that when the knot point occurred after a long period , there were fewer revisits than when the knot point occurred early .
+Most interestingly, the linear functions have different slopes.
+When people revisited a page quickly , those revisitations are strongly related to how frequently the page changed .
+On the other hand, when people revisited a page slowly , those revisitations are less related to how frequently the page changed.
+Or stated another way, the slower the revisits, the less the importance of change.
+This can be seen further in Figure 3b, which plots the slope for the linear function for revisits for the full range of intervals.
+The flattening of the curves as the revisit interval increases suggests that content change is more closely related to short term revisitation behavior than long term revisitation behavior.
+To summarize some of our key findings thus far:
+Page revisitation is not directly synchronized to the amount of time between changes or how quickly the change stabilizes.
+This may be because not all revisitation is motivated by monitoring.
+Quick revisits  are more strongly related to change.
+Thus, short term revisitation behavior is more closely tied to change, and the relation is non-linear.
+Despite the general tendencies in our data, the precise relation between peaks in revisitation curves and knot points is much more nuanced.
+However, selecting those URLs in the with a fixed knot point , we find that the maximum peaks in their revisitation curves are dispersed  for the pages in the medium and slow categories.
+Note that pages in the fast category which include, noisy, non-monitoring behaviors  are removed in this example.
+In this example, 16% of the URLs' revisitation curves peak before the knot, 72% peak after and only 12% peak at the knot point.
+Thus, while we might see general trending in revisitation--where more changes or earlier knots leads to more revisits--visitors do not appear to be synchronizing to some exact time point.
+We hypothesize this difference could relate to whether users are interested more in the changing content of the Web page or in the  stable content.
+Figure 5 shows three different examples relating change to revisits with revisits peaking before , at the same time , and after  the knot point.
+Visitors to the New York Times Web site are typically interested in finding information about current news events and are therefore interested in any changing content.
+Catching those stories before they decay off the page  leads to higher revisitation in the early periods.
+In contrast, Woot, a website that offers a new, one-time offer for electronic goods once a day , experiences increased revisitation at the same time that the new deal has been posted.
+The Costco homepage, which provides entry to the megawarehouse's Internet site has revisitation rates peaking far after the knot point.
+Although the page presents new deals, it also provides entry to the company's catalog, store information and other details which are likely not needed on a daily basis.
+The late peaking of the revisitation curve relative to the early knot point may indicate a user need for accessing the stable, unchanging aspects of the website.
+To more formally verify our observations we construct subsets of pages that have a more clearly defined purpose and relate the change curves to knot points for those pages.
+Specifically, we consider categories of pages where we have some expectation about the motivation of revisitation .
+In order to evaluate whether we have significantly more revisits than expected before or after the knot point we generate a set of bins that are dependent on the position of the knot point.
+Because we are interested in revisitation peaks that are "just before" or "just after" , we used 2.5% - 5% of the timeline  to define our bins immediately before and after.
+In total, we look at 4 bins for each URL: far before the knot point , immediately before, immediately after, and far after .
+For each bin we count the number of revisits, and normalize these counts by the expected number of revisits for all Web pages.
+The normalized bins therefore represent the percentage of expected revisits actually observed in each bin .
+We compare the group of interest by the prevalence of revisits in bins before and after the knot point.
+We looked at four groups of interest--news pages and forums, which are used to keep up with new information, and pornographic and shopping pages which often have rapidly changing ads.
+Forum pages  also display a revisitation tendency to the left of the knot .
+We would expect that pages with a large number of rapidly changing ads/spam are less likely to attract revisits that match this frequency of change.
+This pattern is seen for homepages classified as pornographic, where revisitations are more to the right than average .
+Revisits for homepages of retailers , are generally to the right of the knot indicating that the rapidly changing information is less critical in driving revisits .
+Though ideally we might combine this algorithm with additional information, we believe that this technique represents a novel, extensible, mechanism for partitioning pages into more, and less, important information.
+Abstractly, we would like to rank sub-pieces of the page--which are each changing at a different rate--by their similarity to the revisitation rate.
+To accomplish this we briefly introduce an algorithm for effectively labeling change rates of Document Object Model  structures.
+Web pages are semi-structured constructs composed of a tree of DOM objects, and we wish to label each DOM element with the rate at which it changes.
+Our technique makes use of the algorithms defined in  which are intended to act on multiple copies of the same page in an efficient manner.
+The essential details for this particular application are that each version of a Web page is serialized to an easy to process structure.
+In our user survey we asked participants about their intent in revisiting Web pages.
+Intents included finding or monitoring new information, re-finding previously viewed information, form filling, communication, shopping, and homepage .
+Participants were more likely to be interested in finding or monitoring new information in pages that changed rapidly, and more likely to re-find previously viewed information in pages that changed less frequently.
+For 19 of the URLs, participants explicitly responded they were looking for new information when they visited the page.
+For 11 of the pages they responded that they were monitoring information, and for nine they were interested in previously viewed information.
+We find suggestive evidence that the knot point was sooner  for monitoring and finding new information compared to visiting old information.
+All four instances where the page was used to communicate with other people  involved very quick knot points  and medium revisitation patterns.
+Looking more closely at the specific reasons people gave for revisiting certain URLs, the most common reason  was to use a search engine or enter data in a form.
+Pages marked with this revisitation reason changed less frequently, with a knot point of 85.4 hours instead of 61.9 hours.
+These are pages where the participants appeared to not be interested in change.
+As one person stated, "I am pretty sure the page changes regularly, but as I am interested in is the search field, and it doesn't change.
+I don't notice anything else."
+Taking this combined file and sorting it, we can make a single pass through the data to determine the rate of change for any DOM element .
+With enough evidence, for example, we might find that the bolded text changes once every hour whereas the image only changes once a day.
+We next illustrate these DOM level change patterns.
+Figure 6a-c shows histograms of the proportion of DOM elements that change at different points in time for three different pages.
+Note that individual DOM elements change at different times, which is not reflected in the page-level change measures .
+Above each histogram are the change and revisitation curves for the page as a whole.
+The grey vertical bars highlight the most prevalent revisitation interval .
+Given the change rates associated with each element, we can apply a filter that selects those elements that are changing at approximately the same rate as revisitation.
+Figure 6d-f is an image corresponding to the three Web pages, each illustrating a different revisitation-to-change relationships.
+The Seattle Post Intelligencer page , for example, has very fast revisitation periods.
+Masking in the Woot page  pulls out those elements that change approximately every 24 hours, which is information about the new product being sold.
+Finally, the Tribute.ca site , the homepage for a movie rating and showtime database for Canada, has very slow revisits.
+As we have illustrated above, resonance is not necessarily between revisitation and the overall change rate of the page.
+Some revisitation behavior resonates with the fastest changing content on the page, others with the more stable information.
+Thus, we would like to find a mechanism for separating out different portions of the page and identifying those most likely to be relevant to the visitor.
+In the past, identifying such content would require more expensive eye or mouse tracking studies, interviews, or surveys.
+The change and revisit curves are normalized to 1.
+Beneath each change/revisit pair is a plot of the amount of the page  changing at a given rate.
+The gray bars represent the approximate peak of revisitation behavior.
+A demonstration applet of the algorithm is available at http://cond.org/resonance.html.
+The algorithm works particularly well when there are elements on the page are clearly differentiated.
+This may not always be the case as some "undesired" content may change at the same rate as content that is being monitored.
+For example, the stock market average on the New York Times homepage changes rapidly-- likely on every visit of the crawler--as do advertisements.
+In this situation, both elements are displayed, but it is likely one is of more interest than the other.
+Additional work on grouping and clustering elements that are near each other visually or have certain shapes consistent with advertising may help.
+Additionally, use of of click logs and potentially mouse or eye tracking can further improve the results of this algorithm.
+The benefit of the approach we propose is that it can be automated and scaled to many pages very easily.
+Historical revisitation information can provide a unique mechanism for inferring which portions of the page are of interest to page visitors.
+This approach may of course be personalized, with the filter set to different values, as different groups or individuals may have revisitation rates that diverge from the average.
+A more specific application for Website owners is an optimization of the "what's new" pages that visitors utilize to determine new content that is of interest.
+As argued in , because different pages, even on the same site, are revisited at different rates, "what's new" pages can be designed at different granularities.
+The work presented here further argues that the resonance between what is changing and the revisitation pattern may point at content that is more of interest.
+Thus, a website can identify the rate of change of pages or portions of the page, and highlight those that correspond to the peak revisitation rates.
+Furthermore, a document need not be indexed if it has not changed in a meaningful way, potentially saving server resources.
+For example, if a query returns results that we suspect are interesting because they contain new content, this could indicate that the user is looking for something new and may be particularly responsive to the suggestion of relevant content.
+On the other hand, if the results are primarily ones where we suspect the static content is interesting, the user may be more likely to have a specific intent and not respond to suggestions.
+Content that is somewhat orthogonal to the user's objective may be most helpful in these cases by appealing to different interests.
+A search engine with a rich understanding that the Web is a dynamic information environment could also benefit its end users in more direct, obvious ways by exposing page change in its user interface.
+If we can make an intelligent guess as to whether searchers who are revisiting previous information sources are interested in re-finding previously viewed content or in viewing newly available content, we can better support both behaviors.
+Change monitoring is an area of active interest for browser implementers and researchers alike .
+Just as a Website designer may create optimized "what's new" information for their pages, a client-side implementation may provide additional change analysis features to the user.
+The ability to expose and interact with meaningful change would be particularly useful within a client-side, Web browser context, where a user's history of interaction is known.
+Pages displayed in the browser could be annotated to provide the user with .
+A browser could also act as a personal Web crawler, and pre-fetch pages that are likely to experience meaningful change .
+This would allow for a faster Web experience and give users the ability to access new content in offline environments.
+Rather than only storing the most recent version of the page , one could develop a caching system that only stores those pages with changed content that is likely to be of interest .
+Other applications where resonance may be used are mobile browsers where content from the original page may be filtered  to highlight what is more likely to be of interest to the user.
+For example, knowing that a news site has fast revisitation would allow the mobile application to pull out the rapidly changing content and hide or reorder the display to downplay slow changing or unchanging information.
+Conversely, a page with slow revisitation patterns might be filtered of fast changing content to highlight navigation and search structures.
+Removing information that is less likely of interest might save bandwidth and screen real estate in other applications as well.
+Though much research has been generated on both the evolution of the Web, and the revisitation behavior of users, little has been done to tie the two together.
+The research presented here makes a significant step in understanding the association between change and access.
+Our study is unique among studies of Web content change in that the pages are actually used, and unique among studies of revisitation in that we focus on how content change relates to revisitation.
+In this paper we have taken a very fine grained crawl of 40k documents and related that to the revisitation patterns of 2.3 million users.
+We have identified and quantified both the nonlinear relationships between behavior and change as well as the importance of changing content in different situations.
+Because simple assumptions and metrics of change/revisitation interaction limit our ability to understand and leverage this relationship, we introduce new metrics and techniques.
+Our analysis provides an alternative to other metrics and allows us to infer potential features of interest on the page, be they highly dynamic content, stable search and navigation, or something in between.
+Additionally, we have illustrated how different revisitation patterns resonate with different kinds of changes The implications of the relationships between revisitation behavior and change have applicability to a wide range of services from the individual's browser to the community's search engine.
+For the individual user interested in monitoring content or reaccessing what was there before, it is valuable to design systems that are cognizant of how information changes.
+Systems that are aware of potential intent in relation to the changing information should be able to leverage this information in any situation where monitoring, revisiting, and re-finding behaviors exist.
+This understanding may also enable new applications.
+For example, by recognizing the revisitation patterns of the user, a mobile browser might filter content to only display stable information, or only render that which is changed.
+Our analysis of revisitation and change also has a number of implications for search engine design, in particular to the related issue of re-finding.
+Prior research has demonstrated re-finding behavior is prevalent  in search engine use.
+Our analysis, which further demonstrates a relationship between the changes to pages and specific kinds of revisitation behavior, suggests several ways search engines can support re-finding in the dynamic environment of the Web.
+Just as a browser can provide intelligent re-crawling based on the resonance between revisitation and change, a search engine can achieve the same result on a much larger scale.
+Optimized crawling may lead to crawling strategies that understand what information on a page is interesting and should be tracked more or less aggressively for indexing.
+In addition to sampling pages by behavior, as we do in this study, we would like to expand the page collection to include enough Web pages of a specific type  to perform additional statistical analysis of change and revisitation by type.
+We believe that there are also a number of future opportunities in studying revisitation/change resonance.
+Our approach DOM level analysis, for example, has concentrated on Boolean notions of change .
+By studying the amount of change and applying more sophisticated spectral analysis techniques, it may be possible to differentiate between the frequency of major changes  and that of minor changes .
+We hope to combine our DOM-based algorithm with additional behavioral data, and additional testing, to further refine the automatic detection of content that is important when people revisit.

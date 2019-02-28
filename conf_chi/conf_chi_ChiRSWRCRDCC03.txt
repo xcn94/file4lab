@@ -1,0 +1,203 @@
+ABSTRACT According to usability experts, the top user issue for Web sites is difficult navigation.
+We have been developing automated usability tools for several years, and here we describe a prototype service called InfoScentTM Bloodhound Simulator, a push-button navigation analysis system, which automatically analyzes the information cues on a Web site to produce a usability report.
+We further build upon previous algorithms to create a method called Information Scent Absorption Rate, which measures the navigability of a site by computing the probability of users reaching the desired destinations on the site.
+Lastly, we present a user study involving 244 subjects over 1385 user sessions that shows how Bloodhound correlates with real users surfing for information on four Web sites.
+The hope is that, by using a simulation of user surfing behavior, we can reduce the need for human labor during usability testing, thus dramatically lowering testing costs, and ultimately improving user experience.
+The Bloodhound Project is unique in that we apply a concrete HCI theory directly to a real-world problem.
+The lack of empirically validated HCI theoretical models has plagued the development of our field, and this is a step toward that direction.
+INTRODUCTION There currently exists a major gulf between HCI theories and how they can be applied to the design of Web information architecture.
+As a scientific field, HCI has almost been sideswiped by the Web, because very few existing HCI theories seem to point the direction for designers to follow.
+Instead, rules of thumb have been developed from experiences of usability gurus and consultants.
+Years of development in HCI theory seem not to have prepared us for an answer to how Web sites should be designed.
+Indeed, designers and researchers of Web interactions have been seeking ways to quantify the quality of user experience for the last five or six years.
+The lack of applied theory has resulted in the development of ad-hoc methods for designing Web site navigation and content structure.
+How can we advance the state of art in HCI theory and apply it so that it is more relevant and directly applicable to Web designers?
+Recently, we have discovered several surprises in the fundamental theories of how people access information.
+For example, the "Law of Surfing" shows that users display different but regular patterns of surfing.
+The equation from this law predicts the limits of how far people will click on sites .
+Information Foraging Theory predicts the information gathering behavior of users in an information environment .
+From these user models of how people access and understand information, researchers have discovered that we can predict and simulate how users surf sites with specific tasks, such as how patients access their personal medical records and seek answers to their medical questions .
+One of these models is based on the notion of "Information Scent," which is the user's perception of the value and the cost of accessing a particular piece of information .
+The idea is that the user decides whether the distal information that lies on the other side of a link is worthwhile to explore and assimilate based on the proximal cues that surround the hyperlink.
+The theory posits that users decide on their particular courses of action based on these cues, and their behavioral patterns are guided by information scent.
+One open research question is whether these models can be used directly by practitioners to measure something about the user interaction in their site testing.
+FH G   # I Measurement, 4  3 Information EFactors, Scent, Information Foraging, Web-based Services, Usability Prediction, User Modeling, User Simulation.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+To be sure, Information Scent as a concept has been directly utilized in the field to help the design of sites by enabling designers to think about what proximal cues might lead directly to user action .
+Published research thus far has described the model and how it might be applied  as an automated simulation system.
+The attractiveness of this approach is that Web sites can be measured without employing usage logs, enabling alternative designs of the site to be tested simultaneously.
+However, what is missing is a method to utilize the model directly, and to embed this method in a system that practitioners can use effortlessly.
+In this paper, we describe our effort to directly close this gap.
+To achieve this, the paper is divided into three related parts.
+First, we describe the algorithm of Information Scent Absorption Rate , which is the needed theory to directly apply Information Scent to measure where users ended up during the simulation.
+Second, we illustrate the development of a system that directly utilizes Information Scent and ISAR to help designers.
+We describe our development of this prototype service that enables us to simulate the behavior of users with specific information goals.
+This service is called the InfoScentTM Bloodhound Simulator.
+Finally, we present a large user study involving 244 users and some 1385 user sessions over 4 sites and 32 tasks.
+The user study shows how Bloodhound correlates with real users surfing for information.
+The paper is organized as follows.
+First we describe related work and our past work on the Information Scent simulation algorithm called WUFIS.
+Next we describe the modifications to the WUFIS simulation to give the Information Scent Absorption Rate  algorithm.
+We then describe how ISAR is used in practice in a prototype service codenamed Bloodhound.
+We describe the capability of the system, and the contents of its usability report.
+Lastly, we describe the large user study, and present some concluding remarks.
+RELATED WORK Automated usability tools can be broken up into two different types.
+First, there are a wide variety of systems for making sure Web sites conform to Web accessibility standards for users with disabilities.
+There are numerous systems for measuring the accessibility of a Web site based on U.S. government regulation Section 508  and W3C's Web Content Accessibility guidelines .
+The second type of automated usability tools are systems that try to predict Web site usage patterns or usability based on site designs.
+Previously, we reported on the precise algorithm we employed to predict and simulate web traffic .
+Some recent systems include CWW , WebTango , and WebCriteria SiteProfile .
+Then design features that correlate with successful sites as measured by judges' ratings are then used as measuring sticks for future web site page designs.
+WebTango focuses on individual page design issues rather than information architecture and navigation, so it is not directly relevant to this paper.
+WebCriteria SiteProfile  employs software agents as surrogate users to traverse a Web site and derives various usability metrics from simulated surfing.
+The simulated browsing agents perform a random walk of the Web site.
+It neither simulates users with specific information needs, nor users who can perceive navigational choices and make navigational decisions.
+There is some well-known controversy surrounding the validity of this system .
+CWW, on the other hand, uses Latent Semantic Indexing techniques to estimate the degree of semantic similarity in the calculation of information scent for each link .
+However, this technique has not yet been completely automated for the analysis of all of the pages for an entire site.
+It is applied manually to each page of a site selectively, creating a rather cumbersome process.
+Our work in Information Scent simulation  is also similar to several information retrieval algorithms based on network inferences.
+Turtle and Croft proposed the use of Bayesian networks to model information retrieval problems .
+More recently, a number of efforts in the Web research community have concentrated on combining linkage information with user queries in order to rank search results.
+Most similar to the Information Scent approach, Chakrabarti et.
+Chakrabarti's system uses the text surrounding a link as keyword-based evidences to determine a weight for each link analyzed.
+These evidences are similar to the ideas of proximal cues.
+This weighting is then used to compute rankings of the retrieval results using a modified version of the Kleinberg authority algorithm .
+Fundamentally, the new development of an automated usability service using Information Scent simulation seems unique in its approach.
+While past information retrieval techniques are interested in using Bayesian networks and linkage information to re-rank search results, researchers are not interested in using these algorithms to measure how users might reach these destinations.
+PAST WORK ON INFOSCENT SIMULATIONS Here we present the necessary summary of past work for understanding how the Bloodhound service works and the modifications to the simulation algorithm necessary for calculating the Information Scent Absorption Rate.
+We have found that users commonly have some     |                  #    - some specific information they are seeking - when they visit a Web site.
+Users typically forage for information by navigating from page to page along hyperlinks.
+Foragers use these browsing proximal cues to access  the        : the page at the other end of the link.
+During information seeking, when choosing from a set of outgoing links on a page, the user examines some of the links and compares the cue  with her information goal.
+The user takes the degree of similarity as an approximation to how much the content reachable via that link coincides with the informa tion goal.
+The prediction model employs a simulation of an arbitrary number of users traversing the links and content of a Web site.
+The users have information goals that are represented by vectors of content words.
+At each page visit, the model assesses the information scent associated with each hyperlink.
+The scent of a link is calculated as a degree of similarity between the proximal cues and the information need.
+It then computes a probabilistic network of the likelihood of one user moving from one page to another page along hyperlinks that may or may not match the user's information goal.
+This probabilistic network is then used to simulate the user flow throughout the site based on that information goal.
+Figure 1 summarizes this simulation.
+Here is a mathematical sketch of the simulation algorithm.
+Readers may refer to past paper for more details .
+First, we extract the content and linkages of a Web site.
+We obtain the hyperlink topology as an adjacency matrix T. We also obtain the content  W matrix.
+An entry in the W matrix specifies how important a word is in that document according to TF.IDF, a well-known information retrieval algorithm.
+A user's information need is expressed as a keyword query vector Q.
+For each link E, we obtain the proximal cue words that are associated with that link, and insert this information into a matrix K. K is a three dimensional matrix, with an entry K specifying that link E contains the keyword k. There are a variety of ways to obtain proximal cues.
+For example, we may look at  the words in the link itself,  the text surrounding a link,  the graphics related to a link,  the position of the link on the page, etc.
+We look up the weighting of each keyword in K in the matrix W to measure the importance of each keyword.
+Finally, we multiply the link cues in K with Q to obtain the Proximal Scent matrix PS.
+Thus, for each link E, we find the corresponding proximal cue words from K, obtaining a vector K.
+This Proximal Scent matrix specifies the probabilities of users following each particular link.
+At this point, we can then use the scent matrix to simulate users flowing through various links of a site, giving each link a different proportion of the users relative to the strength of the scent.
+The probability associated with each link essentially specifies the proportion of users that will flow down various link choices.
+This process generates a predicted user flow, which can be used to extract simulated user paths and infer the usability of a Web site.
+The Bloodhound Project Using this simulation algorithm, the novel idea behind the Bloodhound project is to create a service that would automatically infer the usability of a site.
+The application scenario is that a customer of the service would specify the site to be analyzed, and the information goal to be simulated in the analysis.
+Then the Bloodhound service would return usability metrics that tell the customer how easy it is to accomplish the information goal that was given.
+Figure 2 describes the conceptual idea of the service pictorially.
+Now, we need to make the actual destination pages the absorption states.
+Users reaching these absorption states do not leave these documents.
+To do this, we turn the destinations into nodes that do not have any children 
+So we take the Scent matrix S and zero out the entire column of the target documents.
+So if target document is t, then the t-th column of the S matrix should be zeroed out.
+Let's call this new scent matrix S'.
+We now do spreading activation user flow simulation using this updated S' scent matrix and sum up the amount of activation still left in the activation vector at the last click of the simulation.
+Let's call this value beta, which can be thought of as the probability that someone would still be searching for the destination page.
+Then the probability of success is .
+Figure 3 describes this idea pictorially.
+By itself, the simulation algorithm reported earlier is not enough to measure this navigability.
+We need a method to directly measure how easily can users reach the targeted destinations using the information goal given.
+To do this, we developed the following new method called Information Scent Absorption Rate .
+Information Scent Absorption Rate Method The intuition is that as users discover information items their needs have been satisfied and the simulated users should settle and terminate at a set of documents.
+These target documents are the documents that satisfy their information needs.
+The rate in which people finish is a measurement of the navigability of a site.
+We first compute the Scent matrix as specified above.
+Each entry S in the Scent matrix is the calculated probability that a user will surf from page i to page j, given that this user has the given information goal.
+However, the scent matrix that describes the surfing graph has leaves .
+The spreading activation algorithm does no backtracking, as simulations only move forward on the network.
+One way to fix this is to tie leaf nodes back to the starting point.
+Any user reaching node j would start over at the initial page.
+InfoScent Bloodhound Simulator We want to use the Information Scent algorithm to generate automated usability reports.
+In this section, we describe the InfoScentTM Bloodhound Simulator, which is a service built using these algorithms.
+It identifies and tracks navigation problems that exist on the site.
+Since the analysis is automated, it can be performed over and over again, tracking changes on a Web site and how it affects the usability of the site, thus allowing an analyst to put a heart-rate monitor on the site usability.
+Figure 4 shows the input screen that allows analysts to specify the site to be analyzed and a set of user tasks  and the associated destinations to retrieve the correct information.
+Figure 5 shows the result of one of these analyses.
+It shows that the average success rate of the tasks is 37%, which we consider that to be a "fair" rating.
+While this seems low, a recent study on user success rate on performing tasks on ecommerce sites showed that an average of 56% was successful .
+Looking for "demonstrations" succeeded 49% of the time, while looking for "training fleet" material only succeeded 23% of the time.
+Furthermore, the report shows that several high traffic pages are used as intermediate navigational pages, including pages that may be bottleneck pages.
+For example, in the first "demonstration" task, the first highest likely destination is not the target destination page but instead is a page entitled "ICAI Demonstration Projects".
+This is certainly potentially confusing to the "demonstration" task.
+Figure 6 shows another example for Inxight.com, a start-up company in information visualization and linguistic technology.
+The first task is searching for "research papers" that describe the technology that are available, and has a probability of success of 33%.
+The second task is searching for "events" in which Inxight will be demonstrating their technology, with a task success rate of 52%.
+Both tasks require clicking twice from the home page to succeed, with the same intermediate pages .
+The difference between the success rates comes from the fact that one task has much better proximal cues that lead the users to the goal.
+The "Events" link is directly visible from the home page, while the "research paper" link requires some hunt and peck before it can be found.
+This highlights a case in which usability can be improved by observing the simulated surfing behaviors.
+A total of 244 users participated in this study.
+A remote version of the usability testing tool based on WebLogger is used to conduct the tests .
+Users downloaded this testing apparatus and went thru the test at their leisure.
+Tasks: Each site had a set of eight tasks, for a total of 8x4=32 tasks.
+For each site, the eight tasks were grouped into 4 categories of similar types.
+For each category, one task was considered to be hard and the other to be easy.
+For each task, the user was given an information goal in the form of a question.
+The tasks were chosen after we spent some time getting familiar with the sites.
+We wanted to be sure that the tasks were somewhat representative of the users of the site.
+Generally, at least 50 users were assigned to each task.
+Here is a sample of the information goals given:
+They then downloaded the WebLogger and then the subjects were asked to perform the study in the comfort of their office or anywhere else they chose.
+Subjects could abandon a task if they felt frustrated, and they were also told that they could stop and continue the study at a later time.
+The idea was to have them work on these tasks as naturally as possible.
+Users were explicitly asked not to use the search feature of the site, since we are only interested in navigation data.
+Each subject was assigned a total of eight tasks  from across different sites.
+We made sure to counter-balance the task assignments for difficulty.
+In the end, each task is assigned roughly the same number of times.
+We recorded the time of each page access.
+Whenever the user wanted to abandon a task, or if they felt they had achieved the goal, the user clicked on a button signifying the end of the task.
+Subjects were then taken to a form, where they could give feedback on any usability problems they might have encountered.
+We recorded the time they took to handle each task, the pages they accessed, and the keystrokes they entered .
+We also ran Bloodhound reports on each of these tasks and recorded the activation vectors and the success values.
+Find some guidelines for writing a description of your site.
+How else can you get accurate directions there?
+Find some documentation that will help you figure out how to use it.
+Procedure: We sent each subject a URL link designed specifically for the subject.
+The link contained an online con-
+We collected a total of 1386 sessions for all of the tasks.
+This is smaller than 244 subjects x 8 tasks = 1952 sessions because some subjects did not participate in all of the tasks in all of the sites.
+Of these, we cleaned the data to throw out any sessions that employed the site's search engine as well as any sessions that did not go beyond the starting home page.
+We were not interested in sessions that involved the search engine because we wanted users to find the information using only navigation.
+Table 1 summarizes the number of usable sessions that were collected for each tasks.
+Data Analysis For each of the user sessions, we tallied the frequency of accesses for each document on the site.
+We then took these tallies and generated a single frequency distribution over the document space for all of the user sessions in that task.
+CONCLUSION Practitioners have widely deployed conventional usability evaluation techniques, such as card sorting, cognitive walkthroughs, accessibility guidelines, and direct user testing.
+Recent work on automated usability techniques has generally emphasized the continual need for such conventional techniques, as it is difficult, if not impossible, to completely replace these techniques with automated tests.
+Automated tools are intended to be used as a component in the comprehensive evaluation of site usability.
+As a step in that direction, in this article, we have described an automated tool for analyzing the usability of a Web site.
+InfoScentTM Bloodhound Simulator uses Web agents to predict the user traffic flow through a Web site by examining the information scent surrounding every hyperlink on the site with respect to some given information need.
+The resulting simulation produces a report that specifies the probability of success for each individual task.
+The hope is that by employing Web agents to discover usability problems, we can dramatically reduce the cost of searching and fixing Web site navigation problems.
+We presented a user study involving 244 subjects producing 1385 user sessions over 32 tasks for 4 sites.
+The results show that Bloodhound strongly correlates with real user data in a third of the tested 32 tasks.
+In the other roughly two third of the cases, Bloodhound moderately correlates with real user data.
+The user study showed that Bloodhound gave measurements that reasonably approximate real users, giving designers a way to measure how well users might perform on tasks.
+They could consider possible alternative designs that can be tested immediately again using Bloodhound.
+As a field, very little HCI theory has been able to inform designers how to architect their Web sites.
+HCI needs theories that have been validated and that can be applied again and again in practice to reduce costs and point the direction for future design and future research.
+Web information access is fundamentally about two things: user interfaces and cognition.
+Ideally, the cognitive predictive model should model user's context.
+The development of these theories is what enables the field to develop and prosper, because it encodes what we have learned as a field.
+We hope that our work in this area is a step toward that direction, yet we know that the difficulty in understanding user contexts makes Web usability a significant challenge for years to come.
+Statistically, a correlation coefficient above 0.8 is generally considered to be strong correlation, and between 0.5 and 0.8 is considered moderate, while below 0.5 is considered weak correlation .
+Accordingly, three cases have a weak correlation.
+Twelve correlated strongly, and seventeen of the 32 tasks correlated moderately.
+This is a reasonable result.
+The user study shows that in nearly all of the cases, Bloodhound was able to produce click streams that moderately correlate with user data, and in a third of the time, Bloodhound actually produced click streams that correlate strongly with user streams.
+Our goal in using Bloodhound is to reduce the cost of conducting usability testing for Web sites.
+From this study, we can be reasonably confident in Bloodhound creating moderately reasonable approximations in nearly all cases.
+It gives us slight comfort in knowing that nearly a third of the cases are likely to be fairly accurately simulated, even though we do not know D  "           which third.
+In the course of the study, we noticed that Bloodhound appears to be sensitive to the task query keywords.
+WebEyeMapper and WebLogger: Tools for Analyzing Eye Tracking Data Collected in Web-use Studies.

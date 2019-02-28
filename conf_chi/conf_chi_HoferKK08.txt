@@ -1,0 +1,102 @@
+Most of the newer systems also provide means to simultaneously track multiple devices.
+What most systems have in common is that they either use a back-projection , or a frontprojection , .
+Even the new product from Microsoft  called "Surface" bases on a back-projection technology.
+In this paper, we present a new technology to perform multi Tangible User Interface  tracking on standard LCdisplays.
+A lot of existing technologies for tangible user interface tracking use back- or front-projection setups, but they suffer from poor image quality, shadow casting, nonergonomic interaction, and/or large installations.
+Thus, we introduce a principle that allows using the InfrActables' technology  on a large LC-display.
+It combines simultaneous multiuser input on a display with the advantages of a large flat screen.
+We use infrared photodiodes  mounted behind the display's LCmatrix to track infrared diodes in front of the screen.
+After initial tests concerning the infrared transparency and sensor characteristics, we developed a proof of concept consisting of 384 sensors, which are addressed through a modular master-slave circuit.
+Using several interaction devices, multiuser interaction is possible.
+Front-projection as well as back-projection have specific advantages and drawbacks.
+A front-projection onto a horizontal interaction surface  allows ergonomic working in a sitting position.
+However, the user also casts a shadow that prohibits a very precise interaction on the surface.
+Back-projection systems allow a more precise interaction, e.g.
+This typically prohibits any ergonomic work in a sitting position or any application in laptop like devices.
+In i-LAND , a 48" plasma-display was used to realize a tabletop setup.
+Here, a resistive overlay allowed tracking of a single user's input at a time.
+It did not provide any multiuser input.
+This means that even placing the forearm on the screen resulted in misinterpretations of the tracking - bimanual working was not possible.
+In order to encounter this problem, two WACOM tablets were modified in such a way that they recognized multiple `pucks' as input devices .
+The update rate was less than 1 Hz but could be higher for a single puck.
+Although this system allowed recognizing multiple devices, the interaction surface was very small and thus not suitable for teamwork.
+Within , a back-projection tabletop system enabled several users to simultaneously write and sketch by using intuitive devices.
+Due to the back-projection, users could only work in a standing position.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In order to overcome the disadvantages associated with current back- and front-projection systems, we are following a new approach by using a standard LC-display as an interaction surface.
+This allows saving space and displaying a bright and sharp image even under wide viewing angles.
+We use slightly modified interactive electronics and readout methods as in the InfrActables' setup.
+Our integrated active electronics is also synchronized by an infrared trigger pulse.
+The first frame of each device is used to determine its position, while the device's second frame is used to transfer its button state.
+In the first frame, the IR-LED always lights up while in the second frame it only lights up if the button is pushed.
+Since all devices with their two specific frames are sequentially interrogated, they can be unambiguously identified by their frame numbers in the temporal sequence.
+However, using these devices on an LC-display requires an infrared transmissive LC-matrix.
+Behind this matrix, a large sensor array detects the infrared signals from all involved devices.
+Unlike in the InfrActables technology , all devices are tracked serially, while the InfrActables system uses parallel camera readout and thus captured all devices in each frame simultaneously.
+Next, we placed an IRLED  directly on the glass in front of the matrix.
+Behind the glass, the LC-matrix, and the diffusor, we mounted an IR-sensor and measured the relative digitized sensor values for different positions of the IRLED on the screen in the x,y-plane .
+The goal of this preliminary study was to find out, whether the complete optical path  has rotation-symmetric characteristics, since this would simplify the analysis algorithm.
+Additionally, we used this preliminary study to determine the maximum possible distances between two sensors in order to have a reliable tracking.
+For this, the sensors' reception areas have to overlap sufficiently wide enough to avoid or to minimize any detection errors.
+As a result, we decided to place the sensors' centers at a distance of 20 mm.
+We measured how the colors displayed on the LC-display influence the infrared transparency.
+We found that a black display absorbs most infrared light, while white absorbs much less .
+When comparing black and white display contents, the maximum tracking error in horizontal direction in the x,y-plane is 3 mm.
+This can be partly compensated by using multiple sensor values for position computation at the same time.
+Since no IR-LEDs are available with an optimal Lambert radiation characteristic, we were interested in the geometrical error that could occur if the IR-LED is placed on the screen non-perpendicularly.
+Figure 4 shows the displacement of the detected infrared spot along the x-axis when tilting the stylus by a certain angle.
+Although there is a measurable deviation, it does not irritate the user.
+This is because the tracking is done in the image plane.
+Typically the user expects the displayed point on the extended centerline of the stylus.
+Each module consists of 8 ADCs and 64 sensors.
+The module's dimensions are 160 mm x 160 mm and represent the area of IR sensitivity.
+6 modules are used to cover the whole LC-matrix of the 20" display.
+The modules are mounted next to each other without any gap.
+For larger screens, more modules can be added to cover the panel.
+The idea of using IR-sensors behind the LC-matrix to track IR-LEDs in front of the screen is feasible, because: - The LC-matrix is transparent to infrared light in general.
+For the proof of concept, we use a common 20" LC-display from Phillips.
+The reflector film behind the diffusor was removed in order to integrate the IR-sensors .
+The SFH235FA has a wide aperture angle and contains a daylight filter.
+Each of those sensors is operated in a reversed-biasing mode at 2.5 V. Depending on the IR-intensity, the photo current causes a measurable voltage drop to 0 V. This voltage between 0 V and 2.5 V can be measured by the ADC.
+The values are converted to digital values from 0 to 255 .
+For the prototype, we use ADCs different from those in the test setup, in which we used the internal 10 bit ADC of an ATMega16 microcontroller.
+We also adjusted the IR-sensor voltage drop in such a way that it would cover the whole 8 bit range, which was not the case in the test setup.
+Each ADC module is connected to a slave board, being equipped with an ATMega644 microcontroller at 20 MHz.
+Each slave board is connected to the master board via a serial periphery interface .
+The master is also equipped with an ATMega644.
+In addition, it uses an FTDI FT232R chip to communicate with a PC via a USB interface.
+It also generates a 455 kHz modulated signal for the IR-LEDs to trigger the interaction devices.
+The ADCs and the control units are completely integrated into a modified LCdisplay's housing .
+Each sensor signal is between 0 V and 2.5 V, depending on the received IR-light's intensity.
+The ADCs convert those voltages into 8 bit digital values.
+The slave boards work in parallel and collect all digitized values.
+Each of them is connected to an ADC module.
+In order to reduce the amount of generated data, the slave microcontroller prefilters the 64 bytes of sensor data.
+Such filtering suppresses unwanted ambient IR light e.g.
+The process of collecting and filtering data is triggered by the master.
+The master starts its cyclic procedure by first sending an infrared START trigger signal to the devices.
+All following trigger signals are NEXT encoded.
+After the devices receive this START trigger signal, they start counting the trigger signals.
+Each device waits until its defined frame is triggered by a NEXT signal.
+If a slave filters out some useful data, it is transferred to the master via the SPI bus.
+The data includes the ADC value and the sensor's absolute coordinates.
+For each bit sent by a device, the master requests data from each slave.
+After the master requested data from all slaves, the NEXT frame is triggered until a predefined amount of frames is reached.
+For tracking 4 styli and 2 other interaction tools, 12 frames are needed.
+The master saves all collected data until all frames are processed.
+The master is now ready to send the data to the PC.
+To avoid data collision and buffer overflows, the PC always requests data from the master.
+If a complete set of frames is acquired, it is ready for transfer.
+The more useful data the slaves collect, the more time it takes to transfer it via SPI and afterwards from the master to the PC.
+The system's response is very fast .
+For the determination of a device's position, an algorithm consisting of vector addition, triangulation, consideration of intensities, and sensor profile adjustment is used.
+The used LED background lighting is not bright enough.
+In a future version, we shall test LEDs mounted directly on the sensor PCB.
+By adding special blocking filters or using other wavelengths, we also want to make the system more insusceptible against environmental influences like sunlight.
+A protection of the LC-matrix against mechanical impact will be realized soon.
+The integration of the trigger flash onto the ADC board PCB will also be realized.
+Our first 20" prototype  can track several IRLEDs at once.
+The update rate depends on the amount of visible IR-LEDs.
+We achieve update rates of more than 100 Hz when tracking six devices.
+The position accuracy of the tracked IR-LEDs has an error of up to 3 mm.
+This depends on the inclination of the diode , on the displayed color, and on disturbing infrared light from direct sunlight.

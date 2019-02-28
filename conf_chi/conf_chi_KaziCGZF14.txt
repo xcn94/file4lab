@@ -1,0 +1,234 @@
+We present Draco, a sketch-based interface that allows artists and casual users alike to add a rich set of animation effects to their drawings, seemingly bringing illustrations to life.
+While previous systems have introduced sketch-based animations for individual objects, our contribution is a unified framework of motion controls that allows users to seamlessly add coordinated motions to object collections.
+We propose a framework built around kinetic textures, which provide continuous animation effects while preserving the unique timeless nature of still illustrations.
+This enables many dynamic effects difficult or not possible with previous sketch-based tools, such as a school of fish swimming, tree leaves blowing in the wind, or water rippling in a pond.
+We describe our implementation and illustrate the repertoire of animation effects it supports.
+A user study with professional animators and casual users demonstrates the variety of animations, applications and creative possibilities our tool provides.
+For centuries, people have attempted to capture the living qualities of surrounding phenomena in drawings.
+Sketching, in particular, is a popular art medium that has also been widely adopted as a powerful tool for communication, visual thinking and rapid design, due to its minimalistic yet greatly expressive nature .
+While sketches do afford many techniques to convey dynamic motion of objects, such as speed lines , arrows  or afterglow effect , they are inherently static.
+The goal of this paper is to enable artists and casual users alike to enrich static illustrations with intricate and continuous animation effects, while preserving the unique timeless nature of still illustrations .
+In recent years, researchers have developed new tools and techniques for casual animation authoring using sketching  and direct manipulation .
+Such tools typically support basic animations, where motions are defined for individual objects, and then coordinated using a global timeline.
+In contrast, many natural phenomena are characterized by the coordinated motion of large collections of similar elements, like snowflakes falling to the ground, water drops dripping out of a fountain, or school of swimming fish .
+Animating large collections of objects with flexible control is still tedious and cumbersome with existing sketch-based animation tools.
+For authoring the animations of object collections, complex software and workflows are often required.
+Graphic researchers have developed content-specific tools  and models  for particular phenomena, but these methods are highly specialized and geared towards physical accuracy for professional animators.
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+From an interface design perspective, the key challenge to this problem is to formulate a general framework for workflow and controls that is easy to use, but expressive enough to author a wide range of dynamic phenomena.
+In this paper, we address this problem by contributing a general framework built around kinetic textures, a novel coherent data structure that consists of a set of similar objects, to which dynamics is applied at the collective and individual scales.
+Built upon this framework, we present Draco, a flexible and fluid sketch-based interface that allows users to easily augment still illustrations with subtle animations of object collections, seemingly bringing to life the moment they portray .
+In contrast to traditional animation tools, where animations start and end within a global timeline, our system supports continuous motions, to enrich illustrations with dynamic effects similar in spirit to seamlessly looping video clips .
+After describing our framework and authoring system, we report on a user study, conducted with professional animators and casual artists, that evaluates the usability of our system, and demonstrates the variety of animations, applications and creative possibilities our tool provides.
+This section reviews prior work in the physical simulation of collections of objects, existing animation tools, and techniques aiming at adding motion to static pictures.
+Physical simulations of behaviors like that of crowds , traffic  or flocks , excel at creating realistic motion.
+As such, they have been widely adopted in computer animation industry to create the best dynamic illusion of particular phenomena .
+Simulating the behavior of these specific collections is mostly geared towards producing very specialized, polished and physically accurate final outcomes.
+As a result, most simulations do not apply beyond their target phenomenon and require significant expertise to understand the underlying models and parameters.
+Previous work also suggests that non-physicsbased effects are often preferred for their flexibility .
+Our approach draws inspiration from this work in terms of formulating multi-scale motion controls in our framework.
+In contrast to previous work, we rely on more direct controls, by allowing the user to define the behavior and appearance of groups of objects at the global and local scales through sketching.
+Applications like 3D Studio Max , Maya  and Lightwave 3D  are some of the mainstays of 3D digital animation tools.
+While these tools allow artists to produce a variety of effects using underlying physics models, they are targeted towards professional animators, and require many parameter tweaking, scripting and domain expertise.
+Among 2D animation tools, Flash  and After Effects particles plug-in  are popular.
+These equally require expertise in scripting and parameter tweaking to animate collections of objects.
+We propose a system that capitalizes the freeform nature of sketching and direct manipulation to specify and control these types of behaviors.
+Researchers have explored methods for easy animation authoring for novice animators, using motion sketching and direct manipulation .
+In motion sketching systems like K-Sketch , the animator can select an object and sketch the path for the object to follow .
+Other tools exploit motion sketching for specific purpose animations, such as character movement .
+DirectPaint  examines pen-based techniques to edit visual attributes of moving objects along their trajectory, consolidating spatial and temporal controls.
+Common among these systems is that they allow the animation for only a single object at a time, therefore requiring numerous iterations to animate a whole collection.
+Furthermore, these systems lack high-level controls to tune the collective and individual behavioral properties of numerous elements.
+Vignette is a sketch-based tool that allows users to efficiently brush textures and collections of objects, but their motion has not been explored .
+Draco provides a similar interaction metaphor, but expands it to support texture motion by allowing users to efficiently specify animations for collections of objects, and subsequently adjust the properties of the global animation, as well as finely tune the granular motions of the individual objects.
+Artists and researchers have explored augmenting images with motion as a way to capture the ambient dynamics of a moment.
+Video textures  provide an infinitely varying stream of images from a video source, preserving the timeless nature of a photograph.
+Inspired by Cinemagraphs , Cliplets  enable the creation of a visual media that juxtaposes still images with video segments.
+We bear similar motivation to these works.
+However, these techniques operate on raster graphics and rely on video sources for animation, providing no authoring capabilities for the motion dynamics.
+In Draco, users can author and control a variety of dynamic effects completely from scratch with freeform sketching and direct manipulation.
+Flocking  can be characterized by collections of objects  that exhibit some intelligence in how they interact with their neighbors or environment.
+Some professional tools include specialized plug-ins for specific simulations, each coming with its own interface for manually controlling parameters.
+Stochastic motion  is characterized by the passive movements of elements, such as grass blades or tree leaves, under the influence of natural forces, such as wind.
+Unlike particles systems and flocking, where objects have a global path, objects harmonically oscillate around an anchor.
+Professional tools often allow animators to create "brushes" of the elements to be animated, and manually adjust various parameters to specify turbulences.
+Such specialized controls are not supported in casual animation tools, in which case the animator is required to keyframe a set of example elements, then manually copy and paste them.
+To guide our designs and better understand existing practices for creating coordinated animations of large collections of objects, we conducted a design study.
+This allowed us to better understand the vocabulary of motion effects and the workflows currently being used today.
+We used a mixed-method approach for our study, consisting of an analysis of online instructional videos, and a set of interviews with professional animators.
+We first collected and analyzed a set of YouTube tutorials for state-of-the-art animation systems including Flash, Maya, 3D Studio Max and After Effects.
+For each tool, we collected at least one tutorial explaining how to create each of the following effects that involve the animation of collections of objects: rain or snow, falling leaves, swaying grass, flocks or swarms, crowds and water ripples.
+To gain further insights, and provide validation of our findings from this analysis, we also conducted interviews with two professional animators.
+We prompted the experts with scenarios similar to those in the videos that we analyzed, and asked them to demonstrate how they would achieve these effects using their usual tool .
+Consistent with prior literature , we identified three types of animations used to reproduce effects that involve coordinated motion of collections of objects : particles systems, flocking and stochastic motion.
+Particles Systems  are used to model phenomena such as fire, clouds, and rainfalls.
+Such systems model a collection of dynamic objects  whose behavior is dictated by external forces.
+Creating particles systems usually requires fine-tuning numerous parameters via indirect controls in a complex interface .
+Collections of objects are typically generated by replicating a sample source object spatially.
+The typical workflow to replicate the source object involves manual copy-pasting, scripting  or creating an emitter  to generate a continuous stream of objects.
+Objects in a collection are typically given motion at two levels of granularity: a global motion that applies to the entire collection and, within the collection, a granular motion that induces subtle variations in motion behavior across individual objects.
+Global motion is typically guided by a director path specified manually, or determined by the particles system emission direction.
+Local motion is achieved through keyframing, by using random variables in scripts, or by manipulating the particles system parameters.
+Our design study elicited several interesting insights that will be important to account for in our own designs.
+One of the insights made from our observations is that animators have to use a number of different tools, techniques and workflows, depending on the type of animations they create.
+This limits the author's creative flexibility with any given tool.
+It was also clear that while professional tools are extremely powerful and allow for production quality animations, specifying the desired behavior by the animator is still difficult.
+In particular, transposing a particular effect, even a very simple one, in terms of physics-based simulation requires significant expertise.
+This provides a significant barrier to novice users and clearly detracted from the overall experience even for experts:
+Simplified UI and Direct Manipulation: Our system should enable the creation and control of dynamic phenomena with relatively little effort by animators and amateurs, relying on users' intuitive sense of space and time with freeform sketching and direct manipulation.
+Before describing our new system, which was developed to support these design goals, we first introduce the key components of our general animation framework.
+Based on the generalized workflow observed in our design study, we propose a framework built around kinetic textures, a novel animation component that encodes collections of objects and their associated motion.
+Our framework builds on general concepts that are easy to understand, while offering rich creative capabilities.
+A kinetic texture consists of a patch--a small number of representative objects that serve as a source example to generate the collection, and a set of motion properties.
+The motion properties define the trajectory and movement of all the objects within the collection at two different scales: the global motion and the granular motion.
+We introduce two types of kinetic textures: emitting textures and oscillating textures, which differ in how the collection is generated from the source patch, and how the global motion is defined .
+Taken together, these insights reflect the current need for rapid prototyping and exploration tools, to allow artists to quickly design, explore, and communicate animation effects involving collections of objects.
+Based on the findings from the above study, we derived a set of design goals for our new system, which will support the rapid creation of scenes involving the animation of collections of objects.
+Generality: Our system should enable users to create a variety of phenomena with a unified workflow.
+Unlike traditional tools, users should not need to be aware of specific simulation parameters.
+Furthermore, our system should not restrict users to specific pre-authored effects.
+Multi-Scale Motion Dynamics: Our system should also support the authoring of motions at both the global and local scale of a collection.
+Global motion will control the overall shape and direction of the collection, while granular motion should direct the variations of individual elements.
+Control & Flexibility: Our system should reduce tedium by synthesizing and propagating example motions to individual objects.
+Manually editing a collection of objects is too tedious due to the numerous elements and parameters, whereas fully automated motion computation has limited expressiveness.
+A mixed approach should offer generic control of motions, while supporting creative flexibility.
+For both particles system and flocking, the global trajectory is characterized by a motion field that guides the objects, which is usually derived from law of physics  or a specific path .
+Emitting textures are designed to author such animations .
+Objects of the patch continuously emanate from the emitter, and follow a global motion trajectory, guided by the underlying motion vectors field computed from the motion path.
+Additional emitting textures components include the texture outline and mask, which can be specified to define the area of the animation.
+Objects decay as they cross the outline, and temporarily hide as they pass through a mask.
+We designed and implemented Draco, a new system for the quick authoring of animations involving the coordinated motion of collections of objects , Draco builds on the above animation framework, and capitalizes the freeform nature of sketching and direct manipulation.
+The resulting animations are a juxtaposition of static strokes and kinetic textures.
+The interface contains a main authoring canvas, an interactive patch granular motions authoring, a tool palette , and a small set of basic parameter slider controls .
+An oscillating texture consists of a finite collection of objects, built by replicating a source patch along a brush skeleton.
+The global motion of the texture is characterized by the oscillatory movement of the objects along the skeleton between two keyframe positions : the initial brush skeleton and a target oscillating skeleton Oscillating textures are suitable for simulating stochastic motion with repetitive, continuous harmonic motions.
+The two types of textures described above define the global motions of the object collections.
+In addition, granular motions can be added for intricate and finer details.
+Granular motions apply to every individual object of the collection, and can either be a translation motion, where the objects move along a two-dimensional path , or a pivot motion, where the objects rotate around a pivot point .
+The trajectory and orientation of individual objects in the collection result from the combination of the global and granular motions .
+Our framework provides two granular motion controls: velocity and phase.
+The velocity quantifies the frequency of the granular motion along the global path .
+The phase refers to the level of synchronization of the granular motion among the individual objects.
+At minimum phase value, the granular motions of all objects are synchronized.
+Figure 9 depicts the different steps for creating an emitting texture.
+The user first selects the patch tool and draws a few representative objects that will compose the source patch to generate the target collection .
+Using the emitter tool, she directly sketches the emitter by drawing a stroke on the main canvas , after which the system immediately starts emitting elements perpendicular to the emitter .
+If the emitter is a point, objects are emitted in all directions.
+The user can redraw the emitter by sketching a new emitter stroke, in which case the current emitter will instantaneously be replaced.
+After defining the emitter, the user can adjust the global motion field of the collection by directly sketching motion paths on the canvas using the motion path tool .
+The motion field is dynamically updated upon completion of each new motion path .
+We provide further details on the computation of the motion field in the implementation section.
+Granular motions can subsequently be defined through direct manipulation with the interactive patch widget, described later .
+The user can also use the texture outline tool to sketch the boundaries of the texture, and the mask tool to sketch regions within which objects should be made invisible.
+Users can control the velocity, frequency, and cohesion of the emitting texture using associated sliders.
+Figure 10: Creating an oscillating texture.
+The user draws the source patch  , then sketches the brush skeleton , which results in a brush texture, where the patch is replicating along the brush skeleton .
+The user sketches the oscillating skeleton , triggering the oscillation of the texture .
+Finally, she adds pivot granular motion , resulting in subtle local leave motions.
+Figure 9: Creating an emitting texture.
+The user draws the source patch  , then sketches a line emitter , which results in an emitting texture with a default motion .
+The user sketches a motion path , which instantaneously changes the global trajectory of the raindrops .
+Finally, she adjusts the granular motion by adding subtle translation to the raindrops , supplementing the global motion , with local variations .
+Figure 10 illustrates the workflow for creating an oscillating texture.
+First, the user sketches a few example objects using the patch tool , then, with the skeleton brush, directly sketches the skeleton of the texture on the canvas .
+This replicates the patch along the skeleton in a similar way as in the Vignette system  .
+To create an oscillatory motion, the user selects the oscillation tool, and sketches a target oscillating skeleton .
+Upon completion, the texture oscillates between the two skeletons, interpolating the position and orientation of the repeated patch objects along the textured skeleton .
+Similar as in the emitting texture, the oscillating skeleton can be redrawn by sketching the new form, which automatically updates the oscillation behavior.
+As with emitting textures, granular motions can subsequently be defined using the interactive patch widget , described later.
+Users can control the speed of the oscillations using a slider.
+As illustrated in the workflows in Figure 9 and Figure 10, users can add granular motion to kinetic textures to induce local variation in motion to objects through the interactive patch widget.
+To add granular motion, the user first expands the patch region, then selects the type of motion: translation  or pivot .
+The user can then define the granular motion of objects through direct manipulation of any object within the patch.
+The performed transformation  is recorded as the user manipulates the example object, and is applied to all of the individual, repeated objects generated from the patch.
+The controls associated with granular motion are displayed below the expanded patch region, controlling the velocity and phase synchronization of the granular motion.
+When creating moving objects, it is often desirable to dynamically adjust their scale and velocity along their trajectory.
+For example, bubbles can grow and decelerate after their emission .
+To do so, the user selects the motion profile tool, which displays the profile widget at the bottom of the canvas .
+The user can then select either a scale or velocity icon and directly sketch the profile curve corresponding to the desired behavior.
+The height of the profile curve defines the scale or velocity of the elements along the associated point within its trajectory.
+Figure 12: Creating an emitting texture.
+The user draws the sample objects , then directly sketches the motion path .
+An emitting texture is automatically created with a default  emitter, perpendicular to the motion path .
+The user then sketches additional motion paths in order to spread out the bubbles .
+Finally, she uses the motion profile widget  to adjust the scale  and the velocity profiles , so that the bubbles grow and decelerate as they move away from the emitter.
+Our system was designed to be flexible in the workflows it supports.
+For example, when authoring an emitting texture, instead of defining an emitter first, the user could sketch a motion path, and a default emitter perpendicular to the motion path would automatically be defined.
+Figure 12 depicts such an example.
+Users can tilt a kinetic texture to create a 3D perspective effect with the Perspective tilt tool.
+By default, the texture currently being authored can be edited.
+At any time, users can access, edit, or remove previously authored textures.
+Clicking on the canvas with the texture selection tool selects the texture associated with the closest emitter, or brush skeleton.
+Furthermore, users can easily edit existing textures by overwriting components such as emitters, motion paths, motion profiles, and granular motions.
+This, combined with immediate visual feedback of the result of the user's actions greatly facilitates exploration, since the user can quickly experiment with different effects, with relatively little effort.
+Draco was implemented as a Java application.
+Our tool is multiplatform, and can run on any tablet or tablet pc.
+We compute the global motion field from the motion paths following a similar algorithm developed by Chen et al.
+Each motion path is assigned discrete points Pm at fixed intervals, with their associated unit motion vector VPm.
+VP denotes the direction of the global motion of an object at point P, which is defined as the weighted sum of all the motion vectors VPm as follows:
+Draco provides a number of features for interactive refinement and finer details.
+Our resulting illustrations consist of both kinetic textures and static ink strokes.
+The Ink Tool enables users to sketch static strokes, which can be selected by lassoing with the Ink Selection Tool, and deleted with the Delete button.
+In addition to sketching static ink, users can import a static background image to sketch on top of.
+User can select from a set of pre-authored backgrounds, or choose any image from their own file system.
+A color widget and a stroke size slider allow users to manipulate the visual attributes of both ink strokes and kinetic textures.
+The coefficient  defines the cohesion  of the motion paths in the motion field .
+The greater the value, the more the objects tend to be attracted by the motion paths.
+We use a simple harmonic oscillation to simulate the global motion of oscillating textures, using a sinusoidal curve in between the two skeletons.
+We use Fernquist et al.
+We conducted a user evaluation with both professional animators and amateur illustrators, to gain insights about our animation framework, interaction techniques, unique capabilities, limitations and potential applications of our tool.
+This study is also used to gather insights on how our system compares to existing approaches, although we do not perform any sort of formal comparison to existing commercial tools.
+Eight participants took part of the study , aged 24 to 43 years old , half of which had moderate to good sketching and illustration skills  and four professional animators .
+Each participant received a $25 gift card reward for their participation.
+All the experiments were conducted using the Wacom CINTIQ 21ux tablet display .
+The evaluation period lasted for 60~80 minutes for each participant, and consisted of the following steps.
+After filling out a background questionnaire, each participant was given a brief overview and demonstration of the system.
+Then, the instructor walked participants through 6 training tasks that consisted of simple animated scenes, such as rain falling from a cloud, and seaweeds oscillating underwater.
+While the facilitator guided the participants to follow the step-by-step instructions, participants were also encouraged to explore at their will, and ask as many questions as desired during this training phase.
+Participants were given an exercise scene, consisting of 5 kinetic textures to reproduce from a model .
+The exercise task covered different types of effects, including 3 emitting textures and 2 oscillating textures.
+Granular motions and motion profiles were also required to complete the exercise task.
+Participants were prompted with the video of the target effects on a separate display, which they could refer to at any moment.
+The facilitator did not intervene unless the participant had trouble using the system.
+No time limit was imposed.
+The purpose of this task was to observe whether the participants could easily reproduce a target effect.
+The facilitator recorded the completion time of the task, and logged any errors that were made in the workflows.
+Freeform Animating and Feedback : Finally, participants were free to explore the tool to create dynamic illustrations of their own.
+Once done with their artwork, participants were asked to fill out a questionnaire to provide feedback about the system.
+We were encouraged to see that all the participants finished the exercise task without any assistance.
+Across all 8 participants, 7 workflow errors were made, 5 of which due to a tool mix up , and the other 2 were conceptual mistakes: the user created an emitting texture, which was intended, but quickly realized that the desired animation effect would be better achieved using an oscillating texture.
+In all cases, users were able to independently recover from the errors that were encountered.
+This was facilitated by our system's abilities to quickly redraw sketched content, such as motion paths, and to immediately update the animation effects.
+Some participants were more meticulous than others, spending more time fine tuning the results.
+For instance, P7 took 13 minutes without encountering any errors, while P1 took 4:30 minutes with two errors.
+Overall, the outcomes of the exercise task confirmed the ease of usage of Draco, and the effectiveness of our training session.
+Our participants authored a range of animated effects with kinetic textures in the freeform usage stage and postexperiment usage.
+Emitting textures were used for rainfalls, waterfalls, flocking, and water ripples.
+One participant used oscillating textures in an unexpected way, to animate the legs of a scuba diver .
+Several participants used emitting textures to create a camera movement effect, with moving backgrounds .
+We were pleased to see the system used in several ways that we had not previously considered, demonstrating the system's flexibility.
+P3, a graphic designer, believes such kinetic textures can be used for authoring animated graphical objects to enhance web content such as dynamic cursors, icons, buttons and backgrounds, which is difficult to produce with Flash.
+Two animators  mentioned that these kinds of tools might not fit with their current production pipeline due to tool dependencies, visual style and other constraints.
+However, both of them mentioned that such tools can be used in TV shows with certain visual styles and illustrating some ideas when pitching ideas to the clients.
+Other potential applications are photo collages , animated diagrams for presentations, papers and videos , as well as online portfolios .
+We were aware that participant might see this as a limitation, but our research focus was on the animation framework for collections of objects.
+We believe systems like K-Sketch  could adequately address this limitation.
+In the future, it would be interesting to expand the vocabulary of our motion to be able to animate both structured textures and individual objects.
+In this project, we focused on ease of creation and real-time performance, rather than precision and physical accuracy.
+However, additional controls for object interactions would be a fruitful area of exploration.
+In the future, we plan to give greater controls to more advanced users, without sacrificing the simplicity of usage.
+One way to achieve that goal might be to use a hierarchical user interface, where advanced users can initiate more advanced settings and controls according to their usage.
+We have presented Draco, a sketching tool that enables the creation of a wide range of intricate animation effects, seemingly bringing illustrations to life.
+The core component of our system is kinetic textures, a new animation framework, which simultaneously achieves generality, control and ease of use.
+The interaction techniques within Draco capitalize on the freeform nature of sketching and direct manipulation to seamlessly author and control coordinated motions of collections of objects.
+Draco pushes the boundary of an emerging form of visual media that lies between static illustration and videos.
+Our user evaluation points to a variety of applications that would potentially empower end users to author and explore animation effects.
+Phosphor: Explaining Transitions in the User Interface Using Afterglow Effects.
+Sketching User Experiences: Getting the Design Right and the Right Design.
+Morgan Kaufmann Publishers Inc. 7.
+Animating pictures with stochastic motion textures.
+K-sketch: a 'kinetic' sketch pad for novice animators.
+Davis, R. and Landay, J.
+Informal Animation Sketching: Requirements and Design.

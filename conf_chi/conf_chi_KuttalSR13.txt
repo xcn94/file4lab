@@ -1,0 +1,328 @@
+Programming for the web can be an intimidating task, particularly for non-professional  programmers.
+Mashup programming environments attempt to remedy this by providing support for such programming.
+It is well known, however, that mashup programmers create applications that contain bugs.
+Furthermore, mashup programmers learn from examples and reuse other mashups, which causes bugs to propagate to other mashups.
+In this paper we classify the bugs that occur in a large corpus of Yahoo!
+We describe support we have implemented in the Yahoo!
+Pipes environment to provide automatic error detection techniques that help mashup programmers localize and correct these bugs.
+We present the results of a think-aloud study comparing the experiences of end-user mashup programmers using and not using our support.
+Our results show that our debugging enhancements do help these programmers localize and correct bugs more effectively and efficiently.
+Like any programming activity, mashup programming can be difficult, and mashup programmers can create applications that contain bugs.
+Mashups interact with the web, and the web is a complex ecosystem of heterogeneous formats, services, protocols, standards and languages  all of which tend to evolve.
+The dependence of mashups on this complex ecosystem makes them vulnerable to unexpected behaviors.
+A further complication involves the interfaces by which mashups are created: mashup environments facilitate mashup creation by providing visual interfaces, which abstract the underlying code as black box features.
+While this black box structure allows users to "cobble together" solutions from existing resources, it can obscure the sources of bugs and hide distinctions between different types of bugs  - an understanding of which is important for debugging.
+These problems are exacerbated by the typical programming practices used to create mashup, which involve learning from examples and reuse of other mashups  - both of which can propagate bugs to other mashups.
+To better understand the bugs found in mashups, we studied a large corpus  of Yahoo!
+We found that more than 64.1% of these pipes contained bugs.
+Moreover, 56.3% of the pipes were "cloned"  and 27.4% of the pipes contained at least one sub-pipe .
+Clearly, the prevalence of bugs in pipes and the tendency for users to reuse pipes create problems for mashup dependability.
+One implication of this data is that users frequently debug mashups.
+Debugging mashups, however, intrinsically involves distance and visibility issues due to distributed and black box dependencies, and this renders it time and effort intensive.
+In a study in which end users designed and created mashups, they spent 76.3% of their time in debugging .
+We anticipate that the time required to debug mashups that inherit faults through reuse will be just as substantial.
+The difficulties of debugging mashups are exacerbated by the debugging support available in mashup programming environments, which is limited to console output messages .
+In general, mashup debugging activities require mashup programmers themselves to localize and fix bugs .
+Debugging techniques such as static or dynamic debugging and source code manipulation are not available in these environments.
+This hinders developers from understanding when a particular piece of code is executed and in what context.
+Further, mashups are constrained by API boundaries and the reliance on external sources, which continuously evolve.
+As a result, run-time observation of program behavior is the primary approach used for debugging mashups .
+Web mashups are situational applications that allow their users to scrape information from the web.
+Professional and non-professional  programmers create these applications by combining web services and processing their outputs in various ways.
+Examples of such applications include those for alerting drivers to the presence of traffic jams, tracking flights, finding apartments for rent in a given location, and so forth.
+Mashup programming environments such as Yahoo!
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Runtime observations are not always sufficient in debugging.
+Our prior work has shown that understanding barriers  pose the most significant problem faced by mashup programmers when debugging ; these barriers occur when externally visible behavior obscures what a mashup does  at runtime.
+Often runtime observations generate inadequate error messages, which raises the understanding barrier for end-user programmers.
+When mashup creators cannot understand error messages, fixing bugs becomes difficult.
+After identifying the cause of a bug, to correct it a mashup programmer must understand the usage of the program elements  involved.
+Past studies have found that end users struggle with this  in tasks such as selecting the appropriate modules and comprehending their usage .
+Therefore, to facilitate debugging for end users there is a need for approaches that integrate various strategies for overcoming understanding and use barriers.
+To investigate the issues involved in debugging mashups, and devise approaches that make the task easier for mashup programmers, we have implemented enhanced support for debugging in the Yahoo!
+We provide techniques for detecting the presence of bugs in pipes, and feedback to mashup programmers that can help them locate and correct bugs more efficiently and effectively.
+In this paper, we describe our debugging support, and present the results of an empirical study investigating the impact of our debugging support on the experiences of end-user programmers.
+Our study shows that our debugging enhancements do help mashup programmers localize and correct bugs effectively and efficiently.
+This work makes the several contributions, including contributions that generalize beyond the class of pipes considered in this particular paper, as follows: * We identify specific classes of faults found in Yahoo!
+Pipes programs that can be used directly, or as a starting point, for identifying fault classes in other end-user programming domains, including web-development and visual programming paradigms.
+Pipes to other programming environments.
+This approach involves a methodology for identifying fault classes, defining and implementing detectors for faults in those classes, creating appropriate messages about detected faults and providing instructions for fixing those faults.
+Most end-user programming environments support debugging only through consoles that print debugging output .
+A few improvements, however, have been proposed.
+The WYSIWYT methodology can also be useful for other visual programming languages  and for debugging of machine-learned classifiers by end users .
+Our approach is similar to WYSIWYT, while also providing a "Tofix" list of errors and guidance for fixing them.
+Topes  is a data model that helps end users validate and manipulate data in spreadsheets.
+A similar strategy could be used to identify mismatches in data formats.
+Whyline  allows programmers to ask "why did" and "why didn't" questions about program output in visual programming languages such as Alice, as well as in Java.
+It employs both static and dynamic analyses of programs to provide answers when a programmer selects a question.
+Assertions have been used to find faults in web macros  whose creation involves copying and pasting techniques, i.e., once data is entered by the user it is saved in the clipboard and before the data is reused it is tested for existence and datatypes.
+We use assertions but do not depend on data saved on clipboards; instead, our checks are based on anomaly classifications .
+Most mashup programming environments support debugging by providing a debugger console for the program.
+Pipes is the only such environment that provides a debugger console for every module.
+The only other debugging support for mashup environments that we are aware of is from our prior work , which allows mashup programmers to "tag" faulty and tested mashups.
+Faults can then be localized by "differencing" faulty and correct versions of a pipe.
+Pipes is a web-based visual programming environment introduced in 2007 to enable users to "rewire the web" .
+Pipes  is arguably the most popular mashup programming environment, and is being used by professional and end-user programmers.
+As a visual programming environment, Yahoo!
+Pipes is well suited to representing solutions to dataflow based processing problems.
+Pipes "programs" combine simple commands together in the form of modules.
+Pipes engine also facilitates the wiring of modules together and the transfer of data between them.
+Figure 1 shows the Yahoo!
+Pipes programming environment interface with our debugging support extension in the upper-right corner.
+Pipes programming environment consists of three major components: the canvas, library, and debugger.
+The library is located to the left of the pipe editor and consists of a list of modules categorized according to their functionality.
+The debugger helps users see the output from specific modules as well as the final output of the pipe.
+Inputs to pipes can be HTML, XML, JSON, KML, RSS feeds and other formats, and outputs can be RSS, JSON, KML and other formats.
+Inputs and outputs between modules are primarily RSS feed items.
+RSS feeds consist of item parameters and descriptions.
+Pipes modules provide manipulation actions that can be executed on these RSS feed parameters.
+Pipes also allows users to define various datatypes such as url, text, number, and date-time.
+Mismatch bugs involve errors in the format of data contained in parameters, or ranges of values used in checks supported by Yahoo!
+A typical Format bug can result from a user expressing data in a non-supported format .
+A typical Range bug can result from a user entering an inappropriate range in a data checking context.
+Pipes provides no information regarding these bugs.
+Syntax bugs are specific to particular modules, and occur when incorrect syntax has been used for operators or parameters.
+For example, the Filter module lets users filter web contents by defining filtering rules.
+Pipes provides no information regarding these bugs.
+To better understand the types of bugs found in Yahoo!
+Pipes programs, we studied pipes extracted from the Yahoo!
+Pipes repository and created a classification scheme .
+Column 1 of the table lists the types of bugs that we found.
+Broadly speaking, we categorize bugs as "intra-module" or "inter-module".
+Intra-module bugs occur within individual Yahoo!
+Pipes modules, while "inter-module" bugs are related to interactions between modules.
+Intra-module bugs involve links, missing expected content or parameters, problems with mismatched values, and syntax.
+Link bugs occur when a web page referenced in a module cannot be found, such as when pages no longer exist, or when page access restrictions or server errors occur.
+Pipes detects these bugs, but the error message displayed is cryptic, typically of the form "Error fetching .
+Missing bugs occur when the contents of web pages utilized by a pipe no longer include expected elements, or the values of parameters used in modules are missing.
+A typical Content bug involves the absence, in a fetched web page, of specific required source, such as delimiters that precede data being searched for.
+A typical Parameter bug occurs when a user omits a parameter value.
+Inter-module bugs involve modules, connectors, and errors in data types.
+Module bugs occur when pipe components themselves are missing, where components are deprecated modules, submodules, or sub-pipes.
+A typical Deprecated Module bug occurs when the module used in a pipe is no longer entirely supported by the environment.
+A typical Sub-Module bug can occur when a sub-module required for pipe functionality is not present in a pipe; for example, when a programmer fails to specify a submodule for inclusion in a loop module.
+A typical Sub-Pipe bug can occur when a sub-pipe employed by a programmer at an earlier point in time no longer exists.
+Pipes provides error messages for deprecated modules, but not for other module bugs.
+Figure 2 illustrates the support architecture by which we enhance Yahoo!
+Pipes so that it automatically detects bugs.
+A proxy server  manages communications between the client  and the Yahoo!
+Using the Internet Content Adaptation Protocol , a proxy wrapper intercepts request and response messages exchanged between a client and the server; among these it intercepts user events  and message contents and stores them in a MySQL database.
+When a user makes requests of the Yahoo!
+Pipes user interface , responses related to the interface are redirected to the Proxy Wrapper.
+The Proxy Wrapper modifies response messages by inserting "widgets" and code into the Yahoo!
+Pipes UI before delivering them to the client, where they are decoded by the Result Decoder.
+Part  of Figure 2 illustrates the architecture of our Anomaly Detector.
+The Code Extractor begins by extracting pipe code from the local database - this is JSON code containing all relevant information about the pipe, including modules, parameters and connection information.
+The Execution Trace Extractor extracts information pertaining to the execution of the pipe, by sending the pipe code to the Yahoo!
+Pipes server and retrieving the information it produces, which includes the outputs of each module and error messages.
+Next, the Decoder decodes the pipe code and execution traces.
+Specific anomaly checkers  then analyze the decoded data to detect anomalies.
+The Result Encoder generates a log file for the pipe providing information on anomalies and errors found in that pipe.
+A key technical contribution of this work involves the processes used by specific anomaly checkers to detect the presence of the various classes of bugs described in Table 1.
+Column 3 of the table summarizes the detection mechanisms used for each class of bug; we now provide additional details.
+On intra-module bugs our anomaly checkers work as follows: * Link bugs are detected by parsing pipe code for urls.
+Http requests for accessing these urls are sent to their respective servers and explicit statuses are analyzed.
+For status 200  no action is needed, but for other erroneous statuses a bug is made note of.
+The contents of the web page accessed can be selected using DOM elements.
+The existing parameters are matched against the source code of the web page and checked to see whether these parameters exist in the requested page.
+If they do not, a bug is made note of.
+If a parameter value is empty the location is noted.
+Our current analysis examines the structure of the rules defined for the modules being considered, and assigns a data type to each parameter of the rule.
+For example, in RSS feeds, attribute "title" is of type "text", "pubdate" is of type "date" and so on.
+We  check the data types of parameters to determine whether they are appropriate, and check the operations performed on the parameters to determine whether they are compatible.
+On inter-module bugs our anomaly checkers work as follows: * Module:Deprecated-Module bugs are detected by statically checking for the presence of a module name that is no longer supported by the environment.
+Pipes server; an empty response signifies that the pipe no longer exists.
+The number of sub-pipes used in a given pipe ranged from 0 to 22, and the maximum level of nesting of subpipes was seven.
+In fact, among the pipes that did use subpipes, 21.28% contained one or more sub-pipes at a nesting level of 1, and 16.86% contained one or more subpipes at a nesting level of 2.
+To assess the occurrences of bugs in Yahoo!
+Pipes programs, we examined a large corpus of pipes.
+To do this we wrote a web crawler that collected unique pipe identifiers using a snowball sampling approach.
+Pipes accessible through the browsing mechanism were collected and their most frequent modules were extracted as keywords.
+These keywords were used to initiate searches for pipes containing them, and identifiers for those pipes were collected.
+Finally, identifiers of sub-pipes referenced in pipes were collected in the same way.
+This process retrieved 25,734 unique pipe identifiers.
+For each identifier we obtained the code for the pipe.
+We executed our Anomaly Detector on the source for each pipe.
+Table 1, columns 4 and 5, show the numbers of bugs found in our sample of pipes.
+The most prominent class of bugs involved missing parameters.
+The next highest instances of bugs involved missing links and content.
+Bugs involving deprecated modules, missing connector elements, and data types were also relatively common.
+We analyzed the outputs of buggy pipes to determine how Yahoo!
+We found that 54.36% of the pipes containing bugs included at least one buggy module that emitted no error message on the console, 37.83% produced no output at all when executed, and 28.24% produced one or more Yahoo!
+Figure 3 illustrates the distribution of these types of outputs.
+As noted earlier, run-time observation of program behavior is the primary means by which mashup programmers debug their mashups.
+However, users often face understanding barriers when there is insufficient or complex feedback from the Yahoo!
+To connect our debugging support to users, we designed an interface with two primary goals:  reducing understanding barriers to help users quickly locate and understand the causes of bugs, and  reducing use barriers by providing guidance on the correct usage of modules.
+We did this by  designing an automated approach for identifying bugs,  informing users of bugs and their causes through a user-friendly UI and messages, and  offering guidance on ways to fix bugs.
+Our Anomaly Detector identifies bugs currently identified by Yahoo!
+Pipes and bugs that currently occur silently.
+Here we discuss our extensions to the Yahoo!
+Pipes user interface and the feedback messages we provide.
+We largely followed Neilsen's heuristics  in designing the interface with the main goal of reducing cognitive load on users , and Schneiderman's guidelines  for designing error messages.
+Figure 1 shows our user interface extensions, which include the following elements.
+To-fix list of bugs: Prior work  on end-user debugging found that the use of a to-do list was a common debugging strategy, was consistently employed by users irrespective of individual differences, and helped reduce cognitive load.
+Thus, to facilitate fault localization our UI provides a To-fix list task pane that is populated with information on bugs that need to be resolved and their properties.
+The To-fix list is overlaid on the top, right-hand side of the canvas so that users can view both the pipe and the list of bugs.
+Users might prefer this approach because a common debugging strategy involves spatially following the data-flow in a program .
+An alternative option would be to list bugs grouped by type, allowing users to resolve all bugs of a particular type at one time; this could reduce the chance that the interface will overwhelm the user with too many alternatives .
+An overarching goal of our interface is to provide a simple UI and provide information to users contextualized for their current task.
+Therefore, our To-fix list is designed as an accordion list, where only the bug that is in focus is expanded, while all other information is collapsed .
+After a bug is resolved it is removed from the list.
+The To-fix list is populated when the user saves or executes the pipe, or clicks on the "Find Error" button on the lefthand side of the canvas, actions that activate the Anomaly Detector.
+Note that in this work, the Anomaly Detector was invoked only when the Find Error button was used.
+To reduce cognitive load, we provide relevant information in the context of each To-fix item in the list; that is, we tie each bug in the list to the faulty module so that when a user clicks on a bug in the list, the erroneous module is highlighted  and parameters implicated in the bug  are marked in red.
+We also provide reverse functionality; that is, when an erroneous module is selected  the To-fix list expands to reveal the bug in that module.
+Error Messages: We followed Neilsen's Heuristic  to design error messages that are clear, concise, and use plain language.
+Pipes error message of the form: "Error  Response code.
+Root cause: org.xml.sax.SAXParseException: ", is translated to "Website does not contain RSS feed".
+We provide constructive steps to help users arrive at solutions to bugs.
+Because users with different skill levels may require different amounts of information, we also provide a "Hint" button that can be expanded to provide further details for resolving the problem.
+In the foregoing example, we provide hints on how to find a similar website for the missing RSS feed and external documentation on how RSS feeds need to be structured.
+In other cases, we provide references to third party web applications such as FireBug that allow a user to inspect the elements of the webpage.
+Background in computer science was not allowed beyond the rudimentary requirements of majors.
+We selected 16 participants of varying backgrounds, namely: statistics, engineering, biological systems, actuarial science, physics, classics, entomology, and food science.
+We employed stratified sampling to categorize participants based on their experience with the web, programming languages known, gender, and knowledge of the Yahoo!
+Participants were divided into two groups: eight participants  served as a control group, and eight other participants  served as a treatment group.
+Only two of the participants had knowledge of Yahoo!
+Pipes, and these were assigned to the control and treatment groups, respectively.
+Statistical tests  on questionnaire data showed no significant differences  between the groups in grade point average, Yahoo!
+Pipes experience, web language experience or programming experience.
+To avoid learning effects we employed a between-subjects study design , with half of the participants performing debugging tasks with our extension to Yahoo!
+Pipes and the other half doing so with the ordinary Yahoo!
+We used a think-aloud protocol , asking participants to vocalize their thought processes and feelings as they performed their tasks.
+We chose this protocol to obtain insights into the users' thought processes, and the barriers and problems they faced.
+We administered the study to each of the 16 participants on an individual basis in our usability lab.
+At the beginning of each session, participants were asked to complete a brief self efficacy questionnaire  ; this was followed by a tutorial of approximately ten minutes on Yahoo!
+Pipes, which included information on how to create pipes and the functionalities of modules.
+The treatment group also received instructions on how to invoke the Anomaly Detector.
+The tutorial included a short video of a think-aloud study so that users could understand the process.
+After participants completed the tutorial, we asked them to create a small sample pipe to give them hands-on training and familiarity with Yahoo!
+We began the experiment only after users told us that they were comfortable using the environment.
+We asked participants to complete two debugging tasks.
+We audio recorded each session and logged the users' on-screen interactions using a screen capture system .
+The total time required for completion of a session per participant was approximately 80 minutes, which included an average of 50 minutes for task completion.
+After participants completed the tasks, we conducted interviews to collect feedback or any other additional thoughts from them.
+We designed two tasks for the study.
+One task  involved pipes containing bugs for which Yahoo!
+Pipes provides error messages, and the second task  involved pipes containing bugs for which Yahoo!
+Pipes provides no error messages .
+We counterbalanced the tasks to compensate for possible learning effects.
+Other limitations include the possibility that the complexity of our pipes was not high enough to allow measurements of effects.
+We controlled for this by performing initial pilot studies on three non-participants and using their feedback to adjust the pipes and the tasks.
+We performed Wilcoxon rank tests on our time data to quantitatively study the effects of time; however, because our participants were performing in think aloud mode, timing measures may be affected.
+All bugs were located on separate dataflow paths to avoid interaction effects.
+We also included one bug related to sub-pipes in each pipe, to help us study the effects of nested errors For Task Y!E we created a pipe with specification paraphrased as: "the pipe should display  a list of the top 10 rated movies  and their ratings ,  a poster of a selected movie  and  a review of the movie".
+For this task we seeded a "Link" bug and "Deprecated module" bug since these were the most prominent Yahoo!
+As a third bug we embedded another link error in a sub-pipe.
+For Task SE we created a pipe for which the specification can be paraphrased as: "the pipe should display  a list of theaters in a given area,  a list of movies in each theater with their show times and  trailers of the top 10 movies .
+For this task we seeded the two most prominent silent errors found in our study of the corpus; namely, Missing:Content and Missing:Parameter bugs.
+We also included a Missing:Parameter bug in a sub-pipe.
+We told participants that they had been given pipes that were not working correctly and were required to make them work correctly .
+To guide them, we gave them specifications of the pipes and of the output each pipe was intended to produce.
+Turning to the results of our study, we find that the treatment group performed better than the control group in every performance measure: number of bugs localized, number of bugs fixed, time needed to fix the bugs, and perceived increase in self-efficacy.
+Tables 3 and 4 provide data on the debugging success of control  and treatment  groups, respectively.
+Table 3 shows which participants correctly localized  bugs and which participants fixed  them.
+Because our debugging support provided a list of buggy modules to the treatment group, for those participants the localization task was automatically completed; thus Table 4 does not include bug localization data.
+To localize a bug a control group participant needed to first correctly understand the failure of the pipe  and then locate the buggy module.
+Participants in the control group spent a majority of their time attempting to do this, but were not very successful .
+All participants in the control group  started with Y!E:B1 which included a message, "API key missing", that was directly traceable to the buggy  module, since it included the text "API key".
+This bug was localized by all participants and fixed by seven.
+However, in other cases, the Yahoo!
+An example error message seen by participants was: "Error fetching .
+Root cause: org.xml.sax.SAXParseException: The markup in the document preceding the root element must be well-formed".
+Messages such as this left users struggling to answer questions such as:  what is SAXParse?
+We have studied only one mashup environment; however, it is representative of a broader class of web-development environments 
+Our study considered only two tasks that built on only two types of pipes.
+Our participants were asked to use pipes that were provided, rather than pipes which they had created for themselves.
+While the reuse context is common and important, prior familiarity with pipes could lead to different results.
+Additional studies are needed to examine other types of mashup environments, tasks, and usage contexts.
+Participant C.P4, for example, commented: "What?
+I have no idea what it is", and participant C.P5 mentioned: "Instead of error numbers, if these messages were in simple languages maybe I would have figured out the errors".
+As noted earlier, understanding barriers are known to be notoriously difficult and are often considered insurmountable .
+Our interface reduced these barriers by providing a list view and highlighting buggy modules, so that users could immediately recognize that there was a problem with the pipe and find the location of the problem, and by providing more appropriate error messages.
+These error messages were found to be helpful, as reflected in our exit interviews in which the majority of treatment group participants stated that they found the interface user friendly.
+T.P3 commented that "We can see where the error message was located  was very helpful.
+When we see the code, you can't know where the error is.
+If these red boxes  are in code also it will be helpful in coding".
+After localizing a bug, the user needed to understand the correct usage of the buggy module and its external data sources .
+This was difficult for participants in the control group , and caused them to fix statistically significantly fewer bugs than participants in the treatment group .
+For example, while most participants  localized the fault in Y!E:B2, few  found the correct URL for it.
+Most participants in the control group explored alternative strategies to fix the bug and needed to backtrack when they were not successful.
+For example, C.P4 spent 51 minutes in unsuccessful explorations, and then before continuing to the next task commented: "I couldn't understand the error messages, they just said error but didn't tell me how to solve it.
+Probably if there were steps to solve I could have solved it.
+I am not familiar with how to solve them".
+Some users were frustrated because they could not "undo" their changes and some because examples available through Yahoo!
+Pipes were not a close match or did not execute correctly.
+At other times, the available examples were too complex for users to follow.
+Our interface was effective for reducing use barriers because it provided hints on how to fix bugs.
+Most participants in the treatment group were able to use the hints, including those referring to external documentation on RSS feeds or using external helper applications such as FireBug that allows inspection of web elements.
+I was not familiar with Yahoo!
+Pipes then by following the hints  can solve it".
+Also, measuring time taken helps us track the presence of understanding and use barriers.
+On average, participants in the treatment group found and fixed each bug statistically significantly more quickly  than participants in the control group.
+If a user did not attempt to address a bug their data is not shown.
+Overall, our interface helped users in the treatment group pinpoint bugs and solutions more quickly from the very start, and users kept this advantage throughout the tasks.
+Here, we discuss two bugs  that took the longest for the treatment group.
+Bug SE:B4, in which the contents of a web page had changed, was time intensive to address and only six participants fixed it.
+To fix this bug, users needed to know how to check the code for the html page  or how to operate an external application to inspect webpages.
+Bug Y!E:B2, which contained an incorrect URL, was the next largest time sink, especially for unsuccessful participants.
+Participants had difficulty with this bug because there were two URLs in the Fetch Feed module.
+Most participants checked both URLs, and some removed the lower URL  while needing correct the first URL.
+In these cases, since there was no way to retrieve the old URL, participants had to proceed with their task and were considered unsuccessful even if the original faulty URL was fixed.
+We next investigate differences in bug resolution results between bugs in which Yahoo!
+Pipes displays an error message  and bugs for which Yahoo!
+Participants in the control group were considerably less successful than participants in the treatment group, identifying 17 Y!Es compared to 11 SEs and resolving 9 Y!Es compared to 3 SEs.
+This difference occurred primarily because without error notifications, participants were not able to tie failures to faulty modules.
+C.P1 spent 40.15 minutes trying to localize this problem.
+In the treatment group, where faulty modules were automatically identified, we find no distinction between the two error types .
+Here we provide design guidelines for incorporating debugging support into end-user environments.
+In environments that use visual programming and a black box abstraction methodology, visually identifying a faulty module  will help users focus their debugging efforts.
+We found that in the absence of such support users spent substantial effort exploring unsuccessful alternate strategies and backtracking.
+Understanding barriers can be reduced if bugs are automatically identified and aggregated in a list.
+Users preferred to have the To-fix list overlaid on top of the canvas, so that they could view the pipe  and error message at the same time.
+When this was not the case , users sometimes missed the error messages since they were sequentially listed after the generated output.
+In cases where a large amount of text was output users did not read all the way through and were not aware of the bugs.
+For example, participant C.P3 commented that "Messages should be on top, so that they are noticeable" in response to why he overlooked a bug.
+Having a To-fix list also gave users the flexibility to select which bugs they wished to consider first.
+One design issue that needs to be considered in creating such a list  is interaction effects among bugs.
+A bug in one module can potentially manifest itself as a different bug in another module.
+In such cases, the To-fix list should appropriately display the interaction effects and group cascading bugs together, so that users know which module to begin with when debugging.
+Error messages that use simple language and avoided error codes are more successful with end users, which confirms the results of prior HCI research.
+Cross-linking faults with error messages.
+Cross-linking faulty modules with their corresponding error messages allows users to view the error message when they are ready to debug the corresponding faulty module.
+Providing the error messages in the context of the debugging activity helps prevent developers from being overwhelmed by the number of errors that need to be fixed and focus on the error at hand.
+Providing contextualized help  is more useful to users than providing example pipes and documentation at the beginning of a task.
+Presenting a high-level overview of a possible solution, followed by "hints" that users can employ, helps sustain users' interest while not overwhelming them.
+In our study, such incremental help enabled users with low selfefficacy to perform as well as users with high self-efficacy.
+In fact, our exit interviews indicate that using our approach helped raise self-efficacy in our participants.
+Faults seeded in subpipes  were much more difficult for control group participants to localize and fix than for treatment group participants.
+In the case of Y!E:B3, only one participant in the control group was able to detect and fix the bug.
+In the case of SE:B6, only one control group participant was able to identify the nested  module, and none fixed it.
+In fact, many control group participants did not recognize that modules were subpipes.
+Participant C.P3, on obtaining an error message on Y!E:B3, commented: "Where is this coming from".
+Pipes, to debug a subpipe users must open and execute it; C.P3 did not realize this and spent 10.44 minutes investigating the bug by clicking on other modules in the pipe.
+He then moved onto the next task after commenting: "I don't know what it's saying".
+Using our interface, a majority of the treatment group participants were able to fix the nested bugs .
+In our archival analysis, we found thousands of subpipes, with  subpipes nested up to the 7th level.
+Without better debugging support it is highly unlikely that end users will be able to fix erroneous subpipes, especially those that fail silently.
+Past work in the domain of end-user programming has shown that individuals with higher self-efficacy, a form of selfconfidence, are more flexible in the strategies they use when performing programming-related tasks, and are inclined to explore newer, untaught functionalities .
+In our study we found that while participants in both groups were similar in terms of self-efficacy , the treatment group performed better.
+We found that participants in the control group were frustrated in their debugging tasks, and this included even those with high self-efficacy scores.
+I think you can stop , I am just experimenting with different tasks and I feel I am not doing the right task".
+Another participant  commented after being stuck in his task: "That's why I am not a CS major".
+In contrast, participants in the treatment group -- even those with low self-efficacy scores -- were excited about the tasks and had a positive experience with the environment.
+Participant T.P5, with a score of 6.6 commented: "I really enjoyed this .
+It enhanced my knowledge about this .
+I will also make my own pipe".
+In such cases many users explicitly asked for "undo" functionality.
+Traditionally, versioning support has been considered necessary only for professional programmers and is typically not supported by end-user programming environments.
+We found, however, that end users have become accustomed to  versioning support because of their interactions with applications such as MS Word/Excel, Google Docs, Dropbox, etc., which provide rudimentary forms of such support.
+We have presented an approach for detecting the presence of bugs in Yahoo!
+Pipes mashups, and for helping pipe programmers localize and fix these bugs.
+Our study of this approach shows that it does help end users find and fix bugs more effectively and efficiently than users who do not have its support.
+We have implemented and studied our anomaly detector as an aid to debugging, and we have required users to explicitly request its help by clicking on a widget.
+The detector could also be integrated into the mashup programming environment in such a way that, on each save or execution of a pipe, anomaly detection is performed.
+This could help users detect bugs in their mashups that might otherwise go undetected, including bugs that emerge in initially correct mashups when features that they rely on in external environments change.
+As mentioned in the introduction, our fault classification as well as our methodology for identifying fault classes and defining and implementing detectors for faults in those classes can be generalized beyond mashup environments to other web-development and visual programming environments.
+For example, App Inventor , a visual programming environment for creating mobile apps, faces the same types of inter and intra module bugs that we have identified, although some sub-classes of these defects will need to be refined to suit the particular domain.
+We plan to validate and refine our approach by investigating App Inventor next.

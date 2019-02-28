@@ -1,0 +1,100 @@
+This can be used to reroute the directions to include the user's familiar paths, but it requires the user to make the effort to manually add waypoints in order to get a familiar path.
+These landmarks are important for people to acquire knowledge about their surroundings, build cognitive maps and describe this information to others.
+The sought-after destination might be close to the user's familiar routes - such as around the corner from the user's local grocery store, or adjacent to the street the user walks from the subway train to work.
+Going My Way is a mobile user-aware route planner.
+The system collects GPS data of a user's everyday locations and provides directions from an automatically selected set of landmarks that are close to the destination, informed by the user's usual travel patterns.
+In this paper, we present a brief description of the system, the results of a preliminary experiment in memory and recognition of landmarks, in addition to the results of a user evaluation of the system.
+Consider a situation in which you ask a friend of yours for directions, for example to the restaurant "Kaya" in your town.
+Rather than describing the whole route, your friend probably would begin by asking you about other places, located near or on the way to the destination, which you may be familiar with.
+These places may be public landmarks or just locations  that you and your friend have visited together.
+Alternatively, your friend may know you well enough to feel comfortable with guessing which places you are familiar with.
+By using the knowledge, your friend then provides you with directions from that personal landmark to the destination: "Do you know the store on Main Street that sells funny T-shirts?
+The directions that users get from route planning systems and applications  are normally not based on knowledge about which locations are familiar to the users.
+Going My Way attempts to give directions the way one's friend might.
+When you select one of the provided landmarks, Going My Way provides directions from the chosen landmark to the destination.
+This presents a significant start up cost to use the system.
+In cities the number of landmarks can be large and personal experience dynamic, even if the user has a good sense of what constitutes a "landmark."
+Part of our work in automatically identifying personal landmarks has been to determine just what makes urban location memorable.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Implementation: The system consists of two main parts: a phone application  and a GIS server .
+The phone application also consists of two parts: the data structure for collecting GPS data and the user interface for requesting and showing directions.
+Our GIS server is built on top of Microsoft's MapPoint API.
+The server finds the names of restaurants and hotels and generates a list of directions.
+The server and the clients communicate via UDP over iDEN and GPRS networks.
+The application logs GPS data and updates a matrix of frequently visited location cells periodically.
+The system learns about its user's frequently visited location by referring to the matrix.
+Depending on the speed of travel, the sampling rate of GPS data varies: Sampling rate in seconds = 180 / current speed in km/hour.
+A threshold for the lower bound sampling rate is set to 30 seconds.
+The sampling rate is derived from the adults' average walking speed  and the cell grid size.
+This sample rate allows the system to collect at least one GPS data point per cell.
+When we deployed the system, GPS in phones  updated GPS data up to 1.5 second per second.
+The maximum traveling speed for getting one GPS datum per a cell is 135 km/hour.
+The data structure for locations in Going My Way consists of 1.6 x 1.6 km2  blocks which contain 50 x 50 m2 location cells that function similarly to .
+Each cell has the properties for the frequency of visits, as well as a flag indicating that the location is a point of interest , which is obtained from the backend.
+When a user travels to a new location, the phone application communicates with the GIS server via GPRS to see if the current cell contains any POI.
+In the case when GPRS is not available, due to some network outage, the phone application updates the POI flag when the network becomes available again.
+The POI flags are used to reduce the search space of cells for landmarks when user requests directions.
+Real world landmarks consist of many memorable features such as shape, color, texture, size, position, etc.
+Therefore, in this preliminary experiment, we choose to use the information that is usually available: business names, addresses, and the locations.
+From those data, we tested the memorability of landmarks based on two types characteristics: uniqueness  and block location .
+Experiment: We started with the hypotheses that:
+People remember the location of objects at intersections better than objects that are in the middle of a block.
+With 12 participants , we tested what sorts of landmarks were most memorable.
+We chose 20 locations that were divided between those at intersections and those in the middle of a block, 20 destinations that were either well-known chains or unique places, and three different types of presentation , and asked users to identify where each place was on a map.
+If the subjects thought they recognized it, they were asked to mark its location on a map.
+Then, the subjects were asked to specify whether they think the location is at an intersection or somewhere along a street, as well as the full address of the location .
+Finally, subjects were asked to describe what else is near the location.
+After the experiment, the answers were examined and compared to a pre-marked key map to determine whether the subjects actually remember their correct location.
+An error margin of 1 block was allowed for objects that are located along a street.
+For objects at intersections, the subjects had to identify the correct intersection for it to count as a correct answer.
+Results of the experiment: In the experiment, the subjects claimed to remember the 130 locations of the 240 objects  and out of these 130 answers, 57 were incorrect.
+The subjects claimed to remember the locations of 82 objects that are located in intersections; they were correct 88.9% of the time.
+The subjects claimed to remember the locations of 58 objects located in the middle of the block; they were correct 64.3% of the time.
+The subjects claimed to remember 54 locations of objects that are chains; they were correct 52.7% of the time.
+The subjects claimed to remember 76 locations of unique objects; they were correct 63.5% of the time.
+This result contradicted our hypothesis.
+However, it is intuitively plausible that unique objects have characteristics that are more memorable than those which are less unique.
+The subjects claimed to recognize the locations of 44 objects presented as text descriptions, with an accuracy rate of 68.2%.
+The users claimed to recognize the locations of 34 objects presented as addresses, with an accuracy rate of 50%.
+Based on these results, we weighted each POI corresponding to the ratio of recognition of the location and the accuracy of its location type  and object type .
+Within the chosen top 10 cells from the previous procedure, the system chooses the POIs which have the largest weight and listed on the phone application as shown in the Figure 2.A.
+We deployed Going My Way on Nokia N95 and N6610 phones and distributed them to 8 users .
+After 3-5 weeks, we asked each subject to visit our lab to participate in the user study, and five users participated.
+The participated users reported that they were residents of Boston/Cambridge area for 3.76 years on average  and had been commuting on average 3.3 miles  using various modes of transportation, i.e.
+The user study tasks included getting directions to five different locations.
+These locations were restaurants that are equally distributed in the Cambridge area.
+Two of the restaurants were located in a busy commercial area while others were distanced from main streets.
+None of the subjects had previously visited the locations while they were carrying the phones.
+In this paper, we report two important results of the system: the user's recognition rate of the landmarks generated by the system, and the number of turns required by the directions provided by the system .
+The overall recognition rate was .51.
+All the users were able to recognize at least one landmark per task.
+Also, all the users were able to identify the location of recognized landmarks on the map.
+The average number of turns in the directions given by the system was 1.42 turns  and the average distance is 0.78 km.
+The average number of turns from the starting point of the experiment was 4.0  and the average distance is 3.6 km.
+Therefore the turn instructions were reduced to 35%  when using Going My Way - this means the directions were more simple or salient.
+We conjecture that in future work the user's preference for modeling peripheral experience could boost the performance of the algorithm.
+In addition, Going My Way provides multiple ways of describing information that allows users to explore multiple solutions to problems, helping them to better understand the task.
+One of the subjects in our experiment mentioned that she could "psychologically" relate to the target location when she explored all the landmarks around the target location.
+The system provides landmarks that the user has already encountered, which we believe helps the user intuitively understand the location by showing how it relates to other places that may be in their cognitive map.
+In addition, most of the subjects commented that they were able to guess where the target locations were and able to memorize how to get to the destinations, but we have not confirmed whether the users could actually find the target location based on memory on the street, which will be included in future work.
+Our work aspires to provide simplified driving directions.
+While MyRoute relies on user-entered landmarks, we derive potential landmarks from map databases and automatically acquired knowledge of users' routes.
+This gives our algorithm a much wider choice of landmarks, in a denser geographic grid, so our directions will provide fewer steps.
+We have also noted, informally, that when asked to describe known landmarks, our subjects typically list less than a quarter of the ones which our system may automatically suggest.
+This automation requires  learning routes  to detect nearby landmarks, knowing the properties that make a landmark memorable, and verification of the user's knowledge of the landmark.
+On the other hand, one of the limitations of this work is that we didn't explore presenting directions along with a visual representation, e.g.
+We do not think that Going My Way is a replacement to existing route planners; rather we believe this work will help enrich the existing services by providing a model of user's experiences.
+Going My Way is most useful when a user is trying to find a place that is in their living area, but is less useful when in unfamiliar cities, where a user lacks personal landmarks.
+Another potential limitation is the scalability of the landmark model.
+In European countries, the topology of street networks are much more complex than in US, and the metric of block position that we used in our work  may be less useful.
+Detecting physically explicit-interaction is relatively easy while doing a task, but peripheral experiences often lack of this explicit action.
+This makes modeling users' peripheral experience a hard problem.
+In our case, in order to overcome the limited sensor data for building such models, we used features that were informed by psychological research of memory and landmark recognition.
+The research area of spatial cognition is already well established.
+In: Proceedings of the 6th IEEE International Symposium on Wearable Computers, Seattle, WA, 7-10  Bohannon RW.
+The effect of vehicle navigation system on the formation of cognitive maps.
+In traffic and transportation Psychology: Theory and Application, Edited by G Underwood.
+Structural salience of landmarks for route directions.
+In Conference on Spatial Information Theory - COSIT  Krumm, J. and Horvitz, E.,  Predestination: Inferring destinations from partial trajectories.
+In Proceedings of the International Joint Conference on Artifical Intelligence .
+Cambridge, Massachusetts: The MIT Press.

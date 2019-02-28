@@ -1,0 +1,226 @@
+The rapid adoption of smartphones along with a growing habit for using these devices as alarm clocks presents an opportunity to use this device as a sleep detector.
+This adds value to UbiComp and personal informatics in terms of user context and new performance data to collect and visualize, and it benefits healthcare as sleep is correlated with many health issues.
+To assess this opportunity, we collected one month of phone sensor and sleep diary entries from 27 people who have a variety of sleep contexts.
+We used this data to construct models that detect sleep and wake states, daily sleep quality, and global sleep quality.
+Our system classifies sleep state with 93.06% accuracy, daily sleep quality with 83.97% accuracy, and overall sleep quality with 81.48% accuracy.
+Individual models performed better than generally trained models, where the individual models require 3 days of ground truth data and 3 weeks of ground truth data to perform well on detecting sleep and sleep quality, respectively.
+Finally, the features of noise and movement were useful to infer sleep quality.
+From a broader perspective, monitoring a person's sleep patterns offers three opportunities for the HCI community.
+First, sleep can be considered important context information for UbiComp systems.
+Having these systems model if a person is asleep or awake could allow them to modify their behavior to act more appropriately.
+Second, there is a growing interest in HCI around personal informatics and quantified self, where people are increasingly engaged in tracking and visualizing their personal behaviors .
+The ability to detect and log sleep and sleep quality can add to this growing area of interest.
+Third, sleep and sleep quality have a strong connection to healthcare.
+Chronic sleep problems have been associated with diabetes, heart disease, and depression.
+In addition, even a few nights of poor sleep can impact alertness, memory, mood, and cognitive function .
+Better tools for monitoring sleep could help improve diagnoses as well as help people understand their own needs and trends.
+The goal of our work is to investigate how well a commodity smartphone can sense and model sleep and sleep quality without requiring significant changes in people's behavior.
+More specifically, we built Toss `N' Turn , an Android app that logs seven different sensor inputs .
+We provided TNT to 27 participants and collected data from them for one month.
+Each day, participants entered a sleep diary to provide ground truth.
+Using this dataset, we built models that classify if a person was asleep or not asleep  with 93.06% accuracy.
+We detect when a person went to bed , when they woke up , and their sleep duration .
+We also classify their daily sleep quality into good or poor with 83.97% accuracy and their global sleep quality  with 81.48% accuracy.
+Our contributions include the Toss `N' Turn app that collects phone sensor data and ground truth data needed for sleep inference, a month long data collection study, an analysis of the collected data to identify the features that best predict sleep and sleep quality, models that detect sleep and sleep quality, and insights on how a commodity smartphone based sleep detector might benefit UbiComp, personal informatics, and healthcare.
+The meteoric adoption of smartphones places a rich sensor platform in the pockets, purses, and backpacks of many people.
+Interestingly, many people choose to use their phone as an alarm clock, placing these sensors in proximity of the bed.
+A recent study by the Pew Internet and American Life project found that 44% of mobile phone owners  sleep with their phone on or near their bed, with many using their phone as an alarm clock .
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Sleep is a natural periodic state of rest where the human senses and motor activity are relatively suspended.
+Sleep quality can be defined in several ways, for example, having enough sleep or not , daytime sleepiness , and the subjective feeling about sleep along with objective factors such as the number of sleep disturbances and use of sleep medications .
+Poor quality sleep is linked to many negative health outcomes, including diabetes, obesity, cardiovascular health, and depression .
+Sleep is not necessarily a regular, singular, static activity, and thus there exist many challenges in monitoring sleep.
+People sleep during the daytime  as well as night.
+They sleep together, with romantic partners, pets, and/or children.
+Different factors impact sleep quality including sleep partners, environments , stress and anxiety, and consuming food and drinks; many of which are difficult to detect .
+Below, we summarize the state of the art in sleep data collection and detection, organizing related work into three sections: tools for capturing sleep data, sleep monitoring apps, and sleep research within HCI.
+Sleep diaries have been found to be reliable for bedtime and wake-time estimates via actigraphy  and ambulatory electroencephalographic monitoring .
+Diaries have also been used to test sleep-detecting technologies including actigraphy .
+With these respects, we used a sleep diary  for ground-truthing daily sleep data in addition to the PSQI that we used to measure the global quality from a month of sleeps.
+The gold standard of assessing sleep is polysomnography, a system that combines an all-night electroencephalogram with measures of muscle tone and eye movements.
+Polysomnography requires lots of special equipment and trained technicians to setup the equipment, such as attaching the electroencephalogram sensors to a patient.
+It is impractical outside of a sleep lab.
+Actigraphy provides a simpler approach with just one metric, movement captured by an accelerometer.
+Today watch-sized actigraphs are used in clinical settings to sense basic sleep patterns, such as hours slept, sleep efficiency, and number of wakings .
+Consumer-oriented, wearable sleep sensors include the wrist worn FitBit , Jawbone , and WakeMate .
+These devices cost approximately $100 USD, and people must remember to put them on before going to bed.
+Data describing a person's sleep patterns are most commonly captured through self-reports via paper-based surveys and diaries.
+Examples include the Sleep Timing Questionnaire  and the Epworth Sleepiness Scale .
+We used the Pittsburgh Sleep Quality Index , which assesses sleep quality and disturbances over a one-month period .
+PSQI integrates a wide variety of factors associated with sleep quality, including subjective quality ratings, sleep time, efficiency , frequency, and severity of sleep-related problems.
+One challenge with surveys is that they require people to accurately recall details of past sleep behavior, and this can prove difficult .
+A complementary approach involves keeping a sleep diary.
+While tedious to collect, a diary-
+Recently, a number of smartphone apps have emerged to help people manually track sleep, e.g., Tylenol PM Sleep Tracker , YawnLog , Sleep Journal , and Wellness Diary .
+The output includes descriptive longitudinal displays, statistical analyses, and visualizations of sleep time, duration and subjective quality.
+Some apps try to automate sleep logging by tracking movement in bed with smartphone accelerometers .
+These systems require people to keep their phones on the bed while sleeping .
+Researchers have also investigated using smartphones to detect sleep.
+There has been increasing work in HCI and mobile computing focused on sleep .
+The most recent studies have focused on smartphones as a cheap and easy-to-use sleep technology.
+Researchers investigated people's interaction with the smartphones before and during bedtime.
+The closest past work to ours is by Chen et al.
+They measured sleep duration using smartphone sensors with data from eight solo-sleeping subjects collected over oneweek.
+Their system detected sleep duration within 42 minutes in average.
+We saw similar accuracy for sleep duration  over more complex sleep contexts including people sleeping with partners, pets, and babies.
+In addition, we detect bedtime, waketime, daily sleep quality, and global sleep quality, all factors closely associated with health, as well as of interest to UbiComp and personal informatics.
+We designed our system to collect various sensor data that might be relevant to sleep and sleep quality including sound amplitude , light , and movement  as listed in Table 1.
+While some recent smartphones come equipped with more than one microphone sensitive enough to capture even very small sounds; we used only the main microphone in the bottom of the phone and captured only maximum sound amplitude for simplicity and privacy reasons.
+Light intensity may be less reliable as people keep phones in pockets and bags.
+Therefore, we also collected screen proximity sensor values.
+Device states, such as screen on/off, processes , and the battery-charging state are also potentially informative in detecting sleep.
+For example, screen on  is a good signal that a person is probably not asleep, but the screen is also sometimes automatically turned on for incoming calls or text messages, and by notification alarms from apps.
+Thus, other data, such as motion, should be used with the screen state to detect people's actual use of device.
+People often charge their phone before going to bed, and they often use the phone as an alarm clock.
+Both provide clues about bedtime and waketime.
+2 shows examples of smartphone sensor data along with visualization of a participant's sleep.
+One challenge in continuous data collection with smartphones is battery life.
+We used two strategies to minimize power use.
+First, TNT changes the frequency of data collection based on the time of interest .
+Second, it reduces duty cycles when the phone battery level is less than 30% and stops when below 15% .
+TNT stores sensed data in a database residing on the protected storage of the phone.
+It creates a new database each day and uploads the previous database to the server.
+This strategy reduces the risk of data loss and complications that can come when attempting to upload large files.
+To assess the performance of TNT to detect sleep and sleep quality, we conducted a data collection study.
+We recruited participants living in United States, over age 18, who use an Android phone  as their primary phone.
+We recruited participants across a range of sleep contexts and who both had and did not have trouble sleeping.
+Next, participants installed TNT from the Google Play Store and used it for a month.
+We encouraged them to keep their phone turned on and to keep it in their bedroom while sleeping.
+We never instructed them as to where to place their phone in the bedroom.
+Each morning, a popup notification asked them to enter a daily sleep diary, described above.
+On the last day of the study, we asked participants to fill out the PSQI survey online.
+This asked for a self-reported rating of sleep quality for the duration of our month long data collection.
+The PSQI consists of 19 self-rated questions and five questions rated by a bed partner or roommate .
+We only used the self-rated questions in our online survey, which includes: 1.
+Use of sleeping medications 7.
+Daytime dysfunction Each item was rated on a 0-3 scale.
+These seven component scores are then summed to yield a global score, which has a range of 0-21; higher scores indicate worse sleep quality.
+We used the sleep diary and PSQI data as ground truth in building models about sleep based on smartphone sensor data.
+Participants were paid $2 for each diary entry for a maximum of $72, which includes a completion incentive.
+Approximately 80% of participants reported working or going to school during daylight hours and sleeping at night.
+Participants reported several different numbers of other sleepers in their bedroom .
+3 shows demographic information and PSQI scores of our participants.
+We used PSQI global score > 5 to distinguish good and poor sleepers as presented in the previous literature .
+In our dataset, 66% had poor sleep where 3 reported that they have sleep abnormality .
+During our one-month study, participants submitted 795 diary entries.
+Some skipped days and some entered more than one diary for a single day.
+We hand-cleaned the data, fixing obvious bugs in the diaries.
+For example, participants were occasionally confused by the 24-hour time entry.
+As a time unit for data analysis and feature extraction, we divided the time-series sensor data into a series of nonoverlapped 10-minute windows.
+We labeled the windows in-between reported bedtime and waketime from the diaries as sleep and the other windows as notsleep.
+We did not use the sensor data of a day when there was no label information .
+We did not use a diary when there was no sensor data .
+We used data preprocessing techniques including outlier elimination and smoothing to reduce noise in the raw sensor values.
+We found that each phone seems to be different in terms of sensor ranges; therefore, we normalized the sensor values for each participant.
+We also used screen on/off, battery states, and the timestamp of the window as additional sleep detection features.
+We defined sleep quality features based on four factors of PSQI.
+These include sleep duration, latency, efficiency, and disturbances .
+We used the sleep detection results  as the inputs for the sleep quality inference models.
+We also added Med., Std., and peak of sensor values during sleep as features.
+Peaks at the inferred bedtime might indicate that the participant did not fall asleep completely .
+On the other hand, peaks in the middle of inferred sleep could indicate sleep disruptions, e.g.
+In total, we extracted 32 features for sleep detection, 122 features for daily sleep quality inference, and 198 features for global sleep quality inference.
+To infer different sleep contexts, we developed a number of features .
+To detect sleep , we used sensor level information, such as if the room is dark and quiet.
+Category Modality Noise level Movement Sleep Light detection intensity  Device state & usage pattern Regular sleep time Sleep duration Feature variables {Min., Q1, Med., Q3, Max., Avg., Std.}
+To detect sleep, we designed an algorithm based on a series of sleep/not-sleep classification as follows.
+First, the algorithm observes the sensor logs for 10 minute windows and classifies the window as a sleep or not-sleep state.
+It then uses a low-pass filter on the series of classified windows, eliminating possible sleep state detection errors such as temporal noises and/or disrupted states between very quiet and stationary situations.
+We used 30 minutes for the filter width to distinguish between a sleep disturbance and just noise.
+In other words, the algorithm has to look up the previous and next 30 minutes to make an accurate decision about if a participant is in a sleep or not-sleep state at that time.
+The filter width was chosen based on the rationale that more than 30 minutes could be regarded as not-sleep or a sleep disturbance, since one of the sleep disturbances described in the PSQI is "Cannot get to sleep within 30 minutes."
+Finally, it detects bedtime as the start point of the series of sleep-state windows, waketime as the end point of the windows, and sleep duration as the time difference between the bedtime and waketime.
+To infer daily sleep quality, we formulated it as a two-class  classification problem based on the PSQI's global score calculation function.
+PSQI considers all different factors regarding sleep quality to estimate global quality of sleep that can be used to distinguish good and poor sleepers.
+As we mentioned earlier, we designed our sleep diary based on the PSQI,
+As our final task, we classified each participant as good or poor sleeper  based on the aggregated sleep data for a month, in which the results can be used to detect the changes of regularity of sleep quality.
+We used two machine-learning algorithms, decision tree  and Bayesian network , along with a correlation-based feature selection method  in which the features correlated to the target classes are used to build the models .
+We also tested some features separately by using a 1R classifier that builds a set of rules based on only one feature.
+As baseline accuracies for our problems, we presented the result of a Random classifier that predicts a test sample as the most common class label in the training set.
+To handle the unbalanced class sizes in our problem, we used random resampling in the training set when we built models.
+We tested general models  based on leave-one-user-out cross validation and evaluated the individual models  based on leave-one-day-out cross validation .
+Table 3 shows the comparison result between two approaches with averaged accuracies  in classifying 10-minute windows as sleep or not-sleep and sleep detection results .
+Note that 1R_Time uses only timestamp of window, 1R_Scrn uses screen on/off, 1R_Btry uses battery state, 1R_Light uses a feature from the light sensor, 1R_Acc uses an accelerometer  feature, and 1R_Mic uses a microphone  feature.
+The general models show comparative performance, for example, BN FS yielded 93.06% accuracy  for detecting sleep states, which is similar to the individual approach result .
+The global models, however, were less accurate in detecting bedtime and waketime, where the global BN FS made predictions within 44 minutes, 42 minutes, and 64 minutes of the ground truth data for bedtime, waketime, and duration, respectively.
+The top five selected features were time, battery state, Min.
+1R algorithm results in Table 3 and Fig.
+4 show how accurate the information from a single sensor can detect sleep.
+When the model used the regular time of sleep information , it yielded average errors of 1 to 1.5 hours in detecting sleep time.
+Accelerometer  and microphone  features produced similar accuracies to 1R_Time, which showed the models' flexibility at detecting unusual sleeping hours.
+On the other hand, the screen-on states , battery states , and ambient light sensor  features performed poorly.
+The 1R_Scrn shows high recall rate  since people cannot use phone  during sleeping, while it showed very low precision rate  denoting that not using the phone does not mean people are sleeping.
+Interestingly, 1R_Light also showed similar results to 1R_Scrn, especially for bedtime detection.
+It is because the ambient light sensor was largely affected by the phone's screen light at nighttime.
+We investigated how much training data a participant would have to enter to expect reasonably good prediction performance.
+We tested our best model, individual BN FS, over different amounts of training data where we picked the training data randomly from the past of the test date.
+5, three days to one week of manual tagging would be required to train the system to achieve more than one-hour level of accuracy for sleep detection.
+To classify each participant's daily sleep quality as good or poor, we first detected sleep by using the detection algorithm presented in the previous section , extracted features from the detected sleep segment, and then input the features to our sleep quality inference models.
+Here, to detect sleep quality, we used our best-performing model .
+We could not use the sleep data not detected by our algorithm .
+In addition, we did not include the participants who had only one or less days of poor sleep after the automatic sleep detection, since the trivial classifier of just saying all the sleep is good quality would perform more than 90% of accuracy in these cases.
+6 shows the classification accuracy and poor sleep quality detection rate by using the generally trained models and individual models .
+Please note the class distribution of our dataset is highly imbalanced where even the Random model could achieve around 70% of classification accuracy by predicting all the sleeps as the good class.
+However, it fails to detect poor sleep quality, and the detection of poor sleep is more important.
+Using a feature selection phase increased the performance much more than in the sleep detection task.
+It was because the feature dimension was too high for the small number of samples in the quality inference task.
+Features that were most frequently selected while classifying sleep quality include the detected sleep time , Std.
+Interestingly, when we use only the previous day's quality feature, the model  failed to infer daily sleep quality .
+When we used only the waketime or duration feature with the individual model, we could detect around half of the poor days with poor sleep .
+7, the individual model requires 3 weeks of ground truth data in order to produce results comparable to our best result .
+Quartiles  of the accuracy  in classifying daily sleep quality.
+The detection rate  of poor sleeps is presented as a line plot where higher values denote better performance.
+A general model was evaluated by using a leave-one-user-out cross validation, while an individual model was tested by using a leave-one-day-out cross validation.
+The average error in sleep duration in our study was 49 minutes, which is the same as reported by Chen et al.
+One limitation of our system is that people might not remember their exact sleep time when they enter the diary in the morning, which could result in some evaluation errors .
+For example, in certain situations it was shown that people underestimated the amount of time they slept and overestimated sleep onset latency .
+One way to mitigate this kind of error would be to measure the bias in the reported sleep time with commercial actigraphs and then repeat the study.
+Since the intention of our work is to see if a smartphone is "good enough" as a sleep monitor, using other equipment is out of scope of this paper.
+Our approach, based on detection of 10-minute windows classified as sleep or not sleep has several advantages compared to the direct detection of bedtime and waketime from the series of sensor values.
+For example, our approach can provide instant detection of participants' sleep or notsleep state for a UbiComp system, without tracking people falling asleep or waking up time.
+Our approach also provides additional information about the kinds of abnormalities  by detecting disruptions as awake-like states in-between sleep states.
+While our current design only detects bedtime, wake time, and sleep duration, a low-pass filter could be used to resolve misclassified states.
+Since we were not classifying daily quality but were detecting good and poor sleepers, we included all participant data  in contrast to the daily classification task  where we rejected the subjects who had one or no days with poor sleep quality.
+8, BN FS produced the best performance with an average 81.48% of accuracy for classifying good and poor sleepers and F = 0.81 in detecting poor sleepers.
+Features closely correlated with sleep disturbances, such as Avg.
+In this work, we studied several feasibility aspects related to using commodity smartphones to detect sleep and sleep quality.
+Given the availability, popularity, and capabilities of smartphones, our objective was to assess if smartphones might be a reliable/adequate tool to automate collection of sleep behavior.
+Our analysis in estimating of sleep time and duration showed that we are able to detect bedtime, waketime, and sleep duration with 35 minutes, 31 minutes, and 49 minutes errors on average compared to the ground truth time reported by participants.
+These ranges seem relatively larger than commercial actigraphs like Jawbone and Zeo devices that have error rates lower than 10 minutes .
+However, given the flexibility of our data collection and not restricting participants' options in placing their phone in certain proximity, our achieved accuracy is significant.
+Besides, many health recommendations related to sleep duration assume hour-level accuracy  and according to sleep experts, precise sleep measurements are not necessarily needed to have a meaningful picture of sleep behaviors and trends .
+Hence, our system yielded reasonable results in monitoring sleep status.
+In inferring daily sleep quality, we achieved an average accuracy of 83.97%.
+Our data collection strategy  makes inferencing more challenging.
+For example, the phone captures movements if participants place their phone on the bed, which results in more accurate detection of sleep disruptions.
+The false positives in the number of detected disruptions among solo sleepers might be less than for co-sleepers.
+One way of acquiring more accurate data about the sleep environment and people's sleep status for the previous night is to ask people to monitor their recorded sleep and label disruptions.
+This option will give the people opportunities to capture and remember significant sleep events  as well as help train models to infer sleep quality.
+Sleep quality inference proved to be more difficult than sleep detection.
+This may be partially caused by the challenge of collecting accurate ground truth data.
+Sleep quality can be an ambiguous, making it difficult to report.
+Our query "How was your sleep last night?
+Rate it on a one to five scale score" does not capture the full extent of a sleep session.
+Our one-month field trial with 27 participants showed that we can detect an individual's sleep with average errors of 35, 31, and 49 minutes for bedtime, waketime, and sleep duration.
+We can also infer an individual's daily and global sleep quality with average accuracies of 83.97% and 81.48%, respectively.
+In our future work, we plan to use our dataset to test the feasibility of identifying types of sleep disturbances and to study recurring patterns in sleep behaviors that might predict upcoming problems.
+Finally, we plan to compare the performance of our mobile application with other commercially used wearable devices such as actigraphs.
+The quality can be good but the quantity is not enough; they do not feel rested.
+A person might have lots of trouble falling asleep, but once asleep they sleep deeply and feel rested when they rise 12-hours after going to bed.
+Finally, a person might be awakened by a pet in the middle of the night.
+The sleep was disturbed, but they might or might not feel rested.
+For example, it was shown that people tend to overestimate sleep quality with noise disturbances like music .
+In all of these situations the single sleep quality question is ambiguous.
+Better questions could ask people to rate if people feel rested, if they feel they got enough sleep, and to rate the quality of sleep while asleep.
+9 shows that many participants had a small interquartile range for daily subjective sleep quality where the median quality was "Good."
+Nevertheless, subjective sleep quality is very important.
+For example, recurrence of major depression is often preceded by a drop in subjective sleep quality, but only moderately associated with objective sleep quality .
+One study limitation is that there is only one month of data.
+Because of this, we lacked enough examples of poor quality sleep as these happen with less frequency than good sleep.
+Finally, we could classify good and poor sleepers with 81.48% of accuracy based on their one month of sleeps.
+The results from this model could be used to assess global sleep quality as well as to detect changes of regular quality.
+For example, one of our participants showed a decrease in sleep quality reported: "I generally sleep well, but haven't been sleeping or feeling well for the past ten days.
+I have a lot of congestion and bronchitis which makes it hard to sleep."
+We expect to use our model over longer period of time to detect those health-related changes.

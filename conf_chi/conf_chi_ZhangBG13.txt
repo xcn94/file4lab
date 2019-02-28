@@ -1,0 +1,321 @@
+Eye gaze is compelling for interaction with situated displays as we naturally use our eyes to engage with them.
+In this work we present SideWays, a novel person-independent eye gaze interface that supports spontaneous interaction with displays: users can just walk up to a display and immediately interact using their eyes, without any prior user calibration or training.
+Requiring only a single off-the-shelf camera and lightweight image processing, SideWays robustly detects whether users attend to the centre of the display or cast glances to the left or right.
+The system supports an interaction model in which attention to the central display is the default state, while "sidelong glances" trigger input or actions.
+The robustness of the system and usability of the interaction model are validated in a study with 14 participants.
+Analysis of the participants' strategies in performing different tasks provides insights on gaze control strategies for design of SideWays applications.
+In this paper, we present a novel eye gaze interface, designed for users to be able to just walk up to a display and casually assume control, using their eyes only.
+Our system, SideWays, requires only a single off-the-shelf camera and distinguishes three gaze directions  as input states.
+These input states are detected in a spontaneous, robust and person-independent manner.
+There is no training or calibration involved, and no adaptation to individual users.
+Any user can step up to the display, and the system will be able to respond immediately to their attention .
+A look straight ahead is interpreted as attention to the centrally displayed content.
+In this state, the interface is kept stable, and the eyes do not trigger any action.
+In contrast, glances to the left or to the right are associated with input actions.
+In terms of application logic, these glances are like pressing  a button, but the user experience may be more subtle and fluid with interface designs that have such actions appear natural and implicit.
+In developing SideWays, we contribute as follows.
+First, we present a novel image processing method for detection of eye gaze directions.
+The new idea underlying the method is to measure the distance between inner eye corner and eye centre for both eyes in order to robustly classify gaze directions.
+Eye gaze is a modality of interest for spontaneous interaction with displays, as we naturally use our eyes to engage with displays we encounter, and as other modalities are often not as readily available as our eyes.
+However, eye gaze is difficult to harness for spontaneous and pervasive use.
+A limitation that undermines the idea of spontaneous interaction is that eye trackers generally require a calibration phase before interaction can commence, every time a user steps up to a display.
+An additional problem is the dependence of existing methods on specialist hardware and illumination of the eye, which can be difficult to provide on pervasive scale.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Secondly, we describe a study in which we evaluated SideWays with 14 participants on three interactive tasks .
+The selection task served to characterise the system in terms of correct detection of input depending on time window of observation of the eyes, while the other two tasks assessed usability of the interface and interaction model for control tasks.
+Thirdly, we analyse the participants' behaviours in performing the different tasks.
+This lets us draw out insights on user's gaze control strategies, and derive design considerations for application of our system.
+However their system was specifically designed for a user with severe cerebral palsy and was primed to detect occurrences of a left/right movement, while we continually classify eye gaze direction.
+In this work, scrolling is among three tasks on which we evaluate usability of our gaze interaction system.
+Early work on eye gaze interaction demonstrated selection on menu grids  and gaze-based techniques within the WIMP paradigm  of our desktop computers .
+The underlying model is to treat gaze as a pointing device, for example as alternative to mouse use for object selection in conventional interfaces , or for fast hands-free input with special-purpose visual interfaces .
+In conventional settings, pointing accuracy is achieved with remote eye gaze trackers that require users to calibrate their gaze prior to interaction .
+In contrast, we target pervasive settings and adopt a deliberately simpler gaze model to facilitate spontaneous and calibration-free interaction, between users and displays that have never seen each other before.
+Use of the eyes for interaction with pervasive devices has previously been explored in work demonstrating attentive user interfaces that respond to eye contact .
+This has been realised with pervasive eye contact sensors mounted on "smart" devices and objects , as well as with wearable devices that detect gaze orientation towards infrared tags placed in the environment .
+In SideWays, we likewise detect gaze for attention to pervasive displays but in addition enable users to provide input with looks to the left or right from their centre of attention.
+Contrasting previous work, we do not require special-purpose hardware but detect eye gaze with a camera.
+Sideways targets interaction with displays we encounter in our environment.
+A large body of work provides general insight into how people interact with displays in public settings , which is of importance to inform practical deployment of Sideways.
+A variety of projects have used head orientation towards large displays in presumed approximation of what people look at .
+Other work has focused on low-cost extension of public displays for gaze pointing however still requires a calibration phase prior to interaction .
+Contrasting extension of display, EyeGuide  explored use of a wearable eye tracking for interaction with pervasive displays.
+In contrast, our focus is on enabling interaction with public display without any instrumentation of the user.
+In our approach, all a user needs for interaction is their eyes.
+Research on gaze estimation mostly focuses on model-based approaches, such as Pupil Centre Corneal Reflection  techniques .
+These techniques require specialised hardware and additional light sources, such as infrared illumination .
+Gaze direction is estimated by detecting the pupil centre and a reflected "glint" on the cornea.
+With a geometric model of the eye, accurate gaze estimates are derived from the offset of the glint.
+However, the approach is problematic for pervasive settings as it requires controlled lighting conditions for illuminating the eye and for robust detection of light reflected from the spherical surface of the cornea.
+Most commercially available eye trackers are based on modelbased approaches and are typically geared toward desktop use.
+These systems require user-dependent calibration .
+More sophisticated eye trackers use stereoscopic views with multiple cameras or multiple light sources for multiple glints to avoid calibration for each individual .
+A few userindependent eye-trackers using model-based approaches have been shown to work in laboratory conditions .
+Recent efforts aim to avoid specialised hardware and infrared light sources to estimate gaze.
+Appearance-based approaches work under visible light and use image processing and machine learning techniques to estimate gaze directly from images recorded with video cameras .
+Such approaches avoid calibration but require a priori training with eye images of the users, which prohibits spontaneous interaction.
+However, their approach is person-dependent and initial calibration is required for each user to obtain the interpolation equation.
+The SideWays system is designed to detect gaze attention to a display, and to support gaze selection of areas to the left and to the right of the display's centre.
+The only hardware required for the system is a single off-the-shelf RGB video camera, positioned to capture the scene in front of the display.
+The system takes video frames as input, and analyses these with image processing techniques.
+Figure 2 illustrates the processing chain, from face detection and segmentation of eye images to detection of inner eye corners and localisation of pupil centres.
+The output from image processing are the distances of the eye centre from the eye corner for both left and right eye.
+Our system uses these distances to discriminate gaze directions as L, R and C.
+We explain both the image processing chain, and the eye gaze classification method in detail.
+The images from the video camera are subject to variable lighting conditions, such as shadows, bright lights, low contrast, motion blur or noise.
+To tackle these problems, we first apply a bilateral smoothing filter to reduce noise while preserving edge information.
+The filter smooths regions while preserving, and enhancing, the contrast at sharp intensity gradients.
+After the image is pre-processed, we use a ViolaJones face detector to detect the user's face and eyes in real time  .
+The face detector identifies a rectangular area of the largest face in the scene.
+In order to improve performance and reduce the computational cost, we only search for eyes in the top half region of the face.
+The system further detects the left eye by examining the left half of the facial area, and likewise for the right eye.
+Our system finally extracts two image patches that represent the output of this first processing step, one for each eye .
+In each video frame, we obtain the pupil centre  and the inner canthi  as result of image processing.
+Figure 3 illustrates how we use these to derive gaze direction.
+Consider first that we look straight ahead.
+In this case the pupil centres of both our eyes will be similarly distant from the respective inner eye corners.
+If we look to the left, then the distance of our left pupil from its inner eye corner increases, while the distance of the right pupil from its inner corner decreases.
+Conversely, a look to the right means that the left pupil moves closer to its inner eye corner, while the right pupil moves further away.
+Consequently, to determine different gaze directions, we calculate the ratio r of the eye-centre Pcx to inner canthi Cix distances of both eyes as CiR - PcR |  CiL - PcL where CiR and CiL are the x coordinates of inner eye corners from the right and left eye images, PcR and PcL are the x coordinates of pupil centres from the right and left eyes.
+A general threshold Tr is set for classifying frame ft as three gaze directions which are L, C, R according to the following rules:  if Tr < |r| < TrM AX ; R, Ot = L,  if 1/TrM AX < |r| < 1/Tr ;  C , otherwise.
+To detect the inner eye corners, where the upper and lower eyelids meet , our system applies a Harris corner detection separately to each eye image patch.
+The method detects the locations of interesting windows which produce large variations when moved in any direction in an image.
+Locations which are above a threshold are marked as corners.
+Besides eye corners, the output could also include other feature points of local intensity maximum or minimum, line endings, or points on a curve where the curvature is locally maximal in the image.
+As this may result in several candidate eye corner points, the system further applies a canny edge detector .
+A canthus region should exhibit strong edges where the upper and lower eyelid edges meet.
+Accurate canthi locations can then be obtained by considering only those candidate points that lie on the detected eyelid edges .
+All other candidate points are discarded.
+To localise the eye centres, we have develop a novel method that exploits the semi-circular structure of the eye iris and pupil as described in .
+The captured eye images are strongly influenced by shadows cast in inner eye corners and by screen reflections.
+To reduce this effect, colour edges are obtained from cropped RGB eye images by using the Gaussian colour model proposed by  .
+We process all images frame by frame from the start.
+The set of measurements O1:W corresponding to time span  in the buffer is updated.
+We only consider valid observations when both eye corners and centres are detected.
+As shown in Figure 4, an activation is triggered when the same gaze direction is detected consecutively in the sliding window.
+We distinguish two different activation approaches: discrete and continuous.
+Discrete activation clears all measurements O1:W in the sliding window after an event is triggered.
+This causes delay as a new stream of measurements in the sliding window need to be collected.
+Continuous activation only updates the last measurement in the sliding window with every incoming frame, hence, allowing for fast response.
+Scrolling tested the users' ability to use our system for discrete scrolling through a list of items.
+A window size of four was used with discrete activation, so that a scroll step was executed only if the user's gaze dwelled for four valid frames on the left/right control.
+Sliding tested control of a continuous slider and the users' ability to move a slider to accurately hit a target position.
+A window size of three was chosen with continuous activation, which meant that that a sliding step was executed in each frame, for as long as the detected gaze direction matched the previous two frames.
+Three different speeds of the slider were used, and data captured to analyse how often users needed to change sliding direction to reach the target.
+The interaction model proposed for the SideWays system is to treat gaze straight at the display's centre as a default state in which the eyes do not trigger any action, while "sideways" glances to the left or right are foreseen for user input.
+We designed a user study to evaluate our system and the proposed interaction model on three generic tasks: Selecting, Scrolling and Sliding.
+For each task, we run a separate experiment to evaluate different aspects of our system.
+Selecting was always conducted first as it was designed to fundamentally characterise the interface in terms of correct classification of input depending on size of the sliding window used in the process.
+A smoothing window of five frames was used but data was collected for post-hoc analysis of detection accuracy versus speed .
+The other two experiments were conducted in counter-balance.
+The hardware setup for our study consisted of a 55 inch  LCD display from Philips with a resolution of 1920x1080 pixels, mounted on the wall at 120cm height .
+A Logitech HD Pro Webcam C920 with a resolution of 1280x720 pixels and a video frame rate of 30Hz was mounted on a stand and positioned 60cm in front of the screen .
+The real-time image processing and gaze estimation software was implemented in OpenCV, and ran on a laptop with a 2.67GHz processor and 4GB of RAM.
+The study was conducted in office space under normal lighting conditions.
+We asked participants to stand at a distance of 1.3m in front of the display .
+A marker on the floor indicated where the participant should stand.
+However, during the user study, participants were free to fine tune the distance for their own comfort.
+The distance between the camera and the user was 70cm5cm.
+The captured image resolution was 300x300 for faces, and 80x70 for eye images, slightly varying across users.
+In a real world deployment, cameras would typically be mounted on the display but we positioned it closer to the user as we aimed to evaluate interaction with our system, not the limits of eye pupil and corner detection.
+The interfaces of the three tasks in our user study.
+Each session lasted for approximately 45 minutes.
+Participants were first introduced to the system and allowed to complete one trial of each task.
+All participants then first completed the Selecting experiment, while the remaining two experiments were counter-balanced.
+After each experiment, user feedback was collected with a questionnaire.
+The questionnaire asked for the participants' subjective experience, problems they encountered, and strategies to overcome issues of the system.
+In the selecting task, participants had to look at either the left or the right region of the display.
+Participants were asked to initially focus on the centre region of the display.
+Once the system had detected the participants' gaze, the system indicated the desired gaze region using a green arrow pointing either left or right.
+In addition, a red circle was shown in both the left and right region to assist participants in fixating on that region .
+The system continuously estimated the gaze direction with a smoothing window of five frames.
+Upon detection of gaze on the correct target, the target colour would change from red to green.
+Participant's were instructed to return their gaze to the centre after each completion of a trial.
+With a short delay, the next trial would be triggered by display of an arrow.
+In total, this was repeated twelve times .
+In the sliding task, the participant's objective was to control a horizontal slider by moving the slider indicator either left or right onto a target position with their eyes.
+For this task, the display showed a horizontal slider widget in the centre region .
+The slider target was represented by a black line, and it contained a red circle as slider indicator.
+Green arrows on the left and right display regions represented the slider's controls.
+At the start of the task, the indicator was placed at either the left-most or the right-most slider position, and the distance to the target was always 480 pixels.
+When participants looked at the left controller, the slider would progress one step width to the left in each frame, and vice versa for the right control.
+When participants were satisfied that they had reached the target, they returned their gaze to the centre of the display to complete the trial.
+The task was repeated twice for each step size, for a total of six trials per participant.
+In the scrolling task, participants were asked to scroll through a list of objects using their gaze and to find the object that matched a predefined target.
+We used a combination of four shapes  and four colours  to represent a set of sixteen scrolling objects .
+At the beginning, the sixteen objects were randomly placed horizontally at equal distances, arranged as a flow with the display as viewport showing the current selection in the middle, and one adjacent object on either side.
+Participants then had to scroll through the objects to find a preselected object that was indicated by a coloured dash-bordered shape and shown at the centre of the display.
+Participants had to look left or right of the display to scroll items from that direction toward the centre.
+Arrows were displayed on both sides of the display to help participants fixate.
+The task was repeated six times, and each time with a dif-
+Four of the 14 participants required eyeglasses for correct vision and three wore contact lenses while the fourth removed his glasses.
+One of them reported that the contact lenses had affected her speed in fast and frequent eye movements, and that they caused discomfort after using the system for a while.
+Two participants experienced asymmetric system performance in left and right directions.
+One of them explained that she had had an eye operation, which effected gaze to the right.
+The other participant reported better performance for gaze to the right but her reason was unknown.
+However, she described that she compensated by turning her head slightly towards the opposite direction.
+The participant who removed his glasses was far-sighted.
+He often squinted his eyes while looking at the display, which drastically slowed down the system's detection speed .
+In general, participants were able to correct mistakes with very few extra steps.
+In 20 out of the 23 error cases, the participants only changed the scrolling direction once for correction .
+Figure 7 illustrates the scrolling accuracy of each participant.
+Two participants finished every task without any extra scroll steps, and evidently learnt to use the system very quickly.
+Seven participants made one error .
+However, participant 12 took 28 extra scrolls for his first trial, explaining that he lost focus during the first trial as the target shape was at the very end and the system was not responsive.
+Our post-study analysis showed that his head orientation drifted from the centre towards the scrolling direction, where new shapes were coming from.
+This caused the system to classify his gaze as central, instead of triggering a scroll step.
+The participant learnt to re-centre his head when the system was not responsive, and completed the remaining trials with only minor errors.
+Overall, we observed that six participants tended to turn their head towards the scrolling direction.
+Since the focus region is on the far end of the display, people intuitively turned their head towards the region to examine upcoming information.
+However, when they noticed the scrolling stopped, they returned their head orientation back to the centre.
+System errors mainly resulted from delays in stopping the scrolling.
+Four participants mentioned that the system was not sensitive enough for stopping and that they had to look at the centre region already before the target object reached in the centre.
+In particular, participants 10 and 6 found it difficult to stop scrolling, while participant 6 found it hard to judge the colour of objects in the centre with peripheral vision, while gazing to the left or right for scrolling.
+We observed the participants' behaviours and strategies in scrolling.
+Six participants fixated on the arrow indicator to scroll continuously.
+The participants were able to finish 40 out of 84  trials without stopping to scroll before reaching the target.
+Some participants mentioned that frequent stopping and checking the information in the centre helped them to perform better, but those who scrolled without stopping did not cause more errors .
+These results show that the participants were able to handle frequently changing information when the shapes are moving.
+Participants performed a total of 168 trials  of looking left and right for selection.
+Table 1 summarises the results with post-hoc analysis for different window sizes.
+Eye gaze matching the target was counted as correct, eye gaze on the opposite target counted as wrong , and eye gaze in the centre as missed .
+Window size 5, as experienced by the users in the study, results in the least number of errors.
+This was expected, as increasing the window size also increases certainty.
+Analysis of recorded data revealed that three of the errors  were from one participant due to squinting.
+On average, users needed 1.78s  per selection, but the user who squinted required an average of 2.91s.
+Although increasing the window size provides better detection accuracy, it inherently increases the time required to detect a correct selection.
+Table 2 provides an analysis of correct detection rates depending on window size and time thresholds.
+The results indicate that a window size of four frames is optimal, but windows of three frames perform almost as well for detection in limited time.
+Participants reported that using our eye-based system for left and right selections was "intuitive", "easy to perform", and "suitable for touch-free interactions".
+However, two mentioned problems, such as inconsistency in system response time, one of them noting that to improve the system, he had tried not to blink and kept his eyes wide open.
+Several participants mentioned that although it wasn't tiring to use the system they would prefer faster response times.
+We observed 84 trials for the scrolling task, six per participant.
+In each trial we counted how many scrolling steps users required to complete the trial and compared this with the minimally required steps.
+On average, participants required 1.2  extra steps to complete a scrolling trial.
+The mean of overshoots was 2.7 for medium step width, but 4.3 for large and 5.0 for small step width.
+Note that trials always started with small step width and that results will be influenced by a learning effect.
+The errors caused by the fast speed  were mainly caused by system delay.
+Six participants criticised that the system was not fast enough to react when gaze direction changes rapidly.
+In addition, several participants also mentioned that the fast speed was too fast for their eyes.
+One participant was having difficulty with small step widths  while performing well with the medium and fast speed .
+The participant was short-sighted and removed her glasses during the study.
+She was not familiar with stopping with the initial trials, and followed the indicator moving left and right repeatedly crossing the target.
+In general, the participants found it difficult to control the sliding indicator precisely with their eyes.
+Their strategy was to first bring the indicator near the target location as close as possible.
+This was done by staring at the control arrow for continuous sliding, while using their peripheral vision to approximate the indicator's location.
+Once the indicator was near the target, the participants looked at the centre region to stop the sliding.
+They fine tuned the movement by looking at the arrow control and the centre region back and forth.
+For the slow and medium speeds, in many trials, the participants were able to stop before the indicator reached the target ; however, with faster speed they struggled more to do that .
+On the other hand, the slow speed caused issues in fine tuning.
+The participants reported that it was difficult to control with precision using peripheral vision.
+Since the distance of each jump was small, it was difficult to judge when exactly it reached the target.
+Some participants struggled to use their peripheral vision, and could not see both the arrows and the target together simultaneously.
+Overall, most participants found the sliding task challenging when using the fast and the slow speeds.
+A few participants suggested the system could be useful for moving objects in out-of-reach distance.
+Several participants liked the fast and accurate response of the system.
+They found it easy to control the direction of the sliding object by using left and right eye movement.
+The majority felt that they were not able to control the system for fine tuning positions, especially using small step width.
+Half of the participants mentioned that it was unnatural to use their peripheral vision to see detail in the centre, while looking left or right.
+Some participants felt that they needed to concentrate and be patient to use SideWays for sliding.
+Also, the participants experienced fatigue due to frequent eye movements changing between left and right for position fine tuning.
+A few participants disliked the long time required to precisely move an object to the target.
+The participants devised strategies to avoid mistakes.
+Some participants noticed the delay in triggering single scroll/stop actions , and exploited this for brief glances to the centre without causing to stop the scrolling action.
+Overall, participants were satisfied with their experience of using SideWays for scrolling.
+Most felt that the system reacted to their left and right gazes correctly, and that the system provided sufficient precision for real applications.
+They also felt that it was convenient to search objects using only their eyes, and suggested that the system is suitable for controlling "objects beyond reach".
+The participants enjoyed the experience of searching in a smooth flow, "without clicking".
+Most remarked it was easy and natural to use their peripheral vision for searching in this task.
+Given the big object size and simple content, they were able to see what was in the centre while looking at the scroll arrows.
+However, several participants mentioned that they needed to keep their head still, which they found difficult for longer scrolling.
+In addition, the participants preferred faster triggering time.
+This task tested the participants' ability to accurately move a slider to a target position.
+Participants performed six trials, two for each of three different slider speeds, and we collected data on a total of 84 trials, 28 per slider step widths.
+Table 3 shows the participants' average completion time.
+The last column  indicates the fastest time that the participants achieved.
+However, the average completion time was much higher.
+Most of the time was spent on position fine tuning.
+Many participants missed the slider target, thus requiring longer time to correct the slider's position.
+We define overshooting as the number of instances when the indicator had jumped past the target location.
+Figure 8 provides a histogram that summarises observed overshooting.
+In 25% of all trials, participants managed to slide directly to the target without overshooting.
+Participants' subjective feedback on use of Sideways for the selecting, scrolling and sliding tasks.
+Users were asked: did they feel in control; did the system respond correctly to their gaze; did the system respond without delay; did they find the task mentally demanding; did they find it tiring their eyes; would they accept the system for the task; and were they overall satisfied with use of the system for the task.
+Post-hoc analysis with Wilcoxon Signed-Rank Tests was conducted with a Bonferroni correction applied.
+We asked the participants whether they felt they were in direct control of the SideWays system.
+One participant particularly commented "I can feel a real power, starting from my brain and ending on the screen."
+A post-hoc analysis showed that the selecting vs sliding  and selecting vs scrolling  pairs were significantly different.
+The participants felt that they were most in control when using our system for selecting objects.
+We found a significant difference in whether the participants perceived the system as responding correctly to their gaze, 2 =14.70, p<.002.
+The selecting vs sliding  and selecting vs scrolling  pairs were significantly different.
+The participants felt that the system was most responsive when used for selecting objects.
+The participants felt significantly more tired when using our system for sliding than for selecting .
+Participants provided comments in comparison of scrolling and sliding.
+Sliding was found demanding as it required target status check in the centre of the screen while concentrating gaze on either left or right.
+For scrolling, participants noted that they can see what is coming while they are controlling, and they found it less demanding to use peripheral vision to check what is in the centre, as it was displayed more largely than in the sliding task.
+Participants also commented on possible applications of the system.
+Since SideWays is touch-free, the interaction is sanitary and therefore suitable for public environments, such as airports, libraries and shopping malls.
+Some participants suggested that it could benefit disabled people with paralysis.
+Several participants criticized the lack of visual feedback for the detection of gaze directions.
+This is important as it provides indication of whether the system interpreted the user's input correctly.
+The album cover browser acts as an interface of a music jukebox.
+A user browses for music by scrolling left and right, and the centre region represents the music album to play.
+The gaze quiz application is an interactive quiz game.
+A user first reads a question displayed in the centre, and then answers the question by selecting yes or no, which was placed on the left and right positions of the screen, respectively.
+We used a window size 3 for the album browser and a window size 4 for the gaze quiz.
+Both applications used discrete activation.
+Participants were allowed to use the interfaces freely.
+We gave no instruction of how to interact with the interfaces, but the participants were still able to use the applications.
+For the media browser application, the users were able to navigate through all the music album covers and check what music was available.
+Sometimes, they scrolled back/forward to stop at the one they were interested in.
+During the gaze quiz application, the participants read twelve questions displayed in the centre and provided answers for all the questions.
+All participants understood how to search the media album covers and make selections.
+One participant encountered the "Midas Touch" problem in the gaze quiz .
+While we displayed one question with a long sentence, the participant accidentally chose the answer "No"  as he was reading the sentence.
+Thus, information in the centre should not be extended to the far left or right regions of the display.
+Participants further suggested that SideWays could be applied in situations where a display is obstructed by a glass wall or window, such as shop displays for pedestrians.
+Another suggestion was for controlling television, e.g.
+Our study validates that SideWays enables eye gaze as input for interactive displays, without the need of prior calibration or specialist hardware.
+This is significant in a number of ways.
+First, achieving robust gaze control, albeit coarsegrained, without need for calibration means that our system is person-independent.
+Any user can walk up to a display fitted with our system, and interact with it using their eyes only.
+Secondly, as we overcome calibration, users will be able to interact immediately  which is important for serendipitous and short-lived interactions that don't warrant preparation phases.
+Most participants were aware how far they needed to look left/right as SideWays provided guidance by displaying the visual control stimulus.
+Increasing the threshold essentially increases the visual angle.
+If the threshold is small, the central region becomes narrower, and the system also becomes more sensitive to small eye movements of looking left/right.
+However, if the threshold is large, the user will need to look left/right further to trigger input which might cause discomfort and fatigue.
+The optimal threshold will depend on application, and designers need to consider the distance between the user and the display and the size of the display.
+The window size determines how much evidence is collected before an action is triggered and trades off between accuracy and speed.
+A large window size improves the accuracy of gaze detection, but causes longer delays and slower response.
+A small windows size speeds up response, but increases likelihood of errors caused by noise.
+Designers can map input state to discrete versus continuous actions to fit the nature of the task.
+If the content requires attention , a discrete action mapping is better suited.
+To minimize head turning, designer should pay attention to the display region where information changes.
+Dynamic movement on the control regions can attract user attention; hence, causing head turning.
+Users need feedback when an event is triggered, to understand whether the system has detected their gaze.
+Visual feedback can be explicit confirmation of users input, for example by highlighting a displayed control that was triggered, or implicit in the behaviour of application, for example by updating the content displayed in the centre of the screen.
+However, when users glance sideways to trigger a control, it can be difficult for user to acquire feedback that effects only the centre of the display.
+Person-independence and interaction without preparation are critical steps toward genuinely spontaneous interaction with displays we encounter in public environment.
+While our evaluation shows that our system achieves both, it does so under the constraints of a controlled study designed to systematically test and characterise the interaction technique.
+Deployment in real-world contexts naturally raises a range of further challenges.
+For example, although a calibration phase is avoided, there will still be a gulf in how users can readily obtain and use gaze control over a display they encounter.
+However, with a lab study of our system's working, we now have a foundation for addressing deployment challenges, as well as insights on user performance and strategies that can inform application design.
+For ecological validity, it will be important to inform further development by understanding of how users interact with displays "in the wild".
+For example, research on public display interaction showed that often more than one user is involved in interaction , posing a challenge to accommodate multiple users simultaneously.
+For SideWays, the calculation of multiple users' gaze is equivalent to individual's gaze estimation in parallel.
+However, detection of eye images will naturally be more complex in public environments and with multiple users.
+Although the system would be able to discriminate input from different pairs of eyes, it would not be clear how to map multi-user input to display actions without causing potential conflict.
+When the system is not able to detect eyes images of sufficiently quality for computing eye centre and eye corners, the interface responsiveness decreases.
+This happens when users blink and squint or when the eyes get occluded in any other way, and can also be caused by larger head movement.
+When the system does not respond correctly or fast enough, no manual intervention is needed to reset SideWays.
+Participants reported that they reinitialized SideWays by closing their eyes, or by adjusting head positions or distance to the screen, indicating a good understanding of what causes misfunction and how to recover.
+Our system requires users to keep their head oriented toward the centre of the display and only move their eyes.
+Some participants commented that this was unnatural, because they often subconsciously turn their head towards the direction of their visual focus.
+As a result, the detection of gaze direction becomes unreliable.
+This poses a limitation of user interaction.
+In this paper, we presented SideWays, a novel eye gaze interface for spontaneous interaction with a display.
+It leverages left and right regions of the display for gaze controls, while keeping the central region for display content.
+The system uses an off-the-shelf visible light camera along with its lightweight image processing for robust detection of gaze directions.
+We conducted a user study to evaluate SideWays on three interactive tasks.
+The results show that people are able to use SideWays to interact with a display, and we have gained insights of people's gaze control strategies.
+With SideWays's nature of being calibration-free and person-independent, its applications are potentially usable by many people.

@@ -1,0 +1,138 @@
+Braille has paved its way into mobile touchscreen devices, providing faster text input for blind people.
+This advantage comes at the cost of accuracy, as chord typing over a flat surface has proven to be highly error prone.
+A misplaced finger on the screen translates into a different or unrecognized character.
+However, the chord itself gathers information that can be leveraged to improve input performance.
+We present B#, a novel correction system for multitouch Braille input that uses chords as the atomic unit of information rather than characters.
+Experimental results on data collected from 11 blind people revealed that B# is effective in correcting errors at character-level, thus providing opportunities for instant corrections of unrecognized chords; and at word-level, where it outperforms a popular spellchecker by providing correct suggestions for 72% of incorrect words .
+We finish with implications for designing chord-based correction system and avenues for future work.
+Further, Sandnes and Wang  presented a texting alternative for desktop computers, which relied on chording with spatial mnemonics and automatic word correction.
+However, to our knowledge, there are no reports of correction approaches that leverage Braille chording information.
+As a result, when decoding multitouch actions to characters, useful knowledge about the users' intent is lost.
+The sequence of chords provides more information about the desired word than do the characters, as each chord becomes the atomic unit of information.
+Distances are computed considering that a chord may be partially correct enriching the selection of the most probable suggestions.
+In this paper we present B#, a correction system for multitouch Braille input that resorts to the chord itself as the basis for similarity analysis between words.
+At characterlevel, an unrecognized chord is used along with n-gram features to decide the closest character.
+At word-level, we extended the Damerau-Levenshtein distance to assess proximity between chords, and thus use this information to search for the most probable corrections.
+The contributions of this paper are: first, an analysis of chording errors on multitouch Braille input; second, a correction system that leverages chord-level information; and finally, an analysis on the effectiveness of character- and word-level correction.
+We conducted a user study with 11 Braille-knowledgeable blind participants  aimed at understanding the most common errors in multitouch Braille input .
+None of the participants owned a touchscreen phone.
+The prototype draws inspiration from BrailleTouch's  usage setup , combined with finger tracking techniques .
+Participants were given warm-up trials  starting from writing individual characters, words, and finally sentences.
+They were then instructed to write a set of 22 sentences , whereas the first two were practice trials.
+Error correction  was not available in order to capture errors and uninterrupted typing behaviours.
+An auditory signal was used to indicate that a letter had been entered.
+Participants were instructed to continue to the next character even if they recognized they had made an error.
+Information interfaces and presentation Since the advent of Apple's iPhone and its built-in accessibility features, blind people have increased access to mainstream mobile applications.
+However, the flat surface poses challenges that are only partially solved.
+Particularly, typing is still slow compared to what sighted people experience .
+To address this issue, multitouch Braille chording approaches have been presented and are very effective in improving input speed ; however, they are characterized by a decrease in typing accuracy .
+One common approach to improve typing accuracy is the usage of spellcheckers.
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+B# is a novel correction system for multitouch Braille input.
+Participants wrote a total of 168 sentences and 5972 characters.
+Data analysis revealed insights on the most prominent Braille touch typing behaviors, which were the basis for B#'s error correction algorithm principles.
+Multitouch Braille typing solutions are known to be fast and error prone .
+Similarly, in this study, participants obtained an average typing speed of 14 words per minute and error rate of 17.7%, of which 72.4% was due to character substitutions errors.
+Chord-level analysis revealed that 35.2% of substitutions were due to a single dot error within the braille cell.
+This difference occurred either due to a single omitted or extra dot.
+If we include a single adjacent finger transposition, this accounts for 42.5% of substitution errors.
+Participants entered a total of 263 Braille chords that were not recognized as a valid letter .
+In these cases, the characters are automatically classified as errors, and this information is usually discarded from traditional correction systems.
+B# deals with mistyped words that result from entering incorrect chords on a touchscreen device.
+In the remainder of this section, we propose: first, a distance function that enables us to compare Braille chords, and therefore predict misspells; second, a character-level disambiguation mechanism; and finally, a word-level correction algorithm that leverages chord information.
+Our approach to word correction is based on similarity between Braille chords.
+The proposed distance function aims to model users' behaviours while chording on a touchscreen.
+The 3x2 Braille matrix is viewed as a vector of 6 bits and thus, the difference between two vectors can be computed as a binary distance.
+Four types of chording errors can occur whilst chording: omissions , insertions , transpositions , and substitutions .
+Our distance function draws inspiration from the DamerauLevenshtein distance with a slight variation.
+The distance between chords is the sum of the differences between hands; that is, the first and last three bits that correspond to each hand are treated independently.
+This approach prevents transposition errors from occurring between hands.
+Character-level correction is achieved by exploiting redundancy in the alphabet.
+The Braille cell allows the representation of 64 different patterns.
+However, standard text entry applications do not use its maximum capacity.
+If we only consider the letters of the English alphabet , and the blank space, then this yields 58% redundancy.
+In cases where the user enters an invalid chord, the closest valid character in terms of Braille distance can be selected .
+There are several situations where this approach retrieves more than one valid character, introducing ambiguities in the correction process.
+In these cases, we leverage basic linguistic features, such as letter and n-gram frequencies to select the most probable character.
+Our algorithm uses the maximum of previous available letters to disambiguate invalid chords.
+Although this approach may not deal with all spelling errors, we are interested in analyzing its effect as a stand-alone solution, as well as in combination with word-level correction.
+B# word-level correction algorithm uses a similar approach to traditional spellcheckers by matching the transcribed word against a wordlist.
+A key difference is that it operates at chord-level.
+This means that even partially correct or invalid chords can be used to retrieve better matches.
+Even non-alphabetic characters, which are usually ignored by traditional spellcheckers, can provide useful information.
+For each transcribed word, B# creates a list of likely suggestions and ranks them using a word distance score.
+If the word exists in the wordlist, then it is automatically the first suggestion.
+Transposition errors were not considered since Braille input is a sequential task with no overlap between chord entries.
+A minimum string distance  score is used to calculate the distance between users' input and suggestion candidates.
+We systematically check chord permutations in the transcribed word against the wordlist.
+Since computing all permutations of chords is computationally inefficient, we reduce our search space by only checking against letters that are at a Braille distance of one from the transcribed chord.
+This distance accounts for 1-bit errors, responsible for most character substitutions.
+A Trie tree structure is used for checking the existence of the word in the wordlist, while employing character insertion, omission, and substitution rules during the spelling correction stage.
+A blank space filter is used to separate two words that were transcribed without a space between them.
+Finally, a word frequency score is computed and subtracted from the MSD score.
+In order to evaluate B#, we ran the correction algorithms on the set of sentences previously collected.
+Analysis was performed using an Android Virtual Device .
+From the 751 words, we identified and tagged 364  incorrect entries that could be corrected by B#.
+We applied Shapiro-Wilk normality tests to observed values in all dependent variables.
+Parametric tests were applied for normally-distributed variables and non-parametric tests otherwise.
+Greenhouse-Geisser's sphericity corrections were applied whenever Mauchly's test showed a significant effect.
+Bonferroni corrections were used for post-hoc tests.
+Character-level correction was applied to unrecognized characters, i.e.
+To evaluate character correction, we compared B# disambiguation with the baseline substitution errors.
+Additionally, we included a version of B# without the linguistic features in order to assess its effect on correction accuracy.
+The letters' relative frequencies, bigrams, and trigrams were extracted from a corpus with more than 11 million letters and 2 million words.
+Chord and Linguistic features enable Disambiguation.
+By only exploiting the redundancy of the Braille alphabet, substitution errors slightly decreased to 12.2% .
+On the other hand, B# character-level disambiguation successfully corrected 2.4% of substitution errors, reaching an average of 10.4% .
+Wilcoxon pairwise comparisons showed significant differences between B# disambiguation and both baseline  and redundancy-only  results.
+In order to evaluate B# word-level correction, we compare our solution with a popular spellchecker for mobile devices: Android  spellchecker, which for brevity purposes will herein be referred to as AOSP.
+This solution makes no use of contextual information, similarly to B#.
+Additionally, to conduct a fair comparison between correction methods, we used the same wordlist  and word frequencies.
+All required words used in the data collection stage existed in the wordlist.
+To assess the effect of each correction component, the results presented here were obtained without character-level disambiguation.
+We also analyze a variant of B# that uses the Hamming distance  to compute similarity between chords enabling us to assess our effectiveness against a commonly used metric to compare vectors.
+B# is consistently more accurate.
+Table 1 shows the results for the top n suggestions , while Figure 2 illustrates the results.
+The percentage of accurate words returned by the AOSP spellchecker is rather small and never exceeds 38%.
+On the other hand, chord-based solutions outperform the AOSP spellchecker, with mean accuracy rates between 53% and 72%.
+This result suggests that leveraging chord information plays a major effect on correction accuracy.
+No significant effect between B# and Hamming variant was found for the first suggestion.
+Overall, B# would be able to correct 204 of 364 incorrect words automatically, i.e.
+The Hamming variant and AOSP would correct 193 and 100 words, respectively.
+B# is more accurate for the top three suggestions.
+While we agree that the most important result is to propose the correct word as the first suggestion, we also acknowledge that providing the highest possible fraction of accurate suggestions at the top of the list is critical, especially, when user intervention is needed.
+No gain beyond top five suggestions.
+For n>2 improvements are smaller and then start to fade at n=5.
+B# and Hamming curves are very similar, which can be explained by the similar correction paradigm; however, Hamming is consistently outperformed by B#.
+This result suggests that indeed the proposed extension to the Damerau-Levenshtein distance is effective in dealing with Braille chording misspellings.
+B# provides a low number of incorrectly corrected words.
+B# high accuracy comes at no cost regarding incorrectly corrected words.
+In order to measure how important chord-level information is on providing accurate suggestions, the word frequency factor was removed from our spellchecker.
+This means that the scoring solely depended of Braille chord similarity.
+Results showed an accuracy rate of 44.8%  for the top suggestion, which is a significant decrease of accuracy  from the B# condition.
+This result shows that word frequency features are important to obtain the best possible suggestion.
+Despite the decrease in performance, this condition still outperforms AOSP's spellchecker , suggesting that taking advantage of the chord similarity is crucial correct errors.
+We also assess the effect of feeding disambiguation results into the word-level component.
+Overall, the combined solution presents a similar accuracy curve to word-level correction; however, it is outperformed for all 1n10.
+This suggests that erroneous corrections at character-level affect word-level accuracy.
+The spelling component loses important chord information that would otherwise be used.
+Results showed that leveraging chord distances significantly improves word correction accuracy.
+Even simple distance functions allow improvement over traditional spellcheckers.
+As previously suggested , one should take advantage of common misspellings, tightly related to each method, and use that knowledge to improve spelling accuracy.
+Do not discard chord information.
+Data showed that combining character- and word-level is an ineffective solution, mostly because information is lost in the first correction stage.
+Focus on top 5 suggestions.
+Most spellcheckers provide a list of most probable suggestions enabling users to intervene when corrections are inaccurate.
+Results showed that B#'s top two suggestions yield most corrections; however, if possible, the top five should be considered.
+We presented B#, a chord-based spellchecker for multitouch Braille input.
+Results show that B# is more effective than other spellcheckers by leveraging a distance of similarity between chords.
+These results should encourage researchers to develop more accurate correction algorithms tailored to novel text-input techniques.
+Future work will explore the design of non-visual interfaces to leverage chord-based suggestions.
+Azenkot, S., Wobbrock, J., Prasain, S., Ladner, R. Input finger detection for nonvisual touch screen text entry in Perkinput.
+Deorowicz, S., & Ciura, M. G. Correcting spelling errors by modelling their causes.
+Kane, S., Wobbrock, J., Harniss, M., & Johnson, K. TrueKeys: identifying and correcting typing errors for people with motor impairments.
+Oliveira, J., Guerreiro, T., Nicolau, H., Jorge, J., Goncalves, D. Blind people and mobile touch-based text-entry: acknowledging the need for different flavors.
+Sandnes, F. E., Huang, Y. P. Chording with spatial mnemonics: automatic error correction for eyes-free text entry.
+Southern, C., Clawson, J., Frey, B., Abowd, G., Romero, M. An evaluation of BrailleTouch: mobile touchscreen text entry for the visually impaired.

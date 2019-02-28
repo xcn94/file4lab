@@ -1,0 +1,130 @@
+In this paper, we introduce the idea of "warping time" to improve crowd performance on the difficult task of captioning speech in real-time.
+Prior work has shown that the crowd can collectively caption speech in real-time by merging the partial results of multiple workers.
+Because non-expert workers cannot keep up with natural speaking rates, the task is frustrating and prone to errors as workers buffer what they hear to type later.
+The TimeWarp approach automatically increases and decreases the speed of speech playback systematically across individual workers who caption only the periods played at reduced speed.
+Warping time may also help crowds outperform individuals on other difficult real-time performance tasks.
+TimeWarp forwards different "warped" versions of the audio to each worker.
+Workers hear a slowed down version of the content they are supposed to caption, while they hear the rest sped up.
+This increases the quality of workers' output by asking them to complete an easier task without losing context.
+The start of each slowed segment is aligned with the original audio, allowing the crowd to collectively caption in real time.
+Real-time captioning provides deaf and hard of hearing people access to the aural speech around them.
+Past approaches to real-time captions used either  costly professional captionists  who are not available on demand, or  automatic speech recognition that often produces unusable results in real-world settings.
+Legion:Scribe allows the crowd to caption speech in real-time by having workers type part of the speech they hear, then automatically merging the pieces together .
+The captions produced are better than ASR and approach the quality of those by stenographers .
+Captioning speech in real-time is difficult for crowd workers because they cannot keep up with natural speaking rates, which routinely reach 150 to 225 words per minute  .
+In this paper, we introduce the TimeWarp approach for better real-time crowdsourcing and apply it to the problem of real-time captioning.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Workers are asked to caption only specific portions of the speech, which are coordinated between workers .
+Thus, by slowing each worker's audio at different times in the stream and speeding up content workers are not responsible for, the crowd is able to collectively complete their task in real-time while keeping up with the speech during the faster periods.
+We evaluated TimeWarp with 139 unique workers recruited from Amazon's Mechanical Turk over 257 trials, and show that with TimeWarp workers were able to caption an average of 11.4% more of the speech and do so 12.6% more accurately.
+Most interestingly, workers also reduced per-word latency by 16.8%, which suggests that the elimination of the cognitive buffering necessary when captioning at speeds higher than one's typing rate more than compensated for the introduced delay.
+Additional studies with 24 local participants showed similar latency improvement.
+Post-trial interviews indicated workers felt less pressured and altered their captioning style when the content played slower.
+Real-time captioning is a task which requires a significant cognitive load and coordination on the part of the user to complete correctly.
+This makes it well-suited for TimeWarp.
+TimeWarp would be exceptionally useful for workers completing that task, and discuss how the approach may generalize to other real-time crowdsourcing tasks.
+In this paper we make the following contributions: * We introduce the idea of warping time to make real-time crowdsourcing tasks easier to solve.
+Real-time captioning is supported by professional captionists, automatic speech recognition , or more recently, crowd captioning systems such as Legion: Scribe .
+Each of these approaches has limitations.
+Professional captionists are the most reliable option, but are not available on demand, can cost over $150/hr, and can only be scheduled in blocks of an hour.
+ASR is relatively cheap and available on-demand, but often provides extremely low-quality results in realistic settings.
+Crowd captioning uses multiple non-expert human captionists each submitting partial input which is then automatically recombined to generate a caption in real-time.
+This approach is more robust in real-world situations, but requires that workers contribute useful partial captions.
+Using time warps, we are able to improve individual worker captioning performance by giving them a more manageable task, while still providing answers in real-time.
+Crowd captioning is a type of real-time human computation.
+Real-time human computation has been explored in systems like VizWiz , which was one of the first applications to target nearly real-time responses from the crowd, and Adrenaline , which uses a retainer model to reduce response time to less than two seconds.
+Legion introduced the idea of engaging a synchronous crowd in a continuous real-time task, using the crowd to collectively control existing user interfaces as if they were a single individual .
+Each workers submits input independently of other workers, then the system uses an input mediator to combine the input into a single control stream.
+While prior work has investigated offline captioning using the crowd , Legion:Scribe is the only system and worker interface for real-time online captioning .
+Scribe extends the idea of using continuous stream of input from workers to real-time captioning, generating transcripts by combining multiple workers' partial captions into a single final caption stream.
+Legion:Scribe allows deaf users to stream content from the mobile devices to a server, which forwards it to multiple workers.
+Multiple partial captions from workers are sent to the server where they are merged and then forwarded back to the user.
+The TimeWarp approach represents a way to modify the underlying problem so that it is easier for workers to complete.
+One of the ways we measure worker's performance is using the coverage metric used in .
+Coverage is similar to recall, but with the added constraint that the word be entered within a fixed time window .
+The goal of TimeWarp is to allow each worker to type slowed clips played as close to real-time as possible while still maintaining the context acquired by hearing all of the audio.
+It does this by balancing the play speed during in periods, where workers are expected to caption the audio and the playback speed is reduced, and out periods, where workers listen to the audio and the playback speed is increased.
+A cycle is one in period followed by an out period.
+At the beginning of each cycle, the worker's position in the audio is aligned with the real-time stream.
+To do this, we first need to select the number of different sets of workers N that will be used in order to partition the stream.
+The amount of the real-time stream that gets buffered while playing at the reduced speed is compensated for by an -1 increased playback speed of N N -r during out periods.
+The result is that the cycle time of the modified stream equals the cycle time of the unmodified stream.
+To set the length of Pi for our experiments, we did a preliminary study with 17 workers drawn from Mechanical Turk.
+We found that their mean typing speed was 42.8 WPM on a similar real-time captioning task.
+We also found that a worker could type at most 8 words in a row on average before the per-word latency exceeded 8 seconds .
+Since the mean speaking rate is around 150 WPM , workers will hear 8 words in roughly 3.2 seconds, with an entry time of roughly 8 seconds from the last word spoken.
+We chose r = 2 in our tests so that the playback 1 = 0.5x for in periods, and the play speed speed would be 2 N -1 3 for out periods is N -r = 2 = 1.5x.
+Our system architecture is similar to Legion:Scribe .
+Audio is forwarded from a laptop or mobile device to a server running Flash Media Server .
+Since FMS does not allow access to the underlying waveform for live streams, we connect to FMS using N instances of FFmpeg  - one for each offset - then use FFmpeg to modify the stream to play it faster or slower.
+The N streams are then forwarded to worker pages that present workers recruited from either Mechanical Turk or volunteers with the appropriate version of the audio.
+Worker input is then forwarded back to the server where it is recorded and scored for accuracy.
+In order to speed up and slow down the play speed of content being provided to workers without changing the pitch , we use the Waveform Similarity Based Overlap and Add  algorithm .
+WSOLA works by dividing the signal into small segments, then either skipping  or adding  content, and finally stitching these segments back together.
+To reduce the number of sound artifacts, WSOLA finds overlap points with similar wave forms then gradually transitions between sequences during these overlap periods.
+We evaluated TimeWarp with local participants who were generally more skilled typists and had time to acquaint themselves with the system, which may better approximate student employees captioning a classroom lecture.
+We recruited 24 volunteers  and had them practice with our baseline interface before using the time warp interface.
+Each worker was asked to complete two trials, one with TimeWarp and one without.
+The ordering of the trial conditions was randomized, and the segment was picked randomly.
+Unlike the Mechanical Turk workers, our students worker all rated themselves as proficient typists and were able to caption a majority of the content well even without TimeWarp.
+The mean coverage from all 48 trials was 70.23% and the mean precision was 70.71% compared to the 50.83% coverage and 62.23% precision for workers drawn from Mechanical Turk.
+Thus, these participants did not seem as overwhelmed by the original task, and seemed to benefit less from TimeWarp helping them to keep up.
+Once the audio is streaming, workers are shown a captioning interface consisting of a text box to enter captions in, a score box which tracks the points workers have earned, and visual and audio alerts telling them when they should or should not be captioning.
+Visual alerts include a status message that changes between a green "type what you hear now" alert and a red "do not type" alert.
+Workers are able to see an animation of the points they earn flying from the word they input to the score box and being added to their total.
+Audio cues consist of tones played when we want users to start and stop captioning, and volume adjustments that reduce the volume of content we do not want workers to caption.
+We lower the volume instead of mute it in order to help workers maintain context even when they are not actively captioning.
+To evaluate TimeWarp, we ran two studies that asked participants to caption a 2.5 minute  lecture clip from MIT's Open CourseWare project .
+In the first, we recruited workers from Amazon's Mechanical Turk and, in the second, we recruited 24 local participants.
+In the Mechanical Turk study, we ran 257 trials with 139 unique workers using a between subjects design.
+Tests were divided into two conditions: time warping on or off, and were randomized across four possible time offsets: 0s, 3.25s, 6.5s, 9.75s.
+Workers were allowed to complete at most two tasks and were randomly routed to each condition.
+Since Mechanical Turk often contains low quality , we first removed input which got less than 10% coverage or precision.
+A total of 206 tasks were approved by this quick check.
+Workers were paid a base rate of 5 cents if their input was accepted by the automated check, and were paid a bonus of roughly 1 cent for every 5 words they got correct.
+After the automated check, we calculated the F1 score, the harmonic mean  of the coverage and precision, to get a single representative score for each pair of values.
+We then calculated the mean and standard deviation  of these scores, and removed any inputs with a score more than 2 from the mean as outliers.
+Figure 2 and Table 1 show the results from the remaining 196 trials .
+Our results showed that TimeWarp improved worker's coverage, precision, and latency on the real-time captioning task.
+While workers are still short of being able to reliably caption the requested content entirely on their own, Scribe is designed to leverage multiple workers in order to reach coverage rates exceeding 90%.
+This means that the collective is still capable of rates competitive with professional captionists.
+The effect of TimeWarp was particularly positive for workers on Mechanical Turk, who struggled most with the original task.
+Observations, surveys, and follow-up interviews conducted with the local workers indicated that worker skill level was the most indicative of their preference of warping the signal over regular playback, with less skilled workers rating the time warps higher while more skilled workers found it unnecessary.
+The most significant complaint about the system, regardless of skill level, was the quality of the warped audio since our warping approach reduced the quality of the audio and added a slight echo.
+We discuss how this may be improved in future versions of the system in the next section.
+The observed reduction in latency seems counterintuitive because slowing playback in TimeWarp reduces best-case latency.
+The likely cause of this improvement is that the slower playback of speech allowed workers to alter their approach to captioning.
+At regular playback speeds, workers cannot typically match the speed of the speaker, leading them to a behavior in which they first listen to the clip and memorize the content, then type what they heard.
+This adds a delay that can begin at over 3.25 seconds and grows as the worker types .
+The forced delay of the slower playback, which hits a maximum of 3.25 seconds at the end of a warped clip, was still less than the delay incurred by the practice of storing and then recalling and typing an entire sequence from working memory.
+Interviews with local workers confirmed the existence of this observed behavior: workers who were interviewed indicated they followed these two different patterns when presented with normal and slowed segments of audio.
+Interviews also showed that workers  felt as if they were under less pressure when the audio was played slowly when they were expected to be captioning.
+We expect that this mirrors the sentiments of web workers, where stress is likely to play a key role in how likely a worker is to return to a task in the future, effecting the size and cost of the pool of workers available on-demand.
+In this paper we have presented the idea of systematically "warping time" to increase performance on continuous realtime crowdsourcing tasks by slowing the relative speed of the task for each individual worker.
+Our experiments with Mechanical Turk workers performing a real-time captioning task demonstrated that coverage and accuracy can be significantly improved using this system.
+Interestingly, mean latency also improves despite the reduced playback speed.
+A second study with local users showed similar results in terms of latency, and revealed that the work flow used by workers was altered by the lower play speed.
+This change resulted in a less stressful task that workers could truly complete in realtime instead of buffering what they hear.
+Our results demonstrate the promise that the time warp model holds as a means of supporting complex continuous real-time tasks with the crowd without requiring highly skilled workers, which may reduce cost and increase the availability of the service.
+TimeWarp illustrates one of the most interesting qualities of real-time crowdsourcing - by cleverly partitioning work to different workers, performance demands can be reduced per worker, even while collective performance increases.
+Because of the importance of time pressure on performance tasks, the TimeWarp approach may be useful in helping the collective perform better than constituent workers on demanding tasks.
+Our findings also suggest improvements that can be made to the TimeWarp system for real-time captioning.
+Bernstein, M. S., Brandt, J. R., Miller, R. C., and Karger, D. R. Crowds in two seconds: Enabling realtime crowd-powered interfaces.
+Driedger, J. Time-scale modication algorithms for music audio signals.
+Closed-captioned TV presentation speed and vocabulary.
+Lasecki, W., and Bigham, J. Online quality control for real-time crowd captioning.
+Lasecki, W., Murray, K., White, S., Miller, R. C., and Bigham, J. P. Real-time crowd control of existing interfaces.
+Lasecki, W. S., Miller, C. D., Sadilek, A., Abumoussa, A., Borrello, D., Kushalnagar, R., and Bigham, J. P. Real-time captioning by groups of non-experts.
+Y. C. Beatrice Liem, H. Zhang.
+An iterative dual pathway structure for speech-to-text transcription.
+Luz, S. and Masoodian, M. and Rogers, B.
+Supporting collaborative transcription of recorded speech with a 3D game interface.
+Lasecki, W. S., Song, Y. C., Kautz, H., and Bigham, J. P. Real-time crowd labeling for deployable activity recognition.
+Verhelst, W., and Roelands, M. An overlap-add technique based on waveform similarity  for high quality time-scale modification of speech.
+One complaint that was common among participants was that "echo" present in the slowed down audio.
+This echo is a result of WSOLA not being the optimal algorithm for transforming speech .
+In the future, we will implement a version of this system that uses the Phase Vocoder algorithm , or a specialized version of WSOLA  or Time Domain Pitch Synchronous Overlap and Add  which are designed for pitch consistency and are more well suited to transforming speech with fewer artifacts.
+Libraries such as libsonic  include implementations of these algorithms, but they must be adapted to work on streaming content.
+Our studies show that TimeWarp makes real-time tasks easier by mitigating the effects of high cognitive load and human motor limitations.
+Existing real-time crowdsourcing systems that enable crowd control of interfaces  and real-time segmentation and labeling of video  may benefit immediately.
+The general approach of making tasks easier for individual workers in order to improve collective performance likely applies across many applications.

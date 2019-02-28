@@ -1,0 +1,207 @@
+While current eye-based interfaces offer enormous potential for efficient human-computer interaction, they also manifest the difficulty of inferring intent from user eye movements.
+This paper describes how fixation tracing facilitates the interpretation of eye movements and improves the flexibility and usability of eye-based interfaces.
+Fixation tracing uses hidden Markov models to map user actions to the sequential predictions of a cognitive process model.
+In a study of eye typing, results show that fixation tracing generates significantly more accurate interpretations than simpler methods and allows for more flexibility in designing usable interfaces.
+Implications for future research in eye-based interfaces and multimodal interfaces are discussed.
+While work with eye movements has achieved moderate success in understanding and developing interfaces, this success has been tempered by the difficulty of interpreting eye movements accurately .
+Just as speech or handwriting analysis requires accurate interpretation of user speech or pen movements, eye-movement data analysis requires accurate interpretation of user eye movements--that is, mapping observed eye movements to the user intentions that produced them.
+Unfortunately, interpreting eye movements is often complex and tedious due to eye-tracking equipment noise, user variability in visual and cognitive processes, and the size of typical eyemovement data sets.
+Recent work has shown that a new analysis technique, fixation tracing, facilitates the analysis of eye movements as cognitive protocols .
+Tracing is the process of inferring intent by mapping observed actions to the sequential predictions of a process model .
+Fixation tracing, a tracing method designed specifically for eye movements, interprets protocols by means of hidden Markov models, probabilistic models that have been used extensively in speech and handwriting recognition.
+Fixation tracing can interpret eye-movement protocols as accurately as human experts and can help in the creation, evaluation, and refinement of cognitive models .
+This paper demonstrates how fixation tracing can facilitate eye-movement analysis in eye-based interfaces.
+To illustrate the benefits of fixation tracing for eye-based interfaces, this paper presents a study of an eye-typing interface in which users type characters by looking at letters on an on-screen keypad.
+The results show that, for an interface with minimal restrictions, fixation tracing can significantly improve the accuracy of eye-movement interpretations over existing methods.
+In addition, the results show that users type faster in the less restrictive interface and improve their performance with even small amounts of practice.
+In the quest for efficient human-computer interaction, researchers have recently begun to explore how to use eye movements to improve user interfaces.
+Work on eye movements and user interfaces falls into two broad categories.
+First, researchers have analyzed user eye movements as cognitive protocols to study and evaluate interface design and layout .
+Such analysis helps manifest fine-grained details of user interaction that are often hidden in other types of analysis.
+Second, researchers have developed eye-based interfaces in which users communicate information to a computer by means of their eye movements .
+These interfaces can act upon either intentional eye movements that actuate specific commands or natural eye movements that arise from normal screen scanning .
+Eye-based interfaces encounter two major difficulties in the interpretation of user eye movements: * Incidental fixations: As users fixate various targets to actuate commands, they also produce incidental fixations  that are not intended to actuate commands.
+This so-called "Midas touch" problem  requires that interfaces distinguish intended command fixations from incidental non-command fixations.
+This problem requires that interfaces recognize off-center fixations and map them to the correct intended targets.
+These two problems present a significant challenge for eyebased interfaces in mapping user actions to user intentions--that is, determining what users are thinking based on where they are looking.
+Figure 1 shows a sample eye-movement protocol that illustrates these two major difficulties.
+The protocol is taken from an eye-typing task  in which users type words by looking at the appropriate letters.
+For each trial, users read a word at the top of the screen, fixate each letter in the word, and look down at an output box to signal the end of the trial.
+Figure 1 shows the keypad portion of the screen along with a protocol for a user typing the word SQUARE; the protocol is plotted as a sequence of points where larger points represent fixations and lighter points represent later samples.
+The user first fixated the word to type  and then fixated the letters S  and Q ; note that the fixation on Q falls more on A than on Q.
+After undershooting the next target with a fixation near Y , the user fixated the letter U .
+The user then fixated the letter A  with an intermediate fixation near E along the way .
+Finally, the user fixated the letters R  and E , and the output box beneath the keypad .
+This protocol illustrates how incidental and off-center fixations can cause confusion in interpretation.
+The most straightforward approach to interpreting user protocols would simply map fixations to their closest targets.
+Using this approach, the two incidental fixations  would be included in the interpretation as the letters Y and E. Also, off-center fixations that occur between targets could be interpreted as either target; for instance, the fixation intended for Q  would be mapped to its actual closest target A.
+Clearly, such simple approaches cannot adequately handle the complexity of typical eye-movement protocols.
+The approach presented in this paper--tracing user eye movements with cognitive process models--helps alleviate the problems of incidental and off-center fixations.
+The process models incorporate the likelihood of expected sequences of user actions, allowing tracing to favor more likely interpretations over less likely ones.
+For instance, consider an eye-typing model that represents the likelihood of typing various letter sequences.
+In analyzing incidental fixations such as , tracing would use statistical information that Q almost always precedes U to determine that the fixation between Q and U  is most likely incidental.
+In analyzing off-center fixations such as , tracing would determine that the entire letter sequence corresponds to SQUARE and that Q is the most likely interpretation for , even though the fixation falls more on A.
+Thus, tracing with process models employs information about predicted user actions to form correct interpretations of complex eye-movement protocols.
+Fixation tracing  describes a class of automated algorithms for mapping eye movements to process model predictions by means of hidden Markov models .
+HMMs are probabilistic finite state machines that have been widely employed in speech and handwriting recognition systems .
+Fixation tracing produces two outputs: a model trace and a model evaluation.
+The model trace represents a mapping from eye movement data points to the fixation sequence predicted by the best corresponding model strategy.
+The model evaluation represents the probability of the model trace, which can be used to evaluate the fit of the model to the data.
+In this paper, we will use only the model trace and ignore the model evaluation.
+However, future work on eye-based interfaces could utilize the model evaluation to determine the likelihood that its interpretation of observed eye movements is correct.
+Fixation tracing performs the analogous task for eye movements, translating a user's eye movements to the most likely sequence of intended fixations.
+Fixation tracing operates in two stages: finding fixation centroids from raw eye movement data, and mapping fixation centroids to process model predictions.
+After specifying the inputs and outputs of the fixation tracing algorithm, this section provides a description of each stage along with a cost analysis of the two stages.
+Fixation tracing algorithms take three inputs: eyemovement data, target areas, and a process model grammar.
+The target areas include the name and location of possible fixation targets on the experiment screen; for instance, for the eye-typing task, the targets would include the letters on the keypad, the word target that shows the word to be typed, and the out target where users look to signal the end of a trial.
+The process model grammar represents the cognitive steps undertaken in a task and the eye movements generated in the execution of these steps.
+The grammar may be written directly or derived from models implemented in other systems, such as ACT-R  or GOMS .
+The grammar comprises regular production rules where the left-hand side contains a non-terminal  and the right-hand side contains a sequence of terminals  followed optionally by a non-terminal; the non-terminals represent cognitive subgoals and the terminals represent target fixations.
+For instance, Table 1 contains a sample process model grammar for eye typing one of the words RAT, TRAP, or PART.
+The model first fires the rule for the subgoal start, generates a fixation on the target area word, and proceeds to one of the word subgoals rat, trap, or part.
+For the word subgoals, the model fixates the letters for the word and moves to the subgoal end.
+Finally, the model fixates the out target area, thus ending the trial.
+This stage1 employs a twostate saccade-fixation model that represents the two alternating phases of saccadic eye movements: the saccade, or rapid eye movement from one location to another; and the fixation, or stationary positioning over one target.
+The saccade-fixation model HMM is shown in Figure 2.
+The HMM has two states with a single probability distribution to represent velocity.
+The first state models points that represent saccades; its velocity distribution is weighted toward high velocities to model high-velocity saccadic movement.
+The second state models points that represent fixations; its velocity distribution is weighted toward low velocities to model near-stationary fixations.
+Thus, as we determine the most likely interpretation for a given protocol, high-velocity saccade points will likely match to the first state of the submodel while low-velocity fixation points will likely match to the second state.
+The HMM's velocity distributions and transition probabilities can be estimated using standard HMM parameter training .
+Sample eye-typing tracer model, where each square represents a centroid submodel for that target.
+If the model grammar includes rule probabilities, these probabilities can be used in this linking phase; otherwise, equal probabilities are used.
+The tracer model for the eye-typing grammar in Table 1 appears in Figure 4.
+Centroid submodel HMM for target R. the eye movements using the Viterbi HMM decoding algorithm .
+This decoding process finds the mapping from eye movement tuples to HMM states such that the probability of the sequence  is maximized.
+The mapping thus describes which points represent saccades and which represent fixations.
+Finally, we generate the model trace by decoding fixation centroids with the tracer model using the Viterbi algorithm.
+The model trace thus represents the most likely interpretation of the given eye movements: It describes the path through the model grammar followed by the eye movements and the most likely assignment of fixation centroids to their corresponding predicted fixations.
+After the first stage of fixation tracing determines the sequence of fixation centroids, the second stage of fixation tracing maps these centroids onto the predictions of the process model.
+This process begins with the construction of a centroid submodel for each target area.
+Each submodel is an HMM that specifies the x and y distributions for possible centroids over its respective target area.
+A sample centroid submodel for the R target area is shown in Figure 3.
+The submodel has two states: the first represents a fixation, with x and y means centered over the target; the second represents incidental fixations before or after target fixations.
+The transitions shown allow the submodels to bypass or repeat fixations with certain probabilities; the transitions have been informally preset to reasonable values.
+Next, we use the submodels to construct a tracer model that incorporates the predicted fixation sequences of the model grammar.
+We use the model grammar to build the tracer model in two steps.
+First, we create an HMM for each rule that comprises a serially-linked sequence of submodels for each of the rule's terminals.
+The primary cost of the fixation tracing algorithm arises in HMM decoding in the two stages.
+The Viterbi decoding algorithm decodes sequences in O time, where N is the number of HMM states and T is the length of the decoded sequence .
+In its first stage, fixation tracing uses a two-state HMM to decode fixations and find fixation centroids.
+Although T, the length of the decoded sequence, may be large, N is fixed at 2.
+In its second stage, fixation tracing decodes centroids using its tracer model.
+Here, N may be large  but T--the number of fixation centroids--is often small.
+Thus, both stages of fixation tracing are typically fast, resulting in efficient yet accurate interpretation of eye movements.
+To illustrate how fixation tracing benefits eye-based interfaces, this section considers in detail an experimental study of an eye-typing task.
+In the task, users type characters by looking at letters on an on-screen keypad, such as that shown in Figure 1.
+The section first motivates the study by discussing how the task interface eliminates restrictions imposed by existing eye-typing systems.
+It then describes the task and data collection.
+Finally, it discusses data analysis with a variety of process models and shows how fixation tracing alleviates the major problems in interpreting the data.
+Existing eye-typing systems  have demonstrated the great potential for such systems to facilitate hands-free typing.
+However, these systems include two major restrictions that limit their usefulness.
+First, the systems require large distances--approximately 4 visual angle--between visual targets.
+The coarse spacing alleviates off-center fixations but limits the amount of information presented on the screen.
+Second, the systems require users to fixate visual targets for long durations--750 ms to a few seconds--to trigger an action.
+These long durations alleviate incidental fixations but result in extremely slow input times.
+Thus, the restrictions of large distances and long durations seriously limit the design and use of these interfaces.
+This study aims to determine the implications of eliminating these restrictions to allow for more freedom in the design and use of eye-based interfaces.
+The study has two primary goals.
+First, the study evaluates how eliminating the restrictions hinders interpretation of user eye movements.
+Because existing systems impose these restrictions to facilitate interpretation, it is important to see how difficult interpretations become when the restrictions are removed.
+Second, the study tests how well fixation tracing can interpret protocols in the context of a less restrictive interface.
+The performance of fixation tracing is compared with that of the typical algorithm in existing systems to measure any potential improvement offered by fixation tracing.
+In addition, the study has several secondary goals, including analysis of user improvement with practice and comparison with manual typing by hand.
+Seven Carnegie Mellon students participated in the study.
+Each student eye-typed 12 words four times  and hand-typed the same 12 words once.
+Eyemovement data was collected using an IScan  corneal-reflection eye tracker running at 60Hz.
+The eye tracker has an accuracy of approximately 1 visual angle.
+Two additional participants were excluded because of technical problems with the experimental software.
+We analyzed the data set using four models of user behavior for the eye-typing task: * Full: represents each word separately * 2nd-order: represents transitions from letter pair to letter * 1st-order: represents transitions from letter to letter * Simple: maps each fixation to the nearest letter These four models provide varying amounts of sequential information: the full model gives a full description of possible action sequences, the simple model gives no information about action sequences, and the 1st-order and 2nd-order models fall in between these two extremes.
+As we shall see, models with more sequential information produce more accurate interpretations but require more time to generate interpretations.
+The full model contains a single rule for each word in the vocabulary, as shown in Table 1 for the words RAT, TRAP, and PART.
+The model first fixates word and moves to one of the word subgoals with equal probability.
+The model then types the word letters and finally fixates the end target.
+In actual implementation, the grammar can be compacted so that words with the same prefixes use the same subgoals; this modification results in smaller HMMs, especially for large vocabularies.
+The 2nd-order model represents 2nd-order transitions from letter pairs to letters, as shown in Table 2.
+After fixating word, the model moves to the subgoal for a letter with the probability of that letter starting a word.
+The model then moves to 2 nd-order rules that, for each letter pair, fixate the second letter and transition to a new letter pair.
+This type of encoding can contain very useful sequential information, such as the fact that consonant clusters like TR almost always precede vowels.
+However, the 2nd-order is not as fully specified as the full model because it allows for both English and non-English words not in the vocabulary--for instance, RAP and TRAT.
+In the eye-typing task, users encounter a screen containing the word to be typed at the top, the typing keypad in the middle, and the output box at the bottom.
+Each trial begins with the user reading the word to be typed.
+To type the word, the user fixates the letters of the word in sequence on the on-screen keypad, as shown in Figure 1.
+For repeated letters, the user first fixates the letter and then fixates the "Repeat" key at the bottom-right of the keypad.
+After fixating the final letter, the user looks down into the output box displayed beneath the keypad; this look triggers the fixation tracing algorithm, which interprets the user's eye movements and outputs the resulting word in the output box.
+The task interface eliminates both the spacing and time restrictions mentioned earlier.
+First, the interface spaces keypad letters by approximately 1 visual angle to reflect the size of the fovea; this tight spacing provides a rigorous test for the fixation tracing algorithm to handle off-center fixations.
+Of course, we would expect better end results with a looser spacing, but the 1 spacing better tests the limits of the algorithm.
+The 1st-order model represents 1st-order transitions from one letter to another, as shown in Table 3.
+As for the 2ndorder model, the 1st-order model starts by moving to a letter subgoal with the appropriate probability.
+Then, the model simply transitions from letter to letter with the probability observed in the vocabulary.
+Again, this type of model can encode useful information about the vocabulary, such as the fact the Q almost always precedes U.
+However, this model contains even less information than the 2nd-order model; for instance, it can produce the words RAP and TRAT, like the 2nd-order model, and can also produce PAT and TRT, unlike the 2nd-order model.
+The simple model maps each fixation to its nearest letter target.
+This model, or a similar form thereof, represents the data analysis method typically used in existing eye-based interface .
+The simple model can be represented as a 1st-order grammar with uniform transition probabilities for every letter.
+However, this analysis uses a much more efficient implementation: after finding fixation centroids, it simply computes the nearest target to each centroid and labels the fixations with these nearest targets.
+The simple model contains essentially no sequential information and is thus the antithesis of the full model.
+Given these four models, fixation tracing was employed to form an interpretation of each protocol in the data set.
+Of the four models, only the full model is guaranteed to produce a model trace that actually represents a word in the vocabulary.
+String-edit distance can be computed efficiently using a standard dynamic programming algorithm .
+The following results include analyses of the four models and three sizes of vocabularies: 12, 100, and 1000.
+Vocabulary size was varied to determine how well fixation tracing scales to large sets of words in terms of both interpretation accuracy and speed.
+All vocabularies included the 12 words tested in data collection.
+Interpretation accuracy measures how often the interpretation generated by fixation tracing matches the word given to be typed in a particular trial.
+Table 4 shows the accuracy results for the various models and vocabularies.
+As expected, models with more sequential information give the highest accuracy while those with less information give the lowest.
+The full model is highly accurate for all vocabularies.
+The simple model performs modestly for the smallest vocabulary and quite poorly for the largest vocabulary.
+The 1st-order and 2nd-order model results fall in between those of the full and simple models.
+The interpretation results bring up an important issue concerning how interpretation accuracy should be viewed.
+Some protocols have so much variability and tracker noise that even human experts have difficulty interpreting them.
+Because of this difficulty, we often compare interpretation accuracy not to a "perfect" score of 1.0 but rather to the accuracy of human expert coders.
+Recent work  has shown that fixation tracing with full models can code protocols as accurately as, if not better than, human coders.
+Simple .90 .80 .74 The number of incidental fixations is another measure that captures user performance, since we expect more experienced users to eliminate complex search procedures and thus produce fewer incidental fixations.
+This measure was computed using the interpretations of the full model for the 12-word vocabulary.
+On average, users reduced their incidental fixations dramatically during the experiment, producing 1.62 incidental fixations in the first half and 1.01 in the second half.
+Again, we have strong evidence that users can improve their performance in eyebased interface tasks even after a small number of trials.
+Because of an inevitable speed-accuracy tradeoff, it is important to examine interpretation time along with accuracy.
+Table 5 shows the time in milliseconds needed to interpret a single protocol.
+Again as expected, models with more information take more time to interpret protocols than those with less information.
+Most of the times are faster than real-time, that is, they are faster than the time taken to generate the protocols.
+The two slowest times  could realistically be sped up to near real-time with better HMM representations and search algorithms.
+Overall, fixation tracing thus allows interface designers to choose an appropriate model given specific accuracy and time constraints.
+For interfaces with few strategies or for which high accuracy is critical, the full model provides good results.
+For interfaces with many strategies or for which fast response is critical, the simple, 1st-order, or 2nd-order model may be preferable.
+Another interesting aspect of the eye-typing interface involves comparing eye-typing performance with handtyping performance.
+Naively, we might expect eye typing to correlate highly with hand typing, simply because better hand-typists have better working knowledge of the keyboard.
+However, it is far from clear whether this motororiented knowledge transfers to eye movements.
+In fact, we might even expect so-called "hunt-and-peck" handtypists to perform better in eye typing because they often use their eyes to search the keyboard.
+Eye-typing times  were compared with hand-typing times on the hand-typing trials.
+Not surprisingly, eye typing was significantly slower than hand typing: Eye typing averaged 822 ms per character, while hand typing averaged 342 ms. Interestingly, eye-typing times were highly correlated with hand-typing times, R=.95.
+Thus, the expertise and skills involved in hand typing apparently transfer readily to eye typing.
+Because eye-based interfaces are new to most users, we are interested in determining how well they perform and how quickly their performance improves.
+This analysis examines performance and improvement for two measures: average typing time and average number of incidental fixations.
+Typing time is the average time needed to type one character, not including time needed to read the word and fixate the output box .
+Overall, users registered 822 ms per character on average; the fastest user averaged 430 ms, while the slowest user averaged 1272 ms.
+These times are significantly faster than those reported for other eye-typing systems .
+This research offers great promise for unimodal and multimodal interfaces that utilize eye-based input.
+Significant effort has gone into developing more accurate, less expensive, and less intrusive eye-tracking devices .
+However, even an accurate, inexpensive, nonintrusive eye tracker is not sufficient for building effective eye-based interfaces; the systems would still need robust algorithms to interpret eye movements in the face of equipment and individual variability.
+This work helps to bridge the gap between a user's eye movements and his/her intentions.
+In addition, while eye movements can serve as the sole input modality for certain applications , greater potential arises in the integration of eye movements with other input modalities--for instance, an interface in which eye movements provide pointer or cursor positioning while speech allows typing or directed commands.
+For instance, by incorporating fixation tracing to interpret eye movements, intelligent tutoring systems could potentially disambiguate solution strategies which cannot be inferred solely from other observable data.
+Also, systems could implement eyedriven menu selection with process models that predict likely menu choices given some prior history of user actions.
+Of course, the power of any tracing algorithm is closely tied to the quality of the given process model, so the applicability of fixation tracing to a particular domain depends highly on how easily one can model eye movements and cognitive processes within the domain.
+This work has at least two important implications for future eye-based interfaces.
+First, user performance in eye-based interfaces can improve with even small amounts of practice.
+Analysis of the eye-typing data illustrates that, with repeated trials, users type words faster and produce fewer incidental fixations.
+In addition, cognitive and motor skills from similar domains  can potentially transfer to eye-based interfaces.
+Second, removing limiting restrictions found in past eye-based interfaces--such as long dwell times and large spacing between visual targets--can significantly improve interface usability and flexibility.
+However, fewer restrictions inevitably lead to reduced accuracy, emphasizing the necessity for more powerful interpretation algorithms such as fixation tracing.
+Clearly this research represents only one step in the pursuit of better eye-based interfaces.
+There are a number of promising directions for future work.
+First, systems could incorporate language models for eye-typing or similar interfaces to provide likelihood estimates of particular word pairs or triplets .
+Second, automated methods such as cluster analysis  could help determine likely target areas of attention.
+Third, implementations could utilize more sophisticated algorithms to produce efficient HMMs for larger vocabularies.
+Fourth, systems could extend the current the off-line fixation tracing algorithm to a more online algorithm, allowing the system to interpret user eye movements as they are being generated.

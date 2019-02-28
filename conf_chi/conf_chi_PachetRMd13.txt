@@ -1,0 +1,104 @@
+Loop pedals are real-time samplers that playback audio played previously by a musician.
+Such pedals are routinely used for music practice or outdoor "busking".
+However, loop pedals always playback the same material, which can make performances monotonous and boring both to the musician and the audience, preventing their widespread uptake in professional concerts.
+In response, we propose a new approach to loop pedals that addresses this issue, which is based on an analytical multi-modal representation of the audio input.
+Instead of simply playing back prerecorded audio, our system enables real-time generation of an audio accompaniment reacting to what is currently being performed by the musician.
+By combining different modes of performance - e.g.
+We describe the technology, based on supervised classification and concatenative synthesis, and then illustrate our approach on solo performances of jazz standards by guitar.
+We claim this approach opens up new avenues for concert performance.
+Technically this is possible only for few instruments like the piano, but even in that case it requires great virtuosity.
+For guitars, solo performance is even more challenging as the configuration of the instrument does not allow for multiple simultaneous music streams.
+In the 80s, virtuoso guitarist Stanley Jordan stunned the musical world by playing simultaneously bass, chords and melodies using a technique called "tapping" .
+But such techniques are hard to master, and the resulting music, whilst at first exciting, is arguably stereotyped.
+Several technologies have been invented to cope with the limitations of solo performances by aiming to extend their expressive possibilities.
+One of the most popular is the loop pedal .
+Loop pedals are digital samplers that record music input during a certain time frame typically determined by the clicking of a foot pedal.
+Figure 1 shows a typical use.
+A first click activates the recording of the input.
+A subsequent click determines the length of the loop and starts the playback of the recorded loop .
+Solo improvised performance is arguably the most challenging situation for a musician and especially so in jazz.
+The main reason is that in order to produce an interesting musical discourse, many dimensions of music have to be performed simultaneously, such as beat, harmony, bass and melody.
+A solo musician has to incarnate the different roles of a whole rhythm section as happens in standard jazz combos with piano, bass and drums.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+With loop pedals the musician typically records a sequence of chords or bass line and then improvises on top of it.
+This scheme can be extended to stack up several layers, e.g., chords then bass using other interactive widgets, e.g., double clicking on the pedal.
+Loop pedals enable musicians to play several tracks of music in real-time.
+However, they produce a canned music effect due to the systematic repetition of the recorded loop without any variation whatsoever.
+Another popular and inspiring device for enabling solo performance is the "minus-one" recording, such as the Aebersold series .
+With these recordings, the musician can play a tune with a fully-fledged professional rhythm section.
+Though of a different nature, the canned effect is still present.
+First, the recording is unresponsive.
+Second, playing with a recording generates stylistic mismatch, as the style of the musician may not be compatible with the style of recorded musicians.
+Previous works have attempted to extend traditional instruments, such as the guitar, by using real-time signal analysis and synthesis.
+For example,  showed how to detect fine-grained playing modes from the analysis of the incoming guitar signal, and  proposed a rearranging loop pedal that detects and randomly reshuffles note events within a loop.
+In , a MIDI-based model of an improviser's personality is proposed, to build a virtual trio system, but it is not clear how it can be used in realistic performance scenarios which require a predetermined harmony and tempo.
+An audio-based method for generating stylistically consistent phrases from a guitar or bass is proposed in .
+But this technique can only be applied to monophonic melodies.
+Omax is a system for live improvisation that generates musical sequences built in real-time from a live source  using feature similarity and concatenative synthesis.
+Omax is suitable for free musical improvisation.
+In contrast, our system is intended for traditional jazz improvisation involving harmonic and temporal constraints and combining heterogeneous instruments and playing modes.
+Observing real jazz combos gives clues to what a natural extension of a jazz instrument could be.
+In a jazz duo for instance, musicians typically alternate between comping  and playing a solo line.
+Each musician also adapts in a mimetic way to the others, for instance in terms of energy or pitch.
+Based on these observations, we propose Reflexive Loopers, a novel approach to loop pedals that enables musicians to expand their musical competence as if they were playing in a duo or trio with themselves, but which avoids the canned music effect of pedals or minus-one recordings.
+Next, we describe our approach that uses concatenative synthesis and featurebased similarity illustrated by a solo guitar performance.
+Like in many jazz accompaniment systems, a chord sequence  is provided a priori , as well as a tempo.
+The grid is used to label each played beat with the corresponding chord.
+A hard constraint imposed on RLRs is that each played-back audio segment should correspond to the correct chord in the grid.
+Because a grid often contains several occurrences of the same chord the system can reuse any recording for a chord at several points in the grid.
+This increases its ability to adapt to the musician's playing as there is more content to choose from.
+Reflexive Loopers  follow the same basic principle as standard loop pedals: they play back music material performed previously by the musician.
+RLRs differ in two aspects: firstly the playback material is determined not only according to the current position in the loop, but also to a predetermined chord sequence, and to the current playing of the musician through feature-based similarity.
+This ensures that any generated accompaniment actually follows the musician's playing.
+Secondly, RLRs manage to diffe rentiate between several playing modes, such as bass, harmony  and solo.
+Depending on the mode the musician is playing at any point in time, the system will play differently, following the "other members" principle.
+For instance, if the musician plays a solo, the RLR will play bass and chords.
+If the musician plays chords, the RLR will play bass and solo and so on.
+Mode classification uses a supervised learning approach.
+We recorded the MIDI signal of a guitarist improvising with a Godin MIDI Guitar on eight standard jazz tunes in various tempos and rhythmic feels .
+For each tune, we recorded three performances, one in each mode: bass, chords, and solo melodies.
+The MIDI input was segmented into non-
+Computing the melody, chord, and interval duration: pink  = chords; blue  = melody; brown  = interval.
+Chunks are not synchronized to the beat in order to ensure that the resulting classifier performs well on musical input that is out of time, a common technique used in jazz.
+We considered an initial feature set with 18 MIDI features related to pitch, duration, velocity, and a specific bar structure feature .
+The 315 bars of the first tune, Bluesette, were used for feature selection and to train the classifier.
+First, we used the Correlation-based Feature Subset Selection algorithm in its Weka implementation .
+Second, we trained a Support Vector Machine classifier on the training bars with these 8 features.
+Name full-cluster-ratio mean-pitch highest-pitch lowest-pitch mean-inter-onset inter-onset-variance melody-dur-ratio chord-dur-ratio Description The number of clusters / number of MIDI events Avg.
+For clusters: the mean pitch of the notes in the cluster The highest MIDI pitch The lowest MIDI pitch Duration between onsets of consecutive events.
+On every bar, we extract three features: the average pitch, the average CI, and the variance of the CI on the 50ms windows constituting the bar.
+On the audio recordings in Table 1, the SVM classifier trained with these three features has an F-measure of 0.94.
+Although this is not as good a performance as the MIDI-based classifier, it is acceptable in practice.
+During performance, the system generates audio streams using concatenative synthesis from material previously played.
+In the case that there is no previously played content for the current bar the RLR outputs silence.
+This is achieved using feature-based similarity.
+The system extracts audio features from the user's input: in practice, the user features are RMS , hit count  and spectral centroid, though other MPEG7 features could be used .
+The system finds and plays back recorded bars of the right modes , correct grid chord, that best match the chosen features.
+Feature matching is performed using Euclidean distance.
+Note that the interaction we propose could hardly be obtained with physical controllers such as pedals, as it would require a large number of controls  to be activated at every beat, thereby eating up too much mental attention for the musician.
+We illustrate our approach with a solo guitar performance  using the RLR on the tune "Solar" by Miles Davis .
+During this 2'50" performance, the 12-bar sequence is played 9 times.
+The musician played alternatively chords, solos, and bass, and the system reacted according to the two "other members" principle.
+Moreover, the RLR generated an accompaniment that matches the overall energy of the musician: soft passages are accompanied with low-intensity bass lines , and with low-energy harmonic bars , and conversely.
+Figure 5 shows a time-line of one grid  of the performance emphasizing mode generation and interplay, as well as the feature-based interaction used.
+However, we could reintroduce them to bring more control on the generated audio.
+A freeze pedal could allow the musician to play along in a preferred configuration without interfering with it.
+Another configuration would consist in playing a solo on top of a system generated one.
+In a final case, we could let the system play the three performance modes, and control each of them with dedicated controllers located on the instrument.
+This experiment is part of an on-going study to investigate the premise that exploring our own style can boost creativity.
+Experiments conducted so far demonstrated that musicians enjoy playing with the system much more than with minus-ones or loop pedals.
+A series of solo performances with and without RLRs is scheduled to study the actual impact on the musician's ability to develop new kinds of solo performances as well as on the audience's response.
+Aebersold J., How To Play Jazz & Improvise, Book & CD Set, Vol.
+Cherla S. Automatic Phrase Continuation from Guitar and Bass-guitar Melodies, Master thesis, UPF, 2011 4.
+Hamanaka M., Goto M., Asoh H., and Otsu N., A learning-based jam session system that imitates a player's personality model.
+Lahdeoja O., An approach to instrument augmentation: the electric guitar, Proc.
+New Interfaces for Musical Expression conference, NIME 2008 7.
+Levy B., Bloch G., and Assayag G., OMaxist Dialectics: Capturing, Visualizing and Expanding Improvisations, Proc.
+Peeters G., A large set of audio features for sound description  in the CUIDADO project, Ircam Report 2000 9.
+Reboursiere L., Frisson C., Lahdeoja O., Anderson J., Iii M., Picard C., and Todoroff T., Multimodal Guitar: A Toolbox For Augmented Guitar Performances, Proc.
+Schwarz, D. Current research in Concatenative Sound Synthesis, Proc.
+Lachambre H., Andre-Obrecht R., and Pinquier J., Distinguishing monophonies from polyphonies using Weibull bivariate distributions, IEEE Trans.
+Our system is based on a multi-modal analysis of solo performance that classifies every incoming bar automatically into one of a given set of modes .
+As a consequence, a solo musician can perform as a jazz trio, interacting with themselves on any chord grid, providing a strong sense of musical cohesion, and without creating a canned music effect.
+The new kind of interaction described here was inspired by observations of, and participation in, real jazz bands.
+Many other scenarios have been investigated within our framework, including, for instance, an automatic mode in which the musician stops playing and simply controls the generated streams using gestural controllers, so as to let them focus on structure rather than on actual playing.

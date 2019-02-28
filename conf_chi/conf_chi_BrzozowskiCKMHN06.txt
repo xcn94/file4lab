@@ -1,0 +1,294 @@
+Mike Brzozowski1, Kendra Carattini2, Scott R. Klemmer1, Patrick Mihelich2, Jiang Hu3, and Andrew Y. Ng2 1 Stanford University HCI Group 2 Stanford University AI Lab 3 Stanford Dept.
+As our business, academic, and personal lives continue to move at an ever-faster pace, finding times for busy people to meet has become an art.
+One of the most perplexing challenges facing groupware is effective asynchronous group scheduling .
+This paper presents a lightweight interaction model for GS that can extend its reach beyond users of current group calendaring solutions.
+By expressing availability in terms of preferences, we create a flexible framework for GS that preserves plausible deniability while exerting social pressure to encourage honesty among users.
+We also propose an ontology that enables us to model user preferences with machine learning, predicting user responses to further lower cognitive load.
+The combination of visualization/direct manipulation with machine learning allows users to easily and efficiently optimize meeting times.
+We also suggest resulting design implications for this class of intelligent user interfaces.
+People use calendar artifacts as memory prostheses for events and tasks .
+A calendar serves as a "worldword"  mapping, by describing a fixed schedule , and as a "word-world" mapping, by prescribing things that should occur .
+However, items on a calendar do not always directly translate to actual activity .
+In the context of group scheduling , calendars serve as communication tools; a form of "distributed cognition" .
+Finding a time that a group of people can meet together is often aided by some expression of each participant's calendar, whether in spoken dialogue, email or instant messaging text, or in some visual representation.
+Traditional group calendaring systems  such as Microsoft Outlook and Lotus Notes present an explicit representation of users' schedules  .
+For a group of users, finding a time to meet is simply a matter of choosing a time that all users appear to be free.
+Yet, this binary view of availability is often inadequate to describe users' actual preferences.
+Palen's research found that scheduling has come to be viewed as "less an `optimizing' task and more often a `satisficing' task" .
+As a result, suboptimal meeting times are selected.
+Worse, people feel compelled to pollute their calendars with misinformation to avoid appearing "free" at times they'd really rather not meet, employing "defensive scheduling" .
+While these systems are prevalent, at least in workspaces around the world, GCS is considered "the least useful groupware application" .
+Top among users' explicit concerns with such systems are privacy and the "prisoner's dilemma" that since such systems rely on complete knowledge of a user's schedule, they are only useful if everyone's schedule is accurate .
+Another system that supports limited group scheduling is Evite , which allows a meeting's invitees to rate prospective meeting times.
+This is an improvement over binary scheduling, but is limited to five options, which must be manually ranked for each meeting.
+Group scheduling is a complex task; there are certainly many other dimensions that could eventually be explored,
+Machine learning, supervised learning, intelligent user interfaces, group scheduling, group calendaring H5.3.
+Information interfaces and presentation : Group and Organization Interfaces.
+Ever since the advent of passenger rail spurred the adoption of Greenwich Mean Time and established a coordinated regular schedule , modern society has become obsessed with allocating the precious resource of time.
+Schedules today act as mediators between people , allowing them to manage their time and barter it in transactions.
+People ask if they could "have" each other's time, and think of how they "spend" or "waste" their time.
+A busy  schedule also acts as a scapegoat, allowing its owner to blame it rather than declining a meeting directly .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+It could be considered a special case of activity synchronization, which has often been framed as a constraint satisfaction problem and is beyond the scope of this study.
+Similarly, there exist domains where scheduling does not occur in a 24 x 7 week.
+However, for the sake of study, we have reduced the problem to a simpler one of scheduling isolated meetings over the next week.
+We focus on group scheduling rather than calendaring.
+We set out to investigate whether we could use a calendar to represent user preferences rather than availability, focusing only on a world-word mapping.
+This is important because: * User preferences are more complex than binary "free/busy" availability.
+Some free times are more desirable than others, just as some busy times could be preempted under some circumstances.
+Of course, this task is much easier with face-to-face negotiation or when there are few parties to consider; we focus here on asynchronous group scheduling, because computermediated scheduling is often required.
+Because it is time-consuming for a user to supply a complete set of preferences over all prospective times, we are interested in designing interactions that are as lightweight as possible.
+The specific method might vary depending on deployment context; for office users who already maintain digital schedule artifacts, this should likely be an extension of their current PIM.
+Our prototype does not require an existing PIM; building it as a standalone app enabled us to extend beyond traditional GCS users.
+This paper introduces a machine learning approach that implicitly learns how users prefer to schedule time and then attempts to predict their responses.
+If successful, this reduces a user's interaction to correcting our system's guesses.
+However, users need to remain firmly in the loop: the reasoning behind these guesses should be exposed, and users must retain a sense of agency.
+We seek to explore the confluence of visualization of, direct manipulation of, and machine learning on user preferences and their application to the group scheduling problem .
+This paper will provide an overview of related work; describe current scheduling practices; and detail our preliminary prototype, efforts to build a machine learning model, and the resulting groupTime system.
+This section provides a partial overview of prior work on the organizational and semantic study of calendaring, various attempts to automate scheduling, and the application of machine learning to assist in assessing users' availability.
+Prior work highlights the difficulty of creating an effective GCS.
+Grudin  cites disparity between who is required to do additional work  and who enjoys the benefits  and the resulting prisoner's dilemma problem as barriers to widespread use of groupware.
+He argues that challenges like this may explain why GS solutions tend to fail unless backed by a strong organizational force.
+We are interested in providing a system that is used and deemed beneficial without managerial enforcement.
+Yet Palen  found that users are willing to share a great deal of information about their extended availability and schedules with colleagues if they gain better scheduling information and therefore can choose better meeting times.
+This encouraged us to explore higher-bandwidth means of expressing scheduling preferences.
+An early model for this is Beard et al.
+While they found this to be more efficient and reliable than manual scheduling, they made no attempt to prioritize free times.
+Efforts have been made to formalize scheduling interaction as well.
+The Coordinator formalized each step of the negotiation by codifying acts like requests and commitments to automate the process .
+However, socially it proved too rigorous for most users .
+While commercial systems such as Outlook and Notes stop short of scheduling meetings on a user's behalf, some research systems have explored automated scheduling.
+We believe this may be because their system did not expose its reasoning; it merely sent users a message with its answer.
+Inspired by multi-agent systems, Sen et al.
+While this succeeded in selecting meeting times effectively, it remains to be seen whether "average" users are willing to tweak such a system directly; our approach is to learn these preferences implicitly.
+The notion that people's scheduling interaction can be fully automated, that each person's desires can simply be distilled into an agent configured to act on his or her behalf, confuses, in Suchman's terms, plans and "situated actions" .
+People will bend their own rules as the situation warrants--and often do to compromise.
+Rationality gives way to social pressures, as scheduling a meeting is inherently a social transaction .
+So we have decided to keep users in control as much as possible.
+While automated agents have been proposed as a general solution to information overload , direct manipulation beats out autonomous agents for some tasks .
+Specifically, users like to feel in control of their schedules and tend to resist systems that deprive them of agency in the scheduling process .
+Our hybrid approach moves away from the fully-automated extreme, where the cost of mistakes is very high , and the fully manual extreme, where interaction is cumbersome.
+Various different machine learning techniques have been successfully applied to a variety of HCI problems, including generating user interfaces , inferring structured activities from email , and mobile messaging .
+Dourish's Portholes let users make inferences about colleagues' presence and availability from direct observation , inspiring later implementations of desktop instant messaging such as  and .
+This work demonstrates that user availability patterns are predictable to some degree.
+Tullio's Augur system sought to predict user behavior by using Bayesian networks to model whether users would actually attend scheduled meetings .
+This sheds light on another crucial aspect of scheduling: the events on a user's calendar are not necessarily indicative of what he or she will do; in reality some scheduled events are preemptible-- and which ones are to some extent predictable.
+Their PLIANT system learns an ordering on pair-wise preferences by having users choose the best out of five options.
+We hope to obtain a richer dataset by obtaining absolute preferences over all possible meeting times rather than limiting the universe of discourse to five fixed meeting times.
+One of our goals is to extend group scheduling beyond traditional enterprise GCS users.
+We sought a user group who did not have access to a commercial GCS server: college students.
+We began with informal interviews with about 20  students from introductory HCI and communications courses.
+While students may be relatively inexperienced at project management, they are certainly a community that could significantly benefit from improved tools: we found students to be heavily committed to a wide variety of obligations, and--unlike traditional office workers--are rarely collocated with group members.
+The students we interviewed have wildly varying and often chaotic schedules, with their commitments spanning a range of academic, social, extracurricular, and work-related activities.
+They schedule meetings with peers for a variety of purposes including: working on group projects, collaborating on problem sets, handling business for student organizations, rehearsing for an upcoming performance, and social gatherings.
+At our university, over 94% of undergraduates live on campus, making evenings and weekends at least as available and preferable as weekdays; in contrast, office workers ho usually find the workday more convenient for meetings.
+Frequently, these meetings recur among the same defined set of people .
+One subject told us that her sorority is constantly faced with the challenge of finding a time that their 30 members can attend when they plan activities.
+This type of problem is typical of social groups that wish to stay connected for socializing or work.
+Such groups often find it difficult or unnecessary to commit to a regular meeting time each week, or occasionally need to schedule additional meetings.
+All students have some elements of their schedule that are part of a weekly routine.
+These include classes, rehearsals and practices, staff meetings, worship services, work, and volunteer commitments.
+Generally these schedules are solidified within the first two weeks of each academic quarter and don't change afterward.
+Most of the students we interviewed create some artifact of their basic weekly schedules.
+This often takes the form of a spreadsheet or text document, entry in a desktop calendaring tool such as iCal  or Palm Desktop , or a paper schedule.
+It appears that students are willing to expend some effort at the beginning of each quarter to construct this artifact, but that is the extent of most students' interaction with calendaring tools.
+Why bother maintaining an online calendar if you can't take it with you in a more convenient form than your notebook computer?
+Many students rely purely on memory to keep track of this week's schedule.
+Others use a variety of artifacts--scraps of paper, paper planners, and cell phones, since students are relatively mobile.
+While most students do not maintain a digital calendar, a minority use a PDA or a desktop PIM such as Outlook, if they can sync it with a portable device.
+Students' asynchronous scheduling primarily occurs via email.
+Hu and Brzozowski conducted a preliminary study  where they asked 20 students to schedule meetings with groups of four randomly selected members via email.
+They observed the exchanges that took place and debriefed participants on how they normally schedule meetings with other groups.
+Two basic strategies emerged: Aggregation.
+One member acts as the "coordinator" .
+The coordinator sends an email asking for a complete list of everyone's availabilities.
+Other members submit their free times, either in an email body or on a spreadsheet.
+The coordinator then manually combines everyone's free times and finds the intersection to choose a meeting time.
+An advantage of this model is that the group has full disclosure of people's availabilities, each free slot on every participant's schedule being equally important.
+This ensures that all possibilities are considered.
+The chief downside is the investment of time required.
+However, some groups favor this model because it shifts the burden onto one person, effectively absolving other members of responsibility.
+Aggregation creates a power dynamic whereby the organizer assumes control.
+One member initiates an email thread by either enumerating a list of times he or she is available, or describing a few constraints .
+Alternately, the discussion starts with a proposal .
+This informally sets the universe of discourse for the discussion, and other members of the group often focus on these blocks of time, even if there are others that work better for them.
+In successive rounds, the other members whittle down the universe of discourse by adding additional constraints, or expand it by making counteroffers.
+Some groups favor this model because it seems more democratic and requires no coordinator to step forward.
+An advantage of this model is that if a group has compatible schedules they potentially don't have to discuss as many possibilities; if someone proposes a time that works well for everyone there is little debate.
+A disadvantage is that expanding the universe of discourse is costly; if someone wishes to propose a new time, at least another full round of emails is required to gather everyone's assent.
+So it's easier to "go with the flow" and add constraints, making scheduling a sort of greedy search susceptible to local maxima rather than a true optimizing task.
+In practice, it is common for groups to adopt a hybrid approach; for instance, a coordinator might assume authority but still open the floor for debate, or a group might aggregate their free times without an explicit coordinator.
+For our first prototype, we sought to blend aggregation and negotiation in the context of scheduling a meeting to take place over the next week.
+It aggregates users' preferences across an entire week, and lets them negotiate by updating the best meeting times live in response to their feedback.
+This was intended as an early "proof-of-concept" prototype.
+Since a number of our users told us they use Excel to maintain a basic weekly schedule, we built a prototype in an Excel workbook .
+Each sheet of the workbook has a grid representing the following week, with cells offering half-hour granularity .
+Each cell can be marked with one of four weighted labels inspired by --Can't Make It , Rather Not , Is OK , or Works Great --by selecting a block of cells and clicking a tool from a floating toolbar.
+Note that this model does not have any knowledge of a user's actual schedule; the user decides whether to mark a conflict as Can't Make It, Rather Not, or ignore it entirely.
+Each labeling corresponds to a numeric value.
+Cells that the user has not colored in are assumed to be OK by default, since users who don't care enough to mark a cell Can't Make It or Rather Not probably don't mind meeting then.
+To determine the best time for a meeting, our system averages each user's rating for each cell to obtain its score.
+The best time to meet is then simply the block of consecutive cells of the desired meeting length with the lowest average score .
+Simple averaging assumes each participant is equally important to the meeting but does not attempt to maximize the number of attendees; if a time is convenient for all but one member of a group, it takes the strict utilitarian view that that time is best.
+One may also envisage other algorithms.
+Twenty undergraduates from an introductory communication class participated in our user study.
+The 12 men and 8 women were randomly assigned to five groups of four students.
+As with our structured interviews, we asked each group to use email to find two possible times for what we described as a "focus group."
+Upon reaching consensus, we asked representatives to forward all their scheduling mail to us.
+We weren't sure whether groups adopting the aggregation style would "reply to all" or just direct messages to their coordinator, so we wanted to preserve this behavior rather than give them mailing lists so we could observe in situ.
+Due to compatibility issues with Excel, we were not able to deploy it to "the wild" so we simulated an asynchronous scheduling process by having users complete these tasks in rounds: 1 Starting with a blank spreadsheet, color in the cells corresponding to your basic quarterly schedule .
+2 Starting with the spreadsheet you colored previously, now with the best times to meet outlined, recolor cells "until you're satisfied with the meeting times."
+3  Revise your ratings in response to your group's responses.
+Finally, the participants filled out an online questionnaire to compare this scheduling process with email.
+Over email, our users all elected a negotiation strategy rather than aggregation.
+Each participant read an average of seven messages before a meeting time was selected.
+Overall, users were comfortable with the notion of expressing absolute preferences for times as in our prototype.
+We expected users to color in the bare minimum of cells necessary to obtain the outcome required but a number of them painted in every cell of the week even though we told them they didn't have to.
+These users were less likely to have to revise their ratings on a second pass.
+We also observed that users were surprisingly cooperative.
+Several times people who initially described themselves as busy most of the week actually reconsidered once they saw that the best times for everyone else were times they had said they Can't Make It or would Rather Not.
+The visibility of group members' availability exerts a form of social pressure to encourage compromise and honesty.
+We also saw participants use the Works Great label as a tool to suggest alternate times.
+Marking the best times on the schedule provided live feedback to users; if the "best time" on the schedule was one that didn't work for them they would label it Can't Make It or Rather Not.
+If it was still the "best time", the only way to change it would be to propose a better time by marking it Works Great, or to elevate one of the other candidate "best times" by rating them Is OK or Works Great.
+Our users generally indicated they found our prototype "easy to use" and would be likely to use an application based on it and to recommend it to friends.
+However, this prototype was limited in scope and did not reflect "realworld" use conditions, as the users were collocated to use our prototype after they met each other .
+So this result should be considered circumstantial.
+Having seen what we could do without any knowledge of actual user schedules  we wondered: what if we did know about their commitments?
+Could we infer users' preferences from looking at their schedules and past behavior?
+In this case, we'd be able to "paint" the entire schedule with our guesses, and reduce the interaction to correcting the system's guesses.
+We set out to build a model of users' scheduling behavior to do just that: predict how a user would respond to any given meeting request.
+At its most basic level, scheduling is a constraint satisfaction problem.
+One approach is to ask users to explicitly declare the rules governing their preferences, as in .
+However, this assumes that scheduling decisions are purely rational and that users can easily explain their reasoning.
+Interviewing our subjects made it clear that a wide variety of factors affect user preferences, not all of which could be easily elucidated.
+For instance, subjects had difficulty devising a rank ordering of their commitments' importance.
+Enumerating a complete set of rules is also rather laborious for users.
+Based on our interviews with students we constructed a basic ontology of how people prefer to schedule meetings.
+There are two separate but related questions at play here: how people deal with scheduling conflicts and how people prefer to schedule their "free" time.
+The answers vary widely from person to person but we hope to distill out some common decision factors.
+To address the first, we considered that users somehow prioritize the events on their calendar and their commitments.
+People will skip or reschedule an appointment or meeting if something more important comes along.
+Codifying that precisely is difficult, however, since people are not entirely rational in social interactions .
+Rather than seek explicit prioritization from users, we wanted to get a sense of this priority scheme implicitly.
+We sought to capture generically the nature and degree of obligation a user feels to attend an event on his or her calendar.
+Our subjects' schedules reflect a variety of commitments competing for their time: academic, extracurricular, economic, personal, and social.
+Within each type of commitment, we tried to capture varying costs of missing a scheduled event.
+Often this comes down to who gets hurt by an absence and how serious the repercussions are.
+After much discussion with students, we settled on the event types shown in Table 1.
+This schema accounts for the subtle differences, for example, between a frat party where the user's absence won't be appreciably noticed and a date, for which the consequences of not attending are much greater.
+We chose these factors: Conflicts.
+If a meeting would conflict with a scheduled event, the type of event and whether it's a recurring or one-time-only event.
+Type Description Costs of missing Attendance-optional lecture for a class Primary course material Academic Lecture Project Meeting to work on a team project for a grade Letting down a team; grade Section Optional discussion section for a class Supplementary course material Seminar Mandatory class session Grade; supplementary material Study, group Group study session  Indirect effect on grade Rehearsal or athletic practice  Letting down a team/group Activities Rehearsal Meeting Non-class-related meeting Letting down a group A  job interview Career opportunities Economic Interview Work Work as part of a paying job Wages; may get fired An optional event of personal interest  Self-edification Personal Interest Study, alone Planned study time  Grade Sleep Planned sleep time  Health Letting down friends Social Social, private Small social event with one or more friends Social, public Large social event  Opportunity to meet people Table 1 Our ontology of college students' commitments captures a wide range of obligations, allowing us to learn users' priorities implicitly rather than asking for an explicit ranking.
+This also gives us the ability to infer when a user is usually busy even if he or she chooses not to explicitly tell us of a commitment.
+Some people prefer to have large chunks of free time in their schedules and stack events up backto-back; others prefer to space their commitments out more.
+Additionally, there are special cases for some types of prior or succeeding events; for instance, right before a job interview or right after a study group meeting.
+People are more flexible  depending on the type of meeting.
+Note that this ontology is designed for its user group, based on our users.
+Our approach could be adapted for other populations with further study to develop additional ontologies.
+For instance, Tullio demonstrated an ontology successful at predicting behavior in an office setting .
+There may not be a universal ontology for all users, but different models could be used for different groups.
+For each potential meeting time, our system extracts schedule-agnostic features from each user's calendar using our ontology.
+This enables us to compare behavior from one situation to another without relying on the original schedule.
+It uses softmax regression   to assign a set of weights to each feature that can be used to predict the rating of a potential meeting time.
+Other machine learning algorithms, such as support vector machines  and Bayesian networks , can also be applied to this task.
+We chose softmax regression mainly for the sake of simplicity, but also because it makes predictions by assigning weights to each feature, and thus its output can be intuitively explained to users, adding introspectability.
+To derive weights, our algorithm extracts features from a user's calendar and creates a set of training examples for each potential meeting time that he or she has rated.
+To predict a user response to a new training example, our algorithm takes the dot product of the weights for each rating j,  j , and the features of a given training example.
+Using softmax, the probability that the user will rate a meeting with features x with rating i given weights is :
+Users were asked to categorize each of their commitments according to the types we defined in Table 1, and indicate whether they were recurring or one-time-only events.
+We then presented a series of 40 hypothetical hour-long meetings and asked them to rate five different meeting time options for each.
+We ran our feature extraction algorithm on their responses and calendars to generate 200 examples.
+For each user, we evaluated our algorithm's ability to learn their preferences by averaging over ten random 70/30 train/test splits; that is, for each user we ran ten trials where we trained on a randomly selected 70% of his or her examples and then tested on the remaining 30% by comparing our prediction to the user's actual response.
+Forty-six students completed our experiment.
+While results varied widely, for a third of the users the system predicted the correct rating at least 70% of the time; for half of them it predicted the correct rating at least 62% of the time.
+More frequently, our model could guess either the correct rating or one rating adjacent .
+For half the users, our model was either correct or one rating off 90% or more of the time.
+Users whose predictions were more error-prone  all had provided us with relatively sparse calendar data, indicating the model works better with more knowledge of a user's schedule.
+We also attempted to generate a basic set of weights for all users, to help us make predictions for users who have never provided us with training examples.
+Some examples of these features are shown in Figure 3.
+Armed with these results, we created the complete Webbased groupTime prototype to explore the utility of partial sharing.
+As it was Web-based, people could use our prototype asynchronously outside of a lab setting.
+We also wanted to try to democratize the process as much as possible, so that no voice in a group outweighs any other.
+The prediction is the rating i that maximizes this expression, and the confidence is its probability.
+Each feature contributes some factor to this value that is determined by the weights.
+We sought to validate our model and see whether it can learn user preferences based on their schedules.
+This smoothes out fluctuations generated by our model when it has too little information.
+We faced a critical design challenge in that groupTime produces multivariate data.
+For any given time we have a labeling, a confidence , and responses from other users.
+This creates a tension between conveying as much information as possible and making interaction lightweight and intuitive.
+We chose to present only two dimensions of data, user labeling and group aggregate , to make the interaction more lightweight.
+In more mission-critical decision tools, a designer may choose to expose additional axes of data.
+Our classifier will no longer change any cell a user has rated, even if other events are added, to avoid appearing to change things behind his or her back.
+All cells have some guesses, and users have an opportunity to correct those guesses by rating cells.
+Once a user clicks Done, the system takes all ratings, whether guessed or explicitly stated, as the user's preferences, and does not change them even in the face of new information.
+In addition to the utilitarian algorithm used in our preliminary prototype, we added an algorithm that attempts to maximize the number of attendees .
+Meeting times are ordered by how many people can attend and then by the average rating.
+Once everyone has responded, the system emails everyone with the best time according to everyone's preferences.
+If anyone is unhappy with the time chosen, he or she can click a link in this message to return to the response page and update his or her preferences, effectively renegotiating the meeting time.
+Each message has the semantic meaning of "unless there are any objections, we're meeting then"; each participant has the ability to object right until the start of the meeting.
+We recruited 35 volunteers from the Stanford community to participate in a 30-minute user study in groups.
+Users interact with Web pages and a Java applet to respond to meeting invitations.
+Much like setting up a meeting in Evite or Outlook, someone starts the process by scheduling a new meeting, specifying the meeting's type, length, and by when it must happen .
+However, the organizer does not get to specify any meeting time explicitly.
+Each guest receives an email inviting him or her to the meeting, with a link to respond.
+Each user, including the organizer, uses the applet shown in Figure 5 to indicate his or her preferences by selecting one of the color-coded preferences tools and "painting" them onto the grid.
+The organizer has the added power to veto blocks of time he or she deems not to be up for discussion, for instance late nights for an office meeting or daytime for a movie night.
+Users have the opportunity to add as many or as few events from their schedules as they wish; events added by a user are stored for any other meetings he or she is involved in.
+Using the default weights and any events the user adds, we dynamically predict ratings for them.
+The system can use any weights that we wish, generated by any learning algorithm, allowing it to update the user's weights as it trains on his or her responses.
+Our groups included circles of friends, residential computer consultants from the same region, and a workgroup, as well as three groups of randomly assigned people.
+We added one group of office workers to see how expectations differ in a business context.
+Our subjects consisted of approximately 26% undergraduates, 52% graduate students, and 22% office workers.
+About 68% of participants scheduled meetings with groups of 3 to 4 people at least once a week.
+Groups ranged from three to five members in size.
+We divided subjects up into control and experimental sets.
+The control set was asked to schedule their user study entirely by email, while the experimental set used our new prototype.
+We told everyone that all members of their group must be present at the user study to receive compensation.
+We appointed a representative from each group, charged with reporting the desired meeting time back to us; representatives were the subjects who signed up their group and were randomly chosen in the unaffiliated groups.
+Our preliminary study found virtually all email traffic went to the whole group, so we gave each control set group a mailing list to use, allowing us to monitor their discussions.
+At the user study, groups in the control set were shown a demonstration of the prototype and had the opportunity to ask questions.
+Subjects completed a questionnaire pertaining to their scheduling experience  and participated in a focus group discussion about their scheduling experience and the prototype system.
+Subjects showed great enthusiasm for our approach to preference-based scheduling, particularly in comparison to email, but raised implementation issues that help us better understand desirable attributes of intelligent user interfaces.
+Of the 35 volunteers who signed up, 25 committed to attending a meeting.
+Ten people did not agree to a specific meeting time.
+One control group failed to find a meeting time because its representative did not contact his group.
+Another control group member tried to spur discussion over email but without decisive leadership, they never chose a specific time.
+Several experimental groups had one member who never responded to group emails or our system's invitation; after attempts to contact them, we dropped them from their respective groups.
+All but two of the 25 subjects showed up at their meetings: one subject misread the time in his email; another was sick on the day of the meeting.
+Subjects were more likely to say email scheduling "requires many rounds of negotiation" than our prototype .
+One user remarked, "It takes out the social engineering of forceful personalities domineering a meeting to their own ends."
+Subjects expressed a desire in particular to use our prototype to schedule meetings with large groups and committees that don't have frequent contact.
+In general, subjects said they were most likely to use our prototype to schedule meetings with groups of five or more people.
+While 83% of subjects said they were likely to use our prototype to schedule a "group project meeting," only 36% were comfortable using it to plan a "social gathering."
+People liked the egalitarian nature of the groupTime algorithm; one told us, "I like how the choice of timing is kind of out of any one person's hands, which makes it more likely to be what's best for the group as a whole."
+However, pure democracy can break down.
+One group in the experimental set had difficulty because one member had his schedule change 20 minutes before the appointed meeting time.
+He logged in to register his changes but it was too late; half of his group never got his email.
+Several people expressed a desire to have the coordinator or the system "lock down" a meeting time some time before the actual meeting, to make it seem "firm."
+Others felt disconnected from the pulse of their group because our prototype doesn't disclose how individual members responded.
+Users wanted to know why cells were colored the way they were, particularly when someone else was responsible.
+Some felt compelled to explain themselves and wanted the ability to post comments to the group.
+Some people had trouble because they weren't able to check their email regularly, and suggested sending SMS messages to their cell phones to remind them.
+In general, groupTime yielded successful meetings.
+The study also indicated two important design considerations.
+First, users desire more structure and slightly more disclosure than we previously thought.
+Second, most subjects agreed that groupTime should tip the balance of power in favor of the organizer more.
+We demonstrated the viability of using preferences rather than explicit calendar sharing to schedule group meetings, but showed that calendars still provide valuable information that can be used to predict users' preferences.
+We also present four design considerations for semi-automated GS: 1 Let the user know what's going on.
+Users lose some agency when they let machines negotiate for them.
+Whether making a prediction based on past behavior or making a decision, the user should have some easy way to see why the system did what it did.
+2 Don't make changes behind the user's back.
+Users prefer to have veto power over an agent and expect their decisions to be final.
+A system should not override users' explicit preferences, even in the face of new information, nor should it schedule a meeting without user input.
+A system should always make it clear if and when a meeting is scheduled.
+In intelligent user interfaces, optimal results are desirable but a sense of predictability and consistency are also important .
+To avoid having one user "game the system" and appear deceitfully inflexible, let users see who the culprit is and let them explain themselves.
+Users who genuinely are busier than their colleagues shouldn't have to feel guilty if they have good reason, nor should cheaters get away with it.
+While this methodology shows promise, more extensive study is required to validate this system in a larger context.
+We are currently preparing a longer-term deployment and a longitudinal study to ascertain how well we can adapt to individual users' unique priorities over time.
+We thank the participants of our three studies and members of the Stanford HCI Group for their feedback.
+We also thank Tom Dietterich, Melinda Gervasio, and Leslie Kaelbling for helpful conversations.
+Brzozowski and Carattini were partially supported by the U.S. Department of the Interior/DARPA under contract number NBCHD030010.
+Intel donated hardware for our server and our user studies.
+Human subject research was governed by Stanford University IRB-approved protocols 902 and 3439.

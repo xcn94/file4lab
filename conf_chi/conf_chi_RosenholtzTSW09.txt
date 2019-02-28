@@ -1,0 +1,257 @@
+Understanding and exploiting the abilities of the human visual system is an important part of the design of usable user interfaces and information visualizations.
+Good design enables quick, easy and veridical perception of key components of that design.
+An important facet of human vision is its ability to seemingly effortlessly perform "perceptual organization"; it transforms individual feature estimates into perception of coherent regions, structures, and objects.
+We perceive regions grouped by proximity and feature similarity, grouping of curves by good continuation, and grouping of regions of coherent texture.
+In this paper, we discuss a simple model for a broad range of perceptual grouping phenomena.
+It takes as input an arbitrary image, and returns a structure describing the predicted visual organization of the image.
+We demonstrate that this model can capture aspects of traditional design rules, and predicts visual percepts in classic perceptual grouping displays.
+Design of user interfaces and information graphics is poorly understood, and somewhat hit-or-miss in terms of effectiveness.
+A number of issues influence the success of a design, and these run the gamut of the underlying human behavior.
+Here we focus on perceptual aspects of design.
+Perhaps the most important aspect of human vision for design is perceptual organization.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The duals of perceptual grouping are important phenomena in their own right: we quickly and effortlessly perceive boundaries between certain visual textures, perceive edges between coherent regions in an image, and quickly detect unusual items that seem to "pop out" from the background.
+Examples of perceptual grouping phenomena are given in Figure 1.
+Following the visual system's "rules" of visual organization makes interpretation of visual aspects of designs effortless: a user easily sees which labels refer to which parts of a dia-
+Good designs use the natural perceptual processing power of the brain, and interpretations of such designs are fast, robust to instruction, and cross-cultural .
+With poor visual design, the grouping structure may not match the structure of the information, leading to confusing displays .
+A user might see columns of information where in fact there were intended to be rows; incorrectly group two regions of a graphic that have no relation to each other, and so on.
+In Figure 1f, do the +'s at the grid points interfere with perceiving the data curves?
+However, models for how users extract meaning from visual displays are incomplete.
+Designers often "eyeball" it- i.e.
+Various researchers have suggested general guidelines for design .
+Many existing models in use in the HCI and information graphics field are specific to particular types of displays e.g.
+Rules of thumb, based on simple behavioral experiments, are useful in understanding and guiding design.
+However, designers may have difficulty applying them to more complex displays.
+Ideally, one would prefer a model that could predict the likely perceptual groups for an arbitrary design.
+Such a model would be most useful if its mechanisms and output were easy to understand, as this transparency would aid a designer in making changes to a poor design.
+In this paper, we draw on tools from statistics as well as recent work in computer vision to propose a model of perceptual grouping that is simple to understand and implement, yet effective.
+This model can predict image segmentation, contour integration, segmentation of orientationbased textures, grouping by similarity and proximity in standard Gestalt displays, segmentation of natural images, and grouping in more complex diagrams.
+The similarity between two pixels determines the weight between the corresponding nodes.
+This weight can be thought of as the tightness of a spring.
+The algorithm partitions this spring-mass system into regions that will tend to move independently.
+This is an evocative description, but it does not lend itself to easy intuitions about the predicted segmentation, nor how one might change a display to obtain a different grouping.
+In information graphics, often interesting groupings form between non-physically adjacent items.
+We want to know, for instance, whether a user will easily perceive the association between colored lines on a plot and the colors in a legend.
+Will it be obvious to a user that a set of buttons on a remote control perform related functions ?
+The vast majority of computer vision algorithms group only contiguous regions.
+It is unclear how well these algorithms can extend to group over gaps between items.
+This is a serious problem for applying these algorithms to UI designs.
+Contour integration algorithms do group across gaps , but have not been extended to grouping based upon other Gestalt principles.
+Techniques that cluster in luminance or color space, for example k-means and non-parametric equivalents , will group across gaps in space.
+However, these techniques, as commonly used, take this loosening of the proximity constraint too far; they will tend to group independently of proximity.
+Another difficulty is that typical perceptual organization models do not produce a hierarchical grouping, though see .
+Something like a hierarchical percept clearly exists .
+In a text document, for instance, individual letters group to form lines of text, which form paragraphs, which form columns, and so on.
+There has been little work comparing models of perceptual grouping with human perception, though for partial attempts see, for example, .
+In part this is due to the lack of quantitative data on perceptual organization.
+More seriously, though, many of the algorithms perform too poorly to predict even what qualitative data exist.
+Predicting a wide range of simple qualitative perceptual organization behavior would be a significant step forward.
+A more subtle difficulty with existing models of perceptual grouping is that nearly all handle only one kind of perceptual grouping, e.g.
+Certainly if separate models for the different grouping phenomena were required, we would use separate models.
+However, we will demonstrate that this is not necessary.
+Advantages of a single, unifying model include the fact that the outputs are compatible, and thus it will be easier to combine them to get an overall picture of the perceptual structure of a display.
+A great body of computer vision work exists on the topic of perceptual grouping.
+However, much of it is inadequate for user interface  designs and information graphics.
+After many years of human and computer vision research, results of image segmentation models are still often quite poor.
+For one thing, many of these models have inherent biases against extended groups.
+A classic result is the tendency to predict the perceptually invalid segmentation of a pure blue sky into 3-4 separate regions.
+Furthermore, the better models often do not easily lend themselves to intuitions.
+The brain itself contains the best perceptual organization system in existence, and it is generally believed to use similar mechanisms to perform related tasks.
+More recent models have become more unified largely due to a unified vision of the purpose of perceptual organization.
+This vision echoes that of Helmholtz , who argued that what we perceive is our mind's best guess of what is in the world, based on summary data  and prior experience.
+By this argument, the goal of perception is to create what the computer vision field refers to as a "generative model" for an image: what processes created the image, and where each of the processes operates.
+Perceptual grouping concerns itself with the latter.
+Based on this view of perceptual grouping, a number of computational models have been developed for image segmentation , edge detection including texture segmentation , contour integration  and distinguishing figure from ground .
+Our model similarly finds groups by attempting to infer the processes that generated the display.
+Blurring the image not only merges neighboring regions, but also mixes the background luminance with that of the disks, as seen in Figure 2.
+This mixing makes such methods overly sensitive to the difference between foreground and background.
+Proximal high contrast items will tend to group with each other, whereas lower contrast items will tend to group with either neighboring high contrast items or with the background.
+Contrast does influence the spatial extent over which discontiguous items may group.
+Consider instead the example of Figure 1c.
+The typical percept is two smooth curves that cross in the middle.
+Here the pixels that form groups are contiguous; how do we separate those pixels into two separate curves, given that they touch and are the same color?
+Again, this is tricky in the image domain.
+We need to split the image into two contours in spite of the spatial proximity.
+Where the two curves cross, the local difference in orientation is sufficient to suggest a percept of two contours.
+The key in both of these examples is to represent the original image in a higher dimensional space that incorporates both space and feature dimensions.
+For example, Figure 3 shows the representation of Figure 1a in  space, where L corresponds to a measure of luminance, e.g.
+This representation is an "indicator function," with 1's at all points  such that there exists a point in the original image with the given  location and the given luminance, L. The representation has 0's at all other points in the 3-D space.
+This representation in a higher dimensional feature space explicitly incorporates, in a way that the original image did not, the relevance of both spatial proximity and feature similarity.
+One can imagine that a simple grouping algorithm could easily find the desired perceptual groups.
+The gray disks lie near each other and not near anything else.
+One can make a similar observation about the white disks, and about the background.
+Why is it difficult to predict perceptual groupings?
+Many perceptual grouping problems appear difficult to explain via simple processing in the image domain.
+Consider the Gestalt disk array example in Figure 1a.
+The typical percept in this figure is of an array of disks with three groups: the gray disks on the left, the white disks on the right, and the background.
+It is this grouping we hope to mimic.
+In determining what regions form groups, both proximity, i.e.
+Virtually any simple algorithm can group the pixels in each individual disk, since they are touching and contain pixels with exactly the same luminance.
+The difficulty comes from variations in luminance, and bridging the gaps between individual disks to group them in spite of the lack of spatial adjacency.
+However, spatial information is also important - you do not want to group together all pixels of the same luminance, regardless of how far apart they are.
+This is a relatively old idea in image processing.
+The blur makes the algorithm somewhat robust to variation in luminance, and also allows grouping across small spatial gaps.
+This approach does reasonably well at capturing grouping by proximity when all foreground items share the same contrast with the background.
+Note also that the predicted groupings will be quite robust to the amount of blur chosen.
+We have moved from a complicated 2D problem to a seemingly more tractable 3D problem.
+The right representation can make perceptual organization seem much easier.
+The appropriate representation uses  space, where  is the local orientation estimate .
+In  the two curves of Figure 1c do not even come near each other, making it almost impossible to group them in any way other than the desired percept.
+Again, the right representation can make a perceptual grouping problem much easier.
+We use steerable filtering  to extract the best local orientation at a given scale.
+The technique described by  returns, at each scale, two images, approximately corresponding to kcos2 and ksin2, where k indicates the strength or confidence in the orientation.
+Regions with strong, single orientations yield values of k near 1, whereas regions with poor contrast or multiple orientations, such as corners, yield values closer to 0.
+We map each pixel to a point , where  is the estimated orientation at pixel .
+However, rather than placing simply a 1 at point , we instead put the weight, k. This causes our contour integration module to ignore unoriented or weakly oriented regions in the image.
+A good representation is key to making perceptual grouping tractable.
+Given this representation, how do we decide what groups?
+Whereas blurring in the image domain has undesirable effects, in the higher-dimensional space, simple blurring performs well at joining separate elements of a perceived group into a single "blob."
+It does so in a way that mimics human perception.
+Figure 3b shows a cartoon example of this blur through a slice of the disk array example of Figure 1a.
+Note that the blur correctly joins the light gray disks into a single "blob", and the same for the dark gray disks and for the background.
+Additional blurring is not necessary for finding groups in the curve-crossing example of Figures 1c and 4, but the point of contour integration is often to connect separated contour elements, as in the more complicated contour integration example of Figure 1d.
+Here blurring in  space helps to join the separated contour elements.
+Note that in Figure 3b, we blur in both the feature dimension, L, and in the spatial dimension, x.
+One can think of blurring in the feature dimension as joining regions that are sufficiently similar in feature.
+Features, such as luminance, need to differ by a certain amount in order to be perceived as different by a human observer.
+If the blur we apply in the model is smaller than this "just noticeable difference," parts of the image whose features are for humans not distinguishable may be incorrectly segmented.
+This sets lower limits on the amount of feature blur.
+Blurring leads to blobs in the higher-dimensional representation.
+Neighboring regions in  space will merge into a single blob, corresponding to a predicted perceptual group.
+Increasing the blur leads to bigger blobs, and larger-scale grouping of more disparate regions.
+Therefore, simply changing the blur from small to large produces a "hierarchy" of groupings .
+The last step involves finding the boundaries of coherent blobs, and thus labeling groups.
+Perceptual groups tend to correspond to broad, fairly flat regions in the higher-dimensional space.
+One wants to find the boundaries of those regions while ignoring smaller "bumps" in the blobs.
+Finding meaningful boundaries while ignoring noisy bumps is the classic problem of edge detection in computer vision.
+A number of existing edge detection algorithms generalize well to our higher-dimensional space.
+We use a robust version of the Marr & Hildreth  edge detection algorithm.
+Informal testing suggests that this method works well across a range of perceptual grouping examples, and is reasonably robust to choice of parameters.
+At this point, it is worth mentioning the relationship of our model to two related suggestions for finding perceptual groups or image segmentations.
+Logan  provided a thumbnail sketch of an algorithm for grouping by similarity and proximity.
+Though his description differs greatly from ours, he effectively suggested estimating a surface much like our blurred, higher-dimensional representation, which he called the CODE surface, then looking at a slice L = L0.
+Groups would derive from finding connected components above some threshold, T, within that slice.
+Logan suggested examining multiple values of L0 and T to extract a grouping hierarchy.
+This differs from our proposed model both in looking at only one slice of the  representation at a time, and in that it finds blobs by thresholding rather than edge detection.
+As a result, his suggestion is far more sensitive to choice of parameters than our model.
+Furthermore, a given choice of parameters L0 and T will not tend to select meaningful groups throughout the image.
+Our method also requires a choice of parameters, but degrades more gracefully, as the necessary threshold for Logan will depend upon the unknown group size, and operating a slice at a time is an unnatural and less reliable way of understanding the full higher-dimensional blob structure.
+Also closely related is a computer vision technique for segmenting color images, known as mean-shift .
+Meanshift typically represents the image in  space, with color typically in CIEL*a*b* color coordinates.
+Mean-shift then blurs with a separable Gaussian kernel .
+It finds groups by finding peaks of the resulting function, and points associated with each peak.
+This technique has proven reasonably effective and efficient at segmenting natural scenes , but has not been applied to contour integration or perceptual grouping of disjoint regions.
+Its reliance on finding peaks in the higher dimensional representation makes it highly sensitive to the noisy "bumps" we wish to ignore.
+In practice, mean-shift has difficulty grouping broad, homogeneous areas into a single group.
+This is problematic enough in natural images, in which mean-shift often produces very robust over-segmentations that are perceptually invalid.
+In information visualizations or user interface designs, in which large flat regions abound, and groups may not be spatially contiguous, mean-shift will likely have difficulty deriving perceptually valid groups.
+Our perceptual grouping algorithm, then, represents the image in a higher dimensional  space, blurs to merge regions into coherent "blobs," and performs edge detection to find meaningful groups.
+How can this algorithm perform grouping by similarity and proximity, and contour integration?
+Interpreting the algorithm in terms of the statistical goal of the visual system gives us a clue.
+The visual system likely aims to infer a generative model of the image: what processes produced the image, and where they operate.
+Figure 1a, for instance, can be thought of as generated by one random process, active on the left side of the image, which produced dark gray disks, one random process that produced light gray disks on the right, and one process that produced the dark background.
+To extract this interpretation of the image, one could gather "samples" from throughout the image, to estimate the distribution of features across space.
+This distribution is the probability density function  that "generated" the image.
+In this case, the pdf has 3 "modes," corresponding to the 3 groups.
+Our representation of the image in  space can be thought of as a histogram estimate of the underlying pdf, with each point in the image corresponding to a sample.
+Blur in the feature dimensions parallels a standard statistical technique for better estimating the pdf, known as Parzen windowing.
+In statistics, choice of the amount of blur is a classic unsolved problem.
+Too much blur overly smoothes the pdf estimate, which can lead to underestimates of the number of modes.
+Too little blur leads to a noisy pdf estimate, with too many modes.
+What the brain may do is try a range of blur, and construct a hierarchy of possible groups, from a fine segmentation based on small amounts of blur through a coarser segmentation based on larger amounts of blur.
+Perhaps we have a hierarchical grouping percept because the brain is not sure of the best parameters.
+Blurring the pdf estimate in the  dimensions is justified based on the prior that processes in natural scenes tend to be localized, so that if one point in a scene came from a given process, that same process likely also generated neighboring points.
+Blurring in the  dimensions in effect allows us to improve our pdf estimate by collecting more samples, likely to be from the same process, from neighboring areas of the image.
+The blur in , then, should be related to the probability of finding pixels from the same process at a given distance from the current pixel.
+Our examination of hand-labeled groups in natural images  suggests that blur for grouping by similarity and proximity should be approximately isotropic.
+Groups in the world do not, by and large, tend to extend more in one direction than another, though there is a slight preference for horizontal and vertical directions.
+We approximate these constraints with a 2-D separable, isotropic Gaussian blur.
+A different blur may be more appropriate for information graphics, given how they differ from natural scenes.
+However, it is often assumed that perceptual organization processes in the brain are adapted to processing natural images.
+For contour integration , other priors are more appropriate.
+Contour segments more likely come from the same process when they are roughly co-circular, with a preference for low curvature "circles", i.e.
+This means in practice that for each slice = in  space, we blur with an anisotropic Gaussian oriented at  degrees.
+We have found that an elongated Gaussian with an aspect ratio of at least 10 works quite well.
+Though this explicitly prefers collinear contours, in practise it does surprisingly well at joining roughly co-circular contour segments .
+It is difficult to perceive rows of disks.
+Our algorithm correctly predicts this result.
+Figure 5d shows a similar Gestalt array, in which rows of disks alternate in luminance.
+The similarity of disks within a row, and the difference across rows, overrides the column percept of grouping by proximity.
+We perceive rows of disks, and it is difficult to see columns, as predicted by the algorithm.
+Figure 6 displays good continuation predictions on several stimuli.
+Figure 6a shows a Venn diagram, in which the obvious percept is of two circles overlapping, as predicted by our algorithm.
+Note that neither top-down knowledge of "circle" is required, nor a preference for closed contours.
+Figure 6c shows a standard contour integration stimulus.
+Figure 6d shows the contours most salient to human observers, from .
+Figure 6e shows the most salient contours predicted by our algorithm.
+Overall, the algorithm's performance is quite similar to the expected perceptual organization.
+In pilot experiments we have tested our algorithm more quantitatively against human performance at detecting, in less than 200 ms, whether the largest contour is on the left or right of fixation.
+Our model performs quite well at predicting the results of these experiments.
+In this section, we show results of our algorithm, first on standard Gestalt displays, then on more complicated information graphics.
+In what follows, we present only the results by the grouping module most applicable to the given display.
+We discuss future work on combining the results in the Discussion.
+Each predicted group is represented by a colored blob or blobs superimposed over the original image.
+These grouping images are best viewed in color.
+Figure 7 shows the results of grouping by similar orientation in a texture.
+Note that the algorithm correctly predicts the percept.
+Figure 5: Grouping by luminance similarity.
+Spatial blur  = 20 pixels, luminance blur L = 4% of the range of luminance values.
+Figure 9 shows variations of a plot by Pauling.
+In Figure 9a one can clearly recognize the shape of the curve, as pointed out in  and shown by our algorithm .
+In Figure 9c, the dashed lines have been removed, and it is hard to see the peaks in the graph as the dots are quite scattered.
+In 9e, Tufte has inserted crosses in the background to facilitate reading of the actual values of the data, at the cost of a modest amount of additional clutter.
+The curves are still clear, as predicted by the perceptual organization algorithm.
+The previous grouping examples are highly relevant to designers, as similar groupings occur in UI designs and information visualizations.
+Even more relevant, we here test the algorithm on several information graphics from Tufte .
+These examples are particularly interesting, since we have Tufte's description of the "true" percept.
+Figure 10 shows a section of Marey's train schedule.
+The vertical axis represents location, i.e.
+The horizontal axis denotes time.
+Diagonal lines indicate key information: trains traveling from one station to another over time.
+The version with the lowcontrast grid is much easier to read .
+This is also reflected in the model prediction; for the high-contrast grid, the model finds many grid lines but not all the diagonal lines representing the trains.
+For the low contrast grid all diagonal lines are found, but not the grid lines.
+Stops of trains result in offsets of the diagonal lines.
+However, if they are small, they do not alter grouping into a single "train."
+Figure 11a shows cancer rates among white females, by U.S. county.
+Figure 11b shows the grouping-by-proximity predicted by our algorithm.
+The groups found agree well with Tufte's explication of the percept: a cluster of high cancer rates in the Northeast, with additional outlier clusters in southern California and northern Minnesota.
+With our model in hand, one could have predicted a number of Tufte's observations on these designs.
+Clearly this should be useful for designers, as it enables generalization of design rules to arbitrary and complex displays.
+Figure 12 shows a final example of an early version of the algorithm that uses color as a feature for grouping by similarity.
+Buttons of a similar color are predicted to group if they are sufficiently close to each other.
+We have presented a conceptually simple model for perceptual grouping.
+The key idea is to translate a complicated two-dimensional image, in which segmentation is difficult, into a higher-dimensional representation where straightforward methods yield good results.
+Our particular technique uses a high-dimensional blur operation, which is simple to implement and understand.
+We may examine a hierarchy of groupings by varying the degree of blur.
+In this work, we have extracted features, e.g.
+The visual system is known to extract features at multiple scales, and in future versions we will incorporate this.
+This is akin to standing farther away from a display, prior to extracting groups.
+Extracting features at multiple scales is not equivalent to changing the extent of the blur in  space, though in some cases they may have similar effects on the predicted groupings.
+We have focused on a model based on luminance and orientation.
+A long line of research on the basic features influencing perceptual organization , however, suggests many other candidate features.
+One issue in integrating multiple features is how to generalize the blur operation.
+For example, we would clearly like to model the effect of color, but it is not obvious how one should blur in the color dimensions.
+A unit step anywhere in CIELa*b* space has approximately the same perceptual discriminability, yet it seems unlikely that isotropic, separable filtering in L, a*, b* is optimal, as it implies that the likelihood of grouping two colors together depends only upon their discriminability, not on whether they differ in hue, saturation, or luminance.
+In the natural world, luminance varies within a given object due to shading, whereas hue changes occur less frequently.
+Other likely features include some measure of size or shape.
+A simple stand-in may be contrast energy, as in , though ultimately a more complicated measure of shape may be required.
+One might, for instance, combine all the features into a feature vector, and find groups using a single high-dimensional representation .
+However, this might depend upon whether such dimensions are "integrable" or "separable," as discussed in .
+Groupings based on different features might require more complicated combination rules, since  shows that when color and geometric form lead to different texture segmentations, color dominates.
+A related open question is how one should combine the results from, say, grouping by similarity, with grouping by good continuation.
+Contour integration may serve to "fix" under-segmentation when features of neighboring items are too similar, and we are exploring using our predicted contours to modulate the results of grouping by similarity.
+Finally, some perceived groupings have greater strength than others, meaning they are more likely to be perceived.
+We are currently exploring, with some success, a measure of grouping strength based upon how stable a group is to changes in algorithm parameters.
+Top-down influences are no doubt also important, though our current algorithm does quite a bit without them.
+We might incorporate top-down effects in our framework by rewarding groups that matched familiar shapes, either in the image or in the higher-dimensional representation.
+Our simple algorithm works well at predicting grouping in Gestalt displays, as well as information visualizations like diagrams.
+This algorithm, and the intuitions associated with it, should be of use to designers wishing to ensure that the structure of the information presented agrees, as near as possible, with the likely perceptual structure of a display.
+Wertheimer, M. Laws of Organization in Perceptual Forms.
+Harcourt Brace Jovanovich, London, 1938.
+Koffka, K. Principles of Gestalt Psychology.
+Ware, C. Information Visualization: Perception for Design.
+Kosslyn, S. M. Understanding charts and graphs.
+Tufte, E. R. The Visual Display of Quantitative Information.
+Cleveland, W. The Elements of Graphing Data.

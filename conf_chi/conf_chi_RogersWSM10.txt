@@ -1,0 +1,104 @@
+We describe a particle filtering approach to inferring finger movements on capacitive sensing arrays.
+This technique allows the efficient combination of human movement models with accurate sensing models, and gives high-fidelity results with low-resolution sensor grids and tracks finger height.
+Our model provides uncertainty estimates, which can be linked to the interaction to provide appropriately smoothed responses as sensing perfomance degrades; system autonomy is increased as estimates of user behaviour become less certain.
+We demonstrate the particle filter approach with a map browser running with a very small sensor board, where finger position uncertainty is linked to autonomy handover.
+These estimates are the means by which a human can control the internal state of the computer and cause it to perform actions.
+All systems have some level of ambiguity, due to a mix of limited sensing of the environment, and poor models of the complexity of human users.
+Interaction design has, however, typically been challenged by designing solutions for inputs which are high-dimensional, dynamic and uncertain.
+Many rich analogue sensors such as accelerometers or capacitive inputs have been used in an essentially discrete fashion with simple thresholds triggering key-press equivalent events.
+Even simple tasks such as using accelerometers to re-orient the screen from portrait to landscape have undesirable consequences because of the difficulty of interpreting context appropriately.
+This paper presents a technique for interpretation of an array of capacitive sensors such that the information can be used for direct foreground interaction control and background control or context sensing.
+These techniques allow us to cope with dynamic, noisy sensor inputs, and to create systems whose level of autonomy increases as ambiguity increases - the system takes over as user input becomes less certain.
+This sensing ability allows the creation of interfaces for rich interaction, open to the inclusion of more sophisticated models based on context of use, or prior behaviour, to support direct human motor control.
+A human-computer interface interprets user actions and carries out the user's intention.
+In , the "H-metaphor" is described, where a rider's interaction with his or her horse is used as an analogy for the handover of autonomy in computer systems as the certainty of control varies.
+If a rider uses certain, frequent and deliberate movements, the horse follows movements exactly; as the control becomes vaguer, the horse resorts to familiar behaviour patterns and will take over more of the control.
+We believe that this notion of being able to `loosen or tighten the reins' of interaction with an intelligent device is likely to be vital in the creation of future human-computer interaction systems.
+Capacitive sensing systems are ideally suited for this style of communication and control, as the control metaphor is literal tightening or loosening of the grasp of the device itself.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+To explicitly model uncertainty, we adopt a Bayesian approach.
+This involves a shift from considering particular values of objects of interest  to distributions over possible values.
+Uncertainty is naturally handled by the degree of variance in the distribution.
+Unfortunately, for most interesting applications, such distributions are not analytically tractable and we must resort to sampling techniques.
+Broadly speaking, PFs approximate the distribution at a particular time-point with a set of samples .
+The complexity of the trajectory is apparent.
+Capacitive sensing works by measuring the change in capacitance of a virtual capacitor between sense pads and ground.
+When a grounded object, such as a human body, comes into proximity with these pads, the apparent capacitance increases.
+Figure 1 shows the sensing hardware used in this paper.
+An SK7 sensor packfrom SAMH Engineering Services was used for capacitive sensing.
+Data is sampled from 12 small square pads in a 4 x 3 configuration, measuring 26 x 20mm and providing 8-bit resolution at 110Hz.
+With a 0.012pF sensitivity, this gives a proximity range from 0-10mm, with the value decreasing exponentially with the distance.
+An optional 24 channel board can be used for higher resolution sensing in a larger form factor.
+Figure 1  shows a typical time-series from a 12 sensor array with the finger moving in and contacting the board.
+The resulting inferred 3D position shown in Figure 1 .
+We now describe the method that we use to track the 3D location of a finger.
+In particular, we are interested in the posterior distribution p which encapsulates the certainty we have in the finger location  conditioned on the values from the sensors c. We will generate samples from this distribution using a PF, depicted in Figure 2.
+There has been increasing recent interest in sensing contact with the whole device, where current prototypes have typically used either existing mouse pads, or combined multiple touch sensitive off-the-shelf devices.
+The advantages of such systems include interacting without obscuring the screen , dual front-and-back interaction  and sensing hand posture.
+We have built a robust, high-quality realtime finger tracking system which uses a particle filter to estimate finger position using relatively low-resolution sensor arrays.
+This system is implemented using custom hardware and is implemented in Python.
+This filter can track finger position at 100Hz or more, with sub-fingertip accuracy.
+In testing, our particle filter roughly halves the RMS error in XY position for repeated trials of touching a sensor pad compared to standard linear interpolation methods, as well as providing robust height values.
+The particle filter is 3D, and can reliably track the finger during approach to the sensor pad, with realistic estimates of sensor uncertainty.
+At each iteration a new population is created by re-sampling particles from the population with probability proportional to how well they agree with the observed data.
+After initialisation with random particles , the filter consists of two steps - particle weighting and particle re-sampling - repeated at each sensor update.
+Particle weighting In this stage, the particles are assessed to determine how well they fit to the observed data.
+This stage relies upon a model of sensor response for any particular contact location.
+We use a negative exponential function for the response of the ith sensor defined on the distance between a particle and the sensor location qi : ri  = exp{-K ||xs - qi ||2 }.
+The response becomes flatter as the contact is moved away from the sensor plane, which results in broadening the posterior distribution .
+The explicit modelling of the sen-
+The filter could, for example, be used to track fingers using hierarchical sensors, where coarse pads provide longrange depth information and low-resolution XY information, and smaller pad provide high resolution XY information as fingers approach the surface.
+The vector of values obtained when this is evaluated for all I sensors is then compared against the current observed values using a Gaussian likelihood.
+Whole device sensing Velocity models are also useful when sensors are distributed about the body of a device - not just on flat surfaces, but curved around the entire form of a mobile device or hand controller.
+Our model allows to encode priors about movement flows across the surface which result from the effect of the curvature and textures of the object surface.
+A rich variety of forms can become useful interaction surfaces, where the model copes well with the intrinisic movement distortions caused by the shape of the object.
+The particle filter also makes it easy for researchers to rapidly prototype novel arrangements of sensor arrays with crude copper tape and glue construction without high accuracy engineering.
+Particle re-sampling In this step, we use the current particle population to generate a new population.
+Firstly, we create a proportion  of the S particles randomly from some distribution p - in our demonstrations we use a uniform distribution over the 3-dimensional space.
+This step ensures that the filter can track rapid changes in the distribution .
+As we are sampling with replacement, it is possible that a single particle  could produce several particles in the next generation.
+Finally, we must define a prior distribution on the evolution of x - p.
+This distribution encapsulates our beliefs regarding how the contact will move through the 3D space.
+This encodes the prior belief that the user moves in a smooth manner.
+Many movement models beyond the simple smoothness constraint are possible.
+As long as we can define the density p and sample from it, it can be incorporated into our model.
+For example, a minimum-jerk movement model can implemented as a simple prior on the third derivative of position.
+Richer movement models can be obtained by suppling each particle with a velocity that is depends on the particle's location.
+We have implemented models where a spatially-varying velocity distribution can be learned from previous movement patterns.
+At each time step, particles are moved according to this velocity field and will only survive if this movement is consistent with the user's.
+Multi-touch The particle filter approach naturally handles multi-touch interaction.
+Particles are generalised to have multiple locations.
+Imagine a particle that corresponded to two locations.
+As long as we could compute the theoretical sensor output for contacts at both of these locations , we can compute the particle weight and proceed as above.
+Allowing particles with differing numbers of contacts to coexist in the filter allows us to track the probability distribution over both contact location and number of contacts.
+The particle filter is robust to additional fingers.
+Tracking of the original finger remains undisturbed by additional contact points.
+We now demonstrate how explicitly incorporating uncertainty into the sensing regime can lead to efficient, natural interaction.
+A common method for navigating around an image on a mobile device is to combine dragging movements with a multi-touch pinch-release movement on a touch-sensitive screen.
+This has the drawback that the user must use two fingers and cannot support the device and perform the interaction at one time.
+The same functionality can be accomplished using just one finger by incorporating the 3D location and explicit uncertainty modeling.
+Assume we have a large map of which we can only view a small display area that has fixed aspect ratio but can increase and decrease in area , shown in the first pane of Figure 3.
+The sensor array is assumed to be centred on the centre of the viewing area but exists in the map space so has fixed size .
+Given a current input , the system moves and scales the current display window in an attempt to capture as many input samples as possible.
+Having updated the display window, the virtual sensor array position is updated accordingly.
+Zoom and display position naturally adapt to the certainty of the input.
+A very certain input will result in a small cloud, a decrease in display area and hence zooming in.
+An uncertain input will force the display area to cover more of the map resulting in zooming out.
+This is an extension of speed-dependent zooming .
+The analogy to the `reins' in the `H-metaphor' is that when the user behaves purposefully, with firm movements, they have tight control, while when they provide more vague input, the priors on different cities have more effect, leading to more autonomous control behaviour from the system.
+In essence, the problem is a control task, where the system attempts to maximize the density of particles in view space, subject to dynamical constraints which encode human perceptual limits.
+The particles from the filter are projected into view space and the viewing volume is adjusted to maximize the particles in view, i.e.
+The middle panes of Figure 3 show the system in action.
+The far right pane illustrates an extension to the model where priors over targets are included.
+This is an example of the ease with which the sensing model can be combined with domain-specific knowledge.
+User interfaces must deal with uncertainty about intention.
+We have shown how Monte Carlo inference techniques can be used to improve interaction with low-resolution sensing.
+The negotiation of control between the system and the user is directed by the estimated uncertainty in the intention of the user; as the system's reasoning about a user's behaviour degrades, the system takes over more of the task.
+We have shown how a simple uncertainty-based linkage between a finger tracking model and a map browsing application leads naturally to an intuitive zooming and browsing paradigm which includes elements of speed-dependent zooming.
+The technique is simple to understand and implement and can be adapted to virtually any sensing hardware.
+The filter opens up the possibility of scheduling of different feedback modalities according to the certainty of the inputs.
+Writing the interaction as a controller trying to maximize the distribution of particles in view space results in a simple and elegant implementation of techniques which have otherwise been implemented ad hoc and automatically accounts for the changes in distribution caused by varying uncertainties.
+A key feature of our system is that reliable z -axis tracking opens up the potential for expressive motion sensing beyond binary finger up/down detection.
+Visualising and linking the full distribution of such estimators to the interaction is an essential tool in building interactive systems that degrade gracefully.
+Degradation can be deliberately be used as in interaction technique; a user can hand over control by ceasing to provide evidence of intention, effectively "letting go of the reins".
+This leads to an elegant ebb and flow of interaction between the user and computer: dancing with the machine rather than traditional `commandand-control'.

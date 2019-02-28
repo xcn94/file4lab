@@ -1,0 +1,99 @@
+Protractor is a novel gesture recognizer that can be easily implemented and quickly customized for different users.
+Protractor uses a nearest neighbor approach, which recognizes an unknown gesture based on its similarity to each of the known gestures, e.g., training samples or examples given by a user.
+In particular, it employs a novel method to measure the similarity between gestures, by calculating a minimum angular distance between them with a closed-form solution.
+As a result, Protractor is more accurate, naturally covers more gesture variation, runs significantly faster and uses much less memory than its peers.
+This makes Protractor suitable for mobile computing, which is limited in processing power and memory.
+An evaluation on both a previously published gesture data set and a newly collected gesture data set indicates that Protractor outperforms its peers in many aspects.
+First I offer my insight into why template-based recognizers may be superior for this particular interaction context.
+I then focus on Protractor, a novel template-based gesture recognizer.
+Template-based recognizers essentially use a nearest neighbor approach , in which training samples are stored as templates, and at runtime, an unknown gesture is compared against these templates.
+The gesture category  with the most similar template is used as the result of recognition, and the similarity implies how confident the prediction is.
+These template-based recognizers perform limited featurization, and a stored template often preserves the shape and sequence of a training gesture sample to a large degree.
+These recognizers are also purely data-driven, and they do not assume a distribution model that the target gestures have to fit.
+As a result, they can be easily customized for different domains or users, as long as training samples for the domain or user are provided.
+In contrast, recognizers that employ a parametric approach  often operate on a highly featurized representation of gestures and assume a parametric model that the target gestures have to fit.
+For example, the Rubine recognizer  extracts a set of geometric features from a gesture such as the size of its bounding box.
+It uses a linear discriminate approach to classify gestures that assumes the featurized gestures to be linearly separable.
+These parametric recognizers can perform excellently when the target gestures truly fit the assumed model.
+However, if not, these recognizers may perform poorly.
+For personalized, gesture-based interaction, it is hard to foresee what gestures an end user would specify and what the distribution of these gestures will look like.
+In addition, since an end user is often willing to provide only a small number of training samples, e.g., one sample per gesture category, it is hard to train a parametric recognizer that often has a high degree of freedom with such sparse training data.
+In contrast, template-based recognizers are well suited for this situation.
+However, since a template-based recognizer needs to compare an unknown gesture with all of stored templates to make a prediction, it can be both time and space consuming, especially for mobile devices that have limited processing power and memory.
+An important topic in gesture-based interaction is recognizing gestures, i.e., 2D trajectories drawn by users with their finger on a touch screen or with a pen, so that a computer system can act based on recognition results.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Protractor employs a nearest neighbor approach.
+For each gesture , Protractor preprocesses it into an equal-length vector.
+Given an unknown gesture, Protractor searches for similar gesture templates by calculating an optimal angular distance between the unknown gesture and each of the stored templates.
+Protractor uses a novel closed-form solution to calculate such a distance, which results in significant improvements in accuracy and speed.
+Protractor also recognizes gestures that are both invariant and sensitive to orientation, as well as gestures with different aspect ratios.
+However, when Protractor is specified to be orientation sensitive, it employs a different procedure to remove orientation noise.
+Protractor aligns the indicative orientation of a gesture with the one of eight base orientations that requires the least rotation .
+The eight orientations are considered the major gesture orientations .
+Consequently, Protractor can discern a maximum of eight gesture orientations.
+Since Protractor is data-driven, it can become orientation-invariant even if it is specified to be orientation-sensitive, e.g., if a user provides gesture samples for each direction for the same category, Based on the above process, we acquire an equal-length vector in the form of  for each gesture.
+For each gesture, the preprocessing only needs to be done once.
+In the current design, Protractor uses N = 16, which allows enough resolution for later classification.
+16 points amount to a 32-element vector for each gesture, which is 1/4 of the space required by previous work for storing a template .
+Note that Protractor does not rescale resampled points to fit a square as the $1 recognizer does , which preserves the aspect ratio of a gesture and also makes it possible to recognize narrow  gestures such as horizontal or vertical lines.
+Rescaling these narrow gestures to a square will seriously distort them and amplify the noise in trajectories.
+Protractor's preprocessing is similar to the $1 recognizer's , but with several key differences in handling orientation sensitivity and scaling.
+This process is intended to remove irrelevant factors, such as different drawing speeds, different gesture locations on the screen, and noise in gesture orientation.
+The preprocessing transforms the 2D trajectory of a gesture into a uniform vector representation.
+To do so, Protractor first resamples a gesture into a fixed number, N, equidistantly-spaced points, using the procedure described previously , and translate them so that the centroid of these points becomes .
+This step removes the variations in drawing speeds and locations on the screen.
+Next, Protractor reduces noise in gesture orientation.
+The orientation information of a gesture can be useful or irrelevant, depending on the application.
+Protractor gives the developer an option to specify whether it should work in an orientation-invariant or -sensitive way.
+When Protractor is specified to be orientation invariant, it rotates a resampled gesture around its centroid by its indicative angle, which is defined as the direction from the centroid to the first point of the resampled gesture .
+This way, all of the templates have zero indicative orientation.
+Based on the vector representation of gestures acquired by the above process, Protractor then searches for templates that are similar to the unknown gesture.
+To do so, for each pairwise comparison between a gesture template t and the unknown gesture g, Protractor uses the inverse cosine distance between their vectors, vt and vg, as the similarity score S of t to g.
+The cosine distance essentially finds the angle between two vectors in an n-dimensional space.
+As a result, the gesture size, reflected in the magnitude of the vector, becomes irrelevant to the distance.
+So Protractor is inherently scale invariant.
+The cosine distance of two vectors is represented by the dot product of the two vectors  divided by the multiplication of their magnitudes .
+Since the indicative angle is only an approximate measure of a gesture's orientation, the alignment in the preprocessing cannot completely remove the noise in gesture orientation.
+This can lead to an imprecise measure of similarity and hence an incorrect prediction.
+To address this issue, at runtime, Protractor rotates a template by an extra amount so that it results in a minimum angular distance with the unknown gesture and better reflects their similarity.
+Previous work  performs similar rotation to find a minimum mean Euclidean distance between trajectories.
+However, it used an iterative approach to search for such a rotation, which is time-consuming and the rotation found can be suboptimal.
+In contrast, Protractor employs a closed-form solution to find a rotation that leads to the minimum angular distance.
+As we will see in the experiment section, this closed-form solution enables Protractor to outperform previous recognizers in both recognition accuracy and speed.
+Here I give the closed-form solution.
+Since we intend to rotate a preprocessed template gesture t by a hypothetical amount  so that the resulting angular distance is the minimum , we formalize this intuition as:
+To understand how well Protractor performs, I compared it with its closest peer, the $1 recognizer , by repeating the same experiment on the same data set where the $1 recognizer showed advantages over both the Rubine  and the DTW recognizers .
+The data set includes 4800 samples for 16 gesture symbols collected from 10 participants  .
+The experiment was conducted on a Dell Precision T3400 with a 2.4GHz Intel Quad CoreTM2 CPU and 4 GB memory running Ubuntu Linux.
+Overall, Protractor and the $1 recognizer generated a similar error rate curve in response to different training sample sizes .
+Although the overall Poisson regression model for predicting errors was statistically significant , the major contributor to this significance is the training sample size and there was no significant difference between the recognizers .
+However, Protractor is significantly faster than the $1 recognizer .
+Although the time needed for recognizing a gesture increases linearly for both recognizers as the number of training samples grows, the $1 recognizer increases at a much rapid rate.
+For example, when 9 training samples are used for each of the 16 symbols, the $1 recognizer took over 3 ms to recognize a gesture, while it took Protractor less than 1/2 ms to do so.
+With optimal calculated, we can easily acquire the maximum similarity  between the two vectors.
+We then use this similarity as the score for how well gesture template t predicts the unknown gesture g. The gesture template that has the highest score becomes the top choice in the N-best candidate list.
+To better understand the impact of the time performance of these recognizers on mobile devices, I repeated the above experiment on a T-Mobile G1 phone running Android.
+When 9 training samples were used for each of the 16 gesture symbols, it took the $1 recognizer 1405 ms  to recognize a gesture, while it only took Protractor 24 ms  to do so.
+The time cost of the $1 recognizer grew rapidly as the number of training samples increased .
+As part of a process of continuous learning, a template-based recognizer needs to constantly add new training samples generated by user corrections.
+However, the rapidly growing latency of the $1 recognizer makes it intractable to do so.
+In contrast, the time cost of Protractor grew at a much slower pace .
+To understand how both recognizers perform on a different data set, I tested them on a larger gesture set that includes 10,888 single-stroke gesture samples for 26 Latin alphabet letters.
+They were collected from 100 users on their own touch screen mobile phones.
+Similar to the previous experiments, I randomly split the data of each user for training and testing based on different training sizes.
+Since each alphabet had at most 5 samples from each user, we could only test training sizes from 1 to 4.
+Overall, both recognizers performed less accurate on this data set than they did on the previous 16-symbol data set .
+The loss in accuracy was primarily because the new data set is more complex as it includes 26 gesture categories, compared to 16 symbols of the previous data set.
+This gesture data was also collected in a more realistic situation than the laboratory environment that was used previously .
+However, we see more rapid improvement of both recognizers as the training size increases .
+In particular, Protractor performed significantly more accurate than the $1 recognizer on this data set .
+In addition to specifying whether Protractor should be orientation sensitive, a developer can also specify how sensitive it should be to orientation, e.g., whether two or four directions are allowed, which will bound the solution of Equation 6.
+At eight directions, Protractor started to pick up some noise in orientation, which led to a significant increase in error rates .
+As a nearest neighbor recognizer needs to load all of the training samples into memory before it can make a prediction, the amount of space needed is a critical factor, especially on mobile devices.
+Protractor uses 1/4 of the space that is required by the $1 recognizer.
+With the closed-form solution, Protractor can also search through stored templates over 70 times faster than $1 on a T-Mobile G1.
+I designed Protractor, a template-based, single-stroke gesture recognizer that employs a novel closed-form solution for calculating the similarity between gestures.
+I evaluated Protractor on different data sets and platforms and found that it outperformed its peer in many aspects, including recognition accuracy, time and space cost, and gesture variation.
+In addition, I also discussed my insight into why template-based recognizers in general have gained popularity in personalized, gesture-based interaction, other than their obvious simplicity.
+As Protractor can recognize variation in gesture orientation and aspect ratio, there is also a risk that it might pick up noise in these variations.
+However, based on the above experiments, Protractor is as accurate as the $1 recognizer on the smaller data set  and is significantly more accurate on the larger data set .

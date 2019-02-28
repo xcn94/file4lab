@@ -1,0 +1,256 @@
+In this work, we focus on color themes extracted from images.
+We consider the color theme of an image to be a small set of colors, usually 3 to 7, that best represent that image.
+Being able to automatically extract good image-associated themes can facilitate applications such as color picking interfaces  and color mood transfer from one image to another .
+Identifying the key colors in an image can also be useful in matching colors in a document or website around an image .
+To our knowledge, this work is the first to evaluate and model color theme extraction based on the themes people pick from images.
+Previous work on automatically extracting color themes from images include general clustering techniques like k-means  and fuzzy c-means  that focus on optimizing image recoloring error.
+We show that people often pick different colors than these algorithms.
+Other techniques include extracting colors successively from peaks in the image's color histogram .
+However, such a tiered approach can make it difficult to control the number of colors in the final theme.
+More recently, O'Donovan et al.
+They consider themes in the general context, while we look specifically at themes extracted from images.
+This work has two main contributions.
+First, we a present a method to evaluate theme extraction techniques against human-extracted themes using theme overlap and theme distance.
+Second, we introduce a regression model trained on a corpus of human-extracted themes and their associated source images.
+The fitted model can then be used to extract color themes from other images.
+We show that our model extracts themes that match human-extracted themes more closely than previous approaches.
+Online study participants also rate the model-extracted themes higher as representing the source image than themes extracted by k-means and an aesthetics-based approach.
+Color choice plays an important role in works of graphic art and design.
+However, it can be difficult to choose a compelling set of colors, or color theme, from scratch.
+In this work, we present a method for extracting color themes from images using a regression model trained on themes created by people.
+We collect 1600 themes from Mechanical Turk as well as from artists.
+We find that themes extracted by Turk participants were similar to ones extracted by artists.
+In addition, people tended to select diverse colors and focus on colors in salient image regions.
+We show that our model can match human-extracted themes more closely compared to previous work.
+Themes extracted by our model were also rated higher as representing the image than previous approaches in a Mechanical Turk study.
+Color choice plays an important role in setting the mood and character of a work of art and design.
+However, it can be difficult to choose good color combinations from scratch.
+Instead, artists, both expert and beginner, often draw colors from other sources of inspiration.
+These include other images and premade sets of color combinations called color themes.
+There are many online communities, including Adobe Kuler  and COLOURlovers , that are centered around sharing and creating color themes.
+Many of these color themes are also created from images, rather than from scratch.
+Around 30% of a sampling of the newest 1,000 themes created on Colourlovers were created using their From-A-Photo theme tool.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Previous approaches have proposed quantitative measures for evaluating the quality of a theme based on either recoloring error , aesthetics , or color nameability .
+However, to our knowledge, this is the first approach that compares image-based color themes to ones that people have manually extracted.
+One common method for extracting a representative set of colors is to use general clustering techniques, such as kmeans  and fuzzy c-means clustering .
+K-means takes a number of requested colors k, and attempts to find clusters that minimize recoloring error.
+It does not take into account spatial arrangement of the colors in the image, and can thus wash out important image regions.
+Fuzzy c-means clustering is similar to k-means, except with soft instead of hard assignment of pixels to clusters, and so it is less affected by outliers.
+These approaches evaluate color themes based on a quantitative metric: the recoloring error.
+However, this may not be the only metric people use to evaluate themes.
+Their algorithm extracts color themes by successively finding meaningful peaks in the Hue, Saturation, and Value histograms of the image.
+The resulting color set often contains many colors, some of them redundant, due to the tiered extraction approach.
+However, they provided no user or quantitative evaluation of the themes against other approaches.
+Colors that are more consistently and uniquely named are considered to have higher saliency.
+More recently, Heer and Stone  built upon this probabilistic model and trained on a much larger XKCD online color name survey.
+They also defined a distance metric between two colors as the distance between the associated name distributions.
+Heer and Stone looked at color name features for assessing themes used in data visualization applications.
+They hypothesized that using colors with unique names would make it easier for people to verbally communicate different elements in the visualization than when using colors with overlapping names.
+In this work, we look at these color nameability and color name difference features  as potential predictors for how people extract themes from images.
+Many online color theme creators allow users to design themes based on popular harmony templates , predefined relationships of colors on the hue wheel.
+These relationships are often used as guidelines when creating themes from scratch.
+They found little evidence that people naturally gravitated towards harmony templates or that following these templates increased aesthetic ratings.
+Our method uses a similar data-driven approach as O'Donovan et al., who predict the aesthetic rating of a color theme using a regression model trained on online theme datasets.
+Their model considered low-level features such as the values of each color component in the theme in multiple color spaces and differences between adjacent colors.
+This paper looks more specifically at color themes that are paired with images.
+Instead of modeling themes with high aesthetic ratings, we look at the problem of characterizing themes that best capture an image, which itself may be aesthetically pleasing.
+To gather a dataset of human-extracted color themes, we asked people to extract themes from a set of 40 images.
+These images consisted of 20 paintings and 20 photographs.
+We varied the type of image to counter the effects of image style and content on the themes extracted.
+The paintings were chosen from five artists with different artistic styles .
+The photographs were Flickr Creative Commons images chosen from the categories Landscape, Architecture, Interior, Closeup, and Portrait.
+We gathered themes from Amazon Mechanical Turk, which has been used successfully in crowdsourcing graphical perception  and creative sketching tasks .
+One potential issue with crowdsourcing color themes is that we cannot easily control for different monitor and lighting conditions, which can introduce more noise in the collected data.
+However, in practice, people often view and create color themes under different conditions.
+Thus, by gathering themes from many different people, we can later fit a model that averages over typical viewing conditions rather than one that targets a specific condition.
+Previous research in color names  has developed models and corresponding metrics for categorical color perception.
+Color names, such as red and light blue, are the descriptions people use to communicate a color.
+Pilot studies determined that Turk participants often did not take the time to choose color shades carefully by clicking on the image directly.
+In addition, giving no limitation on the number of colors chosen resulted in color themes with wide variance in size.
+Therefore, we constrained the study design by requiring participants to choose exactly 5 colors from candidate color swatches.
+Color themes of size 5 have been studied previously  and are also the most common on online theme sharing sites.
+For each image, we generated 40 color swatches by running k-means clustering on the image.
+The initial seeds for the clustering were stratified randomly sampled within the CIELAB bounding box of the image.
+The resulting swatch colors were snapped to the nearest pixel color in the image.
+We asked participants to extract themes from either 10 paintings or 10 photographs.
+Participants were shown one image at a time and its associated color swatches.
+They were asked to pick 5 different colors that would "best represent the image and order them in a way that would capture the image well."
+The interface allowed for participants to add, remove, and reorder color swatches in their created theme.
+The order of images was counter-balanced using a balanced Latin square design.
+In total, we recruited 160 different participants and collected a total of 1600 themes .
+Each Turk task was $0.50  and was limited to participants in the United States.
+The median time to complete one theme was 24 seconds.
+All images and color swatches were shown on a black background to match previous color theme rating studies  and popular online theme creation tools.
+At the end of the study, participants were asked to describe their strategy for choosing which colors to include in their themes.
+For comparison purposes, we also asked 11 art students to extract themes from a randomly chosen subset of 10 images .
+The interface for the art students was the same as for the Mechanical Turk participants, and image order was randomized within the paintings and the photographs.
+Art student participants were compensated with a $5 gift card after the study.
+For art students, the median time to complete one theme was 20 seconds.
+Figure 3 plots the average overlap between themes from different sources against the distance threshold.
+Colors from k-means and c-means are snapped to the nearest candidate swatch color in the graph.
+This snapping gives the algorithms which operate on continuous color space a fair footing when comparing them against choices made by participants.
+On average, people agreed on nearly 2 out of 5 color swatches per theme.
+Mechanical Turk participants and artists roughly agreed on particular color shades.
+In comparison, random, c-means, and k-means themes all agreed poorly with humanextracted themes when considering particular color shades.
+Given the dataset of images and their associated themes, we train a model for characterizing a human-extracted theme.
+Our basic approach is to first compute target scores for each theme on how close it is to human-extracted themes, generate many themes with different scores, and then calculate features describing them.
+Finally we use LASSO regression  to fit a linear model to predict the target scores given the theme features.
+Once fitted, this model can later be used to extract themes from images without human-extracted theme data.
+We define the distance between two themes to be the minimum total error from a bipartite matching of each color in one theme to a color in the other theme.
+The score for how similar a theme is to human-extracted themes is then the average distance between that theme and all human-extracted themes.
+Figure 2 shows all the swatches presented to participants for one image, and each human-extracted theme as a column to the right of the swatches.
+The themes chosen by k-means and c-means clustering with k set to 5 is shown on the left of the swatches.
+Qualitatively, people agree with each other on certain key colors, shown by the strong horizontal lines in the figure, with some variability in the exact shade.
+K-means and c-means clustering often fail to select the common colors chosen by people.
+In order to compare the consistency of participants quantitatively, we look at the mean overlap  between all pairs of collected themes.
+We first match up the colors in one theme to the other to achieve the minimum total error, the minimum bipartite matching.
+The theme scores are then rescaled between 0 and 1 for each image, so that each image gets equal weight in training.
+Themes with scores closer to 1 are more perceptually similar to human themes on average than themes with scores closer to 0.
+For the rest of the analyses in the paper, we therefore remove the bottom 10 themes from each image  as outliers.
+Given this distance metric and the human-extracted themes for an image, we can find an optimal oracle color theme that is closest on average to all the human-extracted themes.
+This provides us with a way to sanity check our distance metric as well as provide a theoretical upper bound of performance for automatic algorithms.
+Figure 4 shows the oracle color themes for two example images.
+The oracle themes were created by hill-climbing over the candidate color swatches shown to participants in the paletteextraction experiment.
+In this method, we pick a random starting theme of 5 different colors from the candidate swatches.
+Then for each color in the theme, we find a replacement color from the candidate swatches that would most increase the score.
+We repeat this process until no further replacements can be made to increase the score.
+This method will find local, though not necessarily global, optima.
+Thus, we re-run hill-climbing for several  random restarts and pick the result with the best score.
+We randomly generate 1000 themes per image with scores evenly distributed among 10 bins between 0 and 1.
+The 10 images shown in the artist experiment and their associated themes are reserved as a test set.
+The rest of the themes are used for training.
+We use LASSO regression to fit a linear model to the training set.
+It also does feature selection by penalizing potential models by the L1 norm of their feature weights.
+This means that LASSO will find a model that both predicts the target scores well and also does not contain too many features.
+For each theme, we calculate a total of 79 features and use LASSO to find the features most predictive of human-extracted themes.
+The hyper-parameter  determines the sparsity of the model and was tuned to minimize 10-fold cross-validation error in the training set .
+In this work, we consider six types of features to describe each theme: saliency, coverage error both for pixels and for segments, color diversity, color impurity, color nameability, and cluster statistics.
+Within each type of feature, we calculate several variations using different distance metrics and parameters.
+Several of the features are highlighted below.
+One feature people may take into account when choosing theme colors is how well the colors cover the overall image.
+We consider two metrics: recoloring error and color channel range coverage.
+Recoloring error is defined as the total error resulting from recoloring each pixel in the image with the theme colors.
+Intuitively, this is the error resulting from recoloring each pixel with the closest theme color.
+K-means clustering minimizes a variant of this feature with uniform pixel weights and squared Euclidean distance as the error function.
+We replace the error function with Euclidean distance and squared Euclidean distance in a perceptually-based color space  and color name cosine distance .
+Distances are normalized according to the maximum color swatch distance.
+In addition, we either weight each pixel uni1 formly with wp = size  , or we weight each pixel according to their saliency in the image.
+Most study participants reported that they picked colors which "popped out of the image", "caught their eye", or were "the most salient colors."
+To detect salient regions in the image, we compute image saliency maps according to the work of Judd et.
+These maps were computed taking into account both low-level features and semantic features such as horizon lines and faces.
+They assign a saliency value to each pixel in the image.
+We assign each image pixel to the nearest candidate color swatch shown to participants.
+The saliency of a color swatch is the sum of its individual pixel saliencies.
+The total saliency captured by a theme, sal, is then the sum of its color swatch saliencies, relative to the maximum capturable saliency.
+This is the objective function that fuzzy c-means clustering attempts to minimize.
+Again, we vary the error function with Euclidean distance in CIELAB space and color name cosine distance.
+In addition, we consider the lightness , red-green , and blue-yellow  range of the image compared to the range of the theme in CIELAB space.
+Saturation  range coverage in HSV space is also considered.
+In addition to the total saliency, we also look at min, max, and average salient density of the colors in the theme.
+The salient density of a color, sd, is calculated as the saliency of the color swatch divided by the number of pixels assigned to that swatch.
+Cluster assignments can be made among the candidate color swatches or the theme colors.
+We compute the nameability of colors used in the themes and normalize by either the max or mean nameability in the candidate color swatches.
+Color nameability used here is the same as the color saliency metric used by Heer and Stone , but rescaled to the nameability range of the candidate color swatches.
+It describes how consistently and uniquely a given color is named.
+Secondly, we also consider the uniqueness of the segment color among the theme colors, uniq .
+The idea is that colors in a theme may be evenly distributed among segments, so that no one segment would be sourced from most of the theme colors.
+To model this, we calculate the mean negative entropy of segments being colored by a particular theme color.
+Relative weights in the fitted model can indicate which sets of features predict human-extracted color themes well.
+Features with large weights create one set of good predictors.
+Features with small or zero weights tend to be uninformative or are redundant with these features.
+In our model, 40 of the 79 features were given non-zero weights.
+These weights are listed in the Appendix.
+For this analysis, we standardize the weights to better compare them across features.
+Weighted soft recoloring error and color diversity features consistently have the largest weights in our model.
+Themes that contain the right color for salient regions in the image and have a variety of colors tend to be closer to humanextracted themes.
+Other weighted features included saturation range coverage, color impurity, and segment color uniqueness.
+Good themes tended to cover the range of saturations in the image well.
+In addition, themes that contained good color clusters in the image and did not focus too many colors on one image region were also boosted.
+Color nameability had small negative weights, possibly because highly nameable colors may be less used in photographs and paintings and also less aesthetically pleasing.
+A remaining question pertains to the stability of these weights as the number of training images varies.
+Although the exact weights of the metrics shift as the number of training images grows, the top feature types in the model tends to stay the same.
+For example, the soft recoloring error per segment and color diversity remain the highest-weighted features as we increase the number of training images from 10 to 30 for constant lambda.
+In addition, the change in weights decreases as the number of training images grows to 30.
+Thus, we believe 30 images is a reasonable training set size, though more images could help stabilize the weights further.
+One important note is that while LASSO regression selects a set of features that fits the training data well, there may be other feature sets with similar predictive power.
+Further investigation is needed to explore the tradeoffs between models with different feature sets and performance.
+For each segment in the image, we calculate the distances from its mean color to the colors in the given theme.
+The probability of a segment taking on a given color from the theme is then its relative distance to that color compared to all other colors in the theme.
+We calculate several metrics for color diversity.
+These include the mean distance between one color and its closest color in the theme and the min, max, and mean distance between two colors in the theme.
+Similarly, we use either CIELAB or color names as the distance metric.
+We normalize the distances by either the max or mean distance between the candidate color swatches shown to the user.
+The impurity of a theme color is computed as the mean distance between the theme color and its n% closest pixels in the image.
+Following their work, we chose n to be 5%.
+We normalize distances by either the max or the mean distance between the candidate color swatches.
+We use the fitted model to extract color themes from the test set of 10 images by hill-climbing over the candidate color swatches.
+This is identical to our approach when finding the oracle themes, except we use the model to predict the scores instead of the actual human-extracted themes.
+Figure 5 plots themes created using our model, k-means, cmeans, and random selection against artist-created themes on the test set of 10 images.
+We also plot the Turk oracle themes against the artist-created themes to see the theoretical maximum agreement.
+For the graph, we again snap the colors in the themes to the closest swatch color shown to the human participants.
+The aesthetics-enhanced model   performed slightly better than the original without the aesthetics term , which indicates that aesthetics may play a role in the colors people choose.
+In this second test set, our model again matched humanextracted themes from Turk more closely than the other algorithms, shown in Table 2.
+Average distances per color between color themes of different methods compared to humans on a larger test set of 40 images.
+Units are in CIELAB color space.
+Abbreviations are our model , the aesthetics-enhanced model by O'Donovan et al.
+Quantitatively, our model-extracted themes closely match human-extracted themes for the test images.
+But how well do the model-extracted themes actually represent the color theme of the image?
+To answer this question, we conducted a study on Mechanical Turk asking 40 participants to rate color themes for 20 random images from the O'Donovan test set.
+The task was limited to participants in the United States.
+Figure 7 shows the study interface.
+Participants were shown one image at a time and 4 associated color themes: a representative human-extracted theme , our model-extracted theme, a k-means theme, and an aesthetics-based theme from O'Donovan et.
+They were asked to rate the color themes on "how well they represent the color theme of the image" on a Likert scale from 1  to 5 .
+Theme order was randomized, and image order was counter-balanced using a Latin Square design.
+The order of colors in the model-extracted and k-means themes was determined by their CIELAB distance to red.
+Each participant was paid $1.
+The oracle themes from Turk agreed closely with the artistextracted themes overall, moreso than themes from the average Turk or artist participant.
+This indicates that if we are able to perfectly model our optimization function, we can extract good color themes.
+Our model-extracted themes agreed more closely with artistextracted themes than do themes from other algorithms.
+In addition, the average distance of the human-extracted themes to the model-extracted themes is smaller than for the other algorithms, shown in Table 1.
+Reported distances are given for the original colors, not ones snapped to the color swatches.
+For evaluation with previous work, we gathered humanextracted color themes for the 40 images used by O'Donovan et al.
+Examples of images and their associated themes from people , our model , k-means , and an aesthetics-based model in O'Donovan et al.
+H, M, and K themes are re-aligned to match the OD themes for easier comparison.
+Image credits: Turner; Monet; Ajith U ; Mike Behnken 
+It should be noted that the experiment tested how well a theme captures the color theme of the image, and not how generally aesthetically pleasing the theme is.
+The results show that themes which best represent an image and themes that are optimized for general aesthetics may be different.
+Figure 9 shows examples of the 4 different themes shown to participants for 5 images.
+Our model tends to extract vivid and bold colors, which are often ones chosen by people, as it has learned that themes with large distances between colors are usually more fitting.
+However, the last image in the figure shows a case where our model extracts a very bold theme that includes bright green and red, which may not be desirable.
+Although people often chose these colors individually, they rarely included them together in a theme.
+This may be a byproduct of the training set of 30 images, where the distribution of image styles tended to be larger than in this test set of images, which focused more on photographs.
+Figure 8 shows the distribution of ratings for each method according to how well their themes represented the color theme of the image.
+This indicates a correlation between how closely a theme matches humanextracted themes and how well it is rated as representing the image.
+We ran a repeated measures ANOVA on the ratings with the method as a fixed effect and participant and image as random effects.
+There was a significant effect of the methods on the ratings .
+We then ran follow-up paired t-tests using Bonferroni correction for each pair of methods.
+Each image and participant combination was treated as a repeated observation of the method.
+The differences between the mean ratings for each method were all significant at p < 0.001.
+Improvements in object recognition, segmentation, and image saliency maps are also likely to help our model.
+For example, face detection used in the image saliency model  works well in photographs, but usually fails on stylized images.
+Moreover, additional knowledge about semantics and object hierarchy in the image may help prioritize colors for very colorful images.
+A more in depth notion of aesthetics or harmony may also be predictive of the color shades people pick.
+More complex models, such as specially-designed graphical models, may better capture situation-dependent choices made by people.
+However, our framework is flexible and can accommodate larger sets of images and additional features as necessary.
+There are many people interested in art who are creating color themes from images online each day, and these themes could provide data from which to learn.
+A similar framework could perhaps be used to learn good color themes for more focused application scenarios, such as web design, interior design, and data visualization.
+There are many potential applications for color themes paired with their associated images.
+It could provide a method for image search for images with similar color themes.
+Images also provide context for how a color theme can be used, and the two together can assist colorization of patterns or web elements to match a given image.
+Drawing and painting programs can also personalize color swatches based on the color themes of a user's collection of favorite images.
+In this paper, we present a framework for evaluating automatic color theme extraction algorithms against themes people extract.
+We show that people choose colors that are different from the widely-used k-means and c-means clustering algorithms.
+In addition, this work presents a first step in learning how to extract good color themes based on human-extracted theme data.
+We show that a linear model fitted on a training set of 30 images and their associated human-extracted themes outperforms many of the previous approaches.
+High-scoring themes tended to have diverse colors, focused on getting accurate colors for salient image regions, picked colors that are wellconcentrated in the image, and spread colors evenly across image regions.
+Future work includes looking at how people choose colors for more focused image classes, such as web design, visualization, or particular art styles.
+We could learn what features of color themes are most characteristic for each scenario, how they differ, and if there are any trends in color combinations.
+Color themes are also only one component of how people interpret works of art and design.
+A similar data-driven approach could be used to learn important features for other graphical aspects, such as texture or shading.
+Increasing our understanding in these areas could perhaps enable better tools for assisting users in art and design tasks.
+All features and weights considered by the regression, organized by feature type and broken down by variations in parameters.
+Weights with magnitudes greater than 0.5 are highlighted.
+Abbreviations: CN - Color Name cosine distance, Sq - Squared, Dist - CIELAB Euclidean distance.
+Variations under Recoloring Error would be interpreted as recoloring error within Components:C, Weighted By:W, using Type:T assignments with the distance Metric:M. Similarly, Diversity variations would be interpreted as distances within the color Space:S, normalized by Normalize:N, using the Metric:M. Normalization terms can be either the mean or max distance or nameability between image swatches.
+Saliency variations are interpreted as using the Metric:M with saliency determined by clusters among the Clusters:C.

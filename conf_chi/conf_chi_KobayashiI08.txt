@@ -1,0 +1,266 @@
+Several approaches have been used to reduce the ID.
+One is to modify the cursor's behavior to increase W and/or reduce D. For example, the bubble cursor  dynamically changes cursor size to increase the virtual W to exploit the void space around the target.
+This technique is very effective for pointing to a small target in otherwise empty space.
+However, it is not particularly effective for pointing to a distant target located beyond many obstructions, as the user must move the cursor all the way to the distant target.
+In a desktop configuration, the user is forced to repeatedly reposition the mouse to reach a distant target location, which reduces the performance of pointing and results in user frustration.
+In addition, the logarithmic relationship between D and movement time  would likely be broken when pointing to a very distant target on a wallsized screen .
+Instead of enlarging W, the Delphian Desktop  reduces D by allowing the cursor to jump toward the target location.
+It uses a prediction algorithm to permit this long-distance movement with minimal mouse operation.
+This works as long as the algorithm can successfully determine the goal location.
+However, it is generally difficult to predict a distant target, and prediction errors can confuse the user.
+We propose the "ninja cursor" to improve the performance of target acquisition, particularly on large screens.
+This technique uses multiple distributed cursors to reduce the average distance to targets.
+Each cursor moves synchronously following mouse movement.
+We present the design and implementation of the proposed technique, including a method to resolve the ambiguity that results when multiple cursors indicate different targets simultaneously.
+We also conducted an experiment to assess the performance of the ninja cursor.
+The results indicate that it can generally reduce movement time.
+However, the performance is greatly affected by the number of cursors and target density.
+Based on these results, we discuss how our technique can be put into practical use.
+In addition to presenting a novel method to improve pointing performance, our study is the first to explore a variable number of cursors for performing pointing tasks.
+Pointing is the most fundamental operation in windows, icons, menus, and pointers  interfaces.
+For this reason, several techniques have been proposed to improve the performance of pointing tasks in various contexts.
+In general, these techniques have attempted to reduce the index of difficulty  based on Fitts' law :
+We propose another method, called the "ninja cursor," to reduce the ID by modifying cursor representation.
+It uses multiple cursors to reduce D without applying a prediction algorithm.
+The user can point to a target with one of the cursors located nearest to it.
+We use a simple waiting queue algorithm to prevent two or more cursors from pointing to multiple targets simultaneously.
+In general, our technique aims to improve the performance of pointing operations by mapping the single mouse movement to the movement of multiple cursors.
+By allowing users to point to a target with less motion, the proposed technique should reduce the MT as long as the number of cursors is suitable for the target density.
+We conducted an experiment to determine how cursor number and target density affect performance.
+Cursor number is a parameter that so far has been explored only rarely, unlike cursor size, target number, and target size.
+The ninja cursor technique allows the investigation of this parameter.
+The remainder of this paper is organized as follows.
+First, we summarize related work.
+Second, we describe the design and implementation of the ninja cursor.
+Third, we evaluate our technique using different numbers of cursors and targets and compare the resulting performance to that of the normal single-point cursor.
+Fourth, we discuss the ninja cursor in more practical contexts.
+Finally, we present our conclusions.
+In contrast to these attempts at changing the visual representation of targets, Blanch et al.
+As described in the Introduction, two approaches have been used to improve pointing performance by modifying the behavior of the cursor: enlarging the size of the cursor's hotspot to increase virtual W, and causing the cursor to jump toward the target to reduce D in motor space.
+The area cursor  is one of the earliest attempts using the former approach.
+Instead of a single pixel hotspot, it uses a rectangular activation region to enlarge the effective target width, which is determined by the width in motor space.
+This approach is effective for pointing to small targets.
+The performance of pointing tasks with an area cursor can be modeled with Fitts' law using the effective width W. However, the larger activation region causes ambiguity because it is possible for there to be multiple targets inside the region at the same time.
+This allows using the point cursor to determine the single target when multiple targets exist inside the area cursor.
+The bubble cursor  is a more sophisticated solution to the problem of ambiguity.
+This technique dynamically changes the cursor size so that it contains only a single target.
+One example of the latter approach is object pointing .
+This technique makes the cursor jump across the void space between selectable targets, making it easier to point at distant ones.
+The Delphian Desktop  proposed more aggressive jumping based on a prediction algorithm.
+Using an online algorithm, it determined the goal location based on the direction of movement and peak velocity.
+However, these prediction-based interfaces all share a problem of uncertainty.
+Even using a high-precision prediction algorithm, the resulting behavior is still nondeterministic in nature, and unexpected results can confuse the user.
+The behavior of our ninja cursor, however, is completely deterministic and continuous, which makes it much less distracting.
+Another attempt to reduce D was the Multi-Monitor Mouse , which allowed users to move the cursor quickly across displays in a multi-display environment using hot keys.
+The ninja cursor does not require an explicit action to switch displays, and is applicable to a single large screen.
+Two approaches have been used previously to modify target representation to reduce the ID: the actual or virtual W of the target is enlarged, and/or D is reduced by temporarily bringing the target toward the cursor.
+The Dock in the Apple Mac OS X is a typical example of the first approach.
+It enlarges the actual size of the target dynamically, by predicting which item is the target according to the location of the mouse cursor.
+McGuffin and Balakrishnan  examined the performance of pointing operations with such a temporarily expanded target.
+They found that target expansion improved the performance even if the expansion occurred relatively late in the movement of the cursor toward the target.
+They also found that these tasks can be modeled with Fitts' law using the expanded W. However, it seems that the target expansion technique would not work well with closely spaced targets.
+Manual target expansion techniques have also been proposed.
+For example, pointing lenses  provide a magnified view of the screen so that users can interact with enlarged targets.
+A user action such as pen pressure or time delay activates the lens.
+One of the studies that took the second approach utilized drag-and-pop .
+This creates temporary proxies of possible targets and shows them near the pointing cursor when users start dragging an object so that they can easily drop it on the target.
+This technique improved performance for a large D. However, it can create erroneous distracting proxies because the prediction of distant targets is difficult, especially when many potential targets exist.
+Grossman and Balakrishnan  reported that this technique would work well only with a low-density target distribution.
+Many studies, including Fitts' original work , have shown how the target size affects the pointing performance in diverse contexts.
+Generally, these demonstrated a positive relationship between the target size and the performance.
+Recent studies  have also examined the cursor size, as described above.
+An enlarged cursor could improve the performance, increasing the virtual width of targets.
+The number of targets has also been the subject of frequent study.
+For example, both target expansion  and object pointing  were evaluated with a high density of targets.
+The results showed that these techniques were less effective when distracting targets existed around the goal target.
+However, Grossman and Balakrishnan  experimented with a range of target densities to show that their bubble cursor technique was effective in the presence of many targets.
+The target density was also considered for specific input devices such as the touch screen .
+Although the target size, the cursor size, and even the number of targets have been examined, few studies have explored how the number of cursors affects the performance of target acquisition tasks.
+Therefore, we focused on this aspect using our ninja cursor technique.
+Several applications have supported the use of multiple cursors for a specific purpose.
+One of them is a collaborative drawing tool .
+Using n cursors that can be moved individually, this tool allows n users to interact with different objects on the same shared screen.
+Bimanual interfaces  might be considered multiple cursor systems because they give users an individual cursor for each hand.
+Exploiting two hotspots, the users could take advantage of two-handed manipulation, moving two points of action interactively on the screen.
+These techniques did not attempt to improve the basic performance of target pointing.
+However, they did inspire the concept of the ninja cursor.
+We must address the possibility that two or more cursors could point to different targets at the same time.
+To resolve this ambiguity, the ninja cursor modifies the spatial distribution of the cursors dynamically.
+We use a simple waiting queue algorithm to accomplish this.
+If multiple cursors are initially inside a target, the one that is closest to the center of the target is made active.
+The others are put outside the target.
+If only one cursor is inside a target, it is simply made active.
+In this context, the term "active" means currently pointing at a target.
+If cursor Ci is not the active cursor Cactive, and it is about to move into a target Ti, then Ci is appended to a queue, Q.
+As long as Ci is in Q, it never goes inside Ti even if the user moves the mouse toward Ti.
+The position of Ci does not change on the screen while the cursor is in this state.
+When the user moves the mouse in another direction, that is, away from Ti , then Ci is removed from Q.
+When Cactive leaves the target to which it is pointing, it becomes inactive.
+Then, the first element of Q, Cj, is removed from the queue.
+As it is no longer in Q, Cj can go inside the target, Tj, and become active following mouse movement.
+A user can point to an object with minimal effort using the cursor that is nearest to the target object.
+If mouse cursors and target objects are both uniformly distributed on the two-dimensional  screen, the average minimum distance to a target is expected to be reduced to Dn as shown in this equation:
+As long as a cursor does not attempt to enter any target, it moves freely following the movement of the mouse.
+If no active cursor is on the screen, each cursor moves freely following the movement of the mouse.
+Each cursor can point to any target as long as the user continues moving the mouse toward the target.
+The order of the cursors becoming active simply depends on how long each cursor is in the waiting state because the method described above is based on a simple first-in, firstout  strategy.
+The behavior of the ninja cursor will thus be easily understood.
+In addition, we provide several visual feedback cues to help users understand the current state of each cursor.
+First, the cursor color indicates one of three states for each cursor.
+4, the gray cursor is the active cursor while the black ones are currently in the waiting queue.
+The remaining cursors are shown as normal white arrows.
+The length of the wall indicates the position of the cursor in the waiting queue.
+A shorter  wall shows that the cursor is closer to  the head of the queue.
+The dynamic change of wall length shows a user how much movement is required to point to the intended target.
+The transitions between the normal and waiting states may reduce the regularity of cursor distribution as shown in Fig.
+6, as some cursors stop moving while the others continue moving following the movement of the mouse.
+Once the regularity is perturbed, the average distance to targets will increase.
+This might reduce the performance of the ninja cursor.
+To rectify this, we provide a "reset" feature; shaking the mouse or pressing the F5 key moves the cursors to their original uniformly distributed locations.
+We anticipate that users of traditional pointing interfaces will quickly be able to start using the ninja cursor because its behavior is locally identical to a traditional one as long as the cursor that the user focuses on is not in the waiting queue.
+The behavior is completely the same as the traditional interface when the number of cursors is equal to 1.
+This indicates the possibility of a seamless transition from traditional interfaces to ninja cursors.
+In addition, it is common for a cursor to follow mouse movement imperfectly because of small errors in the optical or physical sensor in the mouse.
+Although such poor behavior reduces the performance of target pointing operations, it does not confuse or surprise the user.
+This is one of the possible advantages of the ninja cursor over previous "cursor-jumping" techniques, which might occasionally cause the user to lose the cursor location.
+In the ninja cursor, every cursor is always visible and moves continuously.
+Although the ninja cursor theoretically reduces the ID of pointing tasks, some uncertainties still exist that might reduce its performance in practice.
+For example, how often each cursor enters into the waiting state affects the performance because the cursors in the waiting queue require extra mouse movement before becoming free again.
+Moreover, such a waiting event makes it difficult to assess the amount of movement accurately in advance.
+This could reduce the efficiency of pointing operations.
+We needed to determine empirically how the number of cursors and the frequency of waiting events affect the performance.
+We use a 3.0 GHz Pentium 4 PC running Windows XP, connected to dual 19" displays with a resolution of 3200 x 1200 pixels  and a standard optical mouse.
+Figure 7 shows the experimental setup.
+The two displays were located side-by-side and worked as a single virtual screen.
+The left and right displays were the primary and secondary displays, respectively.
+The mouse speed and acceleration rate were set to the Windows XP default values .
+We developed our experimental software using Java.
+In this experiment, distances were measured in pixels.
+We used a within-participant design.
+We tested 36 combinations in total.
+A combination of N and W determined the target density, where N = 100 corresponds roughly to the density of a typical desktop and N = 400 corresponds roughly to the density of a desktop filled with icons.
+Thirty-six combinations of CT, N, and W were used.
+Each participant performed 10 trials of each combination presented in a pseudorandom order.
+The aim of the ninja cursor is to reduce the ID on average rather than for each trial.
+Thus, we did not control the distance, D, for each cursor-target pair.
+Instead, we evaluated the mean ID through repeated trials, using targets distributed pseudorandomly.
+For each trial, the ID was calculated as follows:
+We tested four cursor configurations: a traditional point cursor , 2 cursors , 8 cursors , and 18 cursors .
+The latter might not be practical because too many cursors would be visually distracting.
+However, we studied all these configurations to analyze the characteristics of the ninja cursor in detail.
+For each ninja cursor configuration, the cursors were located in an evenly distributed regular grid pattern, as shown in Fig.
+In Point , the cursor was initially located in the center of the primary screen to emulate common cursor movement within and between screens.
+We used circular targets to control the target width in all directions.
+Previous research  showed that the acquisition of a circular target can be modeled similar to that of a rectangular target of the same width.
+The highlighted target is the goal target, and the others are distracting targets.
+All targets are distributed pseudorandomly across the screen, avoiding overlap.
+In each trial, each participant was required to click on the goal target with any cursor as quickly as possible.
+We explained the purpose of the experiment and the use of the experimental software to each participant prior to an experimental session.
+The participants were allowed to familiarize themselves with the system and practice each task before testing.
+They were also allowed to take a break between blocks.
+Each session took approximately 30 minutes including practice trials.
+All cursors and targets were shown on the screen before each trial started.
+This allowed the participants to know in advance where the goal target was and how the cursors and targets were distributed.
+We did not test the time to decide which cursor to use because decision time could not be examined properly in this experiment.
+As each cursor was initially placed on a simple grid layout for each trial, the participants could easily determine which cursor was nearest regardless of whether they could see the cursors in advance.
+Although decision time could possibly affect the performance of the ninja cursor, we decided to address this issue in future studies.
+Each trial consisted of two clicks with a mouse movement between them.
+The first click indicated the beginning of a trial.
+The participant then moved the cursors to click on the goal target with one of them.
+The trial ended when the second click occurred regardless of whether the goal target was successfully clicked.
+If no cursor pointed to the goal target when the second click occurred, the trial was counted as a failure.
+Distinctive sound effects indicated the success or failure of each trial.
+Note that participants could not move any cursor until they clicked the mouse button to start a trial.
+When the trial was complete, the cursors returned to their original locations shown in Fig.
+10, the ninja cursor generally outperformed the traditional point cursor except under a few high-density conditions.
+In addition, the different types of cursor were affected differently by the target density.
+In Point, the MT was affected less by the number of targets.
+This is natural as a single cursor never causes cursor blocking regardless of the target density.
+The target size generally had a negative effect, which is also a natural result predicted by Fitts' law.
+Under lower-density target conditions, increasing the number of cursors reduced MT monotonically as expected based on the assumption of average ID reduction.
+However, this effect was smaller under higher-density conditions.
+In particular, Ninja-8 and Ninja-18 had positive effects on MT under the highestdensity conditions used, while Ninja-2 outperformed or was at least as efficient as the traditional point cursor under all test conditions.
+To clarify the results in detail, we considered the amount of movement as well as the MT.
+This value is defined as the amount of mouse movement in the motor space.
+It would be larger than the amount of cursor movement on the screen if the cursor had fallen into the waiting state because the cursor required extra mouse movement to make it leave the waiting queue.
+We observed interaction effects of CT x N, CT x W, and N x W. A post hoc analysis indicated significant negative effects of cursor number and significant positive effects of target number and size.
+Figure 11 shows that the target density did not affect the amount of movement in Ninja-2 and Point.
+This indicates that Ninja-2 put few cursors into the waiting state, whereas the MT for Ninja-2 increased for higher-density targets.
+A possible explanation for this paradox is that participants moved the mouse carefully under higher-density conditions, being wary of cursor blocking, regardless of whether the cursor was actually blocked.
+For Ninja-8 and Ninja-18, the increase in the amount of movement under higher-density conditions indicates that cursors frequently entered the waiting state, requiring extra mouse motion to leave that state.
+Note that the rate increase of MT was higher than that for the amount of movement.
+This is because mouse movement during the waiting phase cannot be modeled using Fitts' law, forcing users to move the mouse continuously toward the intended target.
+The movement in the motor space seems to be a tunnel steering task of the width W. Thus, we could model the operation using the steering law  rather than Fitts' law.
+Figure 13 shows the error rates for each cursor.
+However, as shown in the figure, the error rate distribution is almost random and the difference is not statistically significant.
+We require further investigation of error rates to determine the detailed characteristics of the ninja cursor.
+Figure 12 shows the regression lines of MT as a function of the estimated ID, averaged for each ID interval n, n+1.
+Ninja-8 and Ninja-18 did not fit the equation  because of outliers caused by cursor blocking, particularly when the ID was low.
+In summary, Ninja-2 outperformed the traditional pointing cursor even when the targets were as dense as a desktop filled with icons.
+Ninja-8 outperformed Ninja-2 only when the target density was less than or equal to a normal desktop.
+Ninja-18 often reduced the performance.
+We conclude that we can use two to eight cursors to improve the performance of pointing depending on the target density.
+Since the frequency of cursor blocking depends only on the number of cursors and the target density, this guideline is also expected to apply to screens larger or smaller than those used in the experiment.
+All of the participants indicated that they preferred the ninja cursor as long as the cursor on which they focused rarely entered the waiting state; they disliked the cursor becoming stuck repeatedly in the waiting queue.
+It is interesting that the participants often used the second- or third-nearest cursor to avoid passing through a cluster of distracting targets.
+They preferred to move the cursor, bypassing distracting targets, to prevent the cursor from becoming stuck in the waiting state.
+It is also interesting that the participants sometimes used the cursor that they had used in the previous trial instead of the nearest one.
+In the experiment, we examined the ninja cursor with pseudorandomly distributed targets to determine the statistically average performance.
+However, most WIMP interfaces locate clickable targets in a regular pattern.
+A small reduction in regularity is enough to avoid target ambiguity, at least for equally spaced, discrete targets like desktop icons.
+This means we can add small amounts of randomness to the initial locations of cursors to avoid an initial ambiguous state.
+The expected gain in pointing performance would be mostly preserved as long as the amount randomness is small.
+In the experiment, we located the cursors in a regular pattern because we were interested in the general performance with pseudorandomly distributed targets.
+In a common WIMP interface, however, the target distribution is more specific as described in the previous subsection.
+Moreover, the distribution often changes in response to user input.
+Thus, dynamic adjustment of cursor locations could make it easy to point to the most likely target.
+For example, when a dialog box pops up, it is likely that the user will click on one of the buttons in the box.
+Unlike cursor-jumping techniques such as object pointing , targets outside the dialog box are still easy to select with the remaining cursors.
+In addition to the regularity of their distribution, targets tend to form semantic clusters as shown in Fig.
+This could decrease the cursor speed locally around the clusters and reduce the uniformity of cursor arrangement.
+Further investigations are required to determine how the regular and clustered distributions of targets affect the performance of the ninja cursor.
+As with most previous techniques that modified the cursor behavior to reduce the ID, the ninja cursor is less applicable to high-density targets such as characters in a text editor and pixels in a paint tool.
+To work well, the ninja cursor requires a certain void space around each target in which nothing is clickable.
+However, region selection is one of the most essential features for object manipulation systems.
+Thus, we present two methods for region selection with the ninja cursor.
+The first method allows using the single point cursor to specify a region.
+Pressing a shortcut key temporarily reduces the number of cursors to 1.
+Once the system enters single-cursor mode, the user can specify a region using a common rectangular selection tool.
+The appearance of the ninja cursor is identical to the traditional point cursor while it is in the single-cursor mode.
+Pressing the key again restores the multiple cursors.
+One of the drawbacks of this method is that it requires explicitly pressing a key to change modes.
+However, we can apply this pointing method for very dense targets.
+Figure 18 describes the second method, which allows the use of a lasso tool without changing modes.
+Once the user presses the mouse button, each cursor in the void space starts drawing a lasso while the active cursor starts dragging the pointed target if it is draggable.
+Note that two or more cursors may simultaneously draw a lasso.
+This introduces the question of which is the intended lasso and whether the user is attempting to draw a lasso or drag an object.
+To reduce these ambiguities, we introduce the following three criteria: * * * Any lasso stroke must be closed.
+No lasso stroke ever intersects with targets.
+Any lasso must contain at least one target.
+Using multiple bubble cursors, a user could point to any target with the nearest cursor just like the ninja cursor.
+A user could point to a small target with the expanded virtual width just like the bubble cursor.
+Another possible application is semantic pointing .
+The performance of pointing to distant targets might be improved by adjusting the C-D gain for each cursor independently.
+One possible future direction of this research would be to examine the properties of these integrations of the ninja cursor and other cursor-enhancing techniques.
+The first criterion distinguishes a lasso gesture from a drag gesture.
+The other two omit less likely lassoes from the screen.
+If multiple lassoes still meet these criteria when a lasso gesture is completed, then multiple regions are presented.
+The user can resolve this final ambiguity simply by starting interaction with one of them, such as clicking with the right mouse button to open a pop-up menu.
+As with other techniques that change the mapping of physical mouse movement to cursor motion, the ninja cursor can be used only with indirect input devices such as mice, touch pads, and trackballs.
+It does not work well with direct input devices such as pen tablets and touch panels.
+This is one of the known limitations of the ninja cursor.
+The performance of the ninja cursor becomes worse with large numbers of cursors and targets because the cursors frequently enter the waiting state.
+This problem is expected to be reduced by using a priority queue as the waiting queue, and by assigning appropriate priorities to each cursor.
+In the current implementation, each cursor in the waiting queue is handled equally without considering the movement direction.
+The total waiting time is expected to be reduced by giving a higher priority to the former.
+If the user fails to click on the intended target, a very distant and incorrect target may be selected erroneously by a distant cursor.
+This will confuse users because this type of problem cannot occur in traditional single-cursor systems.
+To help users understand what happens in the case of failed target acquisition, we recommend providing visual feedback, such as animations and afterglow effects , to indicate which object is selected.
+We presented the design, implementation, and performance evaluation of our ninja cursor technique.
+With multiple, synchronously moving cursors, the ninja cursor technique was designed to reduce the expected ID, especially in a large screen such as the dual displays used in this study.
+A simple waiting queue algorithm was used to prevent multiple cursors from pointing to different targets simultaneously.
+Our experimental results showed that both the number of cursors and the target density significantly affect pointing performance.
+The ninja cursor generally outperformed the traditional point cursor.
+However, it resulted in low performance when both the number of cursors and the target density were relatively high.
+We also discussed several issues to be addressed before putting our technique into practice, including the support of realistic target distributions and region selection methods.
+We hope that our study will encourage the investigation of usability issues related to the number of cursors, a subject that has received little attention to date.

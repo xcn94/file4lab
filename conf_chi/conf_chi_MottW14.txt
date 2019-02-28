@@ -1,0 +1,230 @@
+We present the Bubble Lens, a new target acquisition technique that remedies the limitations of the Bubble Cursor to increase the speed and accuracy of acquiring small, dense targets--precisely those targets for which the Bubble Cursor degenerates to a point cursor.
+When targets are large and sparse, the Bubble Lens behaves like the Bubble Cursor.
+But when targets are small and dense, the Bubble Lens automatically magnifies nearby targets, making them larger in both visual- and motor-space.
+Importantly, magnification is not governed by an explicit user-invoked mode-switch.
+Rather, magnification is activated through kinematic triggering, a technique that continuously examines an unfolding velocity profile to automatically trigger mode changes based on observed features.
+In a first study, we found the Bubble Cursor performed poorly when targets had an effective size smaller than 10 pixels.
+Using this threshold for the Bubble Lens in a second study, we found that the Bubble Lens significantly outperformed the Bubble Cursor, decreasing movement time by 10.2% and error rates by 37.9%, making the Bubble Lens the fastest current pointing technique.
+The effect is that as a user corrects his motion near the desired target, the lens triggers automatically, making the target easier to acquire.
+Acquiring targets with a mouse cursor remains the dominant form of interaction when operating desktop computer systems.
+Due to the ubiquity and regularity of mouse pointing in everyday computer use, researchers have developed many pointing facilitation techniques to improve users' pointing performance .
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Although some techniques have equaled the Bubble Cursor's performance , none have surpassed it for general mouse pointing.
+Despite its laudable performance, the Bubble Cursor has a key weakness.
+Although it works well when a target is surrounded by empty space , it degenerates to a point cursor when a target is densely packed alongside other targets .
+The Bubble Cursor's degeneration is problematic, as small, dense targets occur commonly in toolbars, tree views, tool palettes, and other UI designs.
+In an extreme case where every pixel is a target  , the Bubble Cursor degenerates to a single point.
+In an effort to strive for better pointing performance, we introduce the Bubble Lens, a cursor that remedies the key weakness of the Bubble Cursor and, in so doing, introduces an important reusable technique called kinematic triggering.
+The Bubble Lens generally behaves like the Bubble Cursor, but automatically magnifies nearby targets when the user attempts to acquire small, dense targets .
+Unlike most mode-switches, which are explicitly invoked, magnification is activated automatically through kinematic triggering, a technique that continuously examines an unfolding velocity profile to trigger a mode change without explicit invocation .
+Automatic mode invocation requires very high accuracy or users quickly become frustrated.
+Our results show that kinematic triggering correctly magnifies 99.3% of the time, sufficient for improving performance and garnering positive user feedback.
+In a controlled lab study, we first determined what constitutes "small" and "dense" by discovering at what effective sizes1 the Bubble Lens improved performance over the Bubble Cursor.
+We found that the Bubble Cursor performed poorly for targets with an effective size smaller than 10 pixels.
+In our second study, we found that the Bubble Lens significantly outperformed the Bubble Cursor, decreasing movement time by 10.2% and reducing error rates by 37.9%, making the Bubble Lens the fastest current pointing technique.
+The contributions of this paper are:  the Bubble Lens invention;  the concept of kinematic triggering as a reusable approach to automatic mode-switching based on observed events occurring in a velocity time-series;  a novel non-uniform magnification algorithm that, unlike uniform magnification schemes, preserves the distances between target edges while still increasing target sizes; and  empirical results showing the Bubble Lens significantly outperforms the Bubble Cursor when acquiring small, dense targets, which are empirically determined to be less than 10 pixels in effective size.
+In addition to the Bubble Cursor, other target acquisition techniques have incorporated dynamically changing activation areas to improve pointing performance.
+DynaSpot  is a speed-dependent area cursor where the size of the cursor's activation area is linked to the cursor's speed.
+The Cone Cursor and the Lazy Bubble Cursor  attempted to strike a balance between the point and the Bubble Cursor by limiting the rate of the Bubble Cursor's expansion.
+Both techniques were designed to improve user acceptance over the Bubble Cursor, but neither was able to surpass the Bubble Cursor in terms of pointing performance.
+Other techniques investigated by researchers to speed pointing performance include both target prediction and endpoint prediction .
+These related techniques are used to predict either the intended target or the final coordinate of a user's motion.
+Unlike these predictive techniques, our kinematic triggering technique does not do any prediction of targets or trajectories.
+Instead, kinematic triggering looks for an event in a velocity profile to trigger magnification automatically.
+Other researchers have investigated the difficulty of acquiring small targets.
+Chapuis and Dragicevic  determined that increasing a small target's size in motor and visual space will make them easier to acquire.
+Cockburn and Firth  discovered that three target acquisition techniques  decreased movement time over the default point cursor when acquiring small targets.
+Cockburn and Brewster  showed multimodal feedback  could increase the performance of acquiring small isolated targets.
+Starburst  is a technique for improving small, dense target acquisition using a stylus by expanding the size of targets located in target clusters.
+These prior projects demonstrate the ongoing importance of and interest in improving small-target acquisition.
+Past research has shown that lenses can be used to increase target acquisition performance.
+The Pointing Magnifier  is a pixel-level magnification of contents under an area cursor based on the Visual-MotorMagnifier created by Findlater et al.
+Focus + context interfaces  magnify an area in-place without loss of context, and are an effective means of interacting with objects in multi-scale interfaces.
+It is important to note that the Bubble Cursor, and consequently the Bubble Lens, is a target-aware  pointing technique.
+A few research projects have incorporated the Bubble Cursor  into their designs in hopes of improving target acquisition performance.
+To improve pen-based pointing accuracy on tablets for older adults, Moffatt and McGrenere created Steadied-Bubbles  by combining the Bubble Cursor with Steady Clicks .
+In their Enhanced Area Cursors for improving pointing performance for users with motor impairments, Findlater et al.
+These magnifiers were explicitly invoked, and also uniformly magnified underlying space.
+However, recent innovations in pixel-based reverse engineering of graphical user interfaces  have brought us closer to bringing these techniques from the lab to the real-world, and the Bubble Cursor has recently been deployed in real-world settings .
+By extension, the Bubble Lens would be deployable, too; however, engineering such a real-world deployment lies beyond the scope of this initial investigation.
+The Bubble Lens is designed to improve the performance of the Bubble Cursor by remedying the Bubble Cursor's performance for small, dense targets.
+The Bubble Lens achieves this by automatic mode-switching via kinematic triggering, which invokes a lens that shows magnified targets whose distances from one another are preserved.
+This section describes kinematic triggering, our algorithm preserving targets' edge-to-edge distances under magnification, and how these components help the Bubble Lens achieve superior performance.
+To determine when to ready the lens, kinematic triggering continuously examines an unfolding velocity profile.
+We create a smoothed velocity profile  by temporally resampling the cursor's velocity at 100 Hz, and then smoothing using a Gaussian kernel filter with a standard deviation of 3 .
+We determine the local minima and maxima in real-time as the smoothed profile unfolds, revealing the location of the ballistic movement and of the corrective submovements.
+Because they make targets bigger, lenses are known to make targets easier to click .
+Usually, magnifying lenses must be explicitly invoked by the user .
+Although explicit invocation works fine in situations where pointing speed is not the sole objective , explicit invocation takes time and effort.
+A powerful approach would be for the automatic invocation of lenses, but triggering a lens automatically must be done with very high accuracy or users will become frustrated and feel like they are not in control.
+When combined with the Bubble Cursor, our concept of kinematic triggering uses the unfolding velocity profile of a movement to trigger a lens automatically in the final stages of pointing--early enough to provide a performance benefit, but late enough to ensure that users are trying to enter their intended target.
+Kinematic triggering is inspired by the optimized initial impulse model of Meyer et al.
+According to this model, a pointing movement consists of a ballistic movement and one or more corrective submovements.
+The end of a ballistic movement often results in a user undershooting  or overshooting  the target.
+If a user under- or overshoots, the user must perform corrective submovements .
+Kinematic triggering leverages the optimized initial impulse model to:  allow the user to move past distractor targets without triggering a mode change; and  to place the lens in a "ready state," which means the lens is allowed to activate once the cursor has entered a small, dense target cluster.
+Determining when to put the lens into a ready state is crucial, as activating the lens too early or too late negatively impacts performance.
+The ideal place along the velocity profile to make the lens eligible for triggering must satisfy two criteria.
+First, the cursor must travel past the majority of unintended targets without triggering, making any point along the ballistic movement a poor choice for readying the lens.
+Second, the lens must activate early enough to reduce the amount of time spent in corrective-phase pointing.
+If it activates too late, the reduction in corrective-phase pointing time will be negligible.
+Based on these criteria and trialand-error, we determined that the start of the downslope of the first corrective submovement is the best place along the velocity profile to ready the lens--that is, to make it eligible for triggering once the Bubble Lens finds itself in a small, dense target situation .
+Why is the downslope of the first corrective submovement the "right" place?
+If a user under- or overshoots during the ballistic phase, they perform a rapid corrective movement toward their target, and begin to decelerate as they near it.
+This deceleration is the downslope of the first corrective submovement, and results in the user entering the vicinity of their intended target.
+Readying the lens during deceleration increases our chance of reducing time spent in corrective-phase pointing, as the magnified targets will be easier to acquire, satisfying the second criterion.
+The first corrective submovement is determined by finding the first local maximum that occurs after the peak of the ballistic phase.
+Because smoothing is done in real-time, the downslope of the first corrective phase cannot be determined instantaneously as it occurs.
+We found a 30 to 60 millisecond lag occurred before we could reliably determine the cursor had entered the downslope of the first corrective submovement.
+This lag is small enough to not significantly affect pointing performance, and makes for very accurate triggering of the lens in the vicinity of the target .
+The magnification in the Bubble Lens relies on preserving targets' edge-to-edge distance, the intervening space between a pair of targets.
+In a typical magnification scheme, an entire region is uniformly magnified, including the space between targets .
+In the Bubble Lens, the space between target pairs is preserved, while the targets themselves are nonetheless magnified .
+The primary advantage of edge-to-edge distance preservation is it allows magnified targets to remain closer to their original locations in unmagnified space, reducing the visual search time for the user once the lens is activated.
+In essence, edge-to-edge distance preservation avoids an otherwise "jarring" effect for the user.
+Edge-to-edge distance preservation is achieved using the following new algorithm.
+First, all targets are sorted based on their ascending edge-distance from the "trigger target," the target currently engulfed by the cursor at the moment the lens is to be shown.
+Next, the trigger target is magnified, maintaining the distance between the center of the cursor and the trigger target's nearest edge.
+The sorted targets are then magnified in closest-to-farthest order from the trigger target.
+For each sorted target to magnify, we determine which previously magnified target's unmagnified location is closest to the target to magnify.
+We then magnify this current target using the closest target's magnified location as the reference target.
+Each target is magnified so that its unmagnified edge-to-edge-distance to this reference target is preserved when magnified.
+To prevent targets from overlapping, we check for intersecting targets.
+The Bubble Lens  builds on the Bubble Cursor  to remedy its deficiencies when acquiring small, dense targets.
+To decrease acquisition time and lower error rates, the Bubble Lens magnifies nearby targets, making them larger in both visual and motor space.
+Prior work has shown that increasing the size of targets in motor and visual space can help improve target acquisition .
+As previously stated, the Bubble Lens aims to improve pointing performance for small, dense targets.
+For a performance benefit, the Bubble Lens must magnify a user's intended target before the user reaches it.
+Clearly, the Bubble Lens must be aware of a target's size and density.
+The Bubble Cursor itself has no notion of target density.
+To determine if targets are dense, we introduce effective size.
+Effective size is our measure of a target's size and a target's density in its immediate vicinity.
+Our effective size calculation is better suited than Voronoi space effective width to capture target size and density.
+Effective width as defined in  is the entire Voronoi region of a target, while our notion of effective size is the size of a target as restricted by its nearest target.
+A central aspect of the Bubble Lens is that it switches modes automatically.
+Instead of requiring the user to invoke a mode manually as in prior techniques using magnification , the Bubble Lens activates its lens automatically based on kinematic triggering, as described above.
+In summary, the lens is activated in three steps.
+First, kinematic triggering "readies" the lens once the cursor has entered the downslope of the first corrective phase, making eligible the lens to appear.
+At this point, the cursor should be in the vicinity of the intended target.
+Second, the edgedistance between the center of the cursor and the currently engulfed target must drop below a minimum threshold.
+We empirically found that 10 pixels worked well during pilot testing.
+Third, the effective size of the target according to Equation 1 must be smaller than a threshold, also empirically set at 10 pixels.
+At the instant these three criteria are met in order, the Bubble Lens triggers its lens automatically, giving the subjective experience of small, dense targets "growing to meet the user" as he approaches.
+The purpose of invoking the lens is to reduce small, dense target acquisition time.
+For targets with an effective size of 10 or more, the lens is not generated, and the Bubble Lens behaves like the default Bubble Cursor.
+This flexibility allows the Bubble Lens to "kick in" when it is needed while continuing to offer the benefits of the Bubble Cursor when it is not.
+In essence, the Bubble Lens remedies where the Bubble Cursor is weak, while behaving just like the Bubble Cursor where the Bubble Cursor is strong.
+The experiment testbed was developed in C# .NET 4.5.
+The mouse used during the experiment was a Microsoft Comfort Optical Mouse connected over USB.
+The Windows mouse speed was set at 10, corresponding to an actual C-D gain of about 5 , and pointing acceleration was enabled.
+The testbed captured all mouse cursor movements with millisecond resolution and submillisecond precision.
+The experiment consisted of a single lab session lasting approximately 35 minutes.
+At the beginning of each test block, participants completed 7 practice trials to familiarize themselves with the functionality of each cursor.
+Participants were able to ask any questions during this time.
+Participants then completed a set of test trials.
+In each trial, participants were presented with a set of gray distractor targets and one orange goal target .
+To proceed to the next trial, participants had to successfully select the goal target.
+All participants were instructed to select the goal target as quickly and accurately as possible--that is, with a balanced approach towards speed and accuracy.
+To control target spacing, we placed four distractor targets around the goal target.
+The immediate distractors were all of equal size and distance from the goal target, the same approach used to evaluate the original Bubble Cursor .
+The locations and sizes of the remaining distractor targets were randomly generated for each trial, as was the position of the goal target.
+Six-hundred twenty-five distractor targets were present during each trial.
+This target amount is halfway between the "sparse" and "clustered" target densities described in prior work .
+Once all test trials for the cursor type were completed, participants completed a Likert scale questionnaire.
+At the conclusion of the experiment, participants ranked the cursors in order of preference and provided written feedback.
+Mixedeffects models are ideal for input studies involving highly repeated measures correlated across subjects over time.
+Other measures required nonparametric analyses.
+For error rates, we employed the Aligned Rank Transform procedure .
+For Likert responses, we used Friedman and Wilcoxon tests.
+The validation study had the same factors and levels as the initial study, except the point cursor was removed.
+The levels for our Width and Spacing factors were used in prior work .
+Because we wanted to discover whether and where the Bubble Lens increased performance over the Bubble Cursor, we determined the effective size  for each of the Width x Spacing combinations to create an Effective Size composite independent variable, resulting in 9 sizes of 4, 5, 6, 8, 10, 12, 16, 20, and 24 pixels.
+To counterbalance the presentation of Cursor, we used a balanced Latin Square.
+Nine combinations of Width and Spacing were blocked by Cursor, and were presented in random order.
+Each block comprised 18 trials, with the first 3 trials serving as practice.
+Participants in the initial study completed a total of 3x9x15 = 405 test trials, resulting in a total of 6480 test trials for 16 participants.
+Participants in the validation study completed a total of 2x9x15 = 270 test trials, resulting in 1620 test trials for 6 participants.
+Temporal measures and submovements were amenable to analyses of variance.
+Temporal measures were first logtransformed to correct for deviations from normality, and then analyzed with a mixed-effects model analysis of variance .
+Our model used fixed effects for Cursor, Effective Size, and Trial ; Subject was a random effect to accommodate for repeated measures.
+Movement time was measured from the first mouse move to when the goal target was selected.
+Mean movement times are shown in Table 1.
+Not surprisingly, Effective Size also exhibited a significant effect on movement time , with small effective-size targets taking longer to acquire than large targets.
+There was a significant Cursor x Effective Size interaction , because for small, dense targets, the Bubble Lens was fastest, but for large, spacious targets, the Bubble Cursor was fastest.
+It was exactly these thresholds and crossover points we sought to discover in this initial study.
+Figure 8 makes them visible.
+To formally determine the lower effective-size threshold at which the Bubble Lens offers a benefit over the standard Bubble Cursor, we performed pairwise comparisons.
+To correct for multiple comparisons, we used Holm's sequential Bonferroni procedure .
+The pairwise comparisons showed that for targets with effective sizes of 4, 5, 6, and 8, the Bubble Lens was significantly faster than the Bubble Cursor.2 As seen in Figure 8, the Bubble Lens was nearly identical to the Bubble Cursor for targets with effective sizes of 10 and 12, and was worse for effective sizes of 16, 20, and 24.
+All participants were required to successfully select the goal target before advancing to the next trial.
+Therefore, error trials were trials where the first click did not result in selecting the goal target.
+The error rates shown in Table 1 are the percentages of error trials for each cursor.
+Mean error rates are displayed in Table 1.
+Based on the results found in the initial study, we determined the lens should deploy for targets with effectives sizes of up to 10 pixels, and should not deploy for larger effective sizes.
+We added this logic to the Bubble Lens and conducted a validation study to determine whether the Bubble Lens would outperform the Bubble Cursor.
+Error rates for each cursor are displayed in Table 2.
+Similar to the initial study, the Bubble Lens was marginally more accurate than the Bubble Cursor .
+The validation study indeed confirmed that the Bubble Lens significantly outperforms the Bubble Cursor in terms of speed, and exhibits a trend towards higher accuracy.
+Next, we look more closely at our data for when the Bubble Lens and Bubble Cursor behave differently--that is, for when effective sizes are less than 10 pixels--in order to explain the advantages of the Bubble Lens at these sizes.
+Mean movement times are displayed in Table 2.
+Pairwise comparisons showed that for effective sizes of 4, 5, 6, and 8, the Bubble Lens was significantly faster than the Bubble Cursor  .
+This result confirms the finding from our initial study, which demonstrated that the Bubble Lens was faster for these small, dense targets.
+The important result here, however, is that despite the Bubble Lens being identical to the Bubble Cursor for effective sizes of 10+, the reduction in movement time for targets with small effective sizes was enough to make the Bubble Lens significantly faster than the Bubble Cursor overall.
+Submovement analysis offers an insight into pointing behavior.
+Individual submovements were determined by the number of local maxima in a smoothed velocity profile for each individual trial .
+At the smallest effective size, pairwise comparisons revealed the Bubble Lens significantly reduced the number of submovements over the Bubble and point cursors .
+The lens was triggered for 98.8% of all pointing trials.
+For targets under the effective size threshold of 10 pixels, the lens was triggered 99.5% of the time.
+In each trial, we logged whether the goal target appeared in the lens once it was triggered.
+For 99.3% of trials, the goal target appeared within the lens.
+This very high percentage shows the high accuracy with which kinematic triggering determined that the lens was eligible for showing.
+A crucial aspect of kinematic triggering is preventing the lens from triggering before the cursor is near the user's intended target.
+We were therefore interested in knowing how far away from the goal target did kinematic triggering "ready" the lens.
+We were also interested in learning how far away from the goal target the lens was actually invoked.
+The average straight-line distance from the cursor's starting position to the center of the goal target in each trial was 774 pixels in the Bubble Lens condition.
+On average, kinematic triggering readied the lens 41.08 pixels away from the goal target, and the lens was invoked 26.54 pixels away from the goal target.
+Thus, the lens was readied at 94.7% of the distance to the goal target.
+The lens was invoked at 96.8% of the distance to the goal target.
+We wanted to discover whether the Bubble Lens could remedy the limitations of the Bubble Cursor by increasing performance when acquiring small, dense targets.
+First, we had to determine what constitutes a small, dense target for where the Bubble Cursor can be improved upon by the Bubble Lens.
+Using our definition of effective size as a measure of target size and density, we discovered that for targets with an effective size of up to 10 pixels, the Bubble Lens offers significant reductions in movement time and error rate.
+Consequently, we were able to use an effective size of 10 pixels as a threshold to determine when the lens should trigger.
+With this threshold employed, the Bubble Lens significantly outperformed the Bubble Cursor in speed, and showed a clear trend towards superior accuracy.
+It is interesting to note how, in the initial study, the Bubble Lens negatively affected movement times for targets with effective sizes of 16 and greater.
+Although we anticipated the Bubble Lens might not perform better than the Bubble Cursor for large effective sizes, we did not anticipate that the Bubble Lens would perform worse than the point cursor also!
+This result make sense upon reflection, however, as there is a tradeoff associated with magnifying targets--even automatically doing so.
+When the magnification occurs, the targets are redrawn, requiring users to visually search for their intended target.
+Although this search takes only a few moments, we hypothesize that the visual search penalty is greater than the time benefit afforded by having an alreadylarge magnified target.
+For smaller, denser targets, we believe the benefits outweigh any visual search cost.
+Kinematic triggering proved to be an effective method for automatically invoking a mode change, resulting in lenses that showed the desired target 99.3% of the time.
+It is gratifying that kinematic triggering, by examining only velocity profiles and nothing more, "readied" lenses for deployment about 95% of the way to the intended target--again, with no notion of where the intended target lay.
+At the completion of both experiments, each participant was asked to rate the cursors in order from most to least favorite.
+In the initial study, 9 participants preferred the Bubble Lens, 5 preferred the Bubble Cursor, and 2 preferred the point cursor.
+In the validation study, 5 of 6 participants preferred the Bubble Lens.
+Participants were also asked to provide written feedback describing what they did and did not like about the cursors.
+Many participants commented on how the Bubble Lens made selecting the small targets easier compared to the Bubble and point cursors.
+One participant wrote, "I ranked the point cursor last because the smallest targets were so annoying!
+The Bubble Lens made acquiring smaller targets much easier without much mental effort."
+To capture subjective workload, participants filled out a NASA TLX questionnaire  after completing all trials for each cursor type .
+Workload was assessed over six 20-point scales for mental demand, physical demand, temporal demand, performance, effort, and frustration.
+For example, kinematic triggering could be used to zoom into a document at the end of a scrolling or panning operation, which may result in a technique akin to SpeedDependent Automatic Zooming .
+An important aspect of the Bubble Lens's performance is its ability to avoid causing unwanted visual search time on the part of the user by ensuring magnified targets within its lens do not "spread out" as a result of magnification.
+Keeping targets from moving apart was achieved through our edgeto-edge target distance preservation algorithm.
+Prior to devising this algorithm, our lens often contained a lot of empty magnified space.
+We believe our algorithm may be useful in other situations where objects must be magnified but without magnifying the "background" in which they reside.
+Our algorithm solves the problem of overlap that occurs when retaining magnified objects' original spatial relationships.
+Despite the Bubble Lens's 99.3% rate of showing the intended target in the lens, we must still determine how to best de-lens if and when an unintended mode change occurs.
+In the experiment, participants were instructed to right-click to exit an unintended mode change.
+Although the number of trials where a mode change occurred with the target not in view was tiny , the average movement time in those trials was 3.9 seconds compared to 1.5 seconds without those trials, a huge performance penalty when the lens gets it wrong.
+By pushing our technologies to enable ever-higher levels of human performance, we further not only the limits of our inventions, but also of ourselves.
+Future work would include investigating the effectiveness of the Bubble Lens for people with motor impairments.
+Prior research has shown the Bubble Cursor does not offer significant improvements for people with motor impairments in small, dense target situations .
+In order to determine whether the Bubble Lens could be effective at reducing acquisition time for users with motor impairments, we would first have to revisit the assumptions made in our kinematic triggering logic.
+Although it might be true that the downslope of the first corrective submovement works well for people with motor impairments, we cannot know for sure.
+Also, we would like to test the Bubble Lens with children and older adults.
+Discovering an automatic way to infer the proper kinematic trigger-point for these various populations would be exciting necessary achievement.
+We introduced the Bubble Lens, a new target acquisition technique that remedies the limitations of the Bubble Cursor by improving the acquisition of small, dense targets.
+We discovered that for targets with an effective size up to 10 pixels, the Bubble Lens significantly outperforms the Bubble Cursor.
+Accordingly, for targets with effective sizes larger than 10 pixels, the Bubble Lens behaves like the default Bubble Cursor.

@@ -1,0 +1,325 @@
+Understanding the driver's cognitive load is important for evaluating in-vehicle user interfaces.
+This paper describes experiments to assess machine learning classification algorithms on their ability to automatically identify elevated cognitive workload levels in drivers, leading towards the development of robust tools for automobile user interface evaluation.
+We look at using both driver performance as well as physiological data.
+These measures can be collected in real-time and do not interfere with the primary task of driving the vehicle.
+We report classification accuracies of up to 90% for detecting elevated levels of cognitive load, and show that the inclusion of physiological data leads to higher classification accuracy than vehicle sensor data evaluated alone.
+Finally, we show results suggesting that models can be built to classify cognitive load across individuals, instead of building individual models for each person.
+By collecting data from drivers in two large field studies on the highway , this work extends prior work and demonstrates feasibility and potential of such measures for HCI research in vehicles.
+A casual observation of drivers suggests that they increasingly attend to mobile devices and interact with new technology built in their vehicles, creating distracted driving scenarios.
+Driving itself is a dynamic, complex activity involving visual, cognitive and manual tasks: the driver has to form strategic goals, monitor the roadway environment and the vehicle systems, process information and make tactical action plans as well as execute control level activities .
+Thus, the driving task imposes varying levels of workload on the driver.
+Understanding the workload induced during driving is important for preventing accidents and hazards on the road, and human factors researchers have studied driver workload in depth.
+The roots of this are in the Yerkes Dodson law of arousal   that suggests that during periods of underload, added workload may improve performance, while during heightened demand, higher workload may reduce performance.
+As they vie for driver attention, the workload imposed on the driver by in-vehicle user interfaces is constantly changing.
+Advances in technology have led to a shift in the demands in many working environments from the largely physical to more supervisory oversight of automation, more cognitive demand, and increased frequency of vocal command interaction .
+This development can be observed in the field of driving as well .
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The next generations of automated vehicles will likely partially, if not completely, relieve the driver of safety critical control.
+However, the increasing level of automation is expected to place more variable demands on driver attention and cognitive activities.
+The complexity of in-vehicle interfaces will continue to increase at a rapid rate.
+Vehicles will likely contain more infotainment options, and proposed automated driving systems will demand new interfaces.
+In addition, the increased autonomy of the car may provide the driver with a sense that they have the capacity to undertake additional tasks while driving.
+Understanding how the evolving vehicle interface affects the driver's cognitive load is critical for optimizing the user experience and safety during system design and through adaptive interfaces.
+This work aims to explore automatic detection of driver cognitive workload through physiology and vehicle data.
+Although mental workload is not directly observable , several measurement approaches to assessing mental workload are employed.
+Empirical measures are generally divided into three categories: subjective measures, performance measures and psychophysiological measures.
+Each method has advantages as well as disadvantages .
+Subjective measures are cost-effective and suitable in prototype testing; however they suffer from time delay, subjective biases and are highly intrusive which ultimately makes them unsuitable for continuous workload assessment.
+Performance and psychophysiological measures can be measured nonintrusively and continuously throughout the tasks .
+Recently, with sensing capabilities improving and costs decreasing, there has been a growing interest among automotive vendors in enabling their products to monitor and exploit driver and vehicle sensor data.
+Driving measures of speed, acceleration, location and inter-vehicle distance are more readily available for inferring the current situation.
+In addition, cameras and other sensors are increasingly able to measure driver data such as heart rate, gaze direction and other physiological measures.
+These vehicle and physiological measures provide the potential to monitor the dynamic state of the driver while actually driving and provide inputs to make adjustments in the characteristics of the vehicle or interfaces to improve performance .
+Starting initially in a driving simulator  and moving to field studies , previous work demonstrated that vehicle sensor and physiological measures can both be collected in real-time and do not interfere with the primary task, making them potentially valuable for evaluating workload associated with automotive user interfaces.
+This work was largely based on normative assessment of group level data.
+While a simple threshold based assessment showed promise for detecting changes in cognitive load at the individual level , it remained to be shown how effectively this can be achieved using more advanced modeling.
+This paper builds from this prior work with the goal of improving methods available for evaluating automotive user interfaces that may be used during driving tasks.
+By successfully training across individuals, we demonstrate the potential of building models that can generalize to work for new drivers.
+The heart is innervated by both parts of the autonomic nervous system: the sympathetic nervous system  and the parasympathetic nervous system .
+Heart rate  and heart rate variability  are widely adopted mental workload measures because they are easy to use and provide fundamental information about the autonomic nervous system .
+Sympathetic activation increases heart rate while parasympathetic activation decreases heart rate.
+Electrodermal activity  refers to the electrical activity from  sweat glands and their associated dermal and epidermal tissues .
+There are two types of sweat glands in the human skin: the eccrine and the apocrine.
+Though related, eccrine and apocrine sweat glands are distinct in size, structure, function, distribution and nervous control .
+Eccrine sweat glands are under control of the SNS.
+Thus, physiological arousal affects the production of ionic sweat by eccrine sweat glands resulting in changes of electrical resistance and conductance at the surface of the skin.
+EDA measures such as skin conductance level  and skin conductance response  have been reported to be sensitive to arousal and mental workload in driving as well .
+SCL represents the overall tonic conductance level and SCR captures momentary  changes in electrical conductivity.
+This paper explores HR and SCL.
+The major advantage of simulator studies is their relative ease of controlling experimental variables and conditions.
+However, there are disadvantages compared to a field study as well, e.g.
+Since driver-vehicle interfaces eventually have to be effective and safe in real-world settings with dynamic environmental factors such as light-
+In addition, while most of these studies report significant normative differences in physiological signals during driving, this paper works to automatically detect these differences at an individual level using machine learning.
+Below, we discuss some related field studies.
+The data suggests significant effects of road type on heart rate measures, but they did not look specifically at workload.
+Three drivers accomplished seven drives each.
+Another six drivers completed one single drive.
+The three driving conditions were low , medium  or high  stress, respectively.
+This was validated through questionnaires.
+Using a linear discriminant function, an overall accuracy of 97.4% was reported for stress level classification.
+However, the generalizability is limited since 21 of the 27 drive datasets are attributed to three drivers only .
+In a larger study of 49 professional drivers, Jahn et al.
+However, they conclude that the heart rate changes they observed reflect emotional strain or physical workload from steering actions as well.
+According to the authors, heart rate proved to be a sensitive but not selective measure for workload.
+In contrast,  claims HRV to be a selective measure for mental load.
+The European HASTE study  produced mixed results on the relative sensitivity of heart rate and skin conductance in response to the demands surrogate secondary tasks in a sample of 24 drivers in the field.
+In contrast, Collet et al.
+This preliminary report only considered the skin conductance and skin temperature data, and found skin conductance for the group varied significantly across the road types and to be the more sensitive measure.
+The in-vehicle evaluation framework and two on-road field experiments described in this paper extend this previous work by collecting data from a significantly larger, genderbalanced group of drivers across different age groups and looks at on-road responses to secondary task demands.
+The related work in this area has generated interest from automotive companies for utilizing physiological and vehicle sensor data in user interface evaluation.
+However, bringing this research into the in-vehicle user evaluation is still a challenge, as there are few standard methods in place for doing so.
+We detail our procedure and results as a step toward this.
+We employ machine learning techniques to learn a model for elevated workload based on physiological and vehicle data for automatic classification.
+This involves several steps as shown in Figure 2.
+We describe each of the steps in more detail below, along with the potential choices that need to be made to conduct on-road user evaluations using these methods.
+First, there is a broad range of sensor technology available for on-road data acquisition, and more will be available in the future.
+In the studies described below, we investigate heart rate, skin conductance and vehicle telemetry because they have shown to be sensitive to changes in cognitive workload, and are relatively easy to measure during driving.
+We also assess their relative sensitivity to elevated cognitive demand to determine the most effective sensors.
+As additional sensors are shown to be indicative of cognitive workload in the future, they could be added to this framework.
+This leads to a research question addressed in this paper: Can peripheral physiological and driver performance measures be used for accurate classification of elevated levels of driver workload for interface evaluation?
+Raw sensor data is often not suitable for direct analysis due to various forms of artifact and errors.
+Often, the first step in data preprocessing involves a manual or automated cleaning of the input signals.
+In addition, some useful data features cannot be directly measured but have to be computed first.
+The data pre-processing steps deal with such issues, but are often omitted in study descriptions.
+For each experiment below, we detail the pre-processing steps taken.
+Feature generation and feature selection convert the preprocessed data into a set of values that could be used for learning a model for the various cognitive states.
+With sensor data, the recorded measurements form a time series that could be used directly as a set of features.
+Other approaches aggregate the time series into summary functions such as the mean over a window.
+This reduces the dimensionality of the data.
+Understanding how these factors influence classification of other physiological and vehicle data will be addressed in the experiments below in order to answer the question: How is classification accuracy affected by feature generation and selection parameters?
+With a set of features, we can employ machine learning techniques to train a classifier for detecting the cognitive workload of the driver, based on data previously acquired.
+Supervised learning techniques were employed using the empirical data from the two field studies with labeled data .
+Supervised learning algorithms generally consist of two phases: a training phase and a classification phase.
+In the learning phase, the algorithm builds a model on the basis of training data and their labels.
+The training period could happen just prior to classification, or the classification models could be built earlier, based on historical data.
+The quality of the training data will impact the performance of the classifier.
+We look at answering: How does training data within and across individuals impact automatic cognitive workload recognition?
+Numerous classification algorithms have emerged and we report results with five different classifiers.
+We aim to investigate: How does classification algorithm impact the ability estimate elevated workload with physiological data?
+The final goal with the real-time classifier is to evaluate invehicle interfaces and technology using the automatic cognitive workload detection in combination with more traditional measures.
+Using this framework, we can identify moments of interest during task performance where cognitive workload is elevated.
+This can be analyzed to identify interface, driving, and environmental conditions that may have induced elevated cognitive load.
+The rest of the paper focuses on practical issues for using this in realistic settings.
+In the two field studies, an auditory presentation - verbal response delayed digit recall task was employed to impose additional mental workload while driving.
+This "n-back" task is documented in detail in .
+The single digits 0-9 were presented one at a time at 2.25 second intervals in a randomly ordered sequence.
+As each new item was presented, participants were required to say out loud the digit two items back in the current sequence.
+An example set of a 2back task is shown in Table 1.
+This secondary task requires auditory perception and cognitive processing involving working memory.
+This has been shown in previous work to increase cognitive demand  and is being utilized as a calibration task that provides drivers with a consistent, and validated, dose of high cognitive demand that has been used in prior studies.
+In both experiments, a vehicle was instrumented for timesynchronized data collection from embedded vehicle sensors, a MEDAC System/3 monitoring system .
+Vehicle performance data were logged at 10 Hz and physiological data at 250 Hz.
+The first data set was collected in a 2010 Lincoln MKS and the second data set was collected in a 2004 Volvo XC90.
+Electrocardiogram  recordings employed a modified lead II configuration: the negative lead was placed just under the right clavicle , the ground lead just under the left clavicle , and the positive lead on the left side over the lower rib.
+The skin was cleaned with isopropyl alcohol and standard pre-gelled silver/silver chloride disposable electrodes  were applied.
+Skin conductance was measured utilizing a constant current configuration and non-polarizing, low impedance gold plated electrodes that allow electrodermal recording without the use of conductive gel.
+Sensors were placed on the underside of the outer segments of the middle fingers of the non-dominant hand and secured with medical grade paper tape.
+The thin surface, low profile design of the electrodermal sensors minimize interference with a natural grip of the steering wheel associated with the use of more traditional cup style electrodes.
+Figure 1 shows one of the two sensors.
+Measures of driving speed, steering wheel position, and acceleration data were recorded directly from the controller area network  bus of the vehicle.
+We conducted two experiments based on data collected in field studies to explore the practical considerations for automatic classification of cognitive load during actual onroad driving.
+In both field studies, participants drove on an interstate highway while vehicle performance and physiology data were recorded.
+In addition to the primary driving task, participants had to complete a cognitive demand task described below as a proxy for secondary tasks that cause elevated workload.
+We describe our approach to classification and the various parameters that could affect the classification results.
+These include: machine learning algorithm, window size, overlap of windows and features used.
+In the first experiment with 20 subjects, we look at classifying individual driver's workload levels by building unique models for each person.
+In the second experiment with 99 subjects, we explore building classification models across individuals, reducing the need for training on each individual.
+Common elements of the field studies are detailed below.
+A typical EKG waveform of a heartbeat consists of six components labeled P, Q, R, S, T and U.
+Each wave represents a specific stage in the underlying physiological process of a cardiac cycle.
+The most prominent pattern in the EKG waveform is the QRS segment since it usually contains a sharp spike in the signal .
+We employed a QRS detection algorithm  to identify heart beats in the signal.
+The results of the heart beat detection were manually reviewed and edited.
+Heart rate  and heart rate variability  have both been used successfully for assessing operator workload.
+However, prior work  found HR to be more robust than HRV during driving and a similar secondary task.
+This motivated our choice to use HR features instead of HRV features.
+The skin conductance recordings were filtered using a wavelet transform to remove high frequency noise .
+Decomposition at level 4 using Coiflet wavelets with 5 vanishing moments showed best results during our exploratory analysis.
+Gross low frequency movement artifact was identified by manual inspection and removed.
+Steering wheel reversal rates measure the frequency of steering wheel reversals exceeding a certain threshold angle .
+This reflects stability of control as distraction can cause quick large corrections.
+Steering wheel reversal rates were calculated using a 2nd order Butterworth filter as described in , and were provided as reversals per minute.
+Large reversals have gap size 3 and cut-off 0.6Hz whereas small reversals have gap size 0.1 and cut-off 2Hz.
+After preprocessing, signals were resampled to 10 Hz.
+Two parameters have to be specified to generate aggregate feature vectors: the window length and overlap factor.
+The window length determines the number of data points per signal to be considered for a single window.
+The overlap factor effectively determines the time offset between the first data points of two successive windows.
+While window length influences how much historical information is contained in a single window, the overlap factor influences how much historical information is shared among successive windows.
+Five feature based learning techniques are used in this analysis: decision trees, logistic regression, 1-nearest neighbor, multilayer perceptron, and naive Bayes.
+In both experiments, similar feature generation methods were used for testing classification approaches.
+A labeled dataset was built from the synchronized sensor data.
+Data acquired during the cognitive demand task periods are labeled as elevated workload.
+A period is extracted from driving only periods and labeled normal workload.
+To preserve information about the temporal dynamics, a sliding-window approach was used to aggregate attributes over specific time intervals .
+Each feature is computed using a fixed-length sliding window operator moving over the data.
+For each window, a set of features is computed.
+We take the mean, standard deviation, minimum, maximum and first derivative of the following measures: heart rate, skin conductance level , and vehicle velocity.
+In addition, we compute the number of small and large steering wheel reversals.
+In the first study, we collected data from 20 participants with the goal of examining the feasibility and practical considerations for automatic classification of elevated workload, based on an individual's vehicle and physiological patterns.
+We wanted to look at building individual models to account for individual differences between drivers.
+Twenty-six individuals driving more than three times a week and having a valid driver's license for at least three years were recruited.
+Participants had to report a driving record free of accidents for the past year.
+We collected reliable heart rate data from 20 participants .
+Due to recording issues, only 13 of the participants  had both reliable heart rate and skin conductance levels.
+Participants drove in urban traffic for approximately ten minutes before reaching an interstate highway.
+Subsequently, drivers were provided an additional twenty minutes of interstate driving to familiarize themselves with the vehicle and environment before a two minute single task driving reference period was established.
+Afterwards, subjects were presented 24 task periods consisting of the 2-back cognitive demand task described above, while they continued to drive on the highway.
+Each 30-second task period was followed by a ninety second recovery and baseline period .
+Throughout the study, heart rate, skin conductance level, speed, and steering wheel position were recorded.
+This section describes the signal processing, feature generation and classification approaches that we explored for automatic detection of elevated cognitive workload during the experiment.
+We were interested in individual classification methods, and built separate datasets for each of the 13 participants and performed the classification within each set.
+For each dataset, we have 24 30-second examples of elevated cognitive load from the task periods, and 24 30-second examples of normal cognitive load extracted from the middle of the recovery and baseline periods when the participants were just driving.
+After the signal processing and feature generation steps described above, classification algorithms were run.
+Ten-fold cross-validation was used for evaluating the approaches.
+To choose the window size and window overlap that yielded the highest classification accuracy, we performed an inner ten-fold cross-validation process within the training set.
+Our data was split first into a training and test set.
+Within that training set, the data was split into a training and validation set to choose the parameters that performed the best.
+The outer test set, thus, was not used in parameter selection and can provide an estimate of generalizability of the classification accuracy.
+In all iterations, when data was chosen for a training, validation or test set, the entire two-minute task period  was included.
+This is to ensure that data from a task period was not used for choosing parameters, or building the model as well as testing the accuracy of the method.
+We report results as the average accuracy achieved from each of the datasets, using the nested cross-validation described above.
+The mean accuracy and standard deviation for each classifier are shown in Table 2.
+We looked at classification using heart rate data only for all 20 subjects and also ran the analysis using all features for the 13 subjects with complete data.
+For all features, a one-way analysis of variance shows that there is a significant difference in the accuracy of the five algorithms, .
+TukeyKramer post-hoc test showed that the nearest-neighbor classifier performed significantly worse than all four of the other algorithms.
+There were no additional significant results.
+For heart rate only , a one-way analysis of variance showed significant differences .
+Tukey-Kramer post-hoc test showed that the nearest-neighbor classifier performed significantly worse than logistic regression, multilayer perceptron and naive Bayes, but not decision tree.
+There were no other significant results.
+The results of this experiment show that we could achieve reasonable classification accuracy, using simple features and classification methods.
+Even with only the heart rate data, the accuracy did not decrease by much, showing that this simple measure has promise for classifying cognitive workload for in-vehicle user interfaces.
+One thing to note is that the entire set of 24 trials translates to about 48 minutes of data.
+Thus, with 10-fold cross-validation, we were training on 90% of this data .
+This makes sense for experiments and a proof-of-concept.
+However, this amount of training time for the classifier is not ideal for real-world evaluation.
+It is likely that future work would reduce this training time, and also improve the classification results.
+However, it still is not ideal to build individual models.
+Experiment 2 investigates classification across individuals that may reduce or eliminate this training time.
+Experiment 2 moves toward having general classifiers that detect elevated cognitive workload without extensive training on individual drivers.
+We worked with data collected from 99 participants  with the goal of finding common features and algorithms that reliably can classify cognitive load automatically across individuals.
+Healthy individuals driving more than three times a week and having held a valid driver's license for at least three years were recruited.
+As in the previous study, participants had to report a driving record free of accidents for the past year.
+146 individuals took active part in the driving portion of the study; however, 38 cases were excluded from the final dataset for reasons such as heavy traffic, poor weather conditions, or technical issues .
+In addition, nine more subjects were removed from the dataset due to missing data or poor measurement quality in at least one signal domain.
+The dataset considered in this paper contains recordings from 99 subjects.
+Aiming for reliability in the real world, participants were balanced in age and gender .
+Participants drove in urban traffic for approximately 10 minutes before reaching an interstate highway, on which they drove for 20 minutes to familiarize themselves with the vehicle and environment prior to a two minute single task driving period which established reference data.
+Afterwards, subjects were presented three task periods consisting of a series of four secondary task blocks each.
+In this study, there were periods of the 0-back, 1-back, and 2-back task described earlier.
+However, in this analysis, we focused on classifying the 2-back elevated periods from the single-task normal driving, as in Experiment 1.
+Future work will look at the other levels of demand.
+Each task period was followed by a two minute recovery period.
+The order of presentation of the three task difficulty levels was counterbalanced across participants.
+Figure 6 shows an overview of the experimental protocol.
+The data shows that participants had a significant physiological response when presented and engaged in the secondary task.
+Figure 5 illustrates the value changes of heart rate during the experiment.
+Task periods are readily identifiable.
+Also, the counterbalanced presentation order can be recognized in each plot.
+The illustration support the hypothesis that cardiovascular measures are generally sensitive to changes in cognitive workload.
+We saw similar results looking at the skin conductance level and thus there is promise for classifiers that work across individuals.
+For this experiment, we used similar processing and classification approaches as in the first experiment.
+However, the data set used included data from 99 participants, and classification was done across individuals.
+In addition, we have only the set of four consecutive 30-second elevated 2-back task periods per individual .
+We were most interested in looking at high demand periods, and considered only the 2-back high demand periods and the single task driving periods.
+We looked at sliding windows of 10, 15, 20, 25, and 30 seconds and overlap factors of 0%, 25%, 50% and 75% to see the effects that these pre-processing parameters have on the classification accuracy.
+We were also interested in understanding the value of physiology features, driving features and their combination.
+Heart rate change during experiment drive.
+Each row represents the change in heart rate of a single subject during experiment drive.
+Within three task block periods, subjects had to perform a secondary cognitive task  in addition to the primary driving task.
+Red indicates maximum heart rate, blue color indicates minimum heart rate.
+Accuracy tends to increase with increased window size.
+The overlap factor had little influence.
+Nearest neighbor learning algorithm had the lowest classification accuracy, while the other algorithms had similar performance.
+The best performance was found in 3 and 4, indicating that HR was most sensitive to the cognitive load changes.
+As in Experiment 1, ten-fold cross-validation was used for evaluating the approaches.
+However, we did not choose parameters using nested cross-validation.
+Instead, we report results from all choices of parameters as well as from five different classification algorithms for exploratory purposes.
+Folds were created based on individuals, so each fold held out 10% of the participants.
+Training and test sets never contained data from the same individual.
+This is important as the window sizes imply lag if the classification is operating in real time.
+As one might expect, the curves rise much more steeply as smaller window sizes increase to medium, and then seem to mostly plateau at the larger window sizes.
+It is interesting to note that the overlap factor doesn't have a significant impact on the classification accuracy.
+The type of features had a clear effect on the classification results.
+When physiology features are ignored and classification algorithms are trained with features generated from driving performance measures only, we found the average classification accuracy to be 64% .
+We investigated using only heart rate features , ignoring features extracted for electrodermal activity measures and driving data.
+With the exception of 1-Nearest Neighbor, all other learning techniques performed reasonably well, achieving an average of 80% accuracy .
+Using features generated from all available physiology data , logistic regression outperformed other classifiers achieving the highest performance with a 30 second sliding window.
+Multilayer perceptron and naive Bayes had a significantly lower performance of 89% accuracy.
+The best classification performance using features from both physiology and driving performance data is similar to that using only physiology features.
+Logistic regression and naive Bayes performed significantly better than all other classifiers.
+In the driving only analysis, the multilayer perceptron achieved the highest classification performance.
+In the analysis of the heart-rate data, the 1-nearest neighbor algorithm performed worse than the other algorithms.
+For most other analyses, the classifier choice did not make a large difference in the results, showing that feature generation and selection are key to accuracy in this domain.
+Through the experiments described above, we examined several considerations for developing an automatic cognitive workload classifier for use in evaluating interfaces in real-world driving.
+We illustrate the impact that window size, classification algorithm, and training data set have on the robustness of the detection, and provide some guidance on the choice of these parameters.
+Similar to Grimes, et al.
+We did not find significant effects of window overlap.
+By using large datasets collected in real-world driving, we provide realistic estimates of the results of such systems.
+In experiment 1, we train models based on ~40 minutes of training data per individual.
+In experiment 2, we train models across individuals, using only 4 minutes of training data per person.
+While our approach was successful in classifying cognitive load with high accuracy, there may be additional measures or algorithms that could also provide similar or improved results.
+In fact, it is likely that more sensitive driving performance measures, characterization of visual behavior and improved feature sets and algorithms will be developed in the future.
+However, these would all fit in with the framework in Figure 2.
+From the results of Experiment 2, it is apparent that classification power in this dataset is coming from physiology features, specifically from heart rate derived features.
+On the other hand, for this experiment only a handful of driving performance measures were used ; other metrics may prove valuable for classification.
+In Experiment 1, we take into account individual differences by training a classifier for each individual.
+The approach employed in Experiment 2 however, makes the assumption, that the response to workload is somewhat consistent across all types of drivers.
+In other words, the models built using the proposed approach do compensate for different physiological or behavioral responses among drivers, but they assume that the structural response pattern is the same for all drivers.
+In the future, we could move closer to a deployable system where the algorithm is trained on a large dataset, and then is able to classify new system interactions among a different set of drivers when they enter the vehicle.
+In a hybrid approach, automatic recognition algorithms could be trained on large datasets.
+Then, a new driver may spend a short time providing additional training data that is specific to the individual.
+This could fine-tune the model to be customized for the individual that is driving.
+While our paper provides comparative results of five classification algorithms, there are additional algorithms and approaches that may achieve higher performance.
+Future efforts may wish to consider additional modeling approaches.
+In addition, this work focused on classifying high demand periods from single-task driving.
+We plan to integrate the 0back and 1-back data that we collected into our models to get a comprehensive model of physiological changes as demand levels change.
+Future investigation could also look at classification results when the models trained on the nback task data are used to classify workload in other, more realistic tasks.
+It may be useful to compare physiological sensing with cognitive modeling tools such as Distract-R  that also can be used for in-vehicle interface evaluation.
+Finally, while we used a somewhat invasive medical grade EKG, measures of heart rate could be integrated in future cars using steering wheel, seat back, or other sensor sites to provide physiological measures in less invasively.
+We consider this to be a foundation for concrete applications such as in-vehicle user interface evaluation.
+Most previous work was either done in a simulator or with a small number of participants.
+In addition, the methods we described would apply to classifying workload in other contexts, such as game user experience evaluation or passive, adaptive user interfaces , and our sample size is larger than most papers in those areas.
+This has implications for broader applications for realtime cognitive load assessment and evaluating user interface technology in the wild, beyond driver user interfaces.
+Acknowledgment is extended to NSF  and US DOT's Region I New England University Transportation Center at MIT for support.
+EAGP acknowledges financial support from CONACYT-DAAD grant 308755.
+MZ was supported by a scholarship from the Max Weber-Program Bayern.
+In this paper, we have shown that machine learning techniques can be applied to vehicle sensor data as well as driver physiological sensor data to provide recognition of elevated cognitive load periods.
+In addition, we report on the results of experiments to investigate specific parameters and approaches.
+This work was motivated by the need for additional methods for evaluating novel in-vehicle user interfaces to provide effective and safe experiences on the road.
+Poorly designed in-vehicle user interfaces can lead to distracted and potentially unsafe driving.
+Thus, the goal of this work was to evaluate the feasibility and practical considerations of physiological workload detection during nat-
+Workload-adaptive cruise control - A new generation of advanced driver assistance systems.
+Detecting Stress During Real-World Driving Tasks Using Physiological Sensors.
+Peripheral detection as a workload measure in driving: Effects of traffic complexity and route guidance system use in a driving study.
+A decrease in brain activation associated with driving when listening to someone speak.
+Improving human performance in a real operating environment through real-time mental workload detection.
+Real-Time Detection of Driver Cognitive Distraction Using Support Vector Machines.
+Impact of Incremental Increases in Cognitive Workload on Physiological Arousal and Performance in Young Adult Drivers.
+Sensitivity of Physiological Measures for Detecting Systematic Variations in Cognitive Demand From a Working Memory Task: An On-Road Study Across Three Age Groups.
+Mehler, B., Reimer, B., Dusek, J. MIT AgeLab Delayed Digit Recall Task .
+A comparison of heart rate and heart rate variability indices in distinguishing single task driving and driving under secondary cognitive workload.
+Proc Driving Symposium on Human Factors in Driver Assessment, Training & Vehicle Design, , 590-597.
+A Critical View of Driver Behavior Models: What Do We Know, What Should We Do?
+Miyaji, M., Danno, M., Kawanaka, H., and Oguri, K. Driver's cognitive distraction detection using AdaBoost on pattern recognition basis.
+Measurement and analysis methods of heart rate and respiration for use in applied environments.
+National Highway Traffic Safety Admin.
+Traffic Safety Facts: Distracted Driving.
+Adaptive Integrated Driver-Vehicle Interface : Driving performance assessment methods and metrics.
+Psycho-Physical Investigations with the Galvanometer and Pneumograph in Normal and Insane Individuals.
+A Field Study on the Impact of Variations in Short-Term Memory Demands on Drivers' Visual Attention and Driving Performance Across Three Age Groups.
+Reimer, B. and Mehler, B.
+The impact of cognitive workload on physiological arousal in young adult drivers: a field study and simulation validation.
+Saga, K. Histochemical and immunohistochemical markers for human eccrine and apocrine sweat glands: an aid for histopathologic differentiation of sweat gland tumors.
+Salvucci, D.D., Zuber, M., Beregovaia, E., and Markley, D. Distract-R: rapid prototyping and evaluation of invehicle interfaces.
+A Data Set of Real World Driving to Assess Driver Workload.
+Solovey, E.T., et al., Brainput: Enhancing interactive system with streaming fNIRS brain input.
+Age and crosscultural comparison of drivers' cognitive workload and performance in simulated urban driving.
+Stanton, N., & Young, M. Vehicle automation and driving performance.
+Mental challenge elicits "additional" increases in heart rate during low and moderate intensity cycling.
+Physiological workload reactions to increasing levels of task difficulty.
+Effect of road layout and road environment on driving performance, drivers' physiology and road appreciation.
+Malleable attentional resources theory: a new explanation for the effects of mental underload on performance.
+Hedge, K. Brookhuis, E. Salas and H. Hendrick, eds., Handbook of Human Factors and Ergonomics Methods.
+Zander T. O., Kothe C. Towards passive brain- computer interfaces: applying brain-computer interface technology to human-machine systems in general.

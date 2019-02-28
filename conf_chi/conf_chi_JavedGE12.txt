@@ -1,0 +1,320 @@
+The most common techniques for navigating in multiscale visual spaces are pan, zoom, and bird's eye views.
+However, these techniques are often tedious and cumbersome to use, especially when objects of interest are located far apart.
+We present the PolyZoom technique where users progressively build hierarchies of focus regions, stacked on each other such that each subsequent level shows a higher magnification.
+Correlation graphics show the relation between parent and child viewports in the hierarchy.
+To validate the new technique, we compare it to standard navigation techniques in two user studies, one on multiscale visual search and the other on multifocus interaction.
+Results show that PolyZoom performs better than current standard techniques.
+A multiscale visual space has different visual representation depending on the zoom level used to view the space .
+Navigation in such multiscale visual spaces is becoming increasingly important for many everyday tasks.
+For example, Google Maps is essentially a large, two-dimensional, and multiscale geospatial dataset.
+The same could be said about many visualizations, such as zoomable treemaps, large adjacency matrices, or high-resolution scatterplots.
+However, multiscale navigation has been shown to be a difficult problem because of the phenomenon known as desert fog , where the immediate environment in the viewport is devoid of navigational cues due to its multiscale nature.
+For example, in Google Maps, seeing continents on the world map will not help the user in finding a specific park in a city.
+Zooming into the map to search for the target will automatically cause a loss of overview.
+However, maintaining an awareness of the full space is necessary for effectively exploring the space, otherwise the navigation process can easily become tedious .
+We present PolyZoom, a navigation technique for twodimensional multiscale visual spaces that allows users to iteratively build a hierarchy of focus regions, thereby maintaining their awareness of multiple scales of the visual space at the same time .
+Using PolyZoom, users can progressively narrow down the search space by creating regions of increasing magnification into areas of interest on the visual space.
+This allows the user to be aware of the space at different scales, so they can easily backtrack if they make a mistake during the visual exploration.
+In addition to this, PolyZoom also supports multifocus interaction 
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+We have implemented PolyZoom using Adobe Flash.
+The application lets the user to smoothly navigate in a large and multiscale visual space using the PolyZoom technique, as well as using standard pan and zoom.
+Our implementation currently supports four different visual spaces: the Google Maps world map, the NASA Universe dataset, a Lunar dataset, and a Martian dataset.
+The extra spatial awareness provided by PolyZoom comes at the cost of smaller map viewports and suboptimal use of screen space.
+To study the impact of this on visual exploration, we performed two user studies comparing the new technique to standard pan and zoom.
+In the first study, participants were asked to perform a multiscale navigation task that required them to search for a particular target using navigational cues at different levels of scale.
+In the second study, we studied the multifocus capabilities of the technique by asking users to compare potential targets to a specific source object.
+Despite the extra space required for the PolyZoom technique, results from both studies indicate a performance improvement for the new technique.
+Mag --discussed in more detail below--which is an overview+detail technique where the user directly drags a focus region on the visual space to control an associated magnification window.
+In general, overview and detail techniques have been shown to be effective in navigating large spaces .
+However, overview+detail has problems: Overview+detail divides user attention between viewports, and scales poorly to high magnification ratios.
+Focus+context techniques combine a focus region shown in great detail integrated with the surrounding context, typically using distortion.
+Magnifying lenses  and fisheye views  are commonly used focus+context techniques.
+Rubber sheet stretching  is another model of distorting 2D space.
+Despite the benefits achieved through focus+context techniques: Focus+context is unstable , scales poorly to large spaces , and the focus transition is nonintuitive .
+Scrolling is one of the standard techniques for navigating large workspaces, but it can be cumbersome when the space to explore is large.
+Igarashi and Hinckley  proposed a method of speed-dependent automatic zooming  to automatically vary the zoom level depending on the zoom rate.
+Ishak and Feiner presented content-aware scrolling  to vary the direction, speed, and zoom during scrolling based on content properties.
+Despite these improvements: Scrolling has little multiscale capability and requires considerable effort when exploring large 2D workspaces.
+Panning allows users to directly manipulate the position of the viewport on the visual space, while zooming changes the viewport's magnification level .
+Since the original infinitely zoomable canvas proposed in Pad , there has been a large amount of work in this area.
+Furnas and Bederson present the space-scale diagram  as a method for understanding zoom and pan actions as paths through space-scale.
+Multiple studies show that combining zooming and panning is more efficient than only panning .
+However, panning and zooming alone is insufficient: Pan and zoom for a large visual space means giving up either overview or detail, and can be ineffective .
+Overview+detail techniques use multiple windows to present both magnified and bird's eye views of the space.
+The overview window shows the entire workspace while the detail window shows the current focus.
+Hornbaek and Frokjaer  found that overview and detail techniques are easy to use and can outperform pan+zoom and fisheye views for some tasks.
+Of particular interest to our work is Drag-
+Multiscale navigation is defined as spatial navigation in a multiscale visual space, i.e.
+Multiscale representations are important in many domains such as cartography , visualization , and even common documents .
+The original Pad  provided an infinitely zoomable multiscale space, and introduced the concept of semantic zooming for navigating such structures.
+However: Multiscale navigation is difficult due to missing navigational cues at different levels of scale .
+Multifocus interaction  provides a way to simultaneously view and compare multiple regions of interest while exploring large visual spaces such as geographical maps.
+Below we review prior work in this domain.
+Split-screen techniques divide the screen into multiple viewports that each show a portion of the full workspace, and has been adopted for multifocus interaction in the past.
+Shoemaker and Gutwin  combine the splitscreen approach with dynamic focus creation that automatically define focus regions as the interaction points move further apart.
+However, these and other techniques have the following characteristic in common: Split-screen techniques support multifocus awareness, but provide little spatial relations between viewports and generally do not allow for creating cascading viewports.
+Many of the focus+context techniques can also be used for multifocus interaction.
+However, there are issues with such methods: Multifocus+context techniques do not permit creating focus hierarchies, which is needed for multiscale awareness.
+Javed and Elmqvist  propose a multifocus overview+detail technique called stack zooming that lets the user build a cascaded hierarchy of focus regions.
+The technique supports most requirements, however, it has a limitation: Stack zooming is designed for one-dimensional visual spaces , and its adaptation to twodimensional visual spaces  is non-trivial.
+The three main design aspects of PolyZoom are  the layout algorithm, which dictates the positioning of different viewports on the screen;  the viewport size management algorithm, which manages the size of different viewports; and  correlation graphics, which provide explicit linking between parent and child viewports.
+In the following subsections we will discuss each of these in detail.
+The PolyZoom technique was designed for exploring multiscale 2D spaces.
+We summarize our design goals as follows: * Multiscale awareness: Most overview+detail techniques are not effective when navigating large multiscale spaces, since large differences in magnification between overview and detail make navigation impractical.
+We aim to provide awareness of the visual space at multiple scale levels.
+We thus want to support multiple foci.
+We thus want to avoid spatial distortion.
+The PolyZoom technique lets users build focus hierarchies by selecting regions of interest in a viewport, thereby spawning a child viewport at higher magnification.
+This gives the user awareness of multiple levels of scale simultaneously.
+As shown in Figure 2, three focus regions  have been created on the visual canvas.
+Each new viewport forms a parent-child relation where the new viewport becomes the child of the parent viewport in which the selection was made.
+The new viewport can further act as a parent for multiple new viewports by performing the same selection operation.
+For example, in Figure 2, the viewports A and B, children of the main viewport, are the parents of viewports D and E, respectively.
+This parent-child viewport relation provides not only overview at multiple scale levels, but also facilitates backtracking while navigating in a multiscale visual space.
+Our approach of letting users create focus regions that spawn magnification viewports is reminiscent of the DragMag technique , where a magnifying glass metaphor is used to control a zoom window on top of a base window.
+However, PolyZoom takes the basic DragMag concept further by allowing the user to create hierarchies of zoom windows , thereby producing a multiscale navigation technique.
+Furthermore, because PolyZoom also supports creating multiple children for each viewport, it inherently supports multifocus interaction , the capability of comparing multiple focus regions sideby-side.
+For the PolyZoom technique, we aimed for a layout that is easy to understand, allows effective side-by-side comparisons at a given level of the focus hierarchy, and is logical and predictable based on the underlying tree structure.
+Based on these requirements, we use a stack-based algorithm to lay out a focus hierarchy as multiple viewports on the screen.
+This is done by splitting the vertical space so that each consecutive level in the focus hierarchy is allocated a vertical segment, starting with the focus root at the top of the space.
+Next the horizontal space in each segment is divided and allocated as viewports to the focus regions on that level in the hierarchy.
+This layout generates a visual tree structure that makes it easy to relate parent and child viewports, thereby allowing the user to keep track of the context of any focus region all the way to the root of the focus hierarchy.
+Figure 2 shows an example layout where viewports A, B, and C are children of the main viewport, and viewports D and E are the children of viewports A and B, respectively.
+The layout algorithm restricts the vertical positioning of viewports based on the parent-child relation, but makes no assumption on their horizontal positioning.
+This means that focus regions for a level in the hierarchy can be reordered in a vertical segment, e.g., for side-by-side comparison.
+The layout also makes each viewport the same size.
+For most visual spaces, such as for maps and images, the aspect ratio between width and height is fixed.
+This means that no dimension in a focus region should be stretched or squashed.
+This is done by fitting a rectangle of the correct aspect ratio to the selection .
+This is only necessary if the underlying visual space is sensitive to varying aspect ratio.
+Another approach is to restrict the aspect ratio of the focus area during selection.
+Figure 3 shows an example of applying this algorithm.
+Viewports A and E are active.
+Based on the magnification ratio M = 2, the passive viewports are given considerably less space.
+In this example, the vertical sum is 2M + 1  and the horizontal is M + 2 .
+For maintaining the full context of viewports in the focus hierarchy, we want to make the relationship between parent and child viewports explicit.
+Prior work  in this field uses correlation graphics to achieve this.
+We adopted this idea for PolyZoom as follows: * Color-coded selection areas: The selection areas in a viewport are rendered as color-coded and semitransparent rectangles in the viewport the selection was made.
+This makes it easy to identify the extent of selected space that corresponds to a particular viewport in its parent window.
+For example, in Figure 2, three regions A, B, and C have been selected in the main viewport.
+The selection regions are highlighted using three different colors.
+These are helpful in the presence of a large number of viewports, but may cause visual clutter.
+For this reason, we only link the base of a focus region to the top of each child viewport.
+So far we have kept viewport size constant when performing the layout of the focus hierarchy in the visual space.
+However, viewport size plays an important role for the effectiveness of PolyZoom: if viewports become too small as the focus hierarchy grows, it will be difficult to see details in each individual viewport.
+On the other hand, not all viewports are important all the time, and this will change as the user navigates in the visual space.
+Hence, dividing the view space equally among all the viewports is not always optimal.
+As an alternative, we provide an interest-based viewport size management algorithm that dynamically changes the sizes of individual viewports while keeping their aspect ratio constant.
+The algorithm allows users to dynamically flag the viewports that are currently of interest as being active .
+Active viewports are assigned a magnification factor M that captures how much larger an active viewport will be compared to a passive one .
+The algorithm proceeds by finding which of the vertical or horizontal dimensions of the focus hierarchy requires the most amount of space.
+For the vertical axis, this amounts to summing up each level of the hierarchy, where a level has value M if there is at least one active viewport in the level, and 1 if there is none.
+For the horizontal axis, we select the level with the maximum sum, where the sum of a level is computed by counting each active viewport as M , and each passive one as 1.
+Finally, we compare the horizontal and vertical sums and select the maximum as the deciding factor .
+We built a web-based prototype implementation of PolyZoom for multiscale and multifocus navigation in 2D multiscale visual spaces.
+Our implementation supports the Google Maps dataset, NASA Universe, a Lunar dataset, and a Martian dataset.
+Even though our prototype is tailored to these datasets, there is nothing in the technique that prevents it from being implemented for other datasets, such as Bing Maps, DeepZoom1 , or general 2D visual spaces.
+Our implementation  starts with a single main viewport that displays the complete visual space .
+Users can pan and zoom normally in this viewport just like in a normal Google Maps implementation, i.e., using dragging and the mouse wheel or the Google Maps navigation widget.
+In addition to this standard functionality, we also allow users to specify focus regions by left-clicking on the map to start a rubber band rectangular selection, and left-clicking again to finish the selection.
+This creates a new focus region that becomes a child of the main viewport.
+The selected area in the main viewport is drawn as a color-coded and semi-transparent rectangle.
+Furthermore, each viewport can naturally have more than one child.
+The system also supports all three correlation graphics described above to maximize the user's spatial awareness.
+The interaction design of navigating parents and children has different alternatives depending on the application.
+In our implementation, navigating in a child viewport will update the size and position of its corresponding selection region in the parent; analogously, moving the selection area of a child in a parent viewport is the same as panning the child itself.
+A child viewport is specified in relative coordinates to its parent, so panning or zooming a parent will automatically pan or zoom the child a corresponding amount.
+Finally, parents are immutable from the viewpoint of a child, so children viewports are restricted to the bounds of the parent, thereby preventing interaction in one child to affect other siblings.
+We used Navigation Technique T as a factor for both studies: * Standard Pan and Zoom : Navigation in map windows with all of the basic navigation techniques supported by Google Maps.
+Participants were able to create multiple map windows, and had access to the standard Google Maps overview for each window.
+In the context of Pietriga et al.
+On the other hand, Nekrasovski et al.
+PolyZoom provides spatial awareness simultaneously at multiple different levels of scale.
+However, this comes at the cost of reduced viewport size for each individual focus region.
+In addition, as can be seen in some of the figures in this paper, laying out a hierarchy of focus regions with a fixed aspect ratio means that the entire screen cannot be fully utilized.
+In other words, PolyZoom has both potential advantages and disadvantages over the standard pan and zoom operations that are common when navigating in spatial datasets such as Google Maps.
+To better understand these tradeoffs, we performed two user studies comparing PolyZoom to standard pan and zoom interaction.
+Our study designs were influenced by the multiscale search operationalization proposed by Pietriga et al.
+Thus, the first study focused on multiscale search, and required participants to navigate in a hierarchy of visual cues on different levels of scale.
+The second study was aimed at the multifocus aspects, and required participants to compare foci in different locations on the visual space.
+Both studies were performed back to back and with the same participants.
+However, the order of performing a study was balanced between participants.
+In this section, we discuss common aspects of both studies, whereas in subsequent ones, we describe their unique details.
+We used our PolyZoom implementation in Adobe Flash/Flex  as the experimental software using the Google Maps standard dataset.
+This allowed us to use both standard pan and zoom, as provided by the Google Maps API, as well as the PolyZoom technique as discussed above.
+Depending on the Technique factor, we restricted the use of PolyZoom--participants could still pan and zoom using the normal Google Maps user interface in both conditions.
+In Study 2, we asked participants to compare two different regions on the map.
+In a real setting, a user may solve this task using two or more Google Map windows viewed sideby-side.
+To support this strategy, we implemented our map windows for the standard pan and zoom option as internal frames in a multiple document interface .
+We chose a MDI design  so that we were able to instrument the windows for the purpose of control and measurements for the user study.
+For the standard pan and zoom condition, tasks started with a single map window, but participants were able to create additional windows simply by clicking a button.
+Each window supported basic operations such as resizing , bringing to top , and closing .
+Beyond clicking on windows directly, users could switch between windows by clicking on their titles in a taskbar implemented inside our MDI interface.
+Pressing Shift-Tab also cycled between windows.
+For both navigation techniques, viewports could be navigated using all of the basic navigation techniques supported by Google Maps: pan , zoom , navigation widget, etc.
+In the PolyZoom condition, participants could also use the PolyZoom technique as described above, but were not allowed to create multiple windows.
+We recruited 12 participants  from the student population at our university .
+Participants were all self-selected volunteers, had normal or corrected-to-normal vision, were not color blind , and were paid $10 upon completing a full experimental session.
+No particular skills were required other than basic knowledge of operating a computer.
+Upon starting an experimental session, participants were first allocated to a study order .
+For each study, the experiment administrator described the overall task.
+The participant was then assigned to an order of techniques for the study, which we blocked on.
+At the start of each technique block, participants were asked to complete a set of training trials.
+During this training session, the administrator demonstrated how to operate the technique and how to use it to solve the task.
+Participants were then asked to solve training trials on their own.
+They were allowed to ask questions during the training trials .
+Training continued until the participants indicated that they were ready to proceed to the timed trials.
+A trial started when the participant clicked on a button in a dialog box that interleaved each trial.
+This dialog box served as an intermission between trials.
+Clicking on the button started the timer.
+Participants were instructed to complete the task as quickly as possible.
+The means of ending a trial  was different for the two studies: * For Study 1, the trial ended when the user had found and clicked on the red balloon that served as the target.
+At the end of each study, participants were asked to provide comments and to give 5-point Likert scale ratings on how efficient, how easy, and how rewarding the different techniques were to use.
+This would emulate situations where a user knows a little about the target at different zoom levels, e.g., "it is a city near a coast", but several alternatives may have to be pursued to determine which one is correct.
+Starting from the top view , and at each subsequent level in this hierarchy, four visual cues were shown as squares on the visual space.
+The visual cues form a hierarchy, where three of the four visual cues are dead ends, and only one is the correct and contains four new visual cues in turn.
+This parent-child relationship between correct visual cues continues for a given number of levels .
+Inside a visual cue, the squares representing the new visual cues were equally spaced, with a random starting offset, on the periphery of an invisible circle centered in the middle of the space.
+The radius of this circle was equal to one third of the parent cue's width, and the width of a square representing a visual cue is one tenth of the width of the parent.
+Figure 4 gives an overview, and Figure 5 gives an example.
+The cues at different levels of the hierarchy were made visible only when a user is at a zoom level greater than or equal to the zoom level associated with that cue hierarchy level.
+When zooming into a visual cue representing a dead end, the contents of the square would turn a transparent red  to indicate this fact.
+When zooming into a visual cue at the bottom of the hierarchy, the final target--a red balloon--would appear .
+The trial ended  when the participant clicked the balloon.
+To simulate the effect of noticeable change in a multiscale visual space with a change in scale, there was a difference of three zoom levels between two adjacent levels of the cue hierarchy.
+This difference was also sufficient to ensure that at a time, only one of the visual cue at the previous levels of cue hierarchy is visible  and .
+Nevertheless, it should be noted that the visual cue hierarchy is not a complete tree, where dead ends are only unveiled at the bottom level.
+We chose to "short-circuit" incorrect search branches immediately by indicating that they are dead ends as soon as the participant zoomed into the visual cue.
+If we had used a complete tree, PolyZoom would likely benefit because it would offload the participant from having to remember each zoom decision at each node in the tree.
+The choice not to do this was made to keep the comparison fair.
+Because this design was in effect , we also chose not to control for random chance .
+However, we found no significant interaction between T and L. This signifies that there is no difference in how the techniques manage increasing scale.
+Participants were able to create multiple windows in the standard pan and zoom condition, but few did so: only in 10 out of the 144 trials for the S condition did participants create additional windows, and even in those situations, the maximum number of windows ever created was 2.
+Creating a second window is not an advantageous strategy for this task, but the low number of instances this happened means there should be only a very small impact on our results.
+The deeper the hierarchy, the more stress will be placed on the navigation techniques: more zoom stacks in PolyZoom, and more backtracking for standard zoom and pan.
+We organized the trials in blocks based on technique.
+Block order and the order of visual cue hierarchy levels within each block were randomized across participants to counteract learning effects.
+During the experiment we collected the time it took the participants to complete a task.
+Completion times were averaged for the four repetitions.
+Our results confirmed hypothesis H1: participants performed the multiscale search task 6.5% faster using PolyZoom than using standard pan and zoom.
+While the speedup is fairly small, this is nevertheless a significant result given the optimality of pan and zoom as indicated by related work--for example, Pietriga et al.
+The experimental application was maximized on the screen at all times, which meant that both techniques had access to the same, constant amount of display space.
+The explanation for these results is likely that PolyZoom provides more awareness of the visual space than pan and zoom with a single overview.
+Our findings indicate that the impact of viewports becoming successively smaller, as well as suboptimal use of display space, did not decrease performance for PolyZoom, at least not in situations covered in our experiment.
+The solution strategy that users adopted with PolyZoom was interesting and worth describing: for each level in the visual cue hierarchy, the user would create one focus region centered on one of the four visual cues.
+This new viewport would immediately allow the user to determine whether this was a dead end or not, and if it was, the user would simply move the selection area in the parent to the next visual cue.
+In other words, participants only ever had a single viewport open at each zoom level.
+For pan and zoom, on the other hand, the participants were forced to continually pan and zoom the single viewport to focus on each visual cue.
+The question is whether and how these results generalize, and we think there are both qualitative and quantitative answers to this question.
+On a qualitative level, we believe that it is easy to see the usefulness of PolyZoom for general multiscale navigation, and we can foresee the technique being used for even larger and more complex visual spaces than those tested in our experiment.
+We followed common statistical practice to improve the robustness of our completion time data by removing outliers  and averaged between the four repetitions per participants.
+The omitted trials were all above the average, and likely resulted from interface mistakes.
+We then analyzed the completion time measurements using a repeated-measures analysis of variance .
+This constitutes an approximate 6.5% speedup for PolyZoom over standard pan and zoom, which is a small but non-negligible value.
+Completion time was roughly linear with the number of levels in the visual cue hierarchy.
+On the other hand, since PolyZoom keeps every step of the navigation process visible, it is clear that there does exist a limit to how far it will scale .
+However, it should be noted that in our evaluation, the condition L = 5 used the full 23 zoom levels of the Google Maps dataset, which clearly is a large and realistic multiscale visual space.
+We wanted to see whether the ever-shrinking viewports of PolyZoom would actually result in better performance than the multiple window approach.
+The motivation for the task in our second study was to capture situations when a user is trying to compare a particular region in a visual space with a set of candidate regions to find the one that matches.
+For this reason, we designed this task as a multifocus comparison task.
+A trial setup consisted of a source target placed at the center of the visual space, and five potential destination targets arranged with equal spacing on the periphery of a virtual circle centered at the source.
+The source was connected to all destinations by a straight line.
+The task consisted of determining which of the five destination target exactly matches the appearance of the source.
+Figure 8 gives an example.
+Actually determining the appearance of a target--source or destination alike--required navigating to the maximum zoom level in the visual space for the target to be unveiled.
+A target is a 3 x 3 grid of colored balloons where the center balloon is always yellow .
+The colors used were red, green, blue, black, yellow, purple, cyan, and grey.
+The source target has a unique configuration of colors, and one of the destination targets--the actual target--has the exact same configuration.
+All other destination targets have the same color configuration but with two randomly swapped colors.
+This was done to ensure that all destination targets would be similar to the source, precluding matching on just a part of the source's color configuration.
+Completing the trial consisted of finding the actual target and inputing its number  into a text field and clicking a button.
+The target in the center is the source, and the targets at the spokes of the circle are destinations.
+We wanted to counterbalance the impact of random chance in the navigation, so we introduced a factor D for which order the participant would discover the actual target.
+In other words, while we told the participants that the program randomly selected one destination target to be the actual target prior to the participant starting the trial, this was not actually the case.
+Instead, the application counted the number of destination targets as they were unveiled , and made the n:th destination target the actual target.
+With D taking on all values {1, 2, 3, 4, 5}, and with two repetitions, it is easy to see that all participants twice encountered all orderings of when they found the actual target.
+We again organized the trials in blocks by technique.
+Technique order was balanced and discovery orders were randomized to counteract learning effects.
+During the experiment we measured time and correctness.
+To detect guessing, if a participant answered without ever having unveiled the actual target, we counted that as a wrong answer.
+This was also true for the last target, so participants were not able use elimination .
+In fact, our experimental platform made creating new map windows trivial by providing an explicit button for this, whereas in a real window environment you would need to duplicate your browser window to achieve this.
+In other words, we suspect a lightweight technique such as PolyZoom that incorporates multiple viewports may compare even better.
+The reason for PolyZoom performing better than standard pan and zoom is fairly straightforward: PolyZoom not only makes creating multiple viewports easy, but it also provides an explicit correlation between viewports.
+We did not evaluate this latter characteristic in Study 2, but we think it is easy to see that giving the user an awareness of the spatial relation of viewports may be highly useful in many situations.
+It is worth noting that we did not compare PolyZoom against existing multifocus interaction techniques such as spacefolding , multiple fisheyes , or rubber sheet interaction .
+However, none of these techniques support multilevel awareness, and they all rely on visual distortion which is visually unstable and can cause hunting effects .
+While it would be interesting to compare PolyZoom directly to these techniques, we leave this for future work.
+Finally, in terms of generalizing these results, we again give both qualitative and quantitative arguments.
+For a qualitative argument, we believe that PolyZoom will also generalize to other, and potentially more complex, multifocus tasks than the ones studied here.
+For example, our task only involved comparing two regions, but it is easy to see that PolyZoom could be used to compare three, four, or more regions.
+As for the quantitative argument, we again saw no significant interaction between technique and discovery order.
+In other words, participants were not degrading in performance as a function of how late the actual target came in the order of visitation.
+While this will again clearly not scale indefinitely, we still think that it indicates that our results will generalize outside the context of our experimental setup.
+As in Study 1, we removed outliers and calculated the average across all repetitions of a trial.
+We then analyzed the completion times using a repeated-measures analysis of variance .
+The effect was roughly linear, as expected, and the pairwise differences in completion time between orders were significant .
+We found no interaction effects between the two factors T and D, however.
+We analyzed the correctness using logistic regression, but found no significant main or interaction effects of T or D on this metric.
+In general, correctness for Study 2 was high, with more than 90% of all trials being answered correctly.
+For the number of windows, all participants created at least two windows when solving the task .
+This tells us that participants were using an appropriate strategy, i.e., putting one window on the source target and then creating at least one window for comparing destination targets.
+Two was also the most common number, used in 32% of trials.
+These findings are also consistent with our informal observations from the study.
+While both of our studies used the multiscale geographical world maps through Google Maps, none of the actual tasks actually made use of the geographical data itself.
+We used the Google Maps example because it is familiar to our participants, and it also represents the actual state of the art of what people use today when interacting with maps.
+However, as we have already established, PolyZoom can be used for any 2D visual space, not just geographical maps.
+Figure 1 shows a visual exploration session in a Lunar dataset where the user is comparing the different craters on the lunar surface.
+Similarly, we envision applying PolyZoom to a variety of multiscale spaces defined by visualization techniques, including large adjacency matrices, multiscale hierarchies, and multiresolution high-dimensional data.
+Figure 9 shows an example of zooming in the large UIST co-authorship graph created by Henry, Dragicevic, and Fekete .
+Our findings in this paper easily confirm the general utility of PolyZoom for multiscale spaces and we foresee much advances for other datasets.
+T. Igarashi and K. Hinckley.
+Speed-dependent automatic zooming for browsing large documents.
+In Proceedings of the ACM Symposium on User Interface Software and Technology, 139-148, 2000.
+E. W. Ishak and S. Feiner.
+In Proceedings of the ACM Symposium on User Interface Software and Technology, 155-158, 2006.
+W. Javed and N. Elmqvist.
+Stack zooming for multi-focus interaction in time-series data visualization.
+In Proceedings of the IEEE Pacific Visualization Symposium, 33-40, 2010.
+Critical zones in desert fog: Aids to multiscale navigation.
+In Proceedings of the ACM Symposium on User Interface Software and Technology, 97-106, 1998.
+A comparison of four navigation techniques in a 2D browsing task.
+In Proceedings of the ACM Conference on Human Factors in Computing Systems, 282-283, 1995.
+D. Nekrasovski, A. Bodnar, J. McGrenere, F. Guimbreti ere, and T. Munzner.
+An evaluation of pan & zoom and rubber sheet navigation with and without an overview.
+In Proceedings of the ACM Conference on Human Factors in Computing Systems, 11-20, 2006.
+K. Perlin and D. Fox.
+Pad: An alternative approach to the computer interface.
+E. Pietriga and C. Appert.
+Sigma Lenses: Focus-context transitions combining space, time and translucence.
+E. Pietriga, C. Appert, and M. Beaudouin-Lafon.
+Pointing and beyond: an operationalization and preliminary evaluation of multi-scale searching.
+Rose, S. Widoff, and B. Shneiderman.
+In Proceedings of the ACM Conference on Human Factors in Computing Systems, 221-227, 1996.
+Stretching the rubber sheet: A metaphor for visualizing large layouts on small screens.
+In Proceedings of the ACM Symposium on User Interface Software and Technology, 81-91, 1993.
+G. Shoemaker and C. Gutwin.
+Supporting multi-point interaction in visual workspaces.
+In Proceedings of the ACM Conference on Human Factors in Computing Systems, 999-1008, 2007.
+Smooth and efficient zooming and panning.
+In Proceedings of the IEEE Symposium on Information Visualization, 15-22, 2003.
+C. Ware and M. Lewis.
+In Extended Abstracts of the ACM Conference on Human Factors in Computing Systems, 407-408, 1995.
+We have presented PolyZoom, a multiscale and multifocus navigation technique in which users progressively build hierarchies of focus regions that are rendered on the screen simultaneously.
+We have implemented PolyZoom for Google Maps, NASA Universe, and other multiscale datasets, and we use this implementation to compare the technique to pan and zoom in two controlled experiments involving human subjects.
+Our findings show that PolyZoom is superior for both multiscale search as well as multifocus comparison.
+In the future we plan to continue to improve these tasks through interest-based, topology-aware, and semantic methods.
+C. Appert, O. Chapuis, and E. Pietriga.
+In Proceedings of the ACM Conference on Human Factors in Computing Systems, 273-282, 2010.
+M elange: Space folding for multi-focus interaction.
+In Proceedings of the ACM Conference on Human Factors in Computer Systems, 16-23, 1986.
+G. W. Furnas and B.
+In Proceedings of the ACM Conference on Human Factors in Computing Systems, 234-241, 1995.
+Improving focus targeting in interactive fisheye views.
+In Proceedings of the ACM Conference on Human Factors in Computing Systems, 267-274, 2002.
+B. Bederson, and C. Plaisant.
+Navigation patterns and usability of zoomable user interfaces with and without an overview.
+K. Hornbaek and E. Frokjaer.
+Reading of electronic documents: The usability of linear, fisheye, and overview+detail interfaces.
+In Proceedings of the ACM Conference on Human Factors in Computing Systems, 293-300, 2001.

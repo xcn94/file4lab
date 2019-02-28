@@ -1,0 +1,315 @@
+We present PanoInserts: a novel teleconferencing system that uses smartphone cameras to create a surround representation of meeting places.
+We take a static panoramic image of a location into which we insert live videos from smartphones.
+We use a combination of marker- and image-based tracking to position the video inserts within the panorama, and transmit this representation to a remote viewer.
+We conduct a user study comparing our system with fully-panoramic video and conventional webcam video conferencing for two spatial reasoning tasks.
+Results indicate that our system performs comparably with fully-panoramic video, and better than webcam video conferencing in tasks that require an accurate surrounding representation of the remote space.
+We discuss the representational properties and usability of varying video presentations, exploring how they are perceived and how they influence users when performing spatial reasoning tasks.
+Rear-mounted cameras on mobile devices aim to replace or supplement the use of a pointand-shoot camera, while front-mounted and laptop cameras are often used for face-to-face video conferencing.
+Mobile devices have enabled portable video teleconferencing.
+Due to the portable nature of the devices, users may move around their environment and reposition cameras freely.
+In contrast, highly-developed video conferencing systems such as Cisco TelePresence are designed to support group collaboration, and feature multiple cameras and displays to achieve gaze awareness and a sense of space.
+However, such systems require equipment to be installed in a dedicated meeting room and also impose constraints on where participants position themselves to maintain gaze awareness during communication .
+Panoramic video conferencing as presented in  uses omnidirectional cameras such as the PointGrey Research LadyBug3, which capture a surrounding representation of a remote space and the people within.
+The high-end systems described above are both expensive and lack portability, while the ubiquitous webcam-style video chat cannot easily transmit spatial relationships between several people or objects due to cameras typically having narrow fields of view.
+This paper introduces a system that we call "PanoInserts", which aims to support portable spatial video conferencing that lies between these two approaches in terms of both spatiality and accessibility.
+We aim to support meetings and other small-group interactions using only common personal devices communicating over the Internet.
+The system captures and transmits the visual representation of a real-world location and the people within for display to a remote viewer.
+It takes advantage of the pervasiveness of smartphones to create hybrid surround video communication in which a static panorama is augmented with live video inserts.
+As our system uses readily-available personal mobile devices, it can be rapidly configured and initiated, and lends itself to ad-hoc and spontaneous telecollaboration scenarios.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+To outline the system's typical usage, imagine a typical videoconferencing session in which a group of people  in one city would like to have a technical discussion with a colleague located in another city .
+In the minutes prior to the conferencing session, one of the locals captures a panorama of the meeting room using built-in software on their smartphone.
+Subsequently, each local places their own smartphone in front of them so that its front camera points towards their seated position and the rear camera points at a marker .
+The visitor receives the live video streams from all locals' smartphones registered on the captured panorama.
+The visitor receives a surrounding representation of the meeting space, and hence can see the locals' seating arrangement and where each person is looking.
+During the discussion, the visitor asks the locals to draw a diagram to clarify some technical details.
+One of the locals repositions her phone to point at a white-board located in the meeting room and walks over to draw the diagram.
+The video-feed from the moving smartphone camera is tracked and re-registered within the panorama to present a live view of the white-board.
+Meanwhile, one of the still-seated local explains the diagram.
+The visitor can see both points of interest in the transmitted panoramic representation of the room.
+The remainder of the paper is structured as follows.
+We cover related work including spatiality in video-mediated communication, panorama construction, and image alignment.
+We then detail the technical implementation of our system, including camera tracking, image registration, and rendering.
+Our novel approach makes use of commonly-available devices to achieve surrounding video conferencing for small-group interaction.
+We then present a user study addressing the fundamental implications for spatial perception over three video display modes: webcam, fully-panoramic, and our system.
+We show that PanoInserts provides a good compromise in terms of both spatiality and accessibility between expensive fully-panoramic video and conventional webcam conferencing.
+Finally, we discuss implications and design considerations for varying spatial forms of video conferencing, exploring how they are perceived and how they influence users when performing spatial reasoning tasks.
+There have also been several novel mixed-reality approaches including  that have demonstrated the importance of supporting spatial cues in telecommunication.
+Panoramas offer a mode of video-mediated communication that can potentially foster a high-degree of spatial awareness.
+A surrounding representation of a remote space and the people within such as presented in  may overcome limitations associated with narrow field-of-view cameras.
+Panoramic cameras, also referred to as omnidirectional, such as the PointGrey Research Ladybug3 provide high-quality images with good sampling over the full panorama.
+Such cameras typically assume simple cylinder, sphere or cube proxy geometry for the scene, onto which all video is projected.
+Alternatives, providing lower and more uneven spatial resolution, are catadioptric systems or wide angle `fish-eye' lenses and a single camera.
+Commercial systems for teleconferencing using such lenses include the Polycom CX5000.
+To augment the relatively low panoramic resolution, these systems can be augmented with scenario-specific video inserts .
+As a basis for video-mediated communication, panoramas have not been thoroughly investigated from an HCI perspective.
+Users achieved higher task performance using a simple frontal rectangular representation than a faithful  representation when performing this specific task.
+Our user study assesses the fundamental benefit and usability of panoramic display for telecollaboration by comparing three classes of capture featuring varying degrees of spatiality.
+Spatiality in mediated communication is the degree to which a system supports fundamental properties such as movement, distance, containment, topology and a shared frame of reference such as a Cartesian coordinate system .
+A telecommunications medium supporting a high-degree of spatiality, for example collaborative immersive virtual environments, presents a shared space in which all users observe, from their perspective, the same extents, relative positions, and orientations .
+Practically, this implies that spatial cues such as gesture and gaze can be both performed and observed similarly to as they can be in reality.
+In contrast, webcam video conferencing presents portions of physical space that can constrain these spatial cues thereby hindering spatial perception and limiting gaze awareness .
+Panoramas are an attractive basis for videoconferencing as they provide a full 360 view of an environment in a single image.
+There are two main classes of methods to construct a panorama.
+The first class is based on special hardware, and includes solutions based on well-calibrated cameras  or special camera and mirror arrangements .
+The second class is based on image-based algorithms, and includes registration of multiple videos  or stitching of overlapping still images .
+While the first class of methods provides a fast and reliable solution to construct panoramas, its accessibility is limited by the high costs of the hardware.
+Image-based methods offer an accessible solution to construct panoramas that can be easily employed on a vast range of devices, including mobile phones.
+For this reason we decided to employ an image-based algorithm for constructing the static panoramas to be used in PanoInserts.
+Image-based construction of panoramic imagery generally follows a two-step process.
+First, the arrangement of images to cover the panorama is discovered.
+Finding the arrangement of images is usually pairwise solved, by either direct or feature-based methods.
+Direct methods, such as the one proposed by Suen et al.
+In the meeting room, the smartphone on the left is performing marker-based camera tracking and transmission of both camera pose and video, while the smartphone on the right is streaming only video.
+Both videos are overlaid onto the previously captured static panorama of the meeting room.
+Detection of scale- and viewpoint-independent image features is a powerful tool to match information across images in order to find correspondences .
+In general, for a pair of images taken from partially-overlapping viewpoints, affineinvariant feature descriptors such as the Scale-Invariant Feature Transform  descriptor  can be used to estimate a transformation that maps one view to the other.
+SIFT is effective for image registration and stitching .
+However, feature correspondence is usually an ambiguous, error-prone task, and therefore robust statistical techniques such as the least median of squares  algorithm  or the random sample consensus  refinement  are used to reject erroneous matches across images and to reduce the probability of estimating erroneous transformations.
+We use SIFT and RANSAC in our system implementation to align the live video streams to a static panorama.
+Feature-based methods  use a sparse set of features to find correspondences between two images, from which they compute a transformation of image coordinates between the two views.
+Subsequently, images are combined to recover the final mosaic.
+The combination phase may include correcting for variations in lighting, color balance, and exposure.
+These techniques are readily available on smartphones.
+PanoInserts dynamically aligns video streams within a static panorama.
+Such image alignment can be achieved through a range of techniques including direct methods and feature correspondences, see  for a review.
+Direct methods search over the space of possible transformations between image coordinates to find the minimum pixel-to-pixel dissimilarities between the two images.
+Feature-based methods use a sparse set of image features locations to find correspondences between the two images and then compute a transformation of image coordinates between the two.
+Our system design is motivated by the goals of accessibility and practicality.
+The system should be accessible in the sense that a meeting place should not require cumbersome tracking equipment, cameras, or dedicated networks.
+Rather, the required hardware should be commonly available smartphones and computers connected to the Internet.
+The system should be practical, meaning that it should be configurable in less than five minutes and should be dynamically reconfigurable during use.
+This implies that users are able to connect, disconnect and reposition smartphones during the session.
+Allowing repositioning is particularly useful in situations where people are moving around the environment or when there are fewer available cameras than there are potential points of interest.
+We use the video acquired from mobile phone cameras to transmit and dynamically insert views of the remote location within a static panorama.
+Our system comprises of three main modules: camera tracking, transmission and display.
+Figure 2 illustrates an overview of the system.
+The receiver side is responsible for computing an accurate feature-based camera tracking and receiving, integrating and displaying together multiple videos from multiple cameras.
+In addition to this, our system requires a preliminary stage for acquisition of panoramas.
+This additional step can be performed by using any desired software, including additional software running directly on the phone.
+The receiver-side software runs on PCs running Windows XP or higher, and uses the OpenFrameworks framework , which uses OpenGL for rendering.
+Finally, for the feature-based camera tracking we employed OpenCV and the SiftGPU package , a GPU implementation of the SIFT algorithm.
+Many tools exist to assist in the construction of panoramas.
+While PanoInserts does not constrain the construction to any specific technique, it assumes that the panorama is available as a cube map, for display purposes.
+This, however, is not a limitation of the system, as conversion between panorama types can be easily performed.
+For the example scene shown in this paper, as well as for the user study we run with the system, we used a cube-map with six faces each 2048x2048 in resolution .
+The panorama was assembled from 36 images captured with a Nikon D200 camera.
+These were stitched together using the PTGui software and exported as a cube-map.
+Ideally, we would like to track the cameras solely by registering the images captured against the panorama, as this would allow the users in the environment to have full control over the cameras.
+However, there are several barriers in doing this.
+First of all, our panoramas are only roughly accurate: furniture and other objects might move or the lighting might change.
+Third, our scenes contain moving humans and other objects that move and change appearance .
+In addition to this, we note that the quality of video available on mobile phones is usually low: under motion, the image is blurred and focusing and exposure balancing are slow.
+Whilst some of these issues could be tackled by integrating other forms of camera tracking such as built in accelerometer and gyroscopic data, this is not a robust option over long periods.
+Such solutions tend to accumulate large tracking error over time.
+Instead, we decided to employ a marker based camera tracking that computes a gross camera pose estimation.
+Such estimation is enough to initially display the video frames in their correct location, with a relatively small error, and can be computed at interactive rates .
+We exploit the fact that recent phones, such as the iPhone 4, have two cameras.
+This allows us to stream the video to augment the panorama from the front  camera, and to track the marker using the rear-side camera.
+We decided to employ the front camera video for the streaming so that the users can see the video that is being transmitted.
+Our system only requires a single marker in the environment, placed roughly in the center of the remote location .
+It is important to note that placing the marker roughly in the center of the remote location ensures that all the cameras that can see the marker roughly share an optical center.
+If the marker is also at the center of the panorama, then this guarantees that all the cameras will fit to the panorama.
+The system relies on two tracking approaches to ensure that the camera frame is displayed correctly within the panorama.
+The system's preferred choice of tracking is a feature-based tracker that is run on the receiver.
+This approach is used when enough image features can be extracted from the video streams.
+The other approach is based on a single marker, and it is used during the system setup or when the more accurate feature-based tracker fails .
+Our system supports both automatic and manual selection of the tracking type.
+Users can either manually switch between tracking techniques by touching the screen, or have the system automatically choose the best tracking solution.
+This step effectively means registering the camera image to the relevant face of the cube-map.
+The registration requires the estimation of a homography that maps the video frame into the face of the cube-map that has most overlap.
+To find this homography, we robustly estimate the features matching within two views employing SIFT features and RANSAC refinement.
+We opted for SIFT descriptors as they are independent to different geometric transformations , they are invariant to uniform scaling and orientation, and they also provide a very robust match across a large range of additional of noise and change in illumination.
+When setting up the system, we pre-calculate and store SIFT descriptors for each of the six cube-map faces.
+As a new video image is received, from the last rough camera position given by the marker tracking we can filter out some of these SIFT descriptors from consideration to help removing false matches due to room symmetry and repeating elements.
+We then extract the features from the received frame and calculate the number of matches of these features against the filtered sets for all six cube-map faces.
+We take the face with the largest number of matches and refine the corresponding matches using the RANSAC algorithm.
+Since RANSAC could excessively reduce the data set, we try to ensure a sufficient number of matches  by incrementing the acceptance error threshold in RANSAC until the criterion is met or the error threshold becomes too large.
+Finally, the parameters of the mapping homography H are evaluated from the robust point matching set.
+Because registration can fail in featureless areas, we check that the homography is reasonable .
+For videos where registration fails , we fall back to using the position given by the marker tracking.
+If the received packet contains the marker-based estimate of the camera pose and a video frame, then the renderer displays the video inset using a projective texture based on the camera position returned by the marker tracking.
+The texture is projected on the six faces of the cube-map, and it is applied to a camera volume which is shaped by the intrinsic parameters of the smartphone's front camera .
+If the receiver receives only a video frame, then the feature-based camera tracking needs to be performed to estimate the camera position.
+When this is done, the renderer applies the incoming video as texture of an extended plane that coincides with the face of the cube-map that is selected by the SIFT matching process.
+The estimated homography is converted into a texture coordinate matrix, and this plane is rendered with the video textured on it over the original texture from the static panorama.
+To obtain visually pleasant video overlay, the incoming video texture is blended into the panorama using alpha blending around the borders of the video texture.
+Furthermore, as the color balance of the smartphone's front camera might be noticeably different from the camera used to captured the panorama images, we ensured the white balance was the same by computing beforehand an overall static color balance correction using example images .
+The transmission module is responsible to transmit markerbased camera poses and video streams, from the sender to the receiver.
+This information is not necessary streamed together, and a packet can contain camera pose only, video only, or a combination of the two.
+Transmission is performed over UDP.
+In the current implementation, video is read at 480x360 resolution, using JPEG encoding for each frame.
+Each video packet, sent at a rate of 10 Hz using a shared wireless 802.11g network, is typically 5-30KB, and thus within the capacity of a single UDP packet.
+On the receiving side, the system receives a number of input video sequences and corresponding estimates of the camera pose relative to the panorama.
+This information is then used by the receiver to correctly display the various video streams within the static panorama.
+The renderer integrates multiple videos from multiple cameras, displaying them in a 3D scene with the panoramic image as background .
+As the renderer operates on the information received from the sender, the rendering varies depending on the type of packet received and is computed for each camera separately.
+Our user study aimed to assess the extent to which viewers are able to perceive and act on varying video modes over two spatial visualization tasks.
+We compare our system with webcam and panoramic video, which, theoretically, display less and more spatial information, respectively.
+To be consistent with the webcam condition that features the usual single camera, we test our system with only a single smartphone.
+For both webcam and PanoInserts conditions, we used the iPhone 4 front-facing camera in portrait mode to capture and transmit video.
+While our system is able to support several smartphones running in parallel to populate a static panorama with dynamic inserts, it is critical to assess the quality of our fundamental approach without being diverted into assessing how this may change as the number of dynamic inserts increases.
+We reserve this for future work.
+We used a PointGrey Research Ladybug3 camera for the panoramic condition.
+In both tasks, the participants viewed a remote meeting room featuring a "horseshoe-shaped" table arrangement surrounding a central table on which the appropriate camera could be positioned .
+All the cameras were initially facing the center of the room.
+Both tasks involved object placement: either placing virtual objects to match the locations of real objects as perceived from the video stimuli, or the reverse of this, which is instructing a confederate to place real objects as seen through video stimuli to match the locations of virtual objects.
+The set of objects consisted of typical things one may find in an office or at home, and varied in size from 10cm3 -50cm3 , and in color and shape.
+The first task required participants to view a remote meeting room in which thirteen objects were positioned on tables around the room.
+Participants were required to determine where these objects were positioned in the room, and to use an interactive virtual model of the room to position the objects' virtual counterparts accordingly.
+At the beginning of the experiment, the virtual objects were located at the center of the virtual model shown in Figure 6.
+The virtual objects could be repositioned by dragging-anddropping using the mouse.
+As the angular separation between the leftmost and rightmost objects was approximately 180 , participants in both the webcam and PanoInserts modes required the 30 camera to be rotated during the task to reveal different areas of the room.
+Hence, in these two conditions, participants could instruct a confederate located at the remote meeting room to rotate the camera.
+The second task reversed the real-to-virtual object placement done in the first task, and required participants to match the positions of real objects in the meeting room with those presented in the same virtual model as used in the first task.
+Participants viewed a non-interactive virtual model of the remote meeting room in which the same thirteen objects were positioned  as shown in Figure 6.
+Participants instructed a confederate at the meeting room to place objects to match the virtual layout.
+To minimize the influence of the confederate's behavior, they could only follow direct instruction from the participant such as, "place the object half-way along the table directly behind you", and could not help in any other way.
+The confederate strictly and literally followed such directions given by the participant with minimal verbal interaction.
+These two tasks intended to explore the accuracy with which participants can correctly obtain a spatial understanding of a remote environment over the three modes.
+In both tasks, we measured object placement error, task completion time and, in the webcam and PanoInserts conditions, requested camera movements.
+After the participant had finished each task, we measured the positional  error of either the virtual objects as placed by the participant in the virtual room , or the real objects as placed by the confederate as per the participant's instructions in the real room .
+Following the experiment, participants completed the standard System Usability Scale  questionnaire, which gathered subjective assessments of usability of the three systems, for the full set of questions, please refer to Brooke .
+For both tasks, we expected task performance to vary according to the spatial information each mode theoretically preserves.
+Hence, we expected participants using the panoramic video mode to be able to both place objects  and instruct objects to be placed  more accurately than participants using PanoInserts.
+In turn, we expected participants using PanoInserts to be more accurate than those in the webcam condition.
+Regarding number of camera movements, we expected the participants using PanoInserts to require fewer than those in the webcam condition due to the presence of the static panorama background.
+Note that the panoramic condition requires zero camera moves as the whole panorama is dynamic.
+Regarding task completion time, we expected participants using panoramic video mode would require the least time than those in the other two conditions.
+Our expectancy of the usability scores as measured by the SUS questionnaire were less clear, as the panoramic representations of space as presented by both PanoInserts and the panoramic systems may be unfamiliar to participants and take some acclimatization that may influence the scores.
+We did expect, however, that all three video modes would be ranked reasonably highly in terms of overall usability.
+Participants performed both experimental tasks in a single video mode, so the experiment featured a between-subjects design in terms of the independent condition of video mode, and a within-subjects design in terms of task.
+A total of 36 unpaid participants took part , and we alternated the order in which the two tasks were performed to minimize the influence of learning effects.
+Participants were recruited from the staff and student population at our university.
+Some participants had previously been in the meeting room used in our experiment.
+So, to ensure all participants had similar prior knowledge of the remote environment, we gave each as much time as they liked in order to walk around the room and become acquainted with the space.
+The participant was then brought into the lab where he/she was presented with two workstations: one displaying the video-mediated representation of the room in one of the three video modes , and the other displaying the virtual representation of the room.
+Objects were arranged in both real and virtual environments to the appropriate starting arrangement depending on which task was to be performed first.
+The participant was briefed on the appropriate task and on how he/she may instruct the confederate to move the camera in the webcam and PanoInserts condition and also to pick up and place objects if they were performing the real object placement task.
+Following completion of the task, the object placement errors along with time taken and number of camera moves  were recorded.
+The room was then rearranged for the remaining task.
+The participant was briefed on the remaining task which they would then carry out, and data recording was subsequently performed.
+Finally the participant completed the SUS questionnaire.
+Post-hoc Tukey tests revealed non-significant differences between the panoramic and PanoInserts conditions , and significant differences between the webcam and panoramic conditions .
+A main effect was found between PanoInserts and webcam conditions .
+We now focus on the task in which participants were required to instruct a confederate to place objects in the real environment to match the virtual environment's arrangement while viewing the meeting room using one of the three video modes.
+Similarly, we calculated an Analysis of Variance  using SPSS with the two factors of video mode and object and the dependent variable of placement error.
+Post-hoc Tukey tests again revealed non-significant differences between the panoramic and PanoInserts conditions , and significant differences between the webcam and panoramic conditions .
+However, no main effect was found between PanoInserts and webcam conditions .
+Figure 8 shows the mean error and standard deviation of object placement error for both tasks.
+We first address the task in which participants were required to place objects in the virtual environment to match the real environment's arrangement while viewing the meeting room using one of the three video modes.
+Table 1 reports the mean time to complete each task in each video mode.
+We first analyze the virtual object placement task.
+We computed an Analysis of Variance  using SPSS with the single factor of video mode and the dependent variable of total time to complete the task.
+We now address the real object placement task.
+Similarly, we calculated an Analysis of Variance  using SPSS with the single factor of video mode and the dependent variable of total time to complete the task.
+We note that there is a large variance between participants, and we briefed participants to complete the tasks with object placement accuracy in mind as opposed to speed.
+For the PanoInserts and webcam conditions we also collected the total number of camera moves required by each participant while completing the two tasks.
+Table 1 reports the mean number of camera moves for each mode.
+Regarding the virtual object placement task, we calculated an Analysis of Variance  using SPSS with the single factor of video mode and the dependent variable of number of camera moves requested by the participant to complete the task.
+Focusing on the real object placement task, an ANOVA also did not uncover a significant different between conditions  = 0.542, p = 0.470.
+Finally, for both webcam and PanoInserts conditions we computed the correlation coefficient r between the participants' requested camera moves and the participants' mean error.
+A moderate negative correlation was found for PanoInserts in both the virtual object placement task  and the real object placement task .
+However, for the webcam condition the correlation coefficient reveals a weak positive correlation for both the virtual object placement task  and the real object placement task .
+Implications of these results are discussed in the next section.
+The same does not apply to the 2D video case, as its correlation coefficients reveal a weak positive correlation for the virtual object placement task.
+This suggests that participants could apply the additional spatial information presented in PanoInserts to improve their spatial reasoning ability of the remote location.
+Concerning the time to complete the tasks, PanoInserts' users systematically required more time to ultimate their tasks.
+This can be justified by the fact that the system performances was influenced by switching the camera tracking mode, which we will refine in future versions of the system.
+Placement accuracy differed in between the two tasks, with the virtual object placement task resulting in a relatively smaller error and standard deviation than the real object placement task.
+While the two tasks were complementary and both relied on spatial reasoning, they differed in some key aspects.
+When positioning virtual objects to match those viewed in the physical space, participants observed a visual representation of the real objects spread over the tables in the room from a perspective similar to being in the room.
+This embedded additional spatial cues in the video stimuli, provided by the objects' relative locations and the camera's viewpoint.
+This resulted in some participants instructing the confederate to move the camera "in between" certain objects, effectively restricting placement error to greater extent than in the real object placement task.
+Contrastingly, in the task requiring positioning of real objects to match those in the virtual space, participants were presented with a top-down virtual reference representation from which to work from that was more similar to the perspective of a CCTV camera than it is to being in the room.
+So, participants could use only environmental cues to estimate where an object should be placed.
+They could also use objects that they had just placed, but error could accumulate.
+This allowed more room for incorrect placement.
+Hence, the two tasks presented qualitatively different reference stimuli from which the task of positioning objects is then required to be carried out.
+The accuracy results shown in Figure 8 show that participants found the real object placement task more difficult than the virtual object placement.
+Exploring the impact of task further, we calculated three post-analysis single-factor ANOVAs using task as factor, and data from a single video mode.
+Significant differences were found between tasks in panoramic  and PanoInserts  conditions, but not in the webcam condition , where the real object placement task actually attained slightly greater accuracy.
+We note, then, that participants found the conversion between a person-perspective view to a top-down representation  easier than they found the reverse.
+However this depends on the spatial richness of the stimuli, and does not hold if the spatial nature of the perspective view is impoverished as in the webcam condition.
+We now further explore the differing spatial representations offered by the three video modes.
+Following the experiment, each participant completed the standard System Usability Scale  questionnaire.
+All modes obtained positive results, with the webcam condition obtaining the best score , followed by the panoramic  and PanoInserts  conditions.
+Based on these results, and following the analysis technique suggested in , the webcam system can be classified as Rank A system , while both PanoInserts and the panoramic mode can be classified as Rank B systems.
+The results from our user study reveal information into the way participants were able to spatially perceive and act on information presented in the varying video modes.
+In both tasks, panoramic video and PanoInserts enabled greater accuracy than webcam video when positioning objects.
+This finding is in accord with each video mode's relative degree of spatiality as hypothesized, and suggests that both fully- and partially-dynamic panoramic representations of space can encode information that people can intuitively understand and act upon.
+Exploring the number of camera moves participants performed reveals information about how participants went about completing the tasks.
+As the panoramic condition did not require camera movement, here we discuss only the webcam and PanoInserts conditions.
+While not found statistically significant in our analysis, participants in the PanoInserts condition performed fewer camera movements than those in the webcam condition .
+A moderate negative correlation between camera moves and mean error was also noted for PanoInserts, but not for the webcam mode.
+When displayed on a standard flat display, panoramas represent a surrounding environment in a way that is often not intuitively clear, and differs considerably from how we visually perceive space in normal life.
+Panoramas present space at a greater field-of-view than the human visual system does, so the viewer has to cognitively translate that representation before understanding it.
+On the contrary, conventional webcam video presents space with a field-of-view that is less than human vision, so is directly intuitive for the viewer.
+While our experimental results show that people can understand the panoramic content and use it to complete the tasks efficiently, there are likely to be better ways of presenting it.
+In the future, we intend to explore both hardware and software approaches to this problem.
+Displays such as Global Imagination's spherical Magic Planet or immersive projection technologies such as the CAVETM or head-mounted displays are able to complement the acquisition technology and present panoramic content in a way that preserves its surrounding nature.
+Software approaches to enable clearer representation of the spatial mapping between panorama and environment may be achieved through visually-correcting interesting portions of the panorama through perhaps a "pop-out" metaphor, or by presenting the entire panorama in a virtual environment as seen in .
+As stated previously, participants visited the experimental meeting room prior to the experiment, and were also presented with the virtual model during experiment, helping them to form an idea of the spatial layout of the room.
+During the experiment, participants were required to translate between a top-down virtual model of the room and a first-person perspective video representation of the room.
+These two visualizations present space differently.
+Specifically, the distortion present in the video modes varies across the image, so that the screenspace distance between two pixels in the video that map to two points in the physical room may not be equal to the distance of another two other points in the room of equal physical distance.
+This depends on the distance of the objects to the camera, and is due to camera foreshortening, which usually results in more error around the corners of a camera view.
+We assessed the influence of object position post-hoc, and present Figure 9.
+The plots visualize the horseshoe-shaped table in the experimental room, and encode mean object placement error and error variance as a heat-map.
+Both error and error variance is seen to vary across the environment, with the greatest readings localized around upper-right corner and left side of the tables.
+The varying visual distortion inherent in video is likely to influence object placement accuracy around the 180 range.
+The error variance across objects  is noticeably larger for the webcam condition than the other two conditions, suggesting that participants using it were performing the spatial reasoning task based on poorer information and were less accurate as a result.
+All the three systems obtained a high SUS scores, with participants rating the webcam mode highest , followed by panoramic  and PanoInserts  modes.
+The webcam system's higher score is likely due to its familiarity with participants.
+Also regarding usability, it was interesting to observe how participants went about the tasks in each condition.
+Participants in the webcam condition often required an initial camera rotation from one corner to the room to the other, indicating that they were unsure as to where the camera was facing in the room.
+Also, several participants in the webcam condition became confused with regards to which direction they needed to rotate the camera in order to see a different part of the room, which may indicate difficulty in self-localization in the remote location.
+These observations are supported by some of the post-experimental comments recorded.
+The majority of participants that experienced PanoInserts considered the static panorama to be a valuable resource providing spatial information about camera heading and object location.
+We have presented PanoInserts, a system allowing users to rapidly assemble a set of cameras to generate a panorama with live inserts for use in teleconferencing applications.
+Results indicate that our system performs comparably with fully-panoramic video, and better than webcam video conferencing in tasks that require a surrounding representation of the remote space.
+This suggests that our approach lies between fully-panoramic and webcam-based video both in terms of its technical characteristics and device accessibility, and also in terms of the richness of the conveyed spatial information that users can demonstrably understand and act upon.
+We have discussed issues relating to the problematic visual perception of panoramas due to varying distortion according to depth, and we intend to investigate methods for displaying panoramic content in a visually-intuitive manner.
+We will also extend the system to support bidirectional communication and groups at more than two locations.
+We will also extend the system to work in highly-dynamic environments such as outdoors, which will require enhanced camera tracking and video stabilisation as well as directly using panoramic cube-maps retrieved from online map data.
+Finally, we will investigate further modes of panoramic telecommunication in scenarios featuring more complex and unpredictable social interaction.
+Hauber, J., Regenbrecht, H., Billinghurst, M., and Cockburn, A. Spatiality in videoconferencing: trade-offs between efficiency and social presence.
+An immersive 3d video-conferencing system using shared virtual team user environments.
+In Proceedings of the 4th international conference on Collaborative virtual environments, ACM , 105-112.
+The factor structure of the system usability scale.
+Automatic image stitching using SIFT.
+Lowe, D. Distinctive image features from scale-invariant keypoints.
+Majumder, A., Seales, W. B., Gopi, M., and Fuchs, H. Immersive teleconferencing: a new algorithm to generate seamless panoramic video imagery.
+Mikolajczyk, K., and Schmid, C. Scale and affine invariant interest point detectors.
+Mulloni, A., Seichter, H., D unser, A., Baudisch, P., and Schmalstieg, D. 360 degrees: panoramic overviews for location-based services.
+Least median of squares regression.
+Viewing meeting captured by an omni-directional camera.
+In Proceedings of the SIGCHI Conference on Human Factors in Computing Systems, ACM , 450-457.
+Schaffalitzky, F., and Zisserman, A. Multi-view matching for unordered image sets, or "how do i organize my holiday snaps?".
+Steedly, D., Pal, C., and Szeliski, R. Efficiently registering video into panoramic mosaics.
+In Proceedings of the International Conference on Computer Vision, vol.
+Steptoe, W., Normand, J.-M., Oyekoya, O., Pece, F., Giannopoulos, E., Tecchia, F., Steed, A., and Slater, M. Acting rehearsal in collaborative multimodal mixed reality environments.
+Suen, S. T., Lam, E. Y., and Wong, K. K. Photographic stitching with optimized object and color matching based on image derivatives.
+Szeliski, R. Image mosaicing for tele-reality applications.
+In Proceedings of the IEEE Workshop on Applications of Computer Vision , 44-53.
+Szeliski, R. Image alignment and stitching: a tutorial.
+Creating full view panoramic image mosaics and environment maps.
+In Proceedings of the Annual Conference on Computer Graphics and Interactive Techniques, ACM Press/Addison-Wesley Publishing Co. , 251-258.
+Vertegaal, R., Weevers, I., Sohn, C., and Cheung, C. GAZE-2: conveying eye contact in group video conferencing using eye-controlled camera direction.
+Wagner, D., Mulloni, A., Langlotz, T., and Schmalstieg, D. Real-time panoramic mapping and tracking on mobile phones.
+Wu, C. SiftGPU: A GPU implementation of scale invariant feature transform .
+Benford, S., Brown, C., Reynard, G., and Greenhalgh, C. Shared spaces: transportation, artificiality, and spatiality.
+Understanding and constructing shared spaces with mixed-reality boundaries.
+Billinghurst, M., Poupyrev, I., Kato, H., and May, R. Mixing realities in shared space: An augmented reality interface for collaborative computing.
+2000 IEEE International Conference on, vol.
+Brooke, J. SUS: A quick and dirty usability scale.
+In Usability evaluation in industry, P. W. Jordan, B. Weerdmeester, A. Thomas, and I. L. Mclelland, Eds.
+Brown, M., and Lowe, D. G. Recognising panoramas.
+In Proceedings of the IEEE International Conference on Computer Vision, vol.
+Chen, M. Leveraging the asymmetric sensitivity of eye contact for videoconference.
+In Proceedings of the SIGCHI conference on Human factors in computing systems: Changing our world, changing ourselves, ACM , 49-56.
+Diverdi, S., Withert, J., and Hllerert, T. Envisor: Online environment map construction for mixed reality.
+In Proceedings of IEEE VR Conference .
+Fiala, M., Green, D., and Roth, G. A panoramic video and acoustic beamforming sensor for videoconferencing.
+In Haptic, Audio and Visual Environments and Their Applications , 47-52.
+Fischler, M. A., and Bolles, R. C. Random sample consensus: a paradigm for model fitting with applications to image analysis and automated cartography.

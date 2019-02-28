@@ -1,0 +1,194 @@
+We present MultiNet, a novel method for securely associating devices with a domestic wireless network.
+We show that MultiNet has usability benefits over currently deployed commercial solutions while being backwards compatible with existing devices.
+MultiNet reduces the interaction overhead of secure association by focusing on users' interactions rather than the network's requirements.
+This leads to a novel architectural arrangement of the home network infrastructure: the network is dynamically re-configured to accept each preconfigured device, rather than the current norm where each device is configured to be acceptable to the pre-configured network.
+Assuming devices are pre-configured for a unique, device-specific network name and passphrase, MultiNet constructs an out-of-band visual channel via an intermediary network controller device to convey the device's configuration to the network.
+This makes the interaction to join a device to the wireless network lightweight and identical across all devices, considerably reducing the interaction overheads for users.
+Protocol  , and provides a secure channel between each device and the AP.
+These protocols have their roots in corporate/enterprise environments which are quite different from home wireless networks.
+This is reflected in their design goals  and assumptions about users  that are not directly appropriate for the home network.
+Home networks are typically small in size, supporting between 5 and 20 devices, with network elements physically accessible.
+Home network infrastructure is predominantly self-managed by residents who are not typically expert in networking technology and have no motivation to become expert.
+The heterogeneity of devices connecting to the network is also startling: a single household might have PCs, games consoles, phones, printers, cameras, televisions and media players.
+Inherent in traditional Internet Protocols  is an "end-toend approach" where the network core is simple and stable, and it is presumed that clients will be configured to fit the network.
+The diversity of network-connected devices in today's homes makes this presumption problematic: these devices vary widely in complexity, capabilities and interaction styles .
+Each device offers quite idiosyncratic means of configuring network properties to allow them to join the network.
+Recent trends towards Wi-Fi enabled domestic devices, such as sensors, web cams and bathroom scales which have limited interaction capabilities further exacerbates the problem.
+Consider, for example the challenge involved adding a devices such as a bathroom scale or printer that simply do not provide either a keyboard or screen to your network.
+The net result is that many users experience considerable difficulty configuring, managing and expanding their home networks .
+In the case of wireless networks users often relax the network's security to reduce the management burden .
+For example, a warbiking exercise by Sophos in September 2012 found 27% of London Wi-Fi networks remained unsecured.2 The challenge we address is twofold.
+First, how to enable the construction of secure wireless networks while reducing the interaction overhead involved in adding devices, secondly how to create a system that enables the simple revocation of access to devices.
+Home networks are now commonplace in the developed world.
+Households typically make a broadband connection accessible throughout the dwelling by providing a home 802.11 wireless  network via access point  functionality built into the home router.
+Wireless networks are secured by associating devices1 with the network using the 802.11i standard.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Traditional approaches have the user undertake the burden of configuring devices to fit the network and have no easy means of revocation.
+In contrast, MultiNet reconfigures the network to meet the needs of devices.
+We exploit the physical arrangement of domestic natures to allow details about the clients current configuration to be provided to the network via a proximal out-of-band channel .
+This arrangement allows devices to be securely introduced to and removed from network through an interaction that is lightweight, consistent, and device-agnostic.
+Before presenting the design and implementation details of MultiNet we briefly reflect on the interactional overheads imposed by currently deployed approaches to wireless association.
+We then present the motivation, design and implementation details of MultiNet, followed by an assessment of its technical performance.
+Finally, we present and discuss results of a lab-based user study directly comparing MultiNet to Wi-Fi Protected Setup .
+Our results show that MultiNet is technically feasible and offers significant usability benefits, making it considerably easier for users to manage and maintain their home wireless networks by reducing interaction overhead across different devices.
+All the code we describe is publicly available under opensource licenses at http://multinet-80211.github.com/.
+Some devices also opt for a "soft" button, often hidden within the setting and configuration menus, further complicating the situation.
+These factors combine to impose significant interaction complexity on the user, with each device requiring new knowledge to be acquired before it can be joined to the network.
+We reduce that complexity by providing an approach to building a secure network that is both: Interactionally light, requiring minimal interaction complexity; and Interactionally consistent, across all devices irrespective of the interaction capabilities of the device being added.
+We achieve this by amending the infrastructure so that the user can cause it to configure to fit the device's existing settings, rather than having to alter each device's settings to fit the network.
+We also allow the network to play a more active role in the interaction involved in device association by providing a dedicated network controller.
+When the user attempts to associate a device with the network using our network controller, our infrastructure creates an on-demand virtual access point matching the existing configuration of that device.
+This enables us to provide consistent interaction across all devices without loss of functionality.
+Before we introduce the details of MultiNet, we briefly review current approaches to Device Association and Pairing.
+The complexity involved in current approaches for securely associating devices is widely criticised for the burden it places on users.
+The joining problem presumes two devices: the access point running within the home router, and the device being associated .
+Typically, neither is well suited to having users perform complex tasks: the router is a black box whose only interface is a set of web pages, often oriented toward a network engineer;3 and although traditional devices such as PCs and smartphones permit complex user interaction, this is increasingly not the case with devices such as games consoles, TVs, fridges, bathroom scales and so on.
+A few moments trying to join a printer or set of scales to one's home network is sufficient to understand this!
+This increasingly diverse range of wireless devices simply cannot provide consistent, straightforward means to enter the security credentials  typically required of a WPA2 secured wireless network.
+The widely used "Select Network and Enter Passphrase" interaction commonly used by devices with screens and text input capability suffers from well-known problems with passphrase recall and input error .
+The industry attempted to address these problems through the introduction of new usability-focused association methods, notably WPS with Push Button Configuration .
+There are several currently deployed methods for securely associating a Wi-Fi device to a Wi-Fi network.
+The most common is manual passphrase entry, supported by almost all devices as a fallback when other methods fail.
+The user must have a secret that is also known to the AP: the combination of an alphanumeric passphrase  and the network name  in the case of WPA2.
+This information permits the user to add the device to the network.
+The SSID is usually broadcast in the clear enabling the user to select it from a list on most devices.
+The network's passphrase is usually either pre-configured and printed on the bottom of the AP, or chosen by the user when they initially configure the AP.
+Issues of memorability, passphrase confusion, incorrect recall and input error mean that users find passphrases difficult .
+This affects the usability of manual entry methods and is exacerbated by the different input methods afforded by different devices.
+Indeed, the multiple step, many device, acronymfilled setup experience involved in configuring a secure wireless network has been suggested as the root cause of many inexperienced users leaving their networks partially or completely unsecured .
+To address these usability problems, the Wi-Fi Alliance created WPS.
+NFC tokens; and push-button configuration , which requires the user to condition the device by selecting the desired network from a list and pushing a button on the AP, causing it to listen for a connection attempt for 120 seconds before timing out.
+Unfortunately there are considerable problems with WPS.
+Current implementations of in-band WPS are vulnerable to brute force attacks on the PIN.5 Out-of-band methods are not widely deployed.
+Push button methods rely on physical access to both the device and the AP which can pose problems if either the device is not very mobile  or, as is increasingly common, the AP is hidden away and not easily accessible.
+Finally, Kou et al  suggest the number of available paring methods and the lack of consistency of implementation across devices reduces user experience when using WPS.
+We next review device pairing mechanisms presented in the academic literature.
+For a detailed review of other methods see .
+Each of these approaches reduces the burden on the user but places considerable constraints on the hardware and/or software capabilities available on the AP and, worse, on the joining devices.
+For example, SiB and Blinking Lights require all devices to have a camera to read the network credentials, Network-in-a-Box requires the devices and AP have an IR sender and receiver respectively.
+Such requirements are often impractical for low-cost single function devices like sensors and media streamers, due to the increased manufacturing costs.
+They can also rarely be met by the devices already deployed in the home, making backwards compatibility difficult to achieve.
+Instead, MultiNet abstracts the hardware requirements of the OOB channel into a third device, the network controller, thus placing no constraints on the hardware of the associating device.
+Using a dedicated device to control and configure home networks, has previously been shown to be beneficial to users.
+For example, ICEbox  is a network appliance that acts as a centralised point of control for managing the home network providing a interface for users to interact with its configuration.
+ICEbox supports device association through a number of traditional pairing methods.
+However there is a more fundamental difference between MultiNet and the various methods described above.
+All these methods configure the device by conveying information from the AP: via QR Codes , via a flashing LED , via auditory channels , via gestures .
+In contrast, MultiNet configures the AP by conveying information from the device.
+This provides security and usability benefits which we discuss following exposition of the detailed design and implementation of MultiNet.
+MultiNet provides a lightweight, consistent interaction to securely associate a device with a wireless network.
+This problem - securely associating a device with a home network - is a particular case of the general problem of securely pairing two devices, which has been extensively studied by the usable security  community.
+It was first addressed by the "Resurrecting Duckling" protocol  which suggests that devices should be connected by a physical connection such as a cable for the pairing process to occur.
+Both need little user involvement but do require that the devices have a compatible hardware interface, often not the case in today's complex device ecosystem.
+Numerous other projects have tried to address this problem through the use of OOB channels and user involvement.
+Blinking Lights  simplifies this to requiring only a unidirectional visual OOB channel to mutually authenticate devices.
+A single flashing LED on one device and the camera on the second device enable transfer of the short authentication code.
+These locationlimited channels usually have lower bandwidth and higher latency than normal network communication mediums.
+Their implementation uses short-range infra-red to provide an intuitive point-to-authenticate gesture for OOB public key exchange, bootstrapping the wireless joining process.
+MultiNet aims to reduce the interactional overhead of associating devices with domestic wireless networks by reconfiguring the network infrastructure to fit the device being associated.
+We modify the AP software running on the home router to enable it to create on-demand new virtual access points that use specified WPA2 credentials.
+Further minor extensions to AP software running on the home router enables use of a third intermediary device, the network controller, to create a OOB communication channel with the AP in the home router.
+This channel is implemented as a WPA2secured administrative network between just the network controller and the AP.
+This arrangement enables a consistent configuration interaction to be used across all devices without imposing new hardware or software constraints, maintaining backwards compatibility with legacy equipment.
+The current implementation uses a smartphone as the network controller, with its camera providing the visual OOB channel by reading the required credential specification from a QR Code affixed to the exterior of the associating device.
+Users are known to have limited understanding of the security issues surrounding Wi-Fi networks .
+MultiNet aims to simplify the security model through three aspects of its design: its use of a proximate OOB channel, its use of QR Codes for credential storage, and its use of per-device credentials .
+We will deal with each in turn.
+MultiNet uses a proximate OOB channel which creates a straightforward threat model for the network controller and devices: physical access is required.
+This maps the wireless network's security onto the physical security of associated devices and has three important features.
+First, it removes the burden of managing and entering secure passphrases from the user, allowing the automatic generation of credentials.
+These can be longer and use a wider range of characters than those typically input manually, substantially increasing the search space and attack time for brute force attacks .
+Secondly, it removes the reliance on Diffie-Hellman key exchange, used to construct a secure signalling channel on an insecure medium, used in methods like WPS which are vulnerable to man-in-the-middle attacks .
+Finally, at no point is the network left in an open state as is the case with WPS PBC .
+Using QR Codes for credential storage has advantages and disadvantages.
+Physical attacks require line of sight and reasonable proximity to capture a decodable image of the credentials.
+Such attacks are often difficult to carry out covertly, and thus have reasonably high chance of detection.
+Regrettably, if an attacker successfully reads the QR Code they have all the information required to decrypt the WPA2 secured traffic for that device or to spoof an AP to which that device will automatically connect.
+However, a number of strategies can be adopted to mitigate this potentially unacceptable risk.
+For example, QR Codes could be removable for secure storage; privacy covers could be added requiring a flap to be lifted to expose the QR Code; or, on devices with screens, transient codes could be displayed on screen when a physical button is pressed or application is launched.
+MultiNet requires each device to have its own unique credentials.
+This enables temporary or permanent revocation of network access to a specific device, currently not possible with existing WPA2 deployments without reconfiguring all devices.
+Temporary revocation is useful in the home for visitation and punitive control; permanent revocation is useful when devices are sold or stolen.
+Re-associating temporarily revoked devices is identical to the normal association procedure.
+Re-associating permanently revoked devices has more overhead: a new SSID and passphrase pair must be generated, the device reconfigured, and the QR Code reprinted and reattached.
+If the network controller is lost, stolen or compromised, the AP must also be reconfigured with credentials for a new administrative network which must similarly be printed and affixed to the AP before the new network controller can be configured.
+Finally the reduced interactional overhead combined with device specific credentials facilitates the creation of new security policies, impractical with existing mechanisms.
+We constructed a test environment to measure throughput, latency and jitter as the number of connected devices  increased.
+These metrics were chosen as they are standard indicators of network performance.
+We used 27 identical Samsung R5800 laptops with fresh installs of Microsoft Windows 7 as clients, and an eeePC netbook as the AP.
+The standard networking tools ping and iperf were used to measure latency, throughput  and jitter .
+For each of these three performance indicators we configured the AP to offer the required number of networks and to act as a traffic sink.
+We connected the first Samsung laptop configured to act as a traffic source.
+Measurements were taken over a 60 second period after which the AP was re-configured and the experiment repeated, each time with an additional client laptop connected.
+We then repeated the whole experiment three times to generate the full dataset.
+The AP-to-device throughput  displays approximately linear reduction as the number of networks and associated overheads increases, as expected.
+At 20 networks there is a 13% reduction in maximum throughput, and by 50 networks this figure has risen to 27%.
+As the number of networks increases the latency on the networks also increases from 8 ms to 15 ms for up to 20 networks .
+Although there appears to be the expected linear upward trend in per-packet latency as the number of networks and associated overheads increases, the degree of variation observed suggests that there are more significant factors directly affecting per-packet latency.
+The jitter increases notably for more than 30-35 networks, but seems relatively constant when the number of networks is below that .
+Overall these measurements show that MultiNet has a limited impact on network performance for less then 25 networks, supporting its feasibility for deployment into the home.
+Device connection times for MultiNet and WPS were also measured, to check that MultiNet's performance is comparable to existing systems.
+These measurements were performed on the test set-up described in the user study.
+This was motivated by the need to check there were no adverse effects on device connection time with different device types.
+Table 2: User trial participant age range.
+All participants undertook each task in the same lab with the same facilitator following a short pre-study survey to assess past exposure to home networking, WPS and QR Codes.
+Post-study, semi-structured interviews were also used to explore participants' reactions to both systems.
+Figure 6: Average device connection time .
+Device connection time has two components: the time required for the user to complete the appropriate configuration steps to initiate device connection; and the time taken for the relevant key exchanges and network configurations to take place to securely associate the device with the network.
+The first is measured in our user trial, presented below.
+The second is independent of the user, and is measured from the last step in the configuration process to the point where the device receives an IP address from the DHCP server running on the AP.
+This test was performed 16 times per device and averages calculated and shown in Figure 6.
+In the case of the printer and Squeezebox, the average device connection time is notably lower with MultiNet compared to WPS, but the Windows 7 laptop connects more quickly with WPS than with MultiNet.
+This is because the laptop connects when Windows 7 detects presence of the pre-configured wireless network as it polls for available wireless networks, in contrast to the user initiated action of connecting via WPS.
+If the user were to boot the laptop after configuring the network, or were to manually initiate a poll, we expect the connection time for the laptop would come down.
+The sixteen participants, ten male and six female, were recruited from our university campus using posters and mailing lists.
+No incentive to participate was given but a 10 Amazon voucher was offered as an inconvenience allowance.
+Ten participants listed themselves as the person who normally configures their own home network.
+Only three of the participants were very confident they would be able to configure a new wireless-enabled device they had purchased.
+Twelve of the sixteen participants had never used WPS before and six had never used QR Codes.
+The participants' home networks varied in size and complexity, with the number of connected devices ranging from 3 to 15 with a mean of 5.6 .
+Two participants were unable to provide detailed information on the makeup of their home networks.
+Tables 1 and 2 give more details on the composition of the participants.
+MultiNet's primary aim is to be more usable than current approaches, while being at least as secure and having minimal performance impact.
+To evaluate this we conducted a user study comparing MultiNet with WPS using PBC.
+This was chosen as it is a standardised usability-focused joining method with good market share .
+The user trial consisted of a single task to construct a network consisting of three consumer devices: an HP Deskjet 3050A e-All-in-One Printer; a Squeezebox Radio; and a Samsung laptop running Windows 7.
+There were two conditions: C1, connecting the three devices using WPS PBC, and C2, connecting the three devices using MultiNet.
+The order in which the subjects experienced the two conditions was randomised to minimise carryover effect between conditions.
+Figure 8: Evidence for the learnability of MultiNet.
+These results are summarised in Figure 8a.
+Analysing task completion time across all devices show that, using WPS the mean task time was 91.47 seconds , while using MultiNet the mean task time was 25.92 seconds .
+A paired t-test shows a significant difference in task completion time  = 10.07, p < 0.001 with MultiNet achieving the lower mean times.
+Observed instruction usage is shown in Figure 8b.
+Observing the trends shown in Figure 8, task completion times decrease in proportion at least as quickly with MultiNet as with WPS; and there is a marked decrease in instruction use with MultiNet, from 16 to 3, compared with the small decrease from 16 to 14 for WPS.
+This suggests that users found the consistent point and connect interface of MultiNet easy to remember and learn.
+We have presented and evaluated MultiNet, a new approach to joining devices to domestic wireless network that focuses on the process from the perspective of the user interaction.
+Configuring the network infrastructure to the device and introducing a network controller enables a consistent configuration metaphor without imposing new constraints on devices, whilst maintaining backwards compatibility with existing equipment.
+It also addresses the high interaction overhead of today's home networks by moving the configuration task from the devices to the network controller, in effect creating a single point of configuration for joining any device to the network.
+This is achieved by creating and maintaining multiple virtual APs, incurring negligible performance cost.
+The initial performance evaluation suggests that MultiNet is technically quite feasible: although there is some impact on throughput, latency and jitter, it is acceptably small for up to 25 devices.
+While capping the number of devices to 25 is a limitation of MultiNet, we do not believe it will significantly affect today's domestic wireless deployments: participants in our user trials reported a mean of 5.6 devices connected to their home networks, which tallies with the 4.3 devices found in the 2011 Connectivity Report that surveyed a thousand UK homes.8 However, this is not a complete technical evaluation of the system.
+A more detailed study is needed to fully understand how the changes we have made will interact with many devices on a busy network.
+We did not investigate this performance loss in detail, but we hypothesise that it is related to both 802.11 beaconing interval and re-keying time.
+The user trial shows that both systems performed well in a lab environment and all of the participants managed to complete the entire task in both conditions.
+However, MultiNet produced significantly better SUS scores across the trial, and all participants stated that they preferred MultiNet over WPS.
+The qualitative comments also suggest a preference for the use of a network controller and that this was more easily applicable to peoples' domestic deployments where access to the AP is often limited.
+The participants also highlighted a number of real world issues with WPS, commenting on the problems arising from the spatial arrangement of the networking infrastructure in their homes and its unsuitability for distributed devices.
+One limitation of the user study is that we did not consider the usability of bootstrapping the network controller.
+We felt that it was not necessary to include as it is a one-off task that uses a roughly similar interaction to normal device association.
+One presumptions in the design of MultiNet is the availability of a network controller.
+The network controller is required to complete the configuration process and reusing an existing device offers a low cost path to adoption.
+We envisage this actually being an app on a mobile device such as a smartphone, analogous to the approach taken by Cisco in their "Connect Cloud" platform.
+However, the concept of configuring the network to the device could be implemented using other proximate OOB transfer techniques.
+For example, one could easily replace the QR Codes with credentials encoded on a USB storage device.
+In this scenario plugging the USB device into the AP would act as the OOB channel, allowing the correct network to be configured on the AP without need for a network controller.
+With MultiNet we have shown that it is possible to design a system for building home wireless networks with improved usability without compromising backwards compatibility, functionality or security.
+Adapting the network infrastructure to the device enables the creation of a trusted signalling channel over which credentials captured using the network controller can be securely conveyed to the router, enabling the granting and revocation of access to pre-configured devices.
+This eases the burden of configuration placed on the user, reducing the overall interaction overhead of the system.
+The use of a network controller as a configuration intermediary in MultiNet enables the provision of a uniform interface across all devices to be associated with the network; our study shows this is beneficial to the usability of the system as a whole.
+This uniform interaction reduces the interactional overhead of device configuration in today's diverse home device ecosystem.
+The mobility of the network controller is also a better fit for the home context as it is sensitive to the spatial and aesthetic pressures evident in domestic environments.
+Aboba, B., and Simon, D. Extensible Authentication Protocol  Key Management Framework.
+Balfanz, D., Durfee, G., and Grinter, R. E. Network-in-a-box: how to set up a secure wireless network in under a minute.
+13th USENIX Security Symposium, USENIX Association .
+Balfanz, D., Smetters, D. K., and Stewart, P. Talking to strangers: Authentication in ad-hoc wireless networks.

@@ -1,0 +1,83 @@
+While such aggregation provides information with respect to overall behavior, it washes over the interesting patterns that may appear in particular protocol instances from individual users.
+In this paper we introduce the idea of canonical behaviors in user protocols and propose a computational method to identify them in an automated way.
+Canonical behaviors are a small subset of the protocol data set that is most representative of the entire data set, providing a reasonable "big picture" view of the data with as few protocols as possible.
+The identification of canonical behaviors is often performed laboriously by hand in standard protocol analysis; for instance, eye-movement or verbal protocol analysis often includes the identification and dissection of a few individual protocols that exemplify interesting strategies in the task .
+While methods for automated protocol analysis have been studied in previous efforts, the methods focus on aligning observed protocols with the predicted behaviors of a user model .
+Our work takes a very different but complementary approach, using a specification of the similarity between behaviors to automatically identify canonical behaviors in a set of user protocols.
+To illustrate our approach in a real-world domain, we apply the method to the domain of web browsing.
+Recent efforts  have analyzed web-browsing behavior in a number of ways, typically involving some type of aggregation across individual user protocols.
+There has been some work on the analysis of individual protocols by aligning browsing protocols with the predictions of a cognitive or task model .
+We aim to complement this work by proposing a method for finding canonical web-browsing behaviors without the need for any type of a priori model.
+The resulting canonical behaviors could be useful, for instance, in determining standard paths to desired information on a given web site, or in identifying circuitous paths of confused users and revising the web site accordingly.
+While the collection of behavioral protocols has been common practice in human-computer interaction research for many years, the analysis of large protocol data sets is often extremely tedious and time-consuming, and automated analysis methods have been slow to develop.
+This paper proposes an automated method of protocol analysis to find canonical behaviors -- a small subset of protocols that is most representative of the full data set, providing a reasonable "big picture" view of the data with as few protocols as possible.
+The automated method takes advantage of recent algorithmic developments in computational vision, modifying them to allow for distance measures between behavioral protocols.
+The paper includes an application of the method to web-browsing protocols, showing how the canonical behaviors found by the method match well to sets of behaviors identified by expert human coders.
+In the study of user behavior, researchers and practitioners alike often collect data in the form of behavioral protocols -- sequences of actions recorded during the execution of a task.
+The analysis of these protocols provides a wealth of information about user behavior, and thus protocol data have been collected for a wide range of data types and utilized in a wide variety of ways.
+For instance, protocols have been employed for examining manual actions such as mouse clicks and keystrokes , verbal reports , and eye movements , and sometimes combinations of these and other data .
+Based on this rich set of data, researchers have used protocols for such varied purposes as exploratory data analysis , classification and recognition , and cognitive modeling .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Specifically, we define a canonical set of behaviors as a subset such that  behaviors in the canonical set are minimally similar, and  behaviors in the canonical set are maximally similar to behaviors not in the set.
+The key aspects of the method are the specification of a similarity measure between behaviors and the determination of canonical behaviors given this similarity measure.
+We now describe each in turn, defining each aspect in general terms as well as providing an instantiation of the framework for our chosen application domain of web browsing.
+A critical aspect of finding canonical behaviors is to define some measure that quantifies the similarity  between two given behaviors.
+Let us assume that we have two behavioral protocols x and y , each of which represents an ordered sequence of actions.
+The similarity measure can be defined as a function S that returns the similarity between the two behaviors.
+Clearly this function is dependent on the exact nature of the behavioral protocols: for instance, defining a similarity function for verbal protocols would be extremely challenging if one wanted to take into account the syntactic and semantic complexities of normal speech.
+Nevertheless, we assume that a similarity measure can be defined at an appropriate level such that it captures the desired aspects of the task domain: for example, for eye-movement protocols, a similarity measure could compare the number of fixated items, the overlap in these items, the exact sequence of items, or even the precise x, y coordinates that embody the fixations and saccades of eye movements .
+For the domain of web browsing, we chose to compute similarity between browsing protocols by using the well-known edit-distance metric .
+Intuitively, the edit-distance ED between two protocols measures the minimum cost of inserting, deleting, or substituting actions to transform one protocol to the other.
+In our work, we tested two different cost functions.
+The first cost function simply assigned a uniform cost of 1 to all insertions, deletions, and substitutions.
+We also tested a second function that computed the shortest path between one web page and another , and used the length of the shortest path as the edit-distance cost.
+In our testing, however, we found that this second cost function did not significantly improve performance; thus in our analysis below, we focus exclusively on results that derive from the first simple cost function.
+The computation of the canonical set graph cut can be formulated as an optimization problem on the aforementioned graph.
+The objective is to minimize the sum of the weights of the intra edges -- the edges within the canonical set, included in Figure 1 -- while at the same time maximizing the sum of the weights of the cut edges -- edges between behaviors in the canonical set and those outside the set.
+Such an optimization is known to be intractable , and thus we utilize an approximation algorithm: we formulate the canonical-set problem as an integer-programming problem; relax it to a semidefinite program; and use an off-theshelf solver  to find the approximate solution.
+Please refer to  for details of the full algorithm.
+In summary, this optimization translates into finding canonical elements that are most representative of the other elements, while keeping the canonical elements as dissimilar as possible -- fulfilling our goal of identifying canonical behaviors.
+The algorithm includes one free parameter,   , which scales the weighting given to cut edges versus intra edges.
+Intuitively, this parameter trades off the priority of minimizing the similarity among canonical elements with the priority of maximizing the similarity between canonical and noncanonical elements.
+Thus, as we will discuss in our application to web browsing,  can be thought of as an individual coder's tolerance for accepting variations of canonical elements versus allowing more significant variations to become canonical elements themselves.
+Given the above specification of similarity among behaviors, we now focus on finding canonical behaviors within a large protocol data set.
+First, the user behaviors are encoded into an affinity  graph where each behavior is represented as a vertex in the graph.
+To validate our automated method for finding canonical behaviors, we collected data from users performing standard web-browsing tasks.
+Specifically, we devised a list of 32 questions whose answers could be found on a university web site, namely that of Carnegie Mellon University .
+The questions comprised 8 sets of 4 grouped questions, where the questions in each group were syntactically and categorically similar -- for example, 4 questions of the form "What is the phone number of department professor name ?".
+The 8 groups covered a range of realistic topics related to finding information about athletic programs, academic departments, and so on.
+Each user was asked to answer all 32 questions, randomly presented such that one question from each of the 8 question groups was answered before repeating another question of any group.
+For simplicity in data analysis, users were asked not to utilize either external search engines or the site's own search engine .
+All browsing was done in the Firefox browser  with previously viewed link highlighting turned off.
+The collected data consisted of the sequences of web pages that were visited by users and the corresponding answers to each question.
+Thus, each behavioral protocol corresponded to a sequence of web pages visited while answering a particular question.
+A total of 12 users, 2 female and 10 male, participated in the data collection.
+Prior to participating, users were asked to rate their familiarity with the CMU web site on a scale of 1-4 ; the mean rating was 1.75 , indicating that users were generally starting with little to no familiarity with the web site.
+To test our automated method on the web-browsing protocols, we removed protocols corresponding to incorrect answers  and ran the method to find canonical behaviors for each question.
+However, we also required a "ground truth" against which to compare the results of the method.
+For this purpose, we recruited two expert human coders  with significant experience in analyzing behaviors as part of cognitive task analysis and modeling.
+We asked the coders, given the set of protocols , to identify subsets of protocols for each question such that each subset represented a different behavior.
+The coders clearly could have their own notion of what would constitute "similar" and "different" behaviors; rather than defining this specifically for them, we allowed them to use their own expert judgments to decide on the best division of protocols for each question.
+Let us first examine the automated and coder results for an individual question to illustrate the analysis in detail.
+In both graphs, each node represents a web page , and each edge represents a traversal  from one page to another taken by some user.
+The expert coder found 6 sets of behaviors: A and B represent different ways of clicking through the academic departments to the faculty member's home page; C and D represent ways of clicking through to a directory search page ; and E and F represent slight variations of C and D. The canonical set algorithm identified 4 canonical behaviors in this same behavior graph; canonical behaviors are shown in bold in the figure, and the other behaviors are labeled in terms of their nearest canonical behavior.
+The behavior sets found by the algorithm correspond directly to the expert coder's sets A-D.
+We can also validate the canonical set method by comparing its results to those of the expert coders at an aggregate level, which requires us to define a straightforward measure of error  of how well the algorithm's and coders' analyses match.
+The size error is defined as E size = | - Card/Card|, where Card is the cardinality of the collection or set.
+The cover error is then defined  /Card.
+This measure as E cover = Ai A  counts the number of sets Ai in the collection A which do not have any elements in the canonical set B ; thus, the measure captures how well the algorithm's canonical behaviors cover different sets found by the expert coder.
+For example, for the coder and algorithm results in Figure 2, both E size and E cover are 2/6, and thus Error = 2/6.
+Using this overall error measure, we can analyze the behavior protocols for all questions in comparison with the coding of the two human experts.
+Because the human experts may have different tolerances for the size versus coverage of canonical sets, we varied the  parameter across a reasonable range and plotted the error measure for this range for both expert coders.
+These results are shown in Figure 3.
+Both experts exhibit a roughly U-shaped curve across the range of  values: higher values favor the canonical behaviors being different from one another, resulting in fewer but larger subsets of protocols; lower values instead favor the similarity of the canonical behaviors to non-canonical protocols, resulting in smaller, more numerous subsets.
+Thus, the method can be used to analyze the entire corpus of protocols, for instance, to classify sets of behaviors, to analyze frequencies of related behaviors, or even to interpret behaviors in real time as part of an intelligent interactive system.
+We believe that this work is an important first step in the development of new automated techniques that facilitate protocol analysis both for individual protocols and across large data sets.
+Each expert coder can be associated with a  value that best captures their tolerance for the size-coverage tradeoff.
+At these values, the experts' average size error was .31 and their average cover error was .15.
+This means that the algorithm found roughly 70% of the canonical behavior sets identified by the experts, and that roughly 85% of the experts' behavior sets could be associated with one of the algorithm's canonical behaviors.
+While we have no previous work with which to compare these results, we were pleased with this fairly high match given the lack of any a priori cognitive or task model with which to guide the method.
+We have presented an automated method for finding canonical behaviors in user protocols.
+The method can be used in two important ways.
+First and foremost, it can identify a small set of canonical behaviors that is best representative of the entire protocol data set.
+These canonical behaviors can be used, for instance, to extract an interesting subset of behaviors for detailed protocol analysis; to find exemplar protocols for purposes of visualizing interesting behavior; or to extract critical behaviors for purposes of developing cognitive models of user behavior.

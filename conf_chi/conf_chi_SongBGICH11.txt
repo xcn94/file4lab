@@ -1,0 +1,278 @@
+This paper explores the interaction possibilities enabled when the barrel of a digital pen is augmented with a multitouch sensor.
+We present a novel multi-touch pen  prototype and discuss its alternate uses beyond those of a standard stylus, such as allowing new touch gestures to be performed using the index finger or thumb and detecting how users grip the device as a mechanism for mode switching.
+We also discuss the hardware and software implementation challenges in realizing our prototype, and showcase how one can combine different grips  and gestures  to enable new interaction techniques with the MTPen in a prototype drawing application.
+One specific aim is the elimination of some of the comfort problems associated with existing auxiliary controls on digital pens.
+Mechanical controls such as barrel buttons and barrel scroll wheels work best in only a few specific hand grips and pen rotations.
+Comparatively, our gestures can be successfully and comfortably performed regardless of the rotation of the pen or how the user grips it, offering greater flexibility in use.
+We describe a formal evaluation comparing MTPen gestures against the use of a barrel button for mode switching.
+This study shows that both swipe and double tap gestures are comparable in performance to commonly employed barrel buttons without its disadvantages.
+Beyond this fine control of a physical pen, digital pens also support common interface tasks such as mode switching and scrolling.
+However, current commercial digital pens offer limited additional input capabilities, mainly consisting of mechanical buttons or scroll wheels mounted on the barrel of the pen .
+These options provide explicit controls and are simple to operate, but are limited in number and fixed in location and size.
+The use of mechanical buttons and wheels also leads to many usability challenges.
+Due to different hand sizes or different tasks, users often wish to hold their pens in different ways, and the need to access these mechanical controls greatly restricts the variety of grips that can be used.
+In addition to these grip restrictions, some grips can result in users mistakenly triggering buttons when simply intending to ink.
+Some grips require users to rotate or reposition the pen to acquire a physical button on the stylus when wanting to access on-screen context menus.
+Previous studies suggest using other dimensions of a digital pen such as rolling  or tilting  as alternative explicit controls  required by digital interfaces.
+Additionally, researchers have demonstrated that grip can be leveraged as an implicit dimension that conveys some user intention  as users interact with a device .
+This can also be applied to a pen.
+There are many instances where the way in which the pen is being held can convey information.
+For example, when a user holds the pen using the conventional tripod grip  , this may indicate that she requires precision for a task such as inking or drawing.
+Clearly the use of grips could become an important cue in increasing the input vocabulary of pen users.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+We demonstrate how this novel combination allows for sensing of both the handgrips for implicit controls, and finger-based touch gestures for explicit controls, all while preserving the symmetric nature of a normal pen.
+We provide the following four contributions: First, we present a custom-built and novel digital pen prototype called MTPen with a capacitive multi-touch sensor wrapped around an off-the-shelf stylus .
+Second, we demonstrate the implementation of a recognizer that can distinguish different hand grips using the contact data from fingers resting on the multi-touch sensor.
+This recognizer also detects finger-based touch gestures such as horizontal or vertical swipes and double taps with the thumb or index finger.
+We further discuss the challenges in building such a recognizer, in particular interpreting contact data on a pen device of curved cylindrical nature coupled with the close proximity of fingers resulting in many merged contact points.
+Third, we demonstrate how the sensed grips and gestures on the MTPen device can be combined into novel interaction techniques to provide the ability to switch modes, adjust continuous parameters, and issue customized commands within a sample drawing application.
+Finally, to confirm the viability of our finger gesture approach, we conduct a formal evaluation to compare our pen with an existing mode switching technique, the pen barrel button.
+We found that the performance of our proposed finger gestures, swipe or double tap, are comparable to mechanical barrel button without its disadvantages.
+Pen rolling  at a resolution of 10 degrees around its longitudinal axis can be used to control a mode change and multi-parameter input.
+The Tilt Menu  is a technique to generate secondary input by tilting the angle of the pen to select one of the eight pie menus.
+Pressure widgets  demonstrated how six levels of pressure can, with appropriate visual feedback, improve selection tasks.
+Our approach in enabling finger touch gestures on a pen adds a new perspective to this body of research.
+While the MTPen is the first prototype to utilize a multitouch sensor on the outer barrel of a pen, multi-touch sensing technologies have been demonstrated on many other input devices to extend interaction capabilities.
+Most recently, Mouse 2.0  showed a series of re-designs of the traditional mouse to support touch sensing on the outer casing.
+Researchers have also attempted to understand the user's intention  by capturing the implicit input that occurs in the ways people hold their devices .
+For example, Graspables  demonstrated how a coarse grid of capacitive sensors can be wrapped around various form-factors and shapes to allow different grips to be recognized and utilized for input.
+Our work extends this approach and uses a much finer grained multi-touch sensor to understand the movements of the user's fingers while grasping a pen.
+Combining a multi-touch table surface with pen-based usage scenario has also been explored in recent years .
+These projects explored bimanual techniques that support multi-touch input with the non-dominant hand, whilst supporting pen-based interaction using the dominant hand.
+Such interactions have been employed for drawing , annotation in active reading environment , and even solving math problems .
+In comparison, our MTPen provides touch directly on the barrel of the pen and explores a novel way for touch and pen to be combined in a single hand.
+Our work builds upon three distinct areas of prior research that are covered in turn in this section.
+The first is the body of work that investigated adding additional input controls to the digital pen.
+The second is work that explored the use of touch sensing on the surface of existing input devices to extend interaction vocabulary.
+The third covers studies in grips and pen design in ergonomics.
+Inspired by their study, we use the same methodology to compare our new gestures on MTPen - the swipe and double tap - with the de facto standard barrel button implementation.
+Some researchers have proposed solutions to mode switching such as using a distinct gesture in the hover zone above the tablet to change the modality , and redesigning the entire pen interface to use ink crossing  or pigtail strokes .
+Fields such as ergonomics and surgery have been exploring the dynamics of the hand and grips for digital  and physical pen design , particularly in the context of drawing and writing.
+Goonetilleke  investigated how different barrel shapes  of the pen can offer improved drawing and writing performance.
+In prior studies, Napier  provided valuable observations that we found our work on.
+First, according to Napier, "during a purposive prehensile action, the posture of the hand bears a constant relationship to the nature of that activity".
+Napier also lays the foundation for our postulation that while griping the pen, the majority of the hand is used to stabilize the grasp while only certain fingers remain free to carry out a gesture.
+These insights have been valuable in designing and developing our research prototype.
+Different grips observed in our pilot investigation:  Tripod grip is used for precise writing or drawing,  relaxed tripod grip is frequently used for less precise tasks.
+To help better understand the limitations of current digital pens in everyday computing scenarios, we conducted an observational design study with expert users of digital pens.
+We interviewed four regular digital pen users  aged 27-35.
+Each used a digital stylus for more than half of their computing time on a regular basis.
+The participants were long-term pen users  and were industrial designers and artists by profession.
+All participants used Intuos/Cintiq Grip pens , which feature two buttons on the barrel, a pressure sensitive tip, and a pressure sensitive eraser .
+We asked them to fill out a questionnaire  before the interview, which asked about their everyday pen usage.
+While all our users expressed that they would prefer to hold the pen in different ways depending on the task, they commented that the fixed button location makes changing the grip difficult.
+As a result, three of our participants adapted their grips in order to be able to activate the buttons, e.g., we observed that P3 - who has been using digital pens for over 15 years - had developed an awkward style for griping the Wacom pen so that both buttons were always underneath his finger.
+P4 commented, "While digital drawing applications excel in replicating other physical drawing tool properties, the design of digital stylus is not only limited to replicating a pen but even constrains how we actually hold the pen."
+When asked about the different pen grips that the users currently employ or would like to use, the most common grip for all our four designers was the tripod grip  .
+It is a type of a precision grip  that is most commonly used in writing and drawing.
+P2 demonstrated a relaxed version, i.e., a relaxed tripod grip , used not only to draw and write but also to manipulate their general software controls.
+P1 mentioned that she would relax her tripod grip when less precision is required such as using a marker for highlighting documents.
+P3 demonstrated a sketch grip which is used to create long and consistent strokes especially when the tablet was angled .
+When transitioning between different input controls, P1 adjusted their grip to balance the pen in between the fingers such that the pen was tucked underneath the middle finger .
+Finally, P4 showed a wrap grip that they would use to hold a crayon, a stamp, or a brush, or when a drawing tool is being transported .
+While participants all agreed that they would appreciate more controls  for interacting with their pen  they all complained that the current barrel button was difficult to access .
+This is likely due to the one-size-fits-all design of the barrel button which does not account for the diversity in hand sizes and grips.
+This frequent transition makes the acquisition of the button difficult for them, as the button is often not directly under their finger when they retrieve the pen.
+Other participants resonated highly with that sentiment in their answers .
+At the same time, users would often "hide" the button by rotating the pen when drawing to reduce accidental activations, then rotate the pen back in order to use the button again later .
+In addition to these hardware design limitations, our participants complained that a single  button input is very limiting given that their drawing software is overloaded with numerous options and controls.
+While the scroll wheel on Wacom Airbrush pen affords a bit more in terms of continuous input, P4 expressed the desire to manipulate more controls while inking, which is currently difficult even with additional inputs using the non-dominant hand .
+All of these observations demonstrate a need to increase the interactive potential of the pen by supporting different grips and alternative input techniques.
+Motivated by the feedback from the experts, we chose to redesign the standard digital pen to activate mode switching regardless of user hand posture, while allowing for a diversity of hand grips.
+We designed a custom pen which does not employ discrete mechanical buttons, but instead uses a touch-sensitive barrel as a means to explore a new approach to the problem.
+MTPen allows for sensing of different hand grips, and enables auxiliary controls via touch gestures along the barrel.
+Our prototype is built around a standard Wacom Intuos/Cintiq grip pen which is augmented with a custom capacitive sensor .
+We designed a plastic cylindrical enclosure around the pen onto which we overlaid a flexible matrix of capacitive-sensing electrodes to track the image of user's hand.
+Our enclosure eliminates access to the barrel button and makes the pen completely smooth and cylindrical.
+The length of the pen is 175 mm with a diameter of 16mm.
+As such, we share similar problems as described in the Mouse 2.0 project  in that our device needs to be held while interacting.
+Thus, any touch-gesture recognition not only needs to focus on specific contacts and their movement, but also to tolerate the existence of numerous additional contacts in order to support the user grasping the device.
+In addition, due to the small size of the pen and the nature of the hand grip, contacts closely group together and often merge into larger connected blobs.
+In response to these challenges, we alter standard computer vision touch processing techniques  that determine separate connected components in the image and track them frame-to-frame.
+Notice that the vertical  arrow that corresponds to the longitudinal  axis and the horizontal  arrow that corresponds to the circumference  axis of the pen from Figure 3.
+We classify contacts into two categories based on their temporal characteristics: static and dynamic.
+The static contacts  do not exhibit much movement and mostly remain in constant size and location.
+These static contacts are usually mapped to the parts of the hand sustaining the majority of the pen weight .
+The dynamic contacts  exhibit more movements and usually correspond to the agile finger  that is used for versatile purposes .
+We extract these two types of images to detect grips and gestures on the surface of the pen.
+First, we process the static sensor image to detect the handgrip.
+Then, we segment out the dynamic contacts and process them to detect gestures.
+The sensor is positioned 10mm from the tip of the pen, and covers an actual sensed area of 50mm x 100mm which is roughly 2/3 of the pen's barrel area.
+This is sufficient to sense many of the typical hand contacts while using the pen.
+The capacitive sensor is covered with a thin protective coating  to prevent direct electrical contact between the user's fingers and the sensor.
+We chose architectural velum as its surface properties made it comfortable to both hold the pen and to slide the fingers to perform gestures.
+The sensor is capable of tracking multiple simultaneous contacts on a 20x10 grid of sensing elements printed on a flexible substrate using conductive ink.
+The raw capacitive sensor values are reported as 20x10 pixel grayscale images  at 100Hz, and processed to extract and track individual touch contacts.
+Note that the figures show interpolated grayscale images for clarity and smoothness; however, all processing is performed on the 20x10 grid.
+We affixed the PCB  at the rear end of the pen, which controls the sensor, captures raw capacitance values, and communicates these to a computer via USB.
+To obtain the dynamic image, we employ a decay function  over the entire image, which preserves only the moving elements, while the static contact areas are effectively removed.
+To compute this DynamicImage, the capacitive signal value is compared with the baseline value at each pixel location , which in turn is updated given a decay value .
+We track the connected components in this decayed image and thus report only moving contact points for the gesture recognition.
+This simple approach works well in practice to segment moving contacts from the rest of the hand while the user maintains a stable grip; however, when the user acquires the pen, puts the pen down, or simply repositions the pen in her hand, many dynamic contacts can temporarily occur on the surface.
+We detect these re-griping events by observing the size of the bounding box fitted around all the pixels present in the dynamic image .
+When only a single finger is moving, the bounding box is considerably smaller.
+By focusing on small overall movements, we can isolate the movement of the single finger and use that information to detect finger gestures regardless of how the user holds the pen.
+The overall amount of contact pixels  can be used to easily detect when the pen is being held or not.
+We currently disambiguate between four different types of grips: tripod, relaxed tripod, sketch, and wrap .
+To gauge the effectiveness of our initial recognizer, we used a traditional training and testing approach.
+We trained the recognizer for each individual user while adding more training images for faulty grips.
+We then collected data from ten pilot users who each provided 2000 recordings per grip.
+The recognition rate for four grips was 87% when using each user's training data individually.
+The wrap grip was the most problematic grip to recognize due to the great variability of the grip between grasps of the same user.
+Removing the wrap grip and reducing the set to three grips improves our overall recognition to 94% success rate.
+In addition to different grips, we recognize two types of finger gestures on the MTPen: double tap and swipe.
+Both gestures are simple to perform, and simple to detect in our dynamic sensor image .
+Double tap: If two consecutive taps are reported within a threshold distance , and time span , they are recognized as a double tap.
+These thresholds were chosen after testing distinguishable thresholds on several pilot users with different hand sizes.
+Our recognizer also reports the location of each double tap.
+Swipe: This gesture is performed when the user slides their finger along the barrel of the pen.
+The distance of the trail , and the ratio of the width to the height of the bounding box  are used to recognize a swipe.
+The recognizer reports the following: the coordinate of the starting point and the current point, the direction and the distance of the movement.
+As such, swipe can be used to control a simple mode switch or a continuous parameter.
+Combining our gestures and grips in interesting ways opens up a large set of possible interactions for the MTPen users.
+We highlight these possibilities in a sample drawing application.
+Throughout these interactions, we assume that the base grip is the tripod grip, and note when other grips are required.
+To support the recognition of different hand grips, we track the entire shape of the hand using the static sensor image.
+When users are maintaining a stable grip, we match it against a grip image database using the Naive Bayes classifier.
+Taylor and Bove have showed that this classifier provides a good trade-off between accuracy and speed of classification .
+Since we need to detect hand grips regardless of how the user orients the pen in their hand, we extract features that are rotationally invariant along the pen's cylindrical axis.
+MTPen can detect whether the pen is being held or engaged.
+Observed in our interviews, designers frequently alternate back and forth between pen and other input devices .
+When MTPen detects that the user's hand is in contact with the pen, the input focus changes to the drawing area.
+When the user puts down their pen, the focus is passed onto non-pen-based interface components.
+Similar "engagement" interaction has previously been suggested by Hinckley and Sinclair .
+Our swiping gesture also provides the capability to control continuous parameters.
+Users can change the size of the pen tip by swiping their index or thumb.
+When swiping occurs during inking , users can create a single stroke of varying width.
+Although pressure of the pen tip is frequently mapped to the width of the pen stroke, users can neither control the parameter using the pressure nor lock it at a certain value.
+Comparatively, our approach provides a scroll wheel-like control that can be accessed explicitly regardless of where and how the user is holding a pen .
+In our painting demonstration application, we apply different pen grips to different pen types: tripod grip is mapped to a normal pencil, sketch grip is mapped to a paintbrush, and relaxed tripod grip is mapped to a highlighter .
+Thus the user can implicitly change modes, simply by changing their grip.
+Touch gestures on the pen's barrel can be detected and used when the pen is not directly in contact with the tablet surface.
+One example of this is to perform page flipping  by holding the pen in the wrap grip outside of sensing range of the tablet and using the thumb to swipe against the top of barrel.
+Depending on the direction of the horizontal swipe, the notebook flips to the previous or next page .
+Another frequent operation that occurs in a drawing application is selection and repositioning of objects on the canvas.
+If a swipe gesture is detected after a self-intersecting ink stoke, the stroke turns into a lasso selection  , allowing the specified object to be moved on the canvas.
+In this specific example, we demonstrate how finger gestures  combined with ink strokes can be distinguished by the nature of the stroke.
+When the swipe occurs without a self-intersecting stroke, the magnitude of the finger swipe is used to change the pen tip width, while when the swipe occurs after a self-intersection, it indicates a lasso selection.
+When a user swipes to change the current ink to become a selection ink, the mode is retroactively applied to the entirety of the stroke.
+Synchronizing controls and inks at the same time is a well identified problem in pen-based interfaces , and our approach is similar to that of Guimbretiere where the synchronization is relaxed between ink and a mode switch .
+In the previous section, we showed how our finger gestures and grips can be used to design novel interactions using the MTPen.
+We ran a formal experiment to test how quickly and reliably the gestures can be used for mode switching.
+In particular, we were interested in comparing our gestures to the conventional barrel button.
+In particular, we introduced a lower bound and an upper bound for the barrel button conditions based on our observation from earlier interviews.
+These confirmed that barrel button activation time should factor in the time to acquire a button, in addition to activating a button.
+We were also interested in the false positive and the false negative rate of our gesture recognizer.
+To answer these questions, we used a setting similar to Li  in which we created a pie crossing task that requires users to alternate between ink and command stroke to identify the cost of mode switching.
+To evaluate hand positions and wrist movement in different inking scenarios, each compound and baseline block is repeated in eight different directions .
+A full set included all repetitions of both the baseline and the compound blocks in all eight different directions consisting of 80 pie crossings  in total.
+Second barrel button  condition reflects the cost of button acquisition .
+In this condition, users are forced to acquire the button before clicking it.
+To simulate 90-180 degrees rotation that occurs often before clicking the button, we require the users to place the button facing down as an initial setup.
+When we require the user to click the button, users must rotate the pen so that the button is facing up, to activate the button.
+To ensure the pen rotation in our trials, we installed a single axis gyro to the rear end of the regular pen .
+Our software required the user to rotate the pen by 120 degrees before the button could be activated.
+In SW and DT condition, if users issue a finger gesture while inking, the gestural state is retroactive to the beginning of the stroke similar to our swipe-based selection technique.
+This recommendation was also supported by Li's study , which showed that relaxing synchronization between ink and mode switch improved the user's performance.
+Twelve participants  were recruited from a university campus.
+Among them, one participant used a digital stylus on a regular basis, four participants claimed to have digital stylus experience in the past, while the rest had never used a digital stylus before.
+The study consisted of a training phase and an evaluation phase for each of the four techniques: BB1, BB2, DT, and SW.
+In the training phase, participants were asked to complete four sets of compound tasks.
+All participants completed the training set right before the evaluation phase for each of the conditions.
+The overall order of trials was counterbalanced using Latin square across users.
+During the evaluation phase, participants had to go through four full sets .
+The first set was used to help users get used to the baseline and compound conditions, hence the data was discarded.
+The data from the next three sets was used for our analysis.
+The participants could take a break between sets.
+Since there are 16 mode switch cycles in a single set , users completed 64 mode switch cycles and 320 pie crossings  per condition .
+Users were asked to complete two pie-crossing tasks .
+In the baseline task , the user does not need to switch modes, but simply cross through all five pie slices in the desired direction.
+When the corresponding stroke intersects both arcs  of each pie, the color becomes darker, allowing the user to progress onto the next slice.
+In the compound task , the user needs to switch modes when proceeding to each new pie slice.
+Participants were asked to cross blue slice with blue ink and red slices with red ink.
+In order to switch ink color, users have to change the mode using one of the four mode-switching techniques described previously.
+Blue ink is the default and the red ink is only available with a mode switch .
+In the BB2 condition, users must rotate their pen before activating the button because blue slices must be crossed with the button facing down , and red slices must be crossed with the button facing up while pressing the button .
+To give us a measure of how long it took our participants to mode switch in each of our conditions, we logged the timestamps of all pen-up events that occurred after successfully crossing a pie slice.
+Pen-up events are events generated when the pen loses contact with the surface.
+Since the only difference between the baseline and compound tasks were the mode-switches, we computed the average mode-switching time by comparing the specific time intervals in both the compound and the baseline blocks.
+We illustrate this in Figure 13.
+In essence, we measure the average time it took the participants to issue two specific pen-up events.
+In our example illustrated in Figure 13, that is accomplished by computing tc2-tc1 for the compound task, and tb2-tb1 in the baseline.
+The difference of those two timings provides the mode switching time.
+While Dillon  calculates the mode switching time using the pen-up of the previous stroke and the pendown event of the current stroke, we use the pen-up events in both cases since our mode switching condition can occur before or during the entire stroke.
+Note that in the BB2 condition, the button acquisition time is captured within the net mode switching time.
+In terms of the swipe gesture, some users could not maintain finger contact when the pen tip came into contact with the screen.
+Since the swipe gesture requires a continuous touch trace, this had a negative impact on performance.
+With the double tap gesture, the second tap would sometimes shift location with respect to the first tap, resulting failure to detect the gesture.
+However, increasing the distance threshold for double tap wasn't an ideal solution either; for some users, neighboring fingers of the index  would be registered as a second tap because the threshold was too big.
+In addition to mode switching times, we logged two different types of errors: false negatives and false positives.
+If a mode switch is detected in the baseline block, the gesture or the button is triggered accidently and is the cause of false positives.
+We first discuss the mode switching time.
+Pairwise comparison revealed that the BB2 condition was significantly slower than all other conditions, while there were no significant differences in other conditions .
+Overall, this result suggests that the MTPen gestures  performed comparably to the best-case barrel button scenario  and drastically better than the sub-optimal use of the barrel button .
+Since BB1  and BB2  cover the two extreme ends of the pen button use spectrum, typical usage falls somewhere in between those two values.
+We also measured the false positives during the baseline block.
+Accidental double taps  occurred more frequently than the swipe gesture .
+Accidental double taps occurred when users mildly re-adjusted their entire hand for a better grip, contact points that are mapped to web of the thumb or the middle finger would rub against the sensor surface and trigger double tap.
+Similarly, we observed that for one user the web of the thumb would travel a long distance while readjusting the grip which triggered false positives of swipes.
+Figure 15 illustrates the false positives and false negatives errors.
+Given the occurrence of false positive in the baseline condition, we analyzed the effect of each condition on the baseline performance.
+However, several participants noted that the bulk of the prototype MTPen makes it more difficult to handle, which could account for some false positives.
+All of these issues are primarily due to the prototype nature of our device.
+However, even with such clear disadvantages, MTPen performed well in our user study despite that gesture-based input has higher error rate than mechanical input in general.
+One of our expert designers also commented about extending sensor coverage area in both directions.
+The edge of the barrel, which starts tapering near the tip, plays a big role in pen interactions.
+If this front part was also covered with the sensor, finger tip movement would be better modeled.
+Similarly, extending the sensor to the rear end of the pen may open up opportunities for bimanual interaction with the device.
+The ability to perform gestural mode switching on MTPen depends on a variety of ergonomic and technical issues.
+In terms of the ergonomics, the performance depends on how a user's hand is shaped .
+For example, swipe gesture proved to be asymmetrical in terms of the swiping direction.
+Although we enabled swipe in both directions along the barrel, our participants used the flexion  much more often than the extension .
+When our professional designers used the swipe gesture to change the pen tip width, swipe gesture was better supported by our recognizer for the flexion than the extension.
+Since we modeled the contact points based on the centroid of their contact area, when the tip of the finger transitions to being flat as users extend their finger, the centroid actually travels in the opposite direction.
+As the result, it was harder to control the pen tip width during extension.
+From this observation, Wang's  touch point model that predicts the shape and orientation of the contact point was later added to replace use of the centroid with that of the tip of the finger.
+Our gesture recognizer also had limitations in detecting swipe when the finger trace was perpendicular to the pen's axis .
+As noted by Benko , the nonflat shape of the touch surface definitely presents challenges when doing touch interactions.
+In our case, the effects of the non-flat surface are especially noticed when using thumbs for the horizontal swipes.
+As thumbs are bound to the hand, they leave traces in an arc instead of straight line.
+We further discovered that non-finger part of the hand can also be used as a dynamic contact point: The possibility of using the web of the thumb as a dynamic contact point to control interactions was mentioned both during the user experiment and during designers' feedback sessions.
+While we did not design such feature or demonstrate it to our users, some designers discovered this option and used it to control the pen width, instead of using their index fingers.
+Designers also mentioned that while transitioning between the tight tripod grip  and a relaxed tripod grip , the web of the thumb is bound to swipe across the barrel.
+As such, it is great way to capture squeezing movement of a hand which is yet another hidden dimension of the hand movement.
+We have started investigating ways to improve the grip recognition.
+In a different multi-touch hand-held device, adding an accelerometer has been shown to improve the grip detection by 10% .
+One of our preliminary experiments indicates that using additional sensor readings to reliably detect the rotation of the hand may improve grip recognition by reducing the task to a generic statistical pattern-matching problem.
+Alternatively, combining our capacitive sensor with a resistive pressure sensor is another possibility  as each has its pros and cons in sensing hand movement.
+We observed, for example, that a resistive sensor  may be better at reliably detecting grips due to extra dimension that reflects the force of a grip.
+Another promising future work is to leverage the benefit of sensor fusion.
+In this work, our primary goal was to assess the benefit of a multi-touch sensor for recognition of grips and gestures.
+However, there is likely further contextual information to be gained through other sensors , that can be combined with the sensor image of a hand to enable new set of foreground interaction techniques.
+With respect to the sensor technology, we have already experimented with using a resistive sensor to sense pressure and enable new squeezing interactions.
+This work was primarily motivated by our observations of the expert designers who use electronic pens on a daily basis in their workflow.
+Much work remains to be done to investigate specific interactions tailored to other domains.
+For example, MTPen can be combined with small slate computers, or a paper-based digital pen .
+In addition, it may prove interesting to explore the use of MTPen in game scenarios where the pen would be used for writing or as a "magic" remote controller.
+In this paper, we presented a new input device that combines a multi-touch sensor array and a digital stylus.
+We describe the technical challenges and solutions in detecting gestures and grips on our custom-designed prototype.
+Hand grips and touch gestures can be combined to support a rich set of interaction techniques.
+Lastly, our user experiments showed that MTPen finger gestures provide a mode switch comparable to mechanical barrel buttons without their limitations.
+We believe that MTPen prototype opens a large area for design of novel interactions with a digital pen.
+Furthermore, the lessons learned from building and testing our prototype will be applicable to future research in enabling multi-touch sensing on input devices.
+Apitz, G. and F. Guimbretiere.
+CrossY: A Crossing-Based Drawing Application.
+Baudisch, P. and G. Chu.
+Back-of-device interaction allows creating very small touch devices.
+Benko, H. Beyond flat surface computing: challenges of depthaware and curved interfaces.
+Bi, X., T. Moscovich, G. Ramos, R. Balakrishnan, and K. Hinckley.
+An exploration of pen rolling for pen-based interaction.
+Combining and Measuring the Benefits of Bimanual Pen.
+Moran, and A. Newell, The keystroke-level model for user performance time with interactive systems, in Communications of the ACM.
+Measuring the true cost of command selection: techniques and results.
+Grossman, T., K. Hinckley, P. Baudisch, M. Agrawala, and R. Balakrishnan.
+Hover widgets: using the tracking state to extend the capabilities of pen-operated devices.
+Guimbretiere, F., Fluid Interaction for High Resolution Wallsize Displays.
+Hinckley, K., P. Baudisch, and F. Guimbretiere.
+Design and Analysis of Delimiters for Selection-Action Pen Gesture Phrases in Scriboli.
+Hinckley, K. and M. Sinclair.

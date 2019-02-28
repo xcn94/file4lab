@@ -1,0 +1,282 @@
+Speakers often use hand gestures when talking about or describing physical objects.
+Such gesture is particularly useful when the speaker is conveying distinctions of shape that are difficult to describe verbally.
+We present data miming--an approach to making sense of gestures as they are used to describe concrete physical objects.
+We first observe participants as they use gestures to describe real-world objects to another person.
+From these observations, we derive the data miming approach, which is based on a voxel representation of the space traced by the speaker's hands over the duration of the gesture.
+In a final proof-of-concept study, we demonstrate a prototype implementation of matching the input voxel representation to select among a database of known physical objects.
+In conversation we sometimes resort to using hand gestures to assist in describing a shape, particularly when it would be cumbersome to describe with words alone.
+For example, the roofline of a new car might be conveyed by a swoop of the outstretched hand, or a particular chair style might be indicated to a shopkeeper by a series of gestures that describe the arrangement of surfaces unique to that chair.
+In such cases, the speaker often appears to trace the precise 3D shape of the described object.
+Meanwhile, the listener appears to effortlessly integrate the speaker's gestures over time to recreate the 3D shape.
+This exchange strikes us as a remarkably efficient and useful means of communicating the mental imagery of the speaker.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Figure 1: Data miming walkthrough.
+The user performs gestures in 3-space, as they might during conversations with another person, to query the database for a specific object that they have in mind .
+Users thereby visualize their mental image of the object not only by indicating the dimensions of the object , but more importantly the specific attributes, such as  the seat and  the legs of the chair.
+Our prototype system tracks the user's gestures with an overhead camera  and derives an internal representation of the user's intended image .
+In this paper, we consider the use of gestures to describe physical objects.
+We present data miming as an approach to enable users to spatially describe existing 3D objects to a computer just as they would to another person.
+We make two contributions in this paper.
+First is an observation of how people use gestures in a natural way to describe physical objects .
+From these observations, we derive the data miming approach to making sense of gestures as they are used to describe physical objects .
+Our second contribution is a prototype system, which allows for walk-up use with a single overhead depth camera to sense the user's gestures.
+Our system follows a query-bydemonstration approach and retrieves the model in a database that most closely matches the user's descriptions.
+We envision a number of practical applications for data miming.
+For example, shoppers in a furniture warehouse could approach a kiosk to perform gestures describing an object that they are looking for.
+The system would look up the closest matches in a database and present the results alongside the locations to the user.
+In an immersive video game , a player could summon objects by describing them spatially.
+The game might tailor the object to the precise dimensions indicated by the player's gestures.
+In such scenarios, data miming observes and makes sense of human gesture, exploits the human sense of spatial references, and uses the richness of hand shape and motion when describing objects to infer the described objects .
+Similar to using gestures when talking to a human observer, data miming observes passively, thereby providing no feedback during the gesture .
+The user, therefore, works solely from a mental image of the described object and their gestures are used to implicitly create a virtual representation of the mental image .
+The virtual representation can be used to classify the described object , but also to extract the object's specifics in order to distinguish it from other instances in that class.
+For example, a user may describe a chair , but may also describe a particular and existing chair that has three legs, slanted from the center, and two feet tall .
+Without those specific details, the reference to that particular chair would be unclear.
+Similar to our data miming approach, many sculpting systems make use of the expressiveness of human gesture.
+While some systems allow the user to shape and transform 3D objects using their hands , others equip the user's hands with tools .
+Other systems derive 3D models from the user's sketches in the air using a stylus .
+Users typically create and refine the 3D model iteratively based on the visual feedback provided by the sculpting application, which allows them to create high-quality 3D models.
+For example, different hand postures result in different brush widths in Surface Drawing  and users create high-quality virtual models with a physical brush in CavePainting .
+While sculpting applications enable users to create new high-quality models, our data miming approach focuses on enabling users to specify existing objects.
+Sculpting applications are inherently interactive, which causes a feedback loop on the user's end; to create the intended model, a user verifies if their actions had the intended outcomes .
+The user thus directly works on the visual representation of the model.
+Data miming, in contrast, passively observes how the user acts and does not provide any feedback; the user thus works solely from their conceptual model of the object.
+We approach this topic as follows.
+In an initial user study, we observe participants describing real-world objects to another person using gestures.
+We instruct participants to describe objects just as they would in a conversation.
+The purpose of this study is to determine how participants describe the various objects, i.e., what gestures they use, and on which parts of objects they concentrate.
+We analyze the patterns that recur when participants specify object dimensions and boundaries, define object faces and the shape of single parts.
+In addition, we observe how participants distinguish between deliberately describing meaningful parts of an object and transitioning between such parts.
+From our observations, we derive the data miming approach, which describes how to create a virtual representation of the user's mental image from the performed gestures.
+We implement a prototype system that observes the user with a single depth-sensing camera and then matches the virtual representation against objects in a database.
+We then run a proof-of-concept study on our prototype system to determine if the features extracted from users' actions suffice to classify and match a described object.
+We find that our system correctly identifies described objects in 60% of all cases from a set of 10 potential matches.
+As it provides no feedback, data miming assumes that users maintain a frame of reference when performing gestures.
+Humans further have the ability to know where both hands are relative in space  and can maintain a spatial anchor outside their body over a brief amount of time .
+Baddeley and Hitch attributed this short-term visual memory for maintaining spatial relationships to the visuospatial sketchpad, a part of the working memory .
+Linguists have studied how speakers use gesture in conversation.
+MacNeill  places a series of gesture types  along a continuum according to the degree to which gesture complements speech.
+Kendon's gesticulation category includes those gestures that complement speech the most.
+Iconic gestures depict a concrete object or event, bear a close formal relationship to the content of the speech, and are used when trying to describe the shape or form of an object.
+Moving along Kendon's continuum, emblems include signs that carry meaning only by convention, such as the "OK" sign.
+Pantomime gestures are similar to iconic gestures in that they depict objects or actions, but do not require speech .
+Finally, sign languages stand in place of spoken languages and therefore complement speech the least.
+Data miming performs matching against stored 3D models of objects.
+Because these models are not based on convention but rather the actual shape of real physical objects, we argue that data miming gestures are iconic or pantomime gestures, not emblems.
+While in the case of specifying the class by speech , gesture and speech are clearly complementary; the dependence of one on the other does not have the complexity typical of natural iconic gestures.
+The gestures modeled in the present work are therefore probably best called `pantomime' gestures.
+Many gesture-based input systems allow users to control applications.
+While such gestures ideally resemble corresponding real-world gestures , other operations do not afford a "natural" gesture and need to be defined .
+Gesture Pendant recognizes the user's hand pose and movement for the continuous control of devices .
+Many of the previously mentioned systems use gloves and motion capture devices to determine the stylus' or hand's location and pose in space.
+While this approach of tracking input is reliable, it requires the user to wear a device.
+Related work has often used props to distinguish between meaningful parts of gesture input from random hand motions, such as pressing a button  or pointing at a specific region to perform gestures .
+Figure 2a shows a participant during the study, describing one of the ten objects .
+All objects were located behind the participant.
+For each object, the participant took a close look at the object, then turned away from the object, and described the object through gestures to the experimenter.
+Participants were only instructed to describe objects using gestures--not postures , but received no instructions as to which gestures to use.
+Participants did not use speech during the study, received no feedback, and could not see what the camera recorded.
+Participants finished a description of an object by lowering their arms.
+As shown in Figure 2b, the objects included primitive shapes , objects of medium complexity , as well as more elaborate objects .
+Our intention was to find the degree to which participants' descriptions agree, and the features they include when describing more complex objects.
+All participants were recorded with an overhead video camera for later investigation.
+Overall, participants described all objects in less than six minutes.
+Afterwards, they filled out a questionnaire on prior experience with 3D modeling applications to determine if the tools in such applications inspired and influenced their performances.
+While our prototype does not focus on the speed of matching 3D models, related work has addressed efficient 3D queries to object databases through efficient matching algorithms .
+Modeling-by-example allows partial matching of 3D objects based on single parts .
+All participants not only maintained relative proportions of an object's parts, but also maintained relative scale across objects.
+For example, participants used a large fraction of their arm's length to describe the two tables, while describing the chairs smaller as appropriate.
+It was interesting to see participants' notion of space in each of the three dimensions ; particularly for larger objects, participants seemed to scale objects non-uniformly to adapt sizes relative to the area covered by arm's length in each direction.
+This implied that, by nature of the human body, objects could always be wider than tall, and taller than deep.
+Four participants specified the outline of surfaces with their flat hands and, again, wiped the enclosed area to "fill" it .
+The other eight participants abstracted those medium surfaces to a mere stroke of their flat hand, which they performed repeatedly.
+This was most noticeable for the two chairs.
+Four participants sometimes described a surface only by waving their hand repeatedly, roughly in the place of a surface .
+Participants mostly used a top-down approach to describe objects; after larger, more apparent surfaces they described the smaller parts.
+It was apparent that all participants distinguished between surfaces  and smaller components, such as struts and connections.
+We thus analyze them separately.
+All 12 participants adapted the shape of their hand to match the curved surface and "wiped" up and down the surface repeatedly.
+To describe the cone, for example, all participants formed a closed circle using both thumbs and index fingers and then moved their hands down, thereby driving them apart.
+Their fingers thereby maintained the original shape .
+Those symmetric parts did not necessarily represent the dimensions of the entire object, but would specify certain parts.
+Participants also used simultaneous and symmetric hand movement to describe smaller parts such as legs of chair, or frame of the ladder.
+When the shape of objects resembled that of a box, all participants defined the dimensions of parts of objects .
+Seven participants simultaneously moved both hands in a flat pose back and forth along the bounding dimensions of the object repeatedly.
+Three others held both hands flat in place to define those boundaries.
+Two participants drew wireframes of objects in box shape.
+6 participants used a fist and moved it along the bar to represent a straight bar .
+The other 6 pinched their thumb and index fingers and moved them along the bar .
+Interestingly, only 4 participants tried to match the actual size of a bar with their hand and only when describing objects with connected bars of varying diameters .
+The shape of their hand symbolized grabbing around bars, and they opened their hand accordingly if the bar was too big to fit inside .
+For bigger struts, 6 participants brought their hands to a close distance, held them parallel or connected fingers and palms of both hands to enclose the space between the hands, and moved both hands to trace the shape of a component .
+Large surfaces: All but two participants used their hands to "trace" surfaces, i.e.
+Six of them even wiped the area within boundaries to "fill" it .
+Questionnaire: While nine of the 12 participants reported prior usage of 3D modeling applications , only two participants stated that those tools influenced their descriptions.
+They reported trying to perform extrusion/push and pull operations by moving their hands, and other times they performed sweeping and revolving.
+All participants began describing an object spatially in a top-down fashion immediately after looking at it.
+While participants received no instructions as to the detail of their description, all participants followed a similar approach.
+They abstracted the form of the object, often specified large components and faces first, and finally described some of the characteristic, but smaller components.
+For instance, while all participants indicated the armrests, the pole and foot of the office chair, few described the support of the armrests or the bars connecting the backrest to the seat.
+Similarly, participants described the ladder by indicating all three steps and then highlighting the outer frame.
+Participants often described those parts first that most clearly represented the function of the object .
+They then described the parts that hold the object together.
+Participants made use of symmetric appearances whenever possible; they used both hands with mirrored gestures to describe the shape.
+Likewise, participants used both hands to specify dimensions, either by defining constraining planes or "drawing" the bounding box.
+The actual dimensions of medium- and small-sized surfaces seemed to be unimportant to participants, as only a few times did a participant constrain the dimensions of such objects.
+The majority of participants adapted the shape of their hand to that of the described object or component, stretching  or curling and bringing together fingers  as necessary.
+In contrast, when participants moved their hands to the next part of an object, they would relax their hands and allow them to assume their natural posture .
+For smaller components of an object, such as bars and stands, participants had similar conceptual models for their description.
+They either formed a fist or pinched their thumb and index finger to indicate both round and square bars, along whose shape they then moved the hand.
+The majority of participants thereby ignored the actual diameter of those bars, using hand motion to indicate the shape of such bars .
+In addition to stretching the hand to indicate activity as mentioned above, all participants generally deliberately described parts of the object more slowly, while moving their hands faster when transitioning to another object part.
+For smaller surfaces, participants dwelled in one position for a brief amount of time.
+For lager surfaces, participants repeatedly described the surface and often more carefully than when moving their hands to another part.
+Whenever two components were closely collocated, participants did not dwell between components, but rather treated them as a compound part and changed hand orientation while they were moving their hands .
+Participants often repeatedly indicated this compound component through gestures.
+The previous observations allow us to design data miming as an approach to translate the observed gestures, as they occur, into implications for a virtual representation that seeks to reproduce the user's mental image.
+In particular, we argue that we need not rely on predefined gestures that manifest themselves as a particular part of an object upon recognition.
+The analysis of participants' gestures in the previous study showed that they often traced an object's surfaces and structural elements, thereby essentially recreating the object based on their spatial memory.
+That they often repeatedly traced those identifying parts suggests that the virtual representation of the user's description should also build up over time.
+Those parts that the user has spent more time describing should be weighted more strongly than parts they have covered only briefly.
+Since participants mostly described surfaces of different sizes by waving their hand in the respective area, the user's hand should create a trace in the virtual representation.
+Since the actual path of the gesture is less important, the position and orientation of the user's hands are essential to translate motions correctly.
+In conjunction with the timeaware sensing of gestures, such traces become more meaningful to the virtual representation as the user repeatedly or more slowly covers a certain part of the object.
+The analysis of gestures thereby entirely focuses on the user's hands and neglects position and posture of the user's arms and body.
+While participants mostly varied hand yaw and roll, they typically varied hand pitch only when indicate parallel parts by a vertical pose .
+We assume this to be due to the limited range of angles for hand pitch.
+When the hand is vertical, however, moving the elbow can extend this range.
+In contrast, hand roll and yaw cover a larger range; elbow movement also supports the range of hand yaw.
+Ideally, our approach recognizes and translates only the meaningful parts of a user's gesture, while ignoring motions that only serve to transition the hands to the next part of the object.
+Data miming selects the most closely matching object from the database as follows.
+For each candidate object, the user-created model is aligned with the database model for comparison and measurement of similarity.
+As byproduct we obtain the scale and rotation difference from the user's creation.
+Figure 5: Hand poses and corresponding meanings.
+As objects are mostly assembled from characteristic components, humans describe such characteristic parts separately.
+People also seem to make implicit assumptions about their audience; they do not describe less significant parts, parts that seem implicitly necessary  or features that do not serve to uniquely identify the object.
+We reflect this fragmentary modeling on the user's part in the matching process by allowing the user to omit any part of the object, trusting that the user will specify enough detail given some familiarity with the class of objects under consideration and the variability of shape within that class.
+In the study of discourse, Grice's maxims of co-operation describe the tendency for speakers to lead the listener to a correct understanding.
+In particular, Grice's Maxim of Quantity holds that the speaker will make their contribution as informative as required, and no more .
+Considering the difficulty of sensing muscle relaxation with a camera, data miming forgoes the interpretation of finger curvature to derive the meaning of the current gesture.
+Instead, the user's hands constantly leave a footprint in the virtual representation whose position and orientation corresponds to those of the user's hands in the real world.
+That is, the orientation and posture of the hand at all times determines the volume of the component added to the virtual representation .
+By simply replicating the volumes of the user's hands and representing them in the virtual space, our approach allows for sensing flat and curved hand postures  and also accounts for smaller elements when users form a fist or pinch their fingers .
+It also allows us to consider both hands separately.
+Data miming creates a virtual representation of the user's description in a discretized 3D volume consisting of lmn voxels.
+This voxel space represents the "memory" of the system.
+Each voxel is either active or inactive.
+A scene begins with only inactive voxels and over the course of observing the user's gestures, voxels are activated as appropriate.
+Voxels also have a certain weight, which is increased as the user repeatedly activates the voxel.
+This allows us to capture how users trace the parts of the object: slower and more careful tracing indicates a more meaningful part and thus increased weight, while a faster  motion indicates a less meaningful part of the description .
+The set of voxels below a certain weight are thus ignored, leaving only meaningful parts of the gestures.
+The 3D-scene approach we use is world-anchored, such that its location and orientation does not adapt to the user's position or orientation.
+While the center of the scene is always in front of the user , users are able to maintain this spatial anchor , as object descriptions take only a few seconds in our case.
+Our prototype system uses a Microsoft Kinect camera which provides depth images at 30Hz and a resolution of 640480 .
+The camera has a diagonal field-ofview of 70.
+The prototype processes each camera frame in less than 15ms, thus providing real-time processing of the user's gestures and translation into voxel representation.
+Our prototype system first transforms every pixel in the input image into world coordinates and then crops coordinates  outside a volume of 3ftW  2ftH  2.5ftD .
+This removes the floor, walls, and potential other objects from the depth image .
+The prototype then identifies the user's arms in the image, distinguishing between contiguous regions with only gradually changing depth values to account for overlapping arms, and extracts the user's hands from those regions .
+The prototype system thereby assumes that the user's arms enter from outside and reach into the volume .
+Our prototype then finds the most-distant point of the hand, measuring distance as the length of a path within the shape of the arm , to account for bent elbows and wrists.
+To extract the user's hands, we assume a constant hand length , which has proven to work well in our tests.
+Our prototype also provides an optional calibration for the user's particular hand size.
+Our prototype implements the voxel space as a threedimensional array of positive numbers, effectively a 3D histogram.
+Each voxel has a constant width, height, and depth .
+We placed the center of the voxel space directly in front of the user, roughly at torso level .
+Activating a voxel in the system increases its count in the histogram.
+This implies that voxels through which the user passes repeatedly or more slowly  will have a higher count than voxels the user passes through when moving the arms to the next, meaningful location.
+Simple thresholding across all voxels in the space leaves the meaningful and relevant parts.
+Our prototype calculates the orientation and volume of both hands by tracking the visible area of the hand over time; the system calculates the roll and pitch angle of each hand from the changes in depth values across the visible area.
+If the visible area is too small, such as for vertical hand roll , our prototype estimates based on prior observations how much of the hand must be occluded, and determines the hand orientation accordingly.
+Calculating the yaw angle of the hand is straightforward considering the camera is mounted above the user's head.
+From the observations over time, our system reconstructs the posture of each hand in 3-space, as well as its precise extent in the z-axis .
+Having calculated the orientation of the hands, our prototype then directly translates the position and orientation of the hand into locations of voxels in the voxel space.
+As mentioned before, this comprises activating all voxels in an area that has the same depth, location, and orientation as the user's hand.
+To account for fast hand motions, the system additionally considers the direction of hand movement and activates voxels between the two positions of the same hand in consecutive camera frames.
+Our prototype system detects users' intentions to create finer elements by pinching their fingers and thumb together or moving both hands together.
+As shown in Figure 6d, as soon as our prototype detects such an enclosed region, it processes this region as opposed to the hand .
+It samples the depth values for this region from the surrounding area .
+Voxels become active if they share a location with this enclosed region; the prototype dismisses the actual shape of the hand if it encloses a region.
+This allows users to indicate thinner elements, such as table legs or tripod struts.
+The same applies if the user connects both thumbs and index fingers, thereby enclosing a bigger area.
+The prototype runs ICP after pre-aligning both models .
+This preparation additionally adapts the scale of both models uniformly.
+We neglected rotations around x and y , as users often maintain an object's orientation around those axes, while they tend to "turn" objects towards them when describing .
+The number of z rotations for this algorithm ideally corresponds to the number of vertical faces in the object, often four.
+This algorithm also pre-aligns both models and adapts their scale uniformly.
+While ICP is computationally expensive and takes around 8s to compare two models in our prototype, brute force takes less than 1s, because it operates in the discrete voxel space .
+However, ICP is more flexible in that it rotates the objects around all three axes to find the best match.
+As in the first study, participants' task was to describe a 3D object through gestures to the experimenter .
+Each trial started with a projection of the object onto the wall behind the experimenter, such that only the participant could see it.
+After the participant had studied the object, the projection was turned off and the participant described the object based on their mental representation.
+The experimenter then tried to guess the object and noted it down.
+The study consisted of two sessions: walk-up and instructed.
+Participants always began with the walk-up session, in which they described two objects from each category without any instructions.
+After completing the first session, the experimenter explained to the participant that the system derives faces and legs/struts from the participant's gestures and that single postures did not add to object recognition.
+The experimenter additionally encouraged the participant to describe each object's elements carefully in the second session.
+Overall, participants described three objects from each category during the second session.
+Participants were instructed to stand on an X on the ground and face the experimenter when gesturing.
+While this did not preclude participants from gesturing outside the capture volume or occluding their hands, it ensured that the camera would capture most of the gestures.
+To avoid priming participants, we made no reference to "miming" during instructions.
+The absence of feedback for participants during the study ensured that we could test the gestures participants would use when describing objects to a person as opposed to a camera.
+The use of an experimenter thus precluded participants from falling into an unnaturally detailed and slow demonstration mode.
+Categories as well as object selection from the categories were counterbalanced across participants.
+Overall, each participant completed all 20 trials  in less than 20 minutes.
+Participants filled out a questionnaire on experience with 3D modeling tools after the study.
+In order to encourage participants to provide a sufficiently detailed description of each object, the experimenter never saw the object projected on the wall.
+This required the participant to perform careful and understandable gestures.
+As in the first study, participants were instructed to describe objects using gestures and not complement their gestures with speech.
+They received no feedback from the system or the experimenter, as this might have impacted how they perform descriptions.
+Our system captured all interaction with a Microsoft Kinect camera.
+During the study, the system recorded a video of participants' gestures at 640480 pixels resolution with depth information at 30Hz.
+We processed and evaluated all study videos post-hoc with our prototype.
+The system was running Windows 7 Ultimate, powered by an Intel Core2Duo 2.13 GHz processor and 6GB of RAM.
+We used an off-the-shelf projector to present objects to participants.
+Before the study, the experimenter presented all categories and objects to the participant, such that the participant could become familiar with the set of objects and learn about the level of detail necessary in the description to uniquely determine the object.
+We experienced two types of outliers during the study.
+The first relates to occlusion and the limits of the capture volume; while we experienced only five such cases in the walk-up session, because participants leaned into the capture volume with their head, we removed ten more trials from the instructed session .
+In some of these cases, participants held one hand up, though inactive, and thereby obstructed the camera view onto their other hand, which was gesturing.
+The second type of outlier relates to variations in human behavior.
+In some cases, participants performed gestures too fast to be captured by the camera, finishing a trial in less than two seconds.
+Two participants, for example, held their fingers and arms together to indicate the cross .
+While data miming does not account for recognizing shapes from a single posture, we chose not to remove these "outliers" for the analysis of this study.
+We take a two-fold approach in measuring the recognition rate of our prototype.
+We check if the most-closely matching model from the database is the model the participant had to describe , as well as if the described object is among the three most-closely matching models .
+All numbers compare against chance = 10% for the first approach and 34% for the second.
+As shown in Figure 9a, our prototype system retrieved the participant's described object in 60% of all trials .
+In 87% of all cases, our prototype retrieved the intended object amongst the three mostclosely matching models.
+We now break out these numbers into the different factors.
+The results of the study support our data miming approach, which performed particularly well after participants had been given a few instructions  or when returning several most-closely matching objects.
+Surprisingly, however, the recognition rate of the primitive solids and parallelepipeds was lower than that of the other two categories when considering the most closely matching object.
+The considerable difference to closestthree, however, suggests that this low performance is due to the similarity of objects in those two categories in general.
+Our study also supports findings in the related work.
+Working solely on their mental image and receiving no feedback, participants' gestures resulted in 3D representations that could mostly be recognized .
+Participants used fluid and directed gestures to describe object parts, such that straight lines  and faces  looked proper and not jagged .
+Our results also confirm that participants were able to maintain a spatial reference while performing gestures using both hands .
+Participants maintained relative scale and references when gesturing due to their visuospatial memory , which also reflects prior insights .
+We suspect that our study differs from the real world in that users might be more familiar with the object they are describing.
+On the other hand, our study design matches the case where the user only roughly knows what they want and "sketches" the desired object.
+A system for such a task would benefit from the closest-three approach; a user specifies an object through gestures, upon which the system returns the three most-closely matching objects.
+The user then picks one, starts over, or continues to gesture more detail, because it has become apparent that they underspecified the object.
+Alternatively, the closest-three results might be consumed by a larger system that models the context of the interaction, such as the spoken dialogue .
+Figure 9: Matching results for participants' performances, showing success rates for top-match  and closest-three .
+Error bars encode standard error of the mean.
+A two-way ANOVA on recognition rate with participant as the random variable did not find an effect of category on top-match performance  or closest-three matches .
+The numbers, however, exhibit interesting patterns .
+While the matched object for descriptions of primitive solids was only correct in about half of all cases, this number increased substantially for the closest-three approach .
+The accuracy of matching parallelepipeds exhibits a similar pattern.
+For example, the user could say "chair" and then specify a particular chair by gesturing to indicate a uniquely identifying feature  of the chair's shape.
+Interactive systems can thus use data miming for input as users describe objects focusing on their mental image.
+We have presented data miming as an approach to inferring spatial objects from the user's gestures when describing physical objects.
+Our approach results from observations in a user study, in which participants described real-world objects to another person using gestures.
+We implemented a proof-of-concept prototype system, which passively observes the user's gestures with a depth camera and models the trace of the user's hands with a discrete and time-aware voxel representation.
+Data miming proved useful in a final study and recognized participants' iconic or pantomime gestures while describing physical objects.
+That our implementation performs as well as it does suggests that people do carry 3D mental images of objects, and that they readily replicate this 3D imagery in gesture with surprising fidelity.
+Although promising, our results show that next versions of data miming need to incorporate multiple cameras to mitigate occlusion, and also recognize compound hand postures.
+While easy to detect for humans, future prototypes need to recognize distorted and out-of-shape objects.
+While the findings reported in this paper are limited to the tested objects, we believe they extend to others that consist of struts and faces.
+Of course, linguists have observed many gesture strategies that do not follow a 3D model.
+For example, a participant might have indicated the red `S'-shaped chair  with a "wavy" motion of the hand.
+While the form of this gesture might not match the actual 3D shape of the chair's back, it instead conveys an abstract quality of the shape.
+A more feature-based or machine-learning approach driven by training examples might capture some non-literal aspects of gesture behavior.
+Extending data miming to handle such metaphoric gestures is an interesting avenue of future work.

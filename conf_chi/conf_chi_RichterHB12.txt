@@ -1,0 +1,88 @@
+In order to enable personalized functionality, such as to log tabletop activity by user, tabletop systems need to recognize users.
+DiamondTouch does so reliably, but requires users to stay in assigned seats and cannot recognize users across sessions.
+We propose a different approach based on distinguishing users' shoes.
+While users are interacting with the table, our system Bootstrapper observes their shoes using one or more depth cameras mounted to the edge of the table.
+It then identifies users by matching camera images with a database of known shoe images.
+When multiple users interact, Bootstrapper associates touches with shoes based on hand orientation.
+The approach can be implemented using consumer depth cameras because  shoes offer large distinct features such as color,  shoes naturally align themselves with the ground, giving the system a well-defined perspective and thus reduced ambiguity.
+We report two simple studies in which Bootstrapper recognized participants from a database of 18 users with 95.8% accuracy.
+Alternatively, face recognition recognizes users reliably , but requires a frontal high-quality image of users' faces, which interferes with users moving around the tabletop.
+In this paper, we propose a new perspective on the problem: instead of distinguishing users' hands or faces, we distinguish their shoes.
+Figure 1 shows our prototype system Bootstrapper.
+Its main element is a depth camera , which is mounted at each side of a diffuse illumination  multitouch table .
+The depth cameras point downwards at the space where users stand, which is illuminated homogenously by lights located inside the base.
+In order to enable personalized functionality and menus, to track achievements in multi-player games, or to enforce social protocol , a tabletop system needs to be able to know which touch belongs to whom.
+Electronic rings  allow identifying touches reliably, but require maintenance, such as recharging batteries.
+Alternatively, DiamondTouch identifies users based on the chairs they sit in .
+However, this only identifies chairs, thus users still need to identify themselves at the beginning of each session.
+When dealing with users who are likely to move around, such as children in a free-flow learning environment, these limitations are problematic.
+Researchers have therefore explored how to distinguish users directly.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Figure 2 shows how Bootstrapper tracks students' progress with an educational software package.
+This makes identity spoofing possible by buying the same shoes as someone else, which is inherent to clothing-based recognition.
+Second, Bootstrapper currently recognizes users only when at least one shoe stands flat on the ground.
+Future versions may alleviate this with a virtual viewpoint transformation.
+Third, users can mislead Bootstrapper's touch-to-user association by contorting their hands.
+Due to these limitations, we see Bootstrapper being used primarily for signing into non-critical accounts, such as learner or gamer profiles or for interface personalization.
+In contrast, Bootstrapper is not appropriate for applications that require true security, such as to work with computer accounts or for accessing banking information.
+Our main contribution is the idea to reformulate the user recognition problem as a shoe recognition problem.
+Based on this, we demonstrate a hardware setup and an algorithm that associates shoes with touch input and that locates a user's shoes in the user database.
+Our recognition reaches 95.8%, which is sufficiently accurate for groups the size of a lab group, school, or kindergarten class .
+Bootstrapper successfully associates users with their touches in 92.3% to 100% for 5 to 1 concurrent users.
+Both users keep practicing and Bootstrapper adds their achievements to their respective badges.
+Stephan can leave and come back anytime and is recognized.
+The next day, however, he is wearing a new pair of shoes.
+Bootstrapper does not recognize him and therefore  creates a placeholder badge for him.
+He selects his own badge from the list, which merges his accounts and adds his new shoes to his existing account.
+Inspecting the performance of his students with the individual exercises helps him understand how to best support each one of them.
+The work in this paper is related to user identification on multitouch systems and to shoe recognition.
+Researchers have proposed identifying users with unique tokens, such as by combining optical recognition with RFID tags , using a ring that flashes a unique ID sequence to the table  or combining an electronic wristband with an analysis of hand orientation .
+Instead of instrumenting users, DiamondTouch instruments the chair, i.e., an object that users touch only during the session .
+A different track of research has explored the use of biometrics for user identification.
+Several researchers expect fingerprints scanning to eventually be integrated into multitouch hardware .
+Identifying users by their hands, in contrast, demands that the whole hand be placed on the surface .
+Face recognition achieves high success rates, but requires users to directly face the camera .
+Other researchers proposed to distinguish users based on shoes or gait.
+Smart Floor identifies users by observing the forces and timing of the individual phases of walking .
+Multitoe  identified users by their sole patterns.
+Both require an instrumented floor.
+Similar to Bootstrapper, Medusa locates users around a tabletop computer and associates touches with them , using a multitude of proximity sensors.
+This approach does not afford user identification, however.
+Bootstrapper supports walk-up use and persists profiles across sessions.
+Unlike approaches based on hand recognition, users hands are free to interact.
+Unlike traditional biometric features, such as fingerprints or pupils, shoe recognition can be implemented with comparably coarse hardware.
+The reason is that shoes offer large visual features, such as distinct colors, seams, laces, logos, or stripes.
+These can be recognized from a distance using inexpensive consumer cameras.
+The recognition problem solved by Bootstrapper is comparably simple: unlike other parts of the human body, such as hands and faces, shoes maintain direct contact with the ground most of the time.
+This constrains shoes to translation and rotation in the plane, which simplifies the recognition problem .
+Bootstrapper is subject to three limitations.
+First, two users wearing the same shoes will be assigned the same profile.
+Figure 4 illustrates the processing pipeline.
+To identify users, Bootstrapper compares the RGB shoe image with all shoe images in its database.
+To obtain a better quality color image than provided by Kinect, we complemented Bootstrapper with a separate webcam.
+We currently employ two separate matching functions: SURF  and color histograms matching using Bhattacharyya distance.
+Our system uses the SURF implementation provided by OpenCV 2.3  with hessian threshold set to 200 for additional features and default parameters otherwise.
+We refine the feature extraction using clustering and a probabilistic verification .
+Earlier versions of Bootstrapper used SIFT and Earth movers distance on color and depth histograms, but were too slow for real-time use.
+If none of the shoes in the database reach an empirically determined threshold for a period of 5 frames, Bootstrapper creates a new user and displays a placeholder badge.
+We conducted a brief technical evaluation to determine the recognition rates of the different algorithms.
+We recruited 18 random participants  from our institution.
+Each participant interacted with a puzzle application for two minutes and Bootstrapper captured and stored 20 samples of their shoes at random times.
+A week later, we brought the same participants, wearing the same shoes back to the lab and repeated the procedure.
+Results: We performed a two-fold cross-validation of the two matching algorithms and their combination with all 720 captured images, extracting features from a single frame.
+In addition, we evaluated a majority voting across ten frames, which achieved the highest accuracy .
+Regarding speed, our implementation took 47ms for histogram matching, 2.5s for SURF, and 0.74s for combined on average.
+Combined is faster than just SURF, because we invoke SURF only when histogram returns a low confidence score.
+All results were calculated on a 2.2GHz Intel Core-i7 2720QM with 4GB RAM.
+As expected, error rates varied across different types of shoes and dark shoes were the most error prone .
+Overall, however, recognition rates of 93.3% for a single frame and 95.8% across multiple frames are appropriate for a wide range of applications, such as the aforementioned scenario of tracking learning progress.
+For future work, we plan to adapt Bootstrapper to different form factors, including the traditional coffee table shape, to match shoes based on depth data, and to explore our approach in non-tabletop scenarios, such as to profile customers while shopping.
+We also plan to explore user recognition based on users' clothing using a single overhead camera, which will facilitate touch-to-user associations .
+To determine the accuracy of the touch-to-user association, we conducted a second study and recruited 13 new participants.
+During each trial, the participant stood at one of the 4 positions shown in Figure 8.
+They now acquired one of 5 different targets located on the screen using the right hand.
+The experiment comprised 3 blocks, resulting in 60 trials per participant and 780 overall trials.
+All targets and standing positions were selected randomly.
+We measured the angular distance between where our algorithm predicted the user and the participant's actual position.
+Results: The median angular error for our predictions was 32 degrees across all trials.
+Whether a touch is associated with the correct user depends on how tightly users are huddled around the table.

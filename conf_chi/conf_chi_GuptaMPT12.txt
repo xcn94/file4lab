@@ -1,0 +1,128 @@
+Gesture is becoming an increasingly popular means of interacting with computers.
+However, it is still relatively costly to deploy robust gesture recognition sensors in existing mobile platforms.
+We present SoundWave, a technique that leverages the speaker and microphone already embedded in most commodity devices to sense in-air gestures around the device.
+To do this, we generate an inaudible tone, which gets frequency-shifted when it reflects off moving objects like the hand.
+We measure this shift with the microphone to infer various gestures.
+In this note, we describe the phenomena and detection algorithm, demonstrate a variety of gestures, and present an informal evaluation on the robustness of this approach across different devices and people.
+Recent advances in computer vision techniques have popularized hand and body gestures for interacting with computers.
+For example, the Toshiba Qosmio G55 laptop uses its front-facing RGB webcam to allow the user to control PowerPoint slides or music/video playback.
+Unfortunately, vision-based gesture recognition techniques are generally brittle  and require quite a bit of processing power.
+The Microsoft Xbox Kinect is another example of a successfully deployed computer vision system, but miniaturizing this technology and making it practical for mobile devices may take some time.
+As an alternative, sonic gesture sensing has been shown to be a reliable tool for sensing a variety of in-air gestures for controlling interfaces.
+Current technologies, however, have focused on separate transducers and receivers rather than leveraging arguably the most ubiquitous components in computing systems: the speaker and microphone.
+To this end, we present SoundWave, a sound-based gesture sensing approach that utilizes the existing audio hardware of mobile devices.
+This technique uses a well-understood phenomenon known as the "Doppler effect" or "Doppler shift", which characterizes the frequency change of a sound wave as a listener moves toward or away from the source.
+A common example is the change in pitch of a vehicle siren as it approaches, passes, and then moves away from the listener.
+Using this effect, SoundWave detects motion in front of and around a computing device and uses properties of the detected motion - such as speed, direction, and amplitude - to recognize a rich set of gestures.
+For instance, the direction and speed of a hand moving up or down can be sensed to scroll a webpage in real-time .
+SoundWave can also, for example, detect two hands moving in opposite directions, which we use as a "rotation" gesture in our example applications.
+Unlike vision, SoundWave can detect gestures without line of sight, making it complementary to vision-based systems.
+We are not the first to use sonic techniques or the Doppler effect for gesture and motion sensing.
+For example, Tarzia et al.
+They used the reflected Dopplershifted signal to infer human motion and upper body kinematics in an interactive space .
+More recently, Kalgaonkar et al.
+They placed one transmitter and two receivers in a triangle pattern where gestures could be per-
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Figure 2:  Pilot tone with no motion.
+A single scan would not capture the true shift in frequency and would terminate at the local minima.
+A second scan compensates for the bandwidth of the shifted peak.
+While these projects show the potential of low-cost sonic gesture sensing, they require custom hardware, which is a significant barrier to widespread adoption.
+In our work, we focus on a solution that works across a wide range of existing hardware to facilitate immediate application development and adoption.
+18 kHz since they are generally inaudible .
+Additionally, the higher the frequency, the greater the shift for a given velocity, which makes it computationally easier to estimate motion at a given resolution.
+The upper bound is largely a function of most laptop and phone speaker systems only being capable of producing audio at up to 22 kHz.
+Fortunately, we do not need much higher frequencies to sense the relatively coarse gestures we are targeting.
+Due to variations in hardware as well as filtering in sound and microphone systems, SoundWave requires an initial calibration to find the optimal tone frequency .
+It performs a 500 ms frequency sweep, and keeps track of peak amplitude measurements as well as the number of candidate motion events detected .
+SoundWave selects the highest frequency at which minimum false events are detected and the peak is most isolated .
+The system consistently favors the 18-19 kHz range.
+With the high-frequency tone being emitted, any motion in proximity  of the laptop will cause Doppler-shifted reflections to be picked up by the microphone, which is continuously sampled at 44.1 kHz.
+We buffer the incoming time-domain signal from the microphone and compute the Fast Fourier Transform  with 2048-point Hamming window vectors.
+This yields 1024-point magnitude vectors that are spread equally over the spectral width of 22.05 kHz.
+After each FFT vector is computed, it is further processed by our pipeline: signal conditioning, bandwidth extraction, motion detection, and feature extraction.
+Signal Conditioning: Informal tests with multiple people indicated that the fastest speed at which they could move their hands in front of a laptop was about 3.9 m/sec.
+Hence, we conservatively bound signals of interest at 6 m/sec.
+Given our sampling rate and FFT size, this yields about 33 frequency bins on either side of the emitted peak.
+Bandwidth Extraction: As seen in Figure 2, motion around the device creates a shifted frequency that effectively increases the bandwidth of the pilot tone .
+To detect this, SoundWave computes the bandwidth of the pilot tone by scanning the frequency bins on both sides in-
+The phenomenon SoundWave uses to sense motion is the shift in frequency of a sound wave in response to a moving object, an effect called the Doppler effect.
+This frequency shift is proportional to source frequency and to the velocity with which the object moves.
+In our approach, the original source  and listener  are stationary, thus in absence of any motion, there is no frequency change.
+When a user moves his hand, however, it reflects the waves, causing a shift in frequency.
+This frequency is measured by the microphone  and can be described by the following equation, which is used for Doppler radar as well as for estimating frequency changes in reflection of light by a moving mirror :
+Figure 2 shows the frequency of the signal  when no motion is present and when a hand is moved  away from or  closer to the laptop.
+This change in frequency as a hand moves farther or closer is one of the many characteristic properties of the received signal that we leverage in detecting motion and constructing gestures.
+Using a relative amplitude drop allows the system to respond dynamically, such as when the user changes the volume of the speakers.
+To address this, we perform a second scan, looking beyond the stopping point of the first scan.
+If a second peak with at least 30% of the primary tone's energy is found, the first scan is repeated to find amplitude drops calculated from the second peak.
+To verify our approach, we analyzed various hand motions at different speeds.
+Using our percentage-based thresholds, we found that motion can be detected in each case with near-perfect accuracy.
+We note that we did not change these percentage thresholds as we tested SoundWave on different computing devices or with different people.
+Motion Detection and Feature Extraction: The frequency vectors have a per-bin resolution of 21.5 Hz.
+With a pilot tone of 20 kHz this translates to detecting movements as slow as 18.5 cm/sec.
+In practice, we have found that the bandwidth of the pilot tone itself with no motion is ~80 Hz, which can vary from 60-120 Hz  depending on the quality of the sound system.
+Thus, we consider a "motion event" to occur when there is a frequency shift bandwidth of 4 or more bins.
+We have found that this threshold allows sufficiently slow movements of the hand to be detected while ignoring false positives due to variations in the bandwidth.
+The features described above can then be combined to form complex gestures .
+Scrolling: We found that mapping motion events directly to control scrolling, such as for a web browser, works quite well.
+However, a clutching mechanism is required to prevent inadvertent scrolling as the hand returns to a particular position.
+Using the velocity feature and scrolling only when it meets a certain speed criterion makes this possible.
+We also investigated using a `double-tap' gesture to activate scrolling and using an idle timeout for deactivation.
+Single-Tap or Double-Tap: By observing the change in direction over time, the `frequency' at which the direction is changing can be computed.
+The value of this direction frequency can be used for detecting tap gestures, which can be further used to distinguish quick taps, much like a mouse double-click, from slower taps.
+In a Tetris application, we mapped slow taps to `left' and quick taps to `right' and were able to maneuver with reasonable precision.
+Two-Handed Seesaw: This gesture requires moving both hands simultaneously in opposite directions at the same time.
+It is detected by the presence of both up- and downshifted frequency components in the same FFT vector.
+We mapped this gesture to rotation action in the Tetris game.
+Sustained Motion: This gesture is activated when at least N consecutive motion events in the same direction are detected.
+A large N can signify that a person is walking .
+We have used the walking gesture to automatically put a computer to sleep or wake it up as a user walks away from or toward it.
+In a game of Tetris, we mapped a `pull back' gesture  to the `drop block' action.
+Lastly, we implemented a `flick' gesture with a sustained-motion threshold of N=5 events to allow users to browse a photo album by moving her hands left or right; in this case we also put a maximum and minimum limit on gesture speed.
+In addition to the fundamental frequency shift, we can also compute other useful features for inferring gestures.
+Velocity: The measured frequency change is proportional to the absolute speed of the target.
+SoundWave can measure the difference between the original and reflected frequencies to differentiate slow, medium, and fast gestures.
+Direction: Determining whether the hand is moving toward or away from the computing device can be made from the sign of the frequency shift.
+A positive shift indicates movement toward the device.
+Proximity and Size of Target: The amplitude of the observed signal increases as the target moves closer to the computing device, and it also increases with size and reflectivity of the target.
+For example, a larger hand or open palm manifests as larger amplitude than a smaller or fisted hand.
+Time Variation: Measuring the variation of the above three properties over time allows us to both observe the rate of change and use it for filtering spurious signals.
+For example, any motion that lasts for a very short period of time can be reliably filtered out, while longer lasting motion events can be used to identify activities like walking toward or away from the device.
+To support our claim that SoundWave could potentially work with most commodity computing platforms, we tested SoundWave on 11 different computers: five desktop PCs , 2 MacBook Pros , a Lenovo T61p, an IBM Thinkpad T43, a Dell Studio 1555, and a HP EliteBook laptop.
+We found that all of them performed similarly to our performance results without any changes to the algorithms or thresholds.
+This also included two desktop PCs with an external USB soundcard and microphone.
+To ensure that SoundWave works across people, we tested it with 6 individuals.
+We asked them to control 3 applica-
+Although it took a few minutes for users to understand how to perform certain gestures, all users were able to successfully control all 3 applications.
+To measure how well gestures can be detected using SoundWave, we asked 3 users  aged 25-28 to perform 5 different gestures.
+Each user performed 10 repetitions of each gesture in both quiet and noisy environments.
+The first was in a home environment  and the second in a noisy cafeteria .
+This task was repeated twice for each user.
+In total, 600 gestures were performed.
+SoundWave performed well irrespective of the location .
+This was especially the case for two-handed gestures.
+Quick taps performed the worst since users tended to move their fingers rather than their palm; different fingers generated different velocity components.
+However, this may not be a problem in applications where there is visual feedback.
+To measure the number of times any unintended motion was detected, we conducted an hour-long test in each of the two locations.
+Users sat in front of the laptop, but neither performed any explicit gesture nor typed on the keyboard.
+For the home environment, an average of 2.5 false motion events occurred per minute, whereas for the cafe 6 events per minute were detected.
+Though relatively high, setting a threshold of N=4 for consecutive events eliminates the interpretation of these `motions' as `gestures.'
+Here N means the number of consecutive motion events or FFT frames, i.e.
+Therefore, although motion was detected, post-processing these events with N=4 resulted in 0 false gesture detections, i.e.
+Because laptop microphones are generally housed in the bezel around the keyboard, the number of false events detected greatly increases when a user types.
+We mitigate this by disabling SoundWave when we know the user is typing, similar to what track-pads do to prevent accidental input.
+We also confirmed that we are able to play audible music on the same laptop while successfully detecting motion events.
+We found that music does not harm performance, because frequencies seldom conflict and the threshold adapts.
+SoundWave is a promising approach for sensing interactive in-air gestures with no additional hardware requirements.
+However, it is not without limitations.
+The key drawback of this approach is the dependence on a tone, which may be audible and possibly annoying for children and pets.
+In addition, some devices incorporate filtering that prevents tone generation or recording over 18 kHz; a potential solution to this problem is "piggy-backing" a tone on a user's digital music.
+Additionally, using Doppler shift inherently limits detection to motion gestures, thus requiring other complimentary techniques for detection of static poses.
+In this work, the algorithms presented were implemented and tested on various laptops and desktop PCs, however this approach extends to smart phones and tablets.
+Anecdotally, we observe the same frequency shift when performing gestures in front of mobile phones.
+Computational complexity and power requirements on such devices can be further reduced by using Goertzel's algorithm for computing selective frequency bins instead of a complete FFT.
+We believe gesture sets could be extended beyond the ones presented here by using techniques like Hidden Markov Models for multi-state gestures.
+Many newer mobile devices also have multiple speakers and microphones that we could leverage for gesture localization.
+In this paper, we described the use of the Doppler effect to build a software-only solution capable of sensing motion gestures on commodity computing hardware.
+Furthermore, we detailed a robust algorithm for detecting motion events and using characteristics of the sensed signal for implementing two-handed gestures, as well as more complex gestures such as double-tap.
+Lastly, we showed the robustness of the approach across different devices, users, and environments.

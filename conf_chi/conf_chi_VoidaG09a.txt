@@ -1,0 +1,102 @@
+Hierarchical file systems and file browsers offer powerful capabilities for managing and organizing folders and files.
+Yet they lack robust tools for annotating and documenting these files--individually or collectively--with descriptive text.
+In contrast, Web pages and wikis make it easy to embed digital artifacts in explanatory images and prose, thus enabling rich and meaningful narratives.
+Unfortunately, they require considerable effort to manage individual files and ensure that the published content remains up-to-date.
+In this note, we describe WikiFolders, a hybrid system for annotating file folders that draws upon the strengths of both the hierarchical file system and wikis while mitigating their weaknesses.
+Some annotation is system supplied: the extension and icon associated with the file type, the date the file was last modified, and perhaps a thumbnail view of the file's contents.
+These capabilities are, at best, rudimentary.
+People cannot annotate their folders with descriptive text.
+They cannot collect subsets of files within a folder and annotate individual subsets.
+They cannot add prose that relates several files together.
+Consequently, people often rely on memory to recall the purpose of folders and files, or they use a workaround such as "readme" files located in the folder.
+By way of contrast, consider the design of the World Wide Web.
+Web pages essentially serve as rich index documents for content  stored on computers.
+However, the design philosophy of the Web places value and focus both on the artifacts  and the semantically rich descriptions about the content  .
+On the Web, people can add prose and images to individual pages to describe a page's purpose and meaning.
+They can "attach" files to pages, providing arbitrarily complex or descriptive names to be displayed for each artifact.
+They can embed these file descriptions within even richer narratives.
+They can organize subsets of their files in multiple ways .
+Collaborative Web sites, or wikis, have made it even easier to create and edit the descriptive text displayed on a site .
+Yet wikis are not file systems.
+Manipulating the file attachments to a wiki page still requires a nontrivial amount of work: files need to be saved locally and uploaded using a Web browser, and then the page's markup needs to be edited to ensure that the file links refer to the correct files.
+It would be impractical to use a wiki `as is' for the day-to-day filing and annotation of individual digital artifacts.
+So, while file browsers are excellent for allowing people to create, modify, move, and delete files, they provide extremely limited capabilities for annotating these artifacts.
+Wikis, on the other hand, are extremely well-suited to annotating information, but considerable effort is required to modify and reorganize the files attached to their pages.
+What is needed is a middle ground that integrates the best aspects of file browsers and wikis.
+Traditional hierarchical file systems allow people to organize and see their digital artifacts.
+Generally speaking, organizational capabilities are offered through a direct manipulation interface that lets people create folder hierarchies and locate files within them.
+Folder visualizations of contained items are typically limited to sorted or spatially organized lists of file and folder names or thumbnail icons.
+While other organizational strategies have been suggested , the hierarchical folder/file remains the dominant organizational paradigm.
+Yet hierarchical organization is not enough.
+People also require the ability to annotate their artifacts and collections.
+The problem is that today's file browsers are surprisingly limited in their annotation capabilities.
+Some annotation is specified by the user: people must name their folders and files.
+Different representations of an annotated folder using WikiFolders.
+The markup editing icon, markup removal applet, and rendering timestamp are all automatically added during the rendering process.
+Our WikiFolders prototype works by modifying how a folder appears within the existing Mac OS X file browser.
+Its purpose is to enable individuals to organize and document their digital artifacts as if the folder itself were a wiki page .
+The end user sees the traditional file browser interface as usual, with typical options of displaying files as lists, icons, and so on.
+However, there are several key differences: 1.
+The user has the additional option of seeing file listings in a text editor, adding text annotations to the listing, and modifying its appearance and spatial layout through a simplified wiki-based markup language .
+The file browser's "icon" view now displays the folder's contents and associated annotation inline as specified by the user's markup directives .
+The annotated view of the folder is automatically presented to anyone who accesses the folder  using the standard OS X file browser, even if they do not have the WikiFolders application installed themselves.
+The WikiFolders application provides these capabilities without requiring wholesale changes to the underlying filesystem or incurring the interaction costs associated with wikis' publish-and-annotate model.
+In the following sections, we describe the details of the WikiFolders interface design and implementation, noting features that draw from characteristics typically held by the hierarchical filesystem or Web-based wikis.
+Through the main WikiFolders window  a user selects an existing folder and then clicks a button that converts that folder into a WikiFolder.
+Internally, this conversion follows a five-step process.
+First, the WikiFolder application creates an empty document file in the folder entitled "Edit Wiki Formatting."
+The icon representing this file serves as a button; double-clicking it launches the WikiFolders application and the user can begin editing the folder's wiki markup.
+Next, a small application named "Remove Wiki Formatting" is copied to the folder.
+When selected, this application "rolls back" the changes caused by WikiFolders to the folder's original state, even if the main application is inaccessible from a particular user account.
+Third, an invisible wiki markup file is created in the directory  and initially populated with an alphabetically sorted list of links corresponding to each of the files in the folder.
+Fourth, the wiki markup is rendered, providing an initial annotated view of the folder.
+Finally, the WikiFolders application begins monitoring the folder for any changes, which it automatically renders to reflect updates:  current file status as files are created, copied, moved, or deleted inside the folder, or  whenever the wiki markup file is edited.
+One of our design goals was to have WikiFolders work within the existing file browser, rather than to replace it, in order to preserve the file browser's file manipulation capabilities.
+Our general strategy for integrating with the browser involved rendering the wiki markup as a background image behind the file browser's icon view and then positioning the actual icons atop placeholder regions.
+In particular, WikiFolders uses a custom markup-to-HTML conversion engine to transform the folder's markup  into an HTML file.
+The rest of the wiki-style formatting is then converted into corresponding HTML tags.
+The resulting HTML file is wrapped using a predefined template file, which provides the overall look-andfeel for the final WikiFolder appearance.
+The system then renders the converted markup into an image  using the open-source WebKit HTML rendering engine1 and saves the result to a hidden file inside the folder.
+Finally, the application executes a series of short AppleScripts to  direct the OS X file browser to display the hidden background image file behind the folder's icons when browsed in "icon" view and  move each of the file icons in the folder to overlap the position of their corresponding placeholder image in the rendered HTML.
+One advantage of rendering the markup as a background image is that this approach removes the requirement for having the WikiFolders application installed to view the modified folder layout.
+Folders will display with all of the custom formatting, even if, for example, another colleague--who might not even have the WikiFolders application on her computer--were to access it remotely as a shared folder.
+The drawback to this approach is that the markup is not directly accessible for indexing by Spotlight ; however, we believe we can expose the markup text for indexing through a secondary channel.
+An illustration of how each of these wiki markup elements is rendered is annotated in Figure 1.
+Adding markup to the folder does not change any of its characteristics with respect to file management; all of the icons in the window are actual live file icons.
+They can be double-clicked to launch an application or referenced as usual from Open or Save dialog boxes raised by standard system applications.
+Users can edit a WikiFolder's annotations in one of two ways: they can either select the folder and click an "edit" button inside the WikiFolders application, or they can double-click the "Edit Wiki Formatting" icon that appears by default in each WikiFolder's banner region.
+Doubleclicking the icon in the folder simply launches the WikiFolders application and initiates the editing process for the specified folder.
+The markup editor  is a simple text editing widget in the style of most wiki editors.
+It is displayed in a window with a set of reminders of the markup commands that are available, along with buttons that commit the changes or cancel the editing operation.
+Once a user has edited the folder's annotations, the text is saved to the hidden markup file inside the folder.
+Like a web-based wiki, this markup is editable by anyone who has write access to the folder and a copy of the WikiFolders application installed on their computer.
+Since any system application can potentially change the contents of an annotated folder, it is important that the annotation text be kept up-to-date in order to prevent inconsistencies in folder display layout and the contents of the markup file.
+The WikiFolders application maintains a list of all active WikiFolders on the local machine and constantly monitors these folders for changes using the fsevents file monitoring framework in OS X.
+When files are created, the application detects that files have been added and their markup representation is appended to the end of the annotation file.
+Any time the contents of the folder or the markup file are changed, WikiFolders automatically re-renders the folder formatting: it re-synchronizes the folder's appearance with its wiki markup.
+This ensures that individuals can continue to use their folders as usual without having to manually regenerate the annotations after each change.
+A special case is file dragging: one can move a file to other folders, but if it is dragged to a new location within the folder window, it will return to its original position.
+A weakness in traditional hierarchical filesystems is their inability to allow users to attach meaningful annotations to digital artifacts.
+We have adopted some of the lightweight annotation capabilities offered by wikis and created WikiFolders, a system that allows individuals to see an annotated, documented view of their folders within their regular file browser.
+While a seemingly small functional change, WikiFolders contributes a new vision to file organization.
+We anticipate that a broader availability of in-place annotation features like those demonstrated in the WikiFolders prototype might fundamentally change the nature of personal archiving on personal computers.
+Long-term storage of digital artifacts in a hierarchical filesystem currently requires the creation of elaborate folder hierarchies or secondary documents  to serve as an index for these artifacts should they be needed again.
+WikiFolders reduces the need for creating these complex structures and index documents, lowering the bar for properly archiving important materials and reducing the effort required to reorganize files that were previously archived.
+However, visualizing files together with descriptive annotation has benefits beyond long-term archiving.
+Park and Furuta observed that changing work contexts and the accumulation of electronic artifacts can increase the difficulty of effectively resuming interrupted tasks .
+They note that as people construct narratives corresponding to each of their tasks over time, these narratives serve an important function in reminding them of the status of the task and the role of the artifacts embedded in the task.
+Because WikiFolders provides a contextually relevant, convenient, and easily accessible mechanism for storing information about digital artifacts alongside those artifacts, one could easily imagine the system being appropriated as a lightweight, ad hoc task management tool as well.
+Additionally, file sharing is an extremely prevalent collaboration practice, especially among small, tight-knit groups of colleagues .
+Shared files serve as boundary objects in these kinds of collaborations, that is, different participants construct different interpretations of what the files they are collaborating around "mean" .
+Each collaborator might use different language to describe the semantics of a shared file; each might also be inclined to organize these files using a different schema.
+These differing perspectives can make collaborating within traditional hierarchical filesystems challenging.
+Systems like WikiFolders stand to contribute substantial benefits in collaboration scenarios like these, since the ability to embed shared files within descriptive annotations constitutes an inplace communications channel that can be used to communicate colleagues' interpretations of and intentions for various shared files in the context of the browser, itself.
+We deployed a prototype of the WikiFolders application to several colleagues in order to gather initial feedback.
+One advantage they noted that we had not anticipated was that the design of the system might allow for a reduction in the depth of many folder hierarchies.
+Rather than creating several subfolders to organize information, people could use WikiFolders to typographically cluster subsets of files together, and then title and annotate those subsets as desired to distinguish them from each other.
+Other comments revolved around features.
+One request was for the ability to include nontextual content .
+This could be done both as an annotation  or to use markup to specify how multimedia files should be displayed .
+Another request was to make editing more powerful.
+A direct manipulation, live editor would, of course, make it even easier to annotate and document a folder.
+We look forward to taking these comments, together with feedback provided by other, long-term system users, into account as we continue to refine and iterate upon the design of the WikiFolders application.

@@ -1,0 +1,324 @@
+When users copy and paste between two different windows, the process is complicated by window management tasks.
+In this paper, we propose two new window management techniques to facilitate these tasks in the particular case of partially overlapping windows.
+We describe an experiment comparing four commonly used copy-andpaste techniques under four window management conditions - non-overlapping windows, partially overlapping windows, and partially overlapping ones with one of our two window management techniques.
+Results show that our new window management techniques significantly reduce task completion time for all copy-and-paste techniques.
+They also show that X Window copy-and-paste is faster than the other three techniques under all four window management conditions.
+But although these techniques are used by millions of people several times a day, the interaction is still poorly understood.
+The techniques are implemented differently across operating systems and among applications1 but most importantly, to our knowledge, they have never been formally evaluated.
+Copy-paste operations between two different windows usually require users to perform additional window management tasks.
+If the source and destination windows overlap, for example, the user often has to temporarily change the stacking order to specify the objects to copy and the destination.
+Yet again, the interactions and potential interferences between copy-paste and window management operations have received very little attention.
+A notable exception is Dragicevic's work on the Fold n' Drop technique  that could be applied to the particular case of drag-and-drop copy-paste.
+In this paper, we propose two new window management techniques, restack and roll, to facilitate copy-paste between partially overlapping windows.
+We describe an experiment comparing four commonly used copy-paste techniques  under four window management conditions: non-overlapping windows, partially overlapping windows, and partially overlapping ones with one of our two new window-management techniques.
+Results from this experiment show that restack and roll significantly reduce the task completion time for all copy-paste techniques.
+They also show that the X Window technique is faster than the three others under the four window management conditions.
+The paper is organized as follows.
+In the next three sections, we review some of the related work, describe some common copy-paste techniques and report on a series of interviews that illustrate how they are used in practice.
+We then present our restack and roll techniques, detail the experiment that was conducted to evaluate them and compare the four copypaste techniques.
+Finally, we discuss some implications of our results, propose some solutions to the problems identified in the paper and generalize our key ideas into the concept of fine-grained window management.
+Copy-and-paste  is the basic mechanism for replicating part of a document in the same or another document.
+Already available in early systems such as Sketchpad  or NLS , copy-paste is one of the fundamental services provided by modern graphical user interfaces.
+Copy-paste requires the user to specify two things: the object to copy and the destination.
+These can be done in different orders and using various means such as the keyboard, mouse-based direct manipulation or menus.
+Although tiled windows may be more efficient for certain tasks , the overlapping model is the de facto standard for all modern window systems and plays an essential part in the realization of the desktop metaphor.
+The overlapping approach supports both time-based and space-based multiplexing of the screen space by switching  and splitting  .
+However, as the number of windows increases, it imposes time-consuming and potentially complex management tasks on the user.
+The goal of the work presented in this paper is to reduce this overhead.
+Examples of related work include techniques for leafing through stacked windows, peeling them back or making them selectively transparent to access windows underneath , and dynamic space management algorithms to reduce overlapping .
+Users with large displays tend to leave more applications running and associated windows open .
+Like Hutchings and Stasko , we believe that overlapping windows will not disappear with the advent of larger displays.
+First, a variety of devices will keep using small or medium-size screens.
+More fundamentally, although large displays make it easier to develop tiling strategies, interactions across large screen distances may become more complex and time-consuming than keeping windows together on a smaller space.
+Large displays are probably better used to differentiate primary and peripheral activities, i.e.
+We anticipate that larger displays will lead to fewer maximized  windows that completely hide others.
+In some cases, the previously-obscured windows may become tiled on a larger display, but in many others, they will partially overlap.
+Therefore, copying and pasting between partially overlapping windows will remain important.
+Modifying an existing document or combining pieces from several is always easier than creating a new one.
+Designers of the Xerox Star said it elevated the concept of copying to the higher level of "a paradigm for creating" .
+We indeed believe that the combined use of overlapping windows and copy-paste supports innovation and creativity .
+Copy-paste has been studied in specific domains such as programming environments , graphical editors  or ubiquitous computing environments .
+Much previous research has tried to make it "smarter" by analyzing the selected data.
+Citrine , for example, can recognize that structured text has been copied, and paste it in multiple form fields in a single operation.
+Other systems have been proposed to support fast copy-paste of multiple selections or text entities like phone numbers .
+In this work, we are not interested in the objects being copied, or in optimizing copy-paste for a particular domain.
+Rather we are interested in the low-level interactions between copy-paste and window management operations.
+Other differences between copy and cut will be further explained, as needed.
+This selection might be assisted, for example by automatically snapping to the edges of objects for example.
+The user must then  activate the copy command,  specify the destination - in the same window or another one - and  activate the paste command.
+We will now describe several ways of accomplishing these three operations.
+Sketchpad and the Xerox Star had specific Delete, Copy and Move keys that could be used in conjunction with the pointing device.
+Pressing the Copy key on a Star, for example, attached the selection to the cursor, and then a mouse click specified the destination.
+Modern systems do not have specific keys for these functions but support keyboard-based copy-paste in a less modal way:  a first shortcut, e.g.
+CtrlC, causes the selection to be copied;  the user navigates to the destination using the mouse and/or the keyboard;  a second shortcut, e.g.
+We refer to the use of keyboard shortcuts to activate the copy-paste commands as K EY copy-paste.
+In addition to being accessible through keyboard shortcuts, copy-paste commands are usually found in the standard menu bar of applications, e.g., under the Edit item, as icons in palettes and toolbars, and in context menus accessible from the selected objects, e.g., using a right click.
+Menu bars are very similar to context menus but impose additional mouse travel to reach them after selecting objects and after indicating the insertion point.
+Copy and paste icons in toolbars or palettes have the same problem, so we decided to focus on the use of context menus to activate the copy and paste commands.
+We refer to the use of context menus to copy-paste as M ENU copy-paste.
+Drag-and-drop offers a more direct way of performing a copy-paste operation.
+The user simply has to press a mouse button on one of the selected objects, drag the mouse pointer to the destination and release the button.
+However, this technique has several problems.
+First, its semantics are not always easy to determine: although one can reasonably assume that dropping something on a trash icon deletes it, dropping it somewhere else might copy it or move it.
+As a consequence, application designers often disagree with users on what the drag-and-drop operation should do .
+A second problem is that the drag-and-drop requires continuous pressure on the mouse button.
+Besides being fatiguing and error-prone, this can make it difficult to navigate between windows to reach the destination.
+While keyboard shortcuts may make it possible to switch between and close windows, other functions such as minimizing, opening or moving them may be difficult if not impossible.
+Some applications support initiating a drag in an inactive window without bringing it to the foreground, which makes it easier to arrange the source and destination windows before the dragand-drop operation.
+Another interesting solution is the use of time-based navigation techniques.
+As an example, the "spring-loaded" windows of the Mac OS X Finder automatically move to the foreground during a drag-and-drop if the pointer stays more than a certain time over them, go back to their original place if the pointer leaves them and stay on top if the object is dropped.
+A third problem occurs when users make a too-large text selection and try to correct it .
+In this case, pressing the mouse button inside the selected text initiates the drag-anddrop instead of initiating a new selection process.
+We refer to this problem as the drag vs. subselection problem.
+Note that an easy workaround is to perform a simple click to cancel the selection and then press-drag-release to make a new one.
+We refer to the use of drag-and-drop to copy-paste as D N D copy-paste.
+We interviewed twenty-one people on their copy-and-paste and cut-and-paste habits, specifically of text.
+We consider these people as "expert users", most of them being computer science students or engineers.
+Among them, ten use the X Window system, eight use Microsoft Windows and three use Apple Mac OS X.
+Before asking specific questions on copy-paste, we questioned the participants on how they arrange their windows.
+The use of partially overlapped windows was quite common.
+Eleven said they either use maximized windows or partially overlapped ones, depending on the applications they run and their tasks.
+Four said they primarily use maximized windows, and four that they primarily use partially overlapped windows.
+Only two said they carefully arrange their windows by resizing and moving them following a tiling approach.
+These two participants also use maximized windows.
+Three participants said they rarely use copy-paste.
+All the others said they use it very often between windows.
+OS X and Windows users mostly use K EY copy-paste.
+X Window users mostly use K EY and X copy-paste, two having said they only use X copy-paste .
+One said he uses X copy-paste only in terminal applications where Ctrl-C is used to interrupt programs and the replacement shortcut requires both hands.
+This participant was a long time Windows user who switched to X Window two years ago.
+Only two participants said they use M ENU copy-paste more than K EY copy-paste, both being Windows users and one of them having said he rarely uses copy-paste.
+Most people said they use M ENU copy-paste.
+Three participants said they use D N D cut-and-paste for text from time to time, but two said they only use it in a single window.
+The other participants were unable to say if a dragand-drop moves or copies text.
+The drag vs. subselection problem was never mentioned.
+But when explained to the participants, thirteen said they had run into it.
+Among the ten users of the X copy-paste, five mentioned the volatility problem described in the previous section.
+One participant said he often loses selections as he likes to select text to highlight it as he reads it.
+Another said he uses X copy-paste only when both source and destination windows are visible because he fears to lose the selection when he performs "complex" window management tasks like virtual desktop switching.
+The five X copy-paste users that didn't mention the volatility problem said they ran into it after we described it.
+Some said this was one of the reasons why they also use K EY copy-paste and not only X copy-paste.
+We asked a few specific questions about clipboard history tools - tools that keep track of copy operations and support easy reuse of previously copied items.
+Nine participants said they had tried such tools, but do not use them anymore .
+We will come back to this topic in the DISCUSSION section.
+The X Window system features a simple copy-paste technique: a click on a window with the middle mouse button3 pastes the last selection at the insertion point of that window .
+This technique minimizes the number of user actions: it works as if the copy command was implicitly executed after each selection, and the mouse action that pastes also specifies the destination.
+Both mechanisms can be used at the same time.
+One drawback of the implicit copy approach is the volatility of the primary X selection, as illustrated by the following scenario:
+The user selects a URL to paste in the location field of a Web browser.
+The field holds a previous URL.
+The user decides to clear it before pasting the new one: he triple-clicks on it, which selects it, and presses the Delete key.
+When he presses the middle mouse button, the URL he just deleted reappears...
+3 The X protocol was originally designed for mice with up to three buttons: left, right and middle .
+The middle one was sometimes simulated by pressing the two others simultaneously or pressing one of them with a modifier key.
+Most mice now have three or more buttons, a clickable scroll wheel being often used as the middle one.
+All participants said they are generally happy with the way copy-paste works on their system.
+Some of them complained about the fact that the selection snaps to words.
+H elo ise is editing a text document in a window that partially covers a Web browser.
+She wants to copy part of the text visible in the browser into her document.
+She selects the relevant text in the browser with a press-drag-release gesture.
+As she presses the mouse button, the browser is brought to the foreground.
+When she releases it, the browser stays on top, partially covering her document.
+H elo ise presses Ctrl-C to copy the selection.
+She clicks on her document to bring it to the foreground and presses Ctrl-V to paste the text.
+When H elo ise presses the mouse button to initiate the text selection in the browser, it is brought to the foreground.
+As she keeps the button pressed and starts dragging the mouse, the system infers that she is not indicating primary interest.
+As a consequence, when she releases the button, the browser returns to its original place in the stacking order, behind the document.
+It keeps the keyboard focus though, so that H elo ise can drag the selection but also use Ctrl-C to copy it.
+Had she decided to use a context menu, it would have been displayed in the foreground, but the browser would have stayed in its place.
+She can now easily drag-and-drop the selection or paste it using Ctrl-V or a context menu in the document.
+Looking at this example, one might think that the window management overhead is small, consisting in a single click on the document to bring it back to the front.
+But reaching this document might be difficult, since it is now behind the browser.
+It might even be impossible if it is fully covered .
+Clicking on the document might move the insertion point and require further navigation inside it.
+Clicking on the window decorations solves this problem, but they are small and thus difficult to select .
+Finally, the overall copy-paste operation changes the stacking order of the browser which, as the window second from the top of the window stack, might now cover other windows.
+The root cause of these problems is that as soon as H elo ise starts interacting with a window, the system assumes it to be her primary interest.
+Current windowing systems provide little support to indicate secondary interest.
+The "focus follows mouse" policy implemented by some systems, as opposed to "click to focus", is a good example of what can be done, but it is limited to keyboard interaction.
+In order to further reduce this problem, we propose the following design principle:
+When the system infers that H elo ise is not indicating primary interest in the browser, all the windows that cover it are rolled back with a fast animation so as to fully reveal it .
+When, H elo ise finishes her selection, the windows roll back to their original state, again with an animation.
+These elements lead us to our first hypothesis: H1: X copy-paste is faster than K EY and D N D copy-paste.
+We see no obvious reason to separate K EY and D N D copy-paste, and M ENU copy-paste requires a lot of elementary operations .
+So we proposed a second hypothesis: H2: K EY and D N D  copy-paste are faster than M ENU copy-paste.
+Concerning the window management conditions, since the R ESTACK and ROLL techniques do not require the user to raise the destination window, we proposed a third hypothesis: H3: R ESTACK and ROLL techniques are faster than the OVER LAPPING technique for all the copy-paste techniques.
+As N ON OVERLAPPING doesn't require the user to raise the destination window either, one can reasonably assume that it should be faster than OVERLAPPING.
+However, we see no evidence to separate  and N ON OVERLAPPING as R ESTACK and ROLL lead to less mouse travel, but N ON OVERLAP PING makes the source and destination points always visible.
+Finally, it is not clear whether the animations accompanying the ROLL technique are better or worse than the immediate restacking of the R ESTACK technique in terms of completion time and user preferences.
+A drawback of these techniques is that users who want to switch focus and immediately make a selection must first click on the window to change its status.
+However, this limitation seems acceptable as it is quite similar to the strict "click to focus" implemented by many systems and applications.
+Our design principle is based on the idea that augmenting the window management complexity will probably lead to more powerful user interfaces.
+One may argue that this additional complexity should be provided for expert users only.
+We conducted an experiment to compare completion times and user preferences for the K EY, M ENU, D N D and X copypaste techniques between two windows under four window management conditions.
+We first distinguish the nonoverlapping  and the overlapping cases.
+In the overlapping case, we further distinguish three cases corresponding to the window management techniques available: the usual set of techniques , and the restack  and roll  techniques described in the previous section.
+We decided to use what we thought were the most efficient variants of the M ENU, D N D and X techniques.
+Our implementation of the X technique pastes the selection under the mouse pointer .
+Similarly, the M ENU technique pastes where the right mouse button was clicked to open the context menu.
+In the case of the D N D technique, the initiation of a drag on a window in the background does not raise it but windows are immediately raised when the dragged object enters them in the OVERLAPPING condition.
+In this condition, when the dragand-drop is not used, the only other way to raise a window is to click on it.
+This was decided to simplify the experiment and seemed reasonable since the two windows overlap only partially and are quite big.
+A repeated measures within-subject 4 x 4 factorial design was used.
+The two main factors are the copy-paste techniques  and the window management conditions .
+The main measure is the completion time to perform a copypaste between two windows .
+The experiment was conducted with 18 volunteers and unpaid Computer Science students and engineers : nine X Window users, six Windows users and three Mac OS X users.
+All but one had also participated in the interviews on copy-paste practices.
+The experiment consists of 16 trial groups, each group consisting itself in a series of at least 4 trials.
+Within each group, the copy-paste technique and the window management condition are fixed.
+Copy-paste techniques are not intermixed.
+In the overlapping case, two are fully visible while the two others are initially half-covered by the right window .
+In the N ON OVERLAPPING condition, the right window is just moved further to the right to suppress overlapping and resized to keep it fully on screen.
+Each trial group starts with a training period used to explain the technique to the subject.
+Subjects are allowed to train as long as they want .
+The first trial actually starts when the subject presses a button.
+Subjects are instructed to "perform as fast as possible without errors".
+Pasting can be done anywhere in the paste area, which is made of several spaces.
+The selection mechanism is also space-tolerant.
+The error policy is otherwise strict: the subject must perform the perfect interaction.
+A trial consists of a series of four copy-paste actions.
+The subject first presses a "start" button at the top of the right window.
+The first text to copy appears highlighted in green in the left window and the corresponding paste area in red in the right one.
+The subject selects the text and executes the copy-paste operation.
+As soon as the text is pasted, the next copy-paste areas are highlighted in the two windows, below the ones that were just used .
+When the fourth copy-paste is done, the chronometer is stopped.
+The number of successful operations for the current trial is presented to the subject with some indication of his progression in the experiment.
+The subject can take a short break and then move on to the next trial by clicking the "start" button again.
+Note that we do not consider these repeated copypastes as a natural task.
+This is simply a way of obtaining as many copy-paste completion times as possible in a minimum amount of time.
+These times should be representative, similarly to the classical Fitts' pointing experiments that use back and forth pointing.
+The four texts to copy during the trials have the same number of characters and the same length .
+Their position and the position of their corresponding paste area are fixed.
+The restack and roll window management techniques were implemented inside the Metisse window system .
+The software used for the copy-paste experiment was written in C using the GTK+ toolkit.
+The experiment ran on a 2.66 GHz bi-processor PC running Linux with a powerful graphics card connected to a 1280x1024 LCD display.
+The mouse used was a standard optical one with two buttons and a clickable wheel that could be used as a third  button.
+The default linear X Window mouse acceleration was used.
+Instructions and source code needed to reproduce the experiment are available from http://insitu.lri.fr/ metisse/rock-n-roll/.
+We analysed the data using a repeated measures analysis of variance , with completion time to perform one copy-paste  as measure, subject as a random effect factor, copy-paste techniques and window management conditions as fixed effect factors.
+Our major interest is in the interactions between copy-paste techniques and window management conditions.
+We used JMP  to perform the ANOVA with the Restricted Maximum Likelihood  method.
+Erroneous copy-paste operations were removed from our data: on a total of 5229 trials, 4608 error-free completion times were taken into account .
+Figure 4 shows almost all the results of this analysis.
+As no interaction appears to be present, we focus our analysis on the main effects.
+We use the Tukey HSD  test with  = 0.05.
+Figure 5 details the results of these tests for our two main factors.
+However, as we explained, our implementation of the D N D technique immediately raises a window in the OVERLAPPING condition when the dragged text enters it.
+So, one may assume that with a "spring-loaded"-like implementation, we would have found a significant difference between means under OVERLAPPING, caused by the delay.
+It is interesting to note that X is 18% faster than K EY which is probably the most popular technique among "expert" users.
+We now examine the window management conditions.
+More surprisingly, ROLL and R ESTACK are significantly faster than N ON OVERLAPPING.
+The difference between means is small.
+However, X copy-paste is 10% faster with R ESTACK than with N ON OVERLAPPING.
+On the other hand, R ESTACK is 18% faster than OVERLAPPING .
+Finally, we note that X with R ESTACK is 32% faster than K EY in the OVERLAPPING condition.
+For such an elemental operation as copy-paste, this is a huge improvement.
+See Figure 6 for more numbers regarding the combinations of copy-paste techniques with the window management conditions.
+The overall error in the experiment was 5.58% .
+However, a new ANOVA  only shows that XS and D N D are less error-prone than M ENU: the technique is a significant factor, but the window management condition is not and there is no evidence of an interaction between the two factors.
+In the OVERLAPPING condition, as we explained, two of the texts to select in the left window are half covered by the right one, while the two others are not.
+First, we examine the copy-paste techniques.
+X copy-paste is significantly faster than K EY and D N D, and K EY and D N D are significantly faster than M ENU .
+We found no significant difference between K EY and D N D .
+A practical equivalence test  with a thresh-
+At the end of the experiment, participants were asked to rate the copy-paste techniques and window manager conditions.
+Of the eighteen subjects, fifteen said they preferred X copypaste.
+Two said they preferred D N D .
+Only one said he preferred K EY.
+Thirteen subjects cited M ENU as the worst technique, two cited D N D and three cited K EY.
+K EY was cited ten times as the second preferred technique, D N D was cited nine times at this place and M ENU three times .
+X is clearly the technique that the subjects preferred.
+K EY and D N D are the second preferred techniques and M ENU is clearly disliked.
+It is interesting to note that between the nine Windows or OS X users, seven said they would like to have the X technique available on their system.
+Eight subjects preferred to perform copy-paste under the N ON OVERLAPPING condition .
+Seven subjects cited R ESTACK as their preferred way to run the experiment .
+Most subjects said that they were disturbed by the animation of the ROLL techniques, three subjects placed it first , three subjects at the second position and ten at the third position.
+Only two subjects did not cite OVERLAPPING as the worst technique.
+Both found the animation produced by ROLL strongly disturbing.
+R ESTACK was thus accepted: because of this technique a reasonable number of subjects preferred an overlapping context to a non overlapping one, and most of the others placed it second.
+Moreover, two subjects asked if R ESTACK could be made available on their system.
+ROLL was not similarly appreciated, which is unfortunate because it gives more feedback about what is going on than R ESTACK .
+One possible reason for this is that the subjects were told to perform the experiment as fast as possible, which the 150 ms animation didn't help .
+Moreover, in the case of a M ENU or D N D copy-paste on an overlapped text, the unrolling of the right window over the text can make it difficult to open the context menu or drag it.
+Two subjects mentioned this as a problem.
+However, a third one claimed it helped him move to the left to grab the text.
+We performed an ANOVA similar to our main ANOVA, but we removed the N ON OVERLAPPING data, added "text overlap" as a new fixed effect factor and took selection time as the measure.
+Text overlap has a strong effect.
+Subjects performed the text selection faster when the text was not overlapped .
+The only other effect is a small interaction between the text overlap condition and the window management conditions.
+The difference between means is more important with ROLL  because the selection time is faster with ROLL for non overlapped text  and slower for overlapped text .
+K EY copy-paste is bi-manual: the left hand can be used to activate the keyboard shortcuts while the right hand controls the mouse.
+We tried to see how far the subjects did use synchronised bi-manual interaction.
+The average time between the moment subjects place the cursor in the paste area and the moment they press Ctrl-V is of 454 ms in average.
+This is big, but goes down to a value closer to 200 ms for some subjects.
+The average time between the moment subjects finish the selection and the moment they press Ctrl-C is 368 ms. During this time, some subjects move the mouse: we measured an average distance of 97 pixels in the non overlapping case .
+Subjects also move the mouse between the Ctrl-C press and release: we measured an average distance of 269 pixels in the non overlapping case .
+To estimate the time lost by pressing Ctrl-C, we performed an ANOVA similar to our main ANOVA but with only the X and K EY techniques  and where the measure is the time between the end of the text selection and the moment where the subject presses the middle mouse button  or positions the text cursor with a left click  in the paste area.
+The copy-paste techniques and the window management conditions are significant factors and there is no evidence for an interaction between the factors.
+We get a significant difference between means for the X technique vs. the K EY technique of 223 ms .
+The subjects easily answered our questions regarding their preferred copy-paste techniques and their preferred window management conditions.
+We also asked whether they had specially liked or disliked any combinations of them.
+We got very few answers.
+Two subjects who preferred the X technique said they preferred the D N D technique under the N ON OVERLAPPING condition.
+Three subjects made some remarks regarding the interaction between D N D/M ENU and ROLL .
+A few subjects who said they disliked M ENU added that they particularly disliked it in the OVERLAPPING condition.
+Two subjects who already preferred the X technique, said it was really better in the OVERLAPPING condition.
+Most people who tried it like it.
+X Window has unfortunately no equivalent technique for cut-and-paste.
+One could probably implement a dragselect-and-cut command, map it to a specific mouse button and reuse the middle button for pasting.
+However, as the interviews confirmed, the volatility of the selection clearly poses some problems.
+Selection history tools could certainly help, but none of the interviewed people were in the habit of using them.
+We believe the main problem with these tools is that they are usually accessible from a system or application menu bar, but not directly from the place where the user wants to paste.
+In the case of X copy-paste, we suggest that a long middle button press should pop up a context menu presenting the selection history.
+This idea can also be applied to K EY copy-paste: pressing Ctrl-V and holding the V key pressed could also pop up the history.
+The user could then circulate in it by repeatedly pressing the V key.
+Restack and roll are currently used on a daily basis by the first author of this paper and a student.
+Both use the techniques several times a day and the first author even developed some placement strategies to take advantage of them.
+Most text documents being left-aligned , overlapping them on the right side usually leaves more content visible than on the left side.
+The student often uses the restack technique to paste command line templates found on Web pages in a terminal that overlaps the browser and is sometimes fully surrounded by it.
+One interesting point is that both users diverted the techniques.
+As an example, they often make arbitrary selections just to temporarily expose an overlapped window.
+This can be viewed as the counterpart of the folding operation described in  which was designed to temporarily look behind a single window by grabbing one of its corners and peeling it back.
+The idea of differentiating user interactions with the primary window from those with secondary windows opens an interesting design space.
+With restack and roll, we proposed specific actions that temporarily expose a window when the user selects some of its content.
+One might ask what should happen when the user interacts in other ways with a secondary window.
+What should happen, for example, when the user starts dragging the scrollbar of a partially covered window?
+Similar questions could be asked for other interactions, other types of widgets, unused window space or even the desktop.
+Selecting an icon on the desktop, for example, could temporarily expose its surroundings by rolling nearby windows, or rendering them using selective transparency  or multi-
+Creating a fine-grained window manager poses a number of technical problems.
+It should, for example, have some knowledge about the relations between windows and their internal structure, e.g., the widgets they contain and the potential user actions on them.
+In order to work with a wide range of applications, our implementation of the restack and roll techniques relies on several "hacks" to monitor mouse activity and the various X selection mechanisms.
+Accessibility APIs provide clean ways to figure out internal window structures that can help implement fine-grained window management techniques .
+But more than this, we believe there is a need for new, richer, bi-directional communication protocols between the window manager and the applications.
+In this paper, we examined the problems related to copypaste between partially overlapping windows.
+We proposed two new window management techniques, restack and roll, to solve some of these problems.
+We described an experiment that was conducted to evaluate these techniques and compare four common copy-paste techniques.
+Results show that X Window copy-paste is faster than the use of keyboard shortcuts, context menus or drag-and-drop.
+They also show that restack and roll significantly improve the four copypaste techniques.
+Restack and roll were designed according to the idea that user interactions with windows of primary interest could differ from those with secondary windows.
+We intend to continue exploring this idea to develop the more general concept of fine-grained window management that takes the context of user actions into account.
+We would like to thank the participants of the interview and of the experiment for there time and cooperation.
+Fekete, P. Dragicevic, J.B. Labrune, H. Goodell, A. Cockburn, M. Beaudouin-Lafon, W. Mackay, C. Appert, E. Pietriga and Y. Guiard for helpful discussions about this work.
+Finally, we thank the anonymous reviewers for their useful comments and suggestions about this paper.
+This work has been partially funded by the French ACI Masses de donn ees .
+Novel interaction techniques for overlapping windows.
+Dynamic space management for user interfaces.
+Entity quick click: rapid text copying based on automatic entity extraction.
+S. Bly and J. Rosenberg.
+A comparison of tiled and overlapping windows.
+O. Chapuis and N. Roussel.
+Metisse is not a 3D desktop!
+W. Citrin, D. Broodsky, and J. McWhirter.
+Style-based cut-and-paste in graphical editors.
+Combining crossing-based and paperbased interaction paradigms for dragging and dropping between overlapping windows.
+E. Dykstra-Erickson and D. Curbow.
+The role of user studies in the design of OpenDoc.
+D. Hutchings and J. Stasko.
+Revisiting Display Space Management: Understanding Current Practice to Inform Next-generation Design.
+Canadian Human-Computer Communications Society, 2004.
+Interacting with hidden content using content-aware free-space transparency.
+E. Kandogan and B. Shneiderman.
+Elastic Windows: evaluation of multi-window operations.
+An ethnographic study of copy and paste programming practices in OOPL.
+Personal distributed computing: the alto and ethernet software.
+In Proceedings of the ACM Con-

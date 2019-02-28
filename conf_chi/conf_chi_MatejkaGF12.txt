@@ -1,0 +1,252 @@
+We first conduct a study using abstracted video content to measure the effects of latency on video scrubbing performance and find that even very small amounts of latency can significantly degrade navigation performance.
+Based on these results, we present Swift, a technique that supports real-time scrubbing of online videos by overlaying a small, low resolution copy of the video during video scrubbing, and snapping back to the high resolution video when the scrubbing is completed or paused.
+A second study compares the Swift technique to traditional online video players on a collection of realistic live motion videos and content-specific search tasks which finds the Swift technique reducing completion times by as much as 72% even with a relatively low latency of 500ms.
+Lastly, we demonstrate that the Swift technique can be easily implemented using modern HTML5 web standards.
+CPUs, the quality of streaming videos has improved drastically.
+High definition videos are now standard, and full length television shows and movies are readily available on sites such as Netflix and Hulu.
+Although very popular, streaming videos have limitations when it comes to navigation.
+In most desktop media players, the user is able to "scrub" the video by moving a slider along the timeline and the current frame of the video updates in real-time.
+In contrast, streaming video players request new frames from the server to update the view, introducing a significant amount of latency.
+This latency makes the scrubbing experience very choppy at best, and for many players, the view does not start updating until after the mouse button has been released .
+For many usage scenarios, the ability to scrub video timelines is critical to the viewing experience.
+For example, a user may wish to find a particular scene in a movie, look for when a particular operation was performed in a software tutorial video, or skip past an advertisement while watching a sporting event.
+While scrubbing is sometimes enabled once a video is cached, fully downloading a video can take a considerable amount of time.
+Furthermore, it might not be desirable, or even possible, to cache a large video file for reasons such as the bandwidth costs incurred by the server and/or user, or the storage capacity of the playback device.
+Many aids for navigating videos have been explored .
+However, most require additional visual elements such as summary storyboards  or video analytics , and few enhance the ubiquitous scrubbing behavior.
+Furthermore, most enhancements are designed for desktop systems and assume random access availability to the video.
+Despite the ubiquity of online video players, we are unaware of any research to date which has empirically measured the user performance impact of latency during video scrubbing.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+I In this paper, we w first conduct t a study to me easure the impa act o of latency in a controlled c abst tract environment.
+We find th hat e even extremely y short delays  can cause c significa ant d difficulty when n navigating vi ideos, and with h latencies use ers ty ypically exper rience , se eeking tasks can ta ake up to 10 tim mes longer.
+T To combat the ese observed effects e of laten ncy, we prese ent S Swift, a techn nique that sup pports real-tim me scrubbing of s streaming vide eos even in high h latency conditions.
+The technique has no o impact on th he user interfa ace c controls or layo out.
+By fixing g the resolution n and number of v video frames to o the number of o input pixels s on the timelin ne s slider, the size of the low-res solution copy can be kept at ta f fixed size of ap pproximately 1MB, regardles ss of the duratio on o or size of the or riginal source video.
+Sw wift significant tly d decreased task completion ti imes, in some e cases by 72% %.
+A After providing g an analysis of the results, we w demonstrate ea s simple HTML5 5 implementat tion of Swift.
+Based on the ese r results, we bel lieve the Swif ft technique ca an be integrated in nto today's online video play yers, and signif ficantly improv ve th he user's viewing experience e.
+The int ternet is full of f sites with stre eaming video p players and we tes sted over 30 unique impl lementations.
+The most popula ar video strea aming site, Yo YouTube, curre ently hosts more t than 350 millio on streaming v videos.
+While scrubbing, the Yo ouTube player does not upda ate the position n in an uncached d video until the mouse b button is released.
+This genera al interaction m model is representative of th he majority of strea aming players we have found d. Severa al players suc ch as the one es found on Hulu and ESPN.
+These thumbnails are e not pre-loade ed so they suffe fer from the same la atency issues a as the full vide eo, but they do present an interes sting interaction n model.
+The PC C version of th he Netflix strea aming video pl layer is the only example we have found d to support real-time scrubb bing.
+When th he user begin ns scrubbing, sequential thumbn nail images ar re displayed in the center of the screen, and up pdate in real-tim me as the user s scrubs .
+A number of approaches s have looked at u using the tra aditional timeline slider augmented a wi ith d different dynam mics such as th he AV-ZoomSl lider , which u uses the additio onal dimension n of the y-axis s to enable mo ore p precise control.
+The PVSlider  prov vides an elast tic s scrubbing expe erience for mor re fluid control.
+S Several system ms have been n developed to t augment th he tr raditional vid deo timeline with additi ional graphic cal e elements and information.
+Joke-o-m mat H HD  and em moPlayer  both b support navigating videos b based on user contributed c met tadata.
+Truon ng a and Venkatesh h  provid de a thorough h summary an nd c classification of o work in both the creation n of thumbnai ils a and video skim mming.
+This in ncludes techniq ques that display th humbnails hie erarchically , thumbnails s lists , an nd f fisheye views of o thumbnails .
+We are e unaware of a any archived pu ublication or w white paper describ bing its behavi ior, and so its t technical imple ementation is unk known.
+Howev ver, the real-ti ime scrubbing g seems to only b be enabled on nce a full set of thumbnails s has been downlo oaded.
+For so ome movies, th he scrubbing is enabled within 10 seconds, h however, for o others, we foun nd it could take se everal minutes s before the real-time scrubb bing begins to work k, even with a high-speed bro oadband conne ection.
+Despit te its limitati ions, the Netflix player should be consid ered closely r related to Swif ft. That said, Swift does contrib bute a scalable e technique, w where real-time e scrubbing only re equires 1MB o of data, regard dless of the so ource video resolut tion or durati ion.
+Furtherm more, we dem monstrate a simple e implementat tion using m modern web standards consist ting of less th han 30 lines of f javascript an nd HTML5 code, a and provide a p public dissemin nation of its im mplementation an nd related techn nical details to the research community.
+All computer systems have some amount of inherent input latency.
+Using the technique from  we calculated the average delay between when the mouse is moved to when the cursor actually moves on the screen to be 37ms.
+For our video navigation tasks we refer to simulated network latency  as the time between when a frame is requested by the user and when the frame is displayed on the screen, less the inherent system latency.
+With an online video player this is the time it takes to request a new play position from the server, and have the server transfer enough frames to buffer the video sufficiently to begin playing again.
+While the effects of latency on some interaction tasks has been studied , its impact on video scrubbing is unknown.
+The exact same video could have different navigation characteristics for different users; finding a scene in a movie that one person is unfamiliar with would be a random searching task.
+For a person who is very familiar with the move, it would be more of a sequential seeking task.
+These classifications also do not necessarily have hard boundaries between them.
+For example a sporting event which only displays the clock some of the time could present a primarily sequential seeking task, but the segments without a clock present would represent a random seeking sub-task.
+Even though the distinctions are not always clear, this categorization of video types will be useful when studying navigation techniques over a range of potential scene finding scenarios.
+We restrict our evaluation to tasks where the user knows what scene they are looking for, and would recognize when they have successfully navigated to it.
+Within such a task, a user's knowledge of the target video content and scene organization provides information and orientation which may affect scrubbing behaviors.
+Thus we found it useful to divide videos into three main video type categories:
+To better understand how latency affects video navigation tasks we conducted a controlled experiment.
+Specifically, we wanted to test video scrubbing performance while navigating to a target scene with varying levels of latency and for differing video types.
+To ensure a controlled environment, this experiment was carried out with abstracted video content simulating three types of videos: sequential, ordered and random, and two different scene counts to simulate shorter  and longer  videos.
+In a sequential video, the scenes have a natural order which is known to the user.
+It is therefore possible for a user to estimate where the target scene is, and to "jump" to the approximate point in the timeline.
+During the navigation task the user is able to tell if they have gone too far, or not far enough, and also judge how far away from the target they are.
+An example of a sequential video seeking task is finding a particular time in a televised sporting event: to find "the beginning of the 4th quarter" in a basketball game, the user could jump to about 75% into the video and then looking at the game clock, adjust accordingly.
+Twelve paid volunteer participants  were recruited though an online classified posting.
+Users had varying levels of computer experience, with daily usage ranging between 2 and 10 hours.
+The experiment was conducted in a private office on a 3.16GHz quad-core desktop computer running Windows 7 64-bit Edition.
+The graphics card was an nVidia Quadro FX 5600 and was driving a 24" Dell LCD monitor with a resolution of 1920 by 1200.
+With an ordered video it is possible for a user to tell if they are before or after the target scene, but not how far away they are.
+An example would be navigating through a commercial break to get back to the television show.
+After navigating, the user would know if they have gone too far, or, if they still see a commercial, had not gone far enough.
+Without real-time scrubbing, the optimal strategy for this type of task may be a binary search of the timeline, reducing the search space by half in each step.
+A repeated measures within-participant design was used with the independent variables being video type , number of scenes , and snlatency .
+The ordering of sn-latency and number of scenes were counterbalanced and video type was randomized.
+A fully crossed design resulted in 36 combinations of variables.
+Each participant performed the experiment in one session lasting approximately one hour.
+The study was divided into two blocks, with each condition run 4 times per block.
+In a video with a completely random ordering, the user does not know where the target scene is likely to be located in the timeline, and has no cues as to where the target sits in relation to their current position.
+There are no particularly intelligent strategies for this type of task; the user is forced to try and look at each scene.
+A primary example of this type of task is for a user to find a particular scene in a movie which they have never seen before.
+A custom video player with a playback resolution of 800 by 600 pixels was used for the study.
+The player was programmed as a stand-alone application to allow for precise control of the latency, and to support high frequency logging capabilities.
+The interface was intentionally simple, with just the video playback window and a timeline slider .
+In the other conditions, th he frame wou uld o only update if i the slider remained sta ationary for th he c condition's asso ociated latency y duration.
+It was w not necessa ary to o mouse-up to o trigger the update, u dwellin ng in place was w s sufficient.
+Dur ring the latency period, the screen wou uld d display a "Loading" message e on top of the e previous fram me o help the user to r understand th he player's stat te.
+Playback was w d disabled, as we e were only test ting seeking be ehaviors.
+The tim meline was div vided into equ ually spaced se egments so each sc cene was of th he same length h. Because pla ayback was disable ed, the scenes, , and video, d did not have a an absolute duratio on.
+This made it t possible to te ell how far the targ get scene was into the video so the user cou uld make a large m movement and d "jump" to the correct ar rea of the timelin ne if desired.
+F Five different simulated netw work latency levels were used f for the first stu udy ranging fro om 1000ms do own to 0ms.
+Th he 1 1000ms conditi ion is typical of o what we hav ve observed on na f fast  network wh hen viewing a 480p video on o Y YouTube.
+Wh hen viewing 720p content t the delay is g generally more e than 2000ms.
+We also teste ed shorter dela ays o of 500ms and 100ms, which h are both faste er than what we w h have been able e to achieve on o any deploy yed network, but b m might be conce eivably possible.
+We also test ted with 20ms as a an approximate "theoretical limit" based on the averag ge n network latency y, or ping times s, of 20 to 40m ms. T The 0ms condi ition was included to simul late the baselin ne s scenario, of wa atching the vide eo on a desktop player capab ble o of real-time scrubbing, or an n online player r once the video h has been fully cached.
+In p particular, we hoped to see if switching between b a cri isp v view and a blu urry view of the t same video o content wou uld a affect navigatio on performance e.
+ORDER RED: For the or rdered conditio on the squares were filled in a ra andom order, a and once a squ uare filled in, i it remained colored d for the rest t of the video o .
+RANDO OM: With the random order ring, the squa ares would becom me filled in a ra andom order, h however they w would only remain n filled in for r one scene .
+Thi is gave no inform mation to the u user in terms o of if they were e before or past th he target scene e; they could only know if they were exactly y at the target s scene.
+T The video cont tent for the stu udy was a grid d of procedural lly g generated squar res that faded in i one at a time e. There were an e equal number of squares as number of scenes .
+D During each sc cene a different t square would d be filled in.
+In all t trials, the user' 's task was to find a target sc cene in the video.
+More specifically, the user h had to find the part of the video w where a target square was th he last to be filled in.
+The target s square was ind dicated with a black dot over rlaid on the video .
+T The first and last scenes w were never chosen n for a trial, and d the same scen ne was never s selected for consec cutive trials.
+A Additionally, th he timeline w was halved, and ha alf of the trials w were selected f from each sect tion.
+Each trial began when the cursor entered the timeline slider, and at that time the dot would appear over the target square.
+Participants were instructed to click and hold the mouse button down while searching for the target scene and to release the button once it was found.
+Errors were not possible as the trial ended only once the target scene was found.
+Between each block users were given a short break, and the next condition was described on the screen.
+If the participant was unclear how the next condition would work they had the opportunity to execute several practice trials.
+The primary independent variable was completion time for each task.
+Looking at the results for each video type we can see that overall the completion times increase as the latency increases .
+Of particular interest is the large jump in completion times between 0ms and 20ms conditions with overall mean completion times of 3210ms and 6175ms respectively .
+It is important to recall that the 20ms latency condition represents a theoretical limit, and is much lower than any existing online video player that we are aware of.
+This result suggests that even optimal latency levels will not approximate the efficiency of real-time scrubbing capabilities.
+When we compare the 0ms and 0ms-lowRes conditions we see that the average completion times were 3.21s and 3.22s respectively.
+This result indicates that exploring the use of a lower resolution video while scrubbing could be a promising direction.
+Figure 8 illustrates the completion times for each individual video type.
+In addition to completion time, it is interesting to look at how efficient users are being in their searching behaviors.
+One way to do this is to look at how many times a new video frame is seen by the user while completing a task.
+For conditions with no latency we cannot tell when a user has seen a new frame, as they are being displayed constantly.
+However, for the conditions with latency we can count the number of frames seen during each trial .
+Across all video type and number of scene combinations the trend is for the number of frames seen to go down as the latency increases.
+This matches with the observed behavior of users being more "careful" with their movements as the penalty for each additional search step became greater.
+That is, when the penalty for a poor strategy is small, users were more likely to randomly search around in the video than to make a calculated decision of where to look next.
+Anecdotally, we found that most users were using near optimal strategies of jumping to the approximately correct position with the sequential videos, and linearly searching through the random videos.
+With the ordered videos however, few participants performed an optimal binary search of the video scenes, however, many participants performed a somewhat "partial binary" search by first seeking to near the middle of the video, and then searching linearly in one direction to find the target scene.
+The human visual system has an amazing tolerance to degradation in image resolution.
+For example, as little as 16 x 16 pixel images are suitable for face recognition .
+This findings support the idea that low resolution videos might be suitable for recognition tasks.
+Increases in internet bandwidth and advances in video compression and streaming technology  will continue to drive the movement to higher quality streaming videos.
+Those same advancements make lower resolution videos extremely efficient to transfer.
+Our controlled evaluation on the effects of latency indicates a significant performance decrease when real-time scrubbing is not available.
+One possible way to address this limitation is to use a lower resolution version of the video that can be cached immediately and used for scrubbing.
+The Netflix player comes close to doing so, but its implementation details are unknown, and there is a noticeable delay before scrubbing is enabled.
+As such, we developed Swift to support immediate low resolution scrubbing.
+This technique will allow us to empirically evaluate if low-resolution scrubbing could address the performance limitations identified in our first experiment.
+The success of Swift depends on a low-resolution video small enough that it can be cached almost immediately after a page is loaded, but large enough to give a reasonable depiction of the video.
+Our hope was to use a video size of approximately 1MB, which would take less than a second to download with most broadband internet connections.
+To determine appropriate parameters for the lowerresolution video, we looked at file sizes generated by a modern codec.
+We used the H.264/MPEG-4 AVC high profile codec, given its high quality, low file sizes, and HTML5 compatibility.
+Videos were converted to .mp4 files with this codec using the "mp4" option of "Miro Video Converter", a free video conversion tool.
+A one hour full motion movie was used for the evaluation, at 800 x 600 resolution.
+For the evaluation, we varied the video resolution, ranging from 320x240 to 32x24.
+In addition, we varied the total number of frames encoded.
+A key insight is that only a subset of the video's frames need to be encoded for real-time scrubbing, equal to the pixel width of the timeline slider.
+For instance, a slider with a width of 600 pixels can only access one of 600 frames during scrubbing, regardless of the actual length of the video.
+We varied frame totals from 50  to 1600 .
+To convert the videos to a desired frame total, n, the playback speed was modified using a video editor to run exactly n seconds, and the video was then encoded at 1fps.
+Figure 10 shows the resulting mp4 file sizes, at different resolutions and frame counts.
+It can be seen that video sizes drastically decrease as the resolution decreases.
+The idea behind Swift is to display a fully cached, low resolution copy of the video during video scrubbing, and snap back to the high resolution video when scrubbing is completed or paused.
+Since the low resolution version of the video is fully cached ahead of time, it can be scrubbed in real-time and used to find the desired scene in the video.
+Displaying the low resolution version overlaid onto the entire size of the high resolution version allows for spatial congruence and tracking video content while scrubbing.
+There is a large base of existing streaming videos on the internet, and a broad demographic spectrum of users who consume them .
+As such, it is important for the navigation mechanism to be simple and have minimal impact on the existing user interfaces.
+Introducing advanced controls could impact ease-of-use, and hosting sites may be reluctant to adopt major changes to the interface layout.
+To this end, our technique requires no changes to the traditional video player interface, and no changes to the interaction model.
+Based on these results, we choose to use a video size of 134 x 100, with a frame count of 800.
+This gave us the file size we wanted and the resolution seemed to provide adequate visual cues during navigation tasks.
+If the aspect ratio of a video was wider than 4:3, the height could be reduced instead of increasing the width, so that the file size would not increase.
+Latency values of 20ms and 500ms were selected from the values used in the first study, with again the 20ms condition serving as an approximate "theoretical limit" assuming infinite download speed and fast network ping responses and the 500ms representing a level of latency still lower than what we have found on any existing online player.
+In video seeking tasks, the distinguishing feature of a target scene could have varying degrees of visibility.
+To examine this dimension, videos representing two levels of discernibility were selected for each video type; the high discernibility condition contained targets which were easier to recognize than the low discernibility conditions.
+We specifically chose videos that the subjects would not have seen prior to the study.
+Also, as described below, the experimental design tried to minimize learning effects from memorizing the video content.
+Twelve paid volunteer participants  were selected from the same recruiting pool as used for the first experiment.
+Participants reported using a computer for an average of between 2 and 14 hours per day  and watching between 0 and 200 online videos per month .
+The experiment was conducted in the same office and on the same machine as the first study.
+Because we fix the total frames encoded, and the frame resolution, these parameters should reduce any source video into the range of a 1MB file, regardless of its initial resolution, duration, or frame rate.
+The compressibility of the video content will have some effect on the resulting video size, however, the most complicated videos we tried still had files sizes of approximately 1MB, and for some videos we achieved sizes as small as 0.2MB.
+A repeated measures within-participant design was used with the independent variables being video type , target discernibility , snlatency , and technique .
+The ordering of video type, discernibility, and technique were counterbalanced and the order of sn-latency was randomized.
+A fully crossed design resulted in 24 conditions.
+Each participant performed the experiment in one session and each condition was run 5 times, with the first trial discarded as practice.
+For the traditional technique the sn-latency value had the same effect as in the first study , and with the Swift technique the low resolution version of the video was shown while scrubbing and the full resolution version would appear after the x ms delay.
+SEQUENTIAL: The sequential videos used for the study were both "countdown" videos which presented a number of clips in decreasing numerical ranking.
+For the high discernibility condition, a countdown of the Top 25 Music Videos of 1986 was used .
+This video displayed the number of the current video prominently in the bottom left corner of the screen.
+Each video took the same fraction of time to play making the target size on the timeline 800/25 = 32 pixels wide.
+The low discernibility video was a countdown of the Top 50 Basketball Dunks.
+The decreasing numbers were shown on a slightly transparent rotating cube in the bottom right corner of the frame.
+The clips in this video were of varying length, but the ones used in the task each occupied 12 pixels on the timeline.
+Both the high and low discernibility videos were taken from a tutorial video of the drawing program Paint.NET.
+In the high discernibility condition the user needed to find when the background of the drawing changed from white to black, while in the low discernibility condition the user needed to find the point where the inner bevel was added to the porthole .
+Participants were not required to find the exact single frame where the change occurred, but were given a 5 pixel buffer on either side making for an 11 pixel range on the timeline.
+To enable positioning the target point at different locations on the timeline, each of the ordered videos were constructed in three parts: a seamless loop of material before the change, a small section of video where the change occurred, and a seamless loop of material from after the change.
+From these "master" videos, a portion was trimmed from each end, positioning the change in the desired location; half of the trials occurred at a random location in the first half of the timeline, and the remainder occurred in the second half.
+RANDOM: The video used for the random conditions was the 1946 movie "Till the Clouds Roll By" .
+To counter the potential learning bias of users memorizing the movie, participants were required to find one particular scene which was placed at a random location within the video.
+For the high discernibility condition the scene was the easily recognizable opening credits , and for low discernibility the scene was a dance number where the actors were wearing red and green costumes .
+Looking at the technique pairs for each of the video type/discernibility/sn-latency conditions  we see that in all cases the Swift technique performed faster than traditional.
+Post-hoc analysis shows the effect to be significant for all pairs except the 20ms conditions in the sequential videos, and the 20ms/ordered/low condition.
+The examiner began by using a sample video to show each of the technique/latency combinations to the participant.
+The examiner demonstrated how each worked, and observed the user interacting with the player to ensure that they understood.
+The trials were ordered with video type at the outermost level, and discernibility at the second level.
+This created 6 occasions when a new video or target type would be introduced.
+At these times the examiner would verbally explain the video and target to accompany the written description presented on the screen.
+Four trials with a 0ms latency, full resolution video player were presented for the user to become accustomed to the new video and target content, and then the balance of the trials began.
+The trial timing behavior and interaction instructions were the same as in the first study.
+It is interesting to see that for each video type/discernibility condition, the performance of the Swift technique stayed relatively constant across the two latency values.
+Based on the increasing trend of the results from the first study, it is reasonable to project that the gap in performance would continue to increase as the latency increased.
+As in the first study, the overall task completion times increased as the tasks moved through the video types from sequential to ordered to random.
+As the tasks became more difficult, the benefit of the Swift technique became more pronounced, with traditional taking between 2 and 3.5 times as long as Swift in the random/500ms conditions.
+So as not to make the study unnecessarily hard, the target scenes were relatively long, and the movie relatively short.
+As the total length of the movie increases and the length of the target decreases, the benefits of Swift would become even more pronounced.
+In this section we describe a simple HTML5 implementation of Swift, which demonstrates that the technique can work in today's web browsers.
+The Swift technique is implemented with less than 20 lines of javascript code .
+A custom slider is configured to make the small-resolution video visible when sliding begins, and update its position as it slides.
+The position of the full resolution video is not updated until the sliding completes.
+The small-resolution video is not hidden until the full resolution video has finished seeking to the desired frame, resulting in a seamless transition between resolutions.
+Our testing of this code indicated that by default, the small and large video are downloaded in parallel, resulting in a close to instant download of the small video.
+However, further code could be investigated to force the initial download of the small-resolution video.
+In addition to being beneficial in online environments, our results are applicable to desktop video players as well.
+Many such players still do not support real-time scrubbing, and only update their frames when a seek operation has completed.
+While transitioning to a lower resolution version in a desktop environment may not be necessary, this could actually improve the display rate of frames during a scrubbing operation, due to the reduced CPU load.
+An important aspect of our implementation, Swift, is that it limits the download capacity required to enable real-time scrubbing to approximately 1MB, regardless of the source video's resolution, frame rate, and duration.
+As such, realtime scrubbing is available almost immediately when viewing videos with a broadband connection.
+We are unable to verify the Netflix implementation, but we did find it usually takes at least 10 seconds, and often several minutes before real-time scrubbing is enabled.
+Limiting the download size is also important as many internet providers are employing download caps and pay-per-use models.
+Another advantage of Swift is its simple HTML5 compatibility.
+We demonstrated how real-time scrubbing could be enabled with less than 30 lines of HTML5 and javascript code.
+However, for a video sharing site to implement the technique, a service to create the low-resolution videos would be required.
+This should not be problematic, since sites, such as YouTube already have services to convert videos into multiple versions at different resolutions.
+One potential limitation of low-resolution scrubbing is that it may be impossible to discern low-granularity details while scrubbing.
+Although prior research indicates very little resolution is required to identify features in images, small text fonts for example would be unreadable.
+Although we do not believe it is common for users to be searching for such fine grain details while navigating videos, it should be noted that low-resolution scrubbing would not aid such a task.
+In our future work section, we discuss possible ways for which fine grain details could be represented.
+We have presented the empirical results from two novel experiments related to navigating online videos.
+Our first study demonstrated that even a small amount of network latency  can significantly hinder performance in video navigation tasks.
+Our second study demonstrated that real- time, low resolution scrubbing, significantly improves performance, in both high and low latency environments.
+There are a number of other techniques in the literature that aid video navigation, although most do not focus on the scrubbing interaction.
+Low-resolution scrubbing could potentially be used in combination with these techniques.
+For example, Pongnumkul et al.
+Additionally, direct manipulation video navigation systems such as DRAGON  and DimP  could utilize a low-resolution overlay.
+Our implementation of Swift overlaid the low-resolution version of the video across the entire video player canvas.
+We did not become aware of the Netflix player until our studies were completed, but it would be interesting in the future to compare these two approaches.
+Another alternative design worth exploring is displaying a small thumbnail just above the timeline, offset from the cursor position.
+Some players, such as Hulu, already do this when hovering over the timeline, but do not pre-cache these thumbnails.
+It would also be interesting to look at alternative low-data representations of the content while scrubbing, other than a literal down-sampling of the entire video.
+For example, the low resolution video could be a zoomed in view of the full resolution video, showing an area that has important details.
+Alternatively, metadata could be stored alongside the video and rendered instead of frames from the actual video.
+For example, when scrubbing through a sporting event, the current score or time remaining in the game could be overlaid.
+When scrubbing a movie or music video, the closed captions or lyrics could be displayed.
+While our implementation used a fixed 1MB file size, our analysis of the H.264 codec performance showed that representations could be made as small as 29KB.
+To support low speed connections, it could be useful to have multiple low-resolution files available, and possibly progressively download and use larger versions.
+Our study focused on scrubbing under uniform latency values while in practice, users may experience a range of latencies and this would be interesting to examine further.
+Finally, we feel low-resolution scrubbing is particularly suited for mobile devices, as it reduces both bandwidth and CPU load.
+Our implementation should work with minimal modification on HTML5 supported mobile devices, such as the iPad, and it would be interesting to evaluate such an implementation.
+To conclude, we have contributed empirical data demonstrating the impact of latency on online-video navigation tasks, demonstrated that low-resolution real-time scrubbing can significantly improve performance, and provided a simple HTML5 compatible implementation.
+Given today's prevalence of online streaming video sites, we feel these are important and timely contributions.

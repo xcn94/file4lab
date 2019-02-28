@@ -1,0 +1,215 @@
+DEC's business and technology objectives require a strong research program.
+The Systems Research Center  and three other research laboratories are committed to filling that need.
+SRC began recruiting its first research scientists in l984--their charter, to advance the state of knowledge in all aspects of computer systems research.
+Our current work includes exploring high-performance personal computing, distributed computing, programming environments, system modelling techniques, specification technology, and tightly-coupled multiprocessors.
+Our approach to both hardware and software research is to create and use real systems so that we can investigate their properties fully.
+Complex systems cannot be evaluated solely in the abstract.
+Based on this belief, our strategy is to demonstrate the technical and practical feasibility of our ideas by building prototypes and using them as daily tools.
+The experience we gain is useful in the short term in enabling us to refine our designs, and invaluable in the long term in helping us to advance the state of knowledge about those systems.
+Most of the major advances in information systems have come through this strategy, including time-sharing, the ArpaNet, and distributed personal computing.
+SRC also performs work of a more mathematical flavor which complements our systems research.
+Some of this work is in established fields of theoretical computer science, such as the analysis of algorithms, computational geometry, and logics of programming.
+The rest of this work explores new ground motivated by problems that arise in our systems research.
+DEC has a strong commitment to communicating the results and experience gained through pursuing these activities.
+The Company values the improved understanding that comes with exposing and testing our ideas within the research community.
+SRC will therefore report results in conferences, in professional journals, and in our research report series.
+We will seek users for our prototype systems among those with whom we have common research interests, and we will encourage collaboration with university researchers.
+Permission to copy in whole or in part without payment of fee is granted for nonprofit educational and research purposes provided that all such whole or partial copies include the following: a notice that such copying is by permission of the Systems Research Center of Digital Equipment Corporation in Palo Alto, California; an acknowledgment of the authors and individual contributors to the work; and all applicable portions of the copyright notice.
+Copying, reproducing, or republishing for any other purpose shall require a license with payment of fee to the Systems Research Center.
+A fisheye camera lens is a very wide angle lens that magnifies nearby objects while shrinking distant objects.
+It is a valuable tool for seeing both "local detail" and "global context" simultaneously.
+This paper describes a system for viewing and browsing graphs using a software analog of a fisheye lens.
+We first show how to implement such a view using solely geometric transformations.
+We then describe a more general transformation that allows hierarchical or structured information about the graph to affect the view.
+Our general transformation is a fundamental extension to previous research in fisheye views.
+1  A fisheye view of Fig.
+1  A fisheye view of Fig.
+1  A fisheye view of Fig.
+1  A fisheye view of Fig.
+1  An undistorted nearly-symmetric graph  Cartesian fisheye views of the nearly-symmetric graph in Fig.
+7  An outline of the United States  A cartesian fisheye view of the USA map in Fig.
+9  A polar fisheye view of the USA map in Fig.
+9  Polar fisheye views of the nearly-symmetric graph in Fig.
+7  The control panel of our prototype system.
+A graph with 100 vertices and 124 edges  A graphical fisheye view of Fig.
+14  A generalized fisheye view of Fig.
+Graphs with hundreds of vertices and edges are common in many areas of computer science, such as network topology, VLSI circuits, and graph theory.
+There are literally hundreds of algorithms for positioning nodes to produce an aesthetic and informative display .
+However, once a layout is chosen, what is an effective way to view and browse the graph on a workstation?
+Displaying all the information associated with the vertices and edges  shows the global structure of the graph, but has the drawback that details are typically too small to be seen.
+Alternatively, zooming into a part of the graph and panning to other parts does show local details but loses the overall structure of the graph.
+Researchers have found that browsing a large layout by scrolling and arc traversing tends to obscure the global structure of the graph .
+Using two or more views -- one view of the entire graph and the other of a zoomed portion -- has the advantage of seeing both local detail and overall structure, but has the drawbacks of requiring extra screen space and of forcing the viewer to mentally integrate the views.
+The multiple view approach also has the drawback that parts of the graph adjacent to the enlarged area are not visible at all in the enlarged view.
+This paper explores a fisheye lens approach to viewing and browsing graphs.
+A fisheye view of a graph shows an area of interest quite large and with detail, and shows the remainder of the graph successively smaller and in less detail.
+Thus, a fisheye lens seems to have all the advantages of the other approaches without suffering from any of the drawbacks.
+A typical graph is displayed in Figure 1, and fisheye versions of it appear in Figures 2-6.
+In the fisheye view, the vertex with the thick border is the current point of interest to the viewer.
+We call this point the focus.
+In our prototype system, a viewer selects the focus by clicking with a mouse.
+As the mouse is dragged, the focus changes and the display updates in real time.
+The size and detail of a vertex in the fisheye view depend on the distance of the vertex from the focus, a preassigned importance associated with the vertex, and the values of some user-controlled parameters.
+All figures in this paper are screen dumps of views generated by our prototype system.
+Our work extends Furnas's pioneering work on fisheye views  by providing a graphical interpretation to fisheye views.
+The vertices represent major cities in the United States, and the edges represent paths between neighboring cities.
+The a priori importance value assigned to each vertex is proportional to the population of the corresponding city.
+In Furnas's original formulation of the fisheye view, a component is either present in full detail or is completely absent from the view, and there is no explicit control over the graphical layout.
+The next section defines the terminology and conventions used in the remainder of this paper.
+In Section 3 we present a formal model for generating graphical fisheye views.
+Section 4 describes the strategy we used to implement the formal model, and Section 5 describes a second implementation strategy that we explored.
+Section 6 describes our prototype system.
+In Section 7, we describe generalized fisheye views , and show how an implementation of our formal model can be used for creating generalized fisheye views.
+In the remaining sections, we review related efforts, and offer some thoughts on future directions.
+A graph consists of vertices and edges.
+The initial layout of the graph is called the normal view of the graph, and its coordinates are called normal coordinates.
+Vertices are graphically represented by shapes whose bounding boxes are square .
+Each vertex has a position, specified by its normal coordinates, and a size which is the length of a side of the bounding box of the vertex.
+Each vertex is also assigned a number to represent its relative importance in the global structure.
+This number is called the a priori importance, or the API, of the vertex.
+An edge is represented by either a straight line from one vertex to another, or by a set of straight line segments to simulate curved edges.
+An edge consisting of multiple straight line segments is specified by a set of intermediate bend points, the extreme points being the coordinates of its corresponding vertices.
+The coordinates of the graph in the fisheye view are called the fisheye coordinates.
+The viewer's point of interest is called the focus; it is a point in the normal coordinates.
+Generating a fisheye view involves magnifying the vertices of greater interest and correspondingly demagnifying the vertices of lower interest.
+In addition, the positions of all vertices and bend points must also be recomputed in order to allocate more space for the magnified portion so that the entire view still occupies the same amount of screen space.
+Intuitively, the position of a vertex in the fisheye view depends on its position in the normal view and its distance from the focus.
+The size of a vertex in the fisheye view depends on its distance from the focus, its size in the normal view, and its API.
+The amount of detail displayed in a vertex in turn depends on its size in the fisheye view.
+We now formalize these concepts.
+One has to choose the functions 1, 2, 3 , 4 appropriately to generate useful fisheye views.
+In the next section, we present the set of functions we used in our prototype system.
+Generating fisheye views is a two step process.
+First we apply a geometric transformation to the normal view in order to reposition vertices and magnify and demagnify areas close to and far away from the focus respectively.
+Second, we use the API of vertices to obtain their final size, detail, and visual worth.
+The meanings of and are similar, in the vertical dimension.
+The function     1 with   0 ' 0, and is monotonically increasing and continuous for 0         1 1.
+When 0, the normal and the fisheye coordinates of every point are the same.
+We call the mapping in Equation 6 the cartesian transformation.
+Later, we show a slightly different transformation called the polar transformation.
+Figure 8: Fisheye views of the nearly-symmetric graph from Figure 7 using a cartesian mapping.
+The left column uses a focus in the northwest, and the right column uses a focus in the southeast.
+The distortion increases from top to bottom: In the top row 1 46, in the middle row 2 92, and in the bottom row 4 38.
+Note that the thickness of each edge varies with the sizes of the vertices it joins.
+While computing size, the square shape of the bounding boxes of the vertices is  preserved.
+The size mapping function 2 in Equation 2 is implemented in two steps.
+The second step then uses   and  's API to complete the implementation of 2.
+However, the vertices may overlap after the second step.
+The geometric size of a vertex is found by comparing the fisheye coordinates of the vertex with a point that is on the perimeter of the vertex's bounding box.
+Straight line edges of the normal view are mapped to straight line edges in the fisheye view automatically when vertices at their end points get mapped.
+The edges with intermediate bend points are mapped by mapping each bend point separately.
+Figure 8 demonstrates the effect of cartesian transformations on a symmetric graph.
+Note in particular that parallelism between lines is not preserved, except for vertical and horizontal lines.
+Unfortunately, mapping just the end points of edges may lead to edges that intersect in the fisheye view but not in the normal view.
+This artifact is quite noticeable in the border between Washington and Idaho in Figure 11.
+Fortunately, this problem is easily circumvented by mapping a large number of intermediate points on each straight line segment individually.
+Mapping many points on each edge would result in curved lines with the property that if the edges did not intersect in the normal view, the edges will not intersect in the fisheye view.
+However, mapping a very large a number of points may not be computationally feasible for real time response.
+As we noted, our mapping has the property that all the vertical and horizontal lines remain vertical and horizontal after the transformation.
+Because of this property, our transformations are well-suited for graphs with edges consisting of mostly horizontal and vertical line segments, for example VLSI circuits.
+Early users of our prototype system commented that transformations seemed somewhat unnatural, especially when applied to familiar objects, such as maps.
+Our framework allows us to address this complaint by using domain-specific transformations.
+Consider for instance, the non-fisheye view of a map of the United States shown in Figure 9 and a corresponding fisheye view in Figure 10.
+A more natural fisheye view of such a map might be to distort the map onto a hemisphere, as is done in Figure 11.
+To do so, we developed a transformation based on the polar coordinate system with the origin at the focus.
+Here,  Note that  remains unchanged by this mapping.
+Figure 12 shows the polar transformations on the nearly-symmetric graph from Figure 7.
+It is instructive to compare these mappings with the cartesian transformations of the same nearlysymmetric graph in Figure 8.
+Figure 11: A polar transformation of Figure 9.
+As in Figure 10, the focus is at the point where Missouri, Kentucky, and Tennessee meet.
+Notice the infelicity in northern Idaho.
+The crossing lines result from the fact that the database represents the western edge of Idaho as a single segment along the state of Washington; the eastern edge comprises many small segments.
+This problem would go away if our system mapped every point in each edge, or had the database represented the western edge of Idaho by multiple small  segments.
+See Section 4.5 for more details.
+Figure 12: Fisheye views of the nearly-symmetric graph from Figure 7 using a polar mapping.
+As in Figure 8, the left column uses a focus in the northwest, and the right column uses a focus in the southeast.
+The distortion increases from top to bottom: In the top row 1 46, in the middle row 2 92, and in the bottom row 4 38.
+The thickness of each edge varies with the sizes of the vertices it joins.
+Another factor contributing to the perceived unnaturalness of the fisheye view is that the shapes of vertices remain undistorted and edges remain straight lines .
+We could remedy this by mapping many points on the outline of the vertex, and mapping a large number of intermediate points for the edges, thus allowing the vertices and edges to become curved.
+However, in our prototype system, we chose not to do so, in order to achieve real time performance.
+Our system displays a fisheye view of a user-specified graph, and updates the display in real time as the user moves the focus by dragging with the mouse.
+The graph is displayed in one top-level window and the control panel, shown in Figure 13, is displayed in another top-level window.
+The coefficient , the exponent e, and the vertex scaling factor  control the effect of the API of the vertices on the non-geometric part of the transformation, while d affects the geometric part of the transformation.
+The combined effect of these parameters on the graph in Figure 1 is illustrated in Figures 2- 6.
+The system normally ensures that the location of the focus is the same in both normal and fisheye coordinates.
+However, when the cursor is within the boundary of a vertex, the vertex becomes the focus vertex and the view is not updated until the cursor exits the vertex.
+Since the size of the focus vertex is usually large, exiting the focus vertex causes a relatively large shrinkage in the size of the focus vertex and also a relatively large variation in the fisheye view.
+In particular, since the entry and exit events happen at two different distances from the center of the focus vertex, without careful coding an exit event causes the most recent focus vertex to shift away by a large distance from the cursor in a jerky motion.
+One approach to solving this problem is to force the cursor to be positioned just outside the boundary of the most recent focus vertex on each exit event.
+Sorting the vertices in order of their visual worth produces a very useful order.
+First, if the position of two vertices are in conflict, their VW can be used to resolve the conflict in favor of displaying the vertex with higher VW.
+Second, the order can be used to maintain the real time response of the system, as we shall discuss below.
+Our prototype system is able to maintain real time response on a DECstation 5000 for graphs of up to about 100 vertices and about 100 horizontal or vertical edges.
+Computing fisheye views takes an insignificant amount of time compared to the time required for painting.
+Real time response cannot be maintained for graphs with significantly larger number of vertices and edges.
+Performance also suffers when the percentage of edges that are neither horizontal nor vertical is increased.
+An alternative "inner loop" is to display "approximate" fisheye views by painting only a fixed number of vertices and edges, irrespective of the size of the graph.
+Each time there is a new focus, quickly compute the new fisheye view for all vertices, but repaint only those nodes and edges which will give the best approximation to the perfect fisheye view.
+Nodes with highest change in their VW and nodes with highest current VW are good candidates.
+One can take a suitable mix of these two types of nodes, as well as all the associated edges.
+Each update operation will then involve erasing and painting a fixed number of nodes and edges.
+Our work follows from the generalized fisheye views by Furnas .
+Furnas gave many compelling arguments describing the advantages of fisheye views, and performed a number of experiments to validate his claims.
+The essence of Furnas's formalism is the "degree of interest" function for an "object" relative to the "focal point" in some "structure."
+Our notion of "visual worth"  is nearly identical to Furnas's degree of interest.
+The difference is that we have  described distance as the Euclidean distance separating two vertices in a graph, whereas Furnas defined the distance function as an arbitrary function between two objects in a structure.
+Our system supports generalized fisheye views by recoding the distance function used explicitly in Equation 4 and implicitly by Equations 1-3.
+For instance, consider the graph in Figure 14 and the graphical fisheye view of it in Figure 15.
+The distance between vertices is their Euclidean distance.
+A vertex is displayed only if its visual worth is above some threshold, and its position, size, and level detail are computed using Equations 1, 2, and 3, respectively.
+A "generalized" fisheye view of that same graph, with the same focus, is shown in Figure 16.
+Here, the API is as before, but the distance function not geometrical; it is the length of the shortest path between a vertex and the vertex defining the focus, as proposed by Furnas .
+Notice that in the generalized fisheye view, each node is either displayed or omitted; there is no explicit way to vary size and level of detail.
+Furnas raised the question of multiple foci , but left it unanswered.
+Our framework can be extended to multiple foci.
+For instance, a simplistic approach would be to divide the screen-space among all the foci using some criteria, and then apply the transformation independently on each portion of the screen.
+Furnas cites a delightful 1973 doctoral thesis by William Farrand  as one of the earliest uses of fisheye views of information on a computer screen.
+The thesis suggests transformations similar to our cartesian and polar transformations, but provides few details.
+At CHI '91, Card, Mackinlay, and Robertson presented two views of structured information that have fisheye properties.
+The perspective wall  maps a wide 2-dimensional layout into a 3-dimensional visualization.
+The center panel shows detail, while the two side panels, receding in the distance, show the context.
+The cone tree  displays a tree with each node the apex of a cone, and the children of the node positioned around the rim of the cone.
+The fact that the tree is beautifully rendered in 3D, including shadows and transparency, provides the basic fisheye property of showing local information in detail , while also showing the entire context .
+It would be interesting to experimentally compare cone trees and generalized graphical fisheye views as techniques for visualizing hierarchical information.
+It may be fruitful to combine fisheye views with other techniques for viewing extremely large data.
+For example, related nodes can be combined to form cluster nodes, and the member nodes of a cluster node can be thought of as the detail of the cluster node .
+The amount of detail to be shown can then be computed using the framework we have presented in this paper.
+In situations where the information associated with the nodes is very large, one can use fisheye views as a navigation tool while the actual information in nodes can be displayed in separate windows.
+The fisheye view is a promising technique for viewing and browsing structures.
+Our major contribution is to introduce layout considerations into the fisheye formalism.
+This includes the position of items, as well as the size and level of detail displayed, as a function of an object's distance from the focus and the object's preassigned importance in the global structure.
+A second contribution is the notion of a normal coordinate system, thereby allowing layout to be viewed as distortions of some normal structure.
+As we pointed out, our contributions apply to generalized fisheye views of arbitrary structures , in addition to graphs.
+It is important to realize that we do not claim that a fisheye view is the correct way to display and explore a graph.
+Rather, it is one of the many ways that are possible.
+Discovering and quantifying the strengths and weaknesses of fisheye views are challenges for the future.
+Jorge Stolfi helped with various ideas concerning geometric transformations.
+Steve Glassman, Bill Kalsow, Mark Manasse, Eric Muller, and Greg Nelson extricated us from numerous Modula-3 and Trestle entanglements.
+Mike Burrows and Lucille Glassman helped to improve the clarity of this presentation.
+Finally, George Furnas provided us with a wealth of information that improved many aspects of our prototype system and also of this paper.
+Algorithms for drawing graphs: An annotated bibliography.
+Technical Report CS-89-90, Department of Computer Science, Brown University, Providence, RI, 1989.
+SemNet: Threedimensional graphic representations of large knowledge bases.
+In Cognitive Science and Its Applications for Human Computer Interaction, pages 201- 233, 1988.
+Information display in interactive design.
+Ph.D. Thesis, Department of Engineering, UCLA, Los Angeles, CA, 1973.
+The fisheye view: A new look at structured files.
+ACM SIGGRAPH, SIGCHI Symposium on User Interface Software and Technology, pages 55-65, 1991.
+The perspective wall: Detail and context smoothly integrated.
+Chapter 7 describes the Trestle window system.
+Cone Trees: Animated 3D visualizations of hierarchical information.
+The images on the title page are views of a graph representing the Paris Metro system.
+The vertices in the graph are the stations, and the edges are the routes between stations.
+All images are screen dumps from the prototype system described in this paper.
+The upper-left image is a normal view of the Metro; the other images are fisheye views of the Metro.
+In all graphs, the a priori importance  assigned to each station is the number of connecting stations.
+In the upper-right image, the sizes of vertices vary according to the API of each station.
+The focus is the Montparnasse-Bienvenue station, displayed as a hollow circle.
+The user selects a focus by clicking with the mouse.
+In the lower-right image, the vertices that are close  to the focus station are magnified, and those far away are shrunk.
+In addition, the locations of all vertices are changed slightly in order to give the larger vertices more space.
+In the lower-left image, the focus station is changed to be Republique, and the representation of the vertices is changed to one that displays the name of the station, space permitting.
+Of course, a series of static snapshots cannot not do justice to an interactive system: You need to use your imagination to visualize how the upper-right image smoothly transformed into the lower-right image, as the user moved a slider controlling the amount of "distortion" from 0 to 2.
+Visualize also how the lower-right image smoothly transformed into the lower-left image, as the user dragged the mouse from Montparnasse-Bienvenue to Republique.
+Technical details : In all images,   0  3,   0  3, and VWcutoff  0.

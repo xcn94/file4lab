@@ -1,0 +1,255 @@
+Then, he  modifies the GUI using a WYSIWYG editor, and  writes code associated with the "undo all" widget via the event handler template.
+We present the WADE Integrated Development Environment , which simplifies the modification of the interface and functionality of existing third-party software without access to source code.
+WADE clones the Graphical User Interface  of a host program through dynamic-link library  injection in order to enable  WYSIWYG modification of the GUI and  the modification of software functionality.
+We compare WADE with an alternative state-of-the-art runtime toolkit overloading approach in a user-study, finding that WADE significantly simplifies the task of GUI-based add-on development.
+Software rarely fulfills the needs of all users all the time .
+Mindful of the need to make software adaptable to individual needs, developers typically allow for software customization by providing: * Capabilities for reconfiguring existing features and functions to suit personal taste , or * Software architecture for incorporating add-ons  to enhance/modify the behavior of the original application.
+While these approaches can provide users with a great deal of control, every approach necessitates additional effort from the software developers to explicitly provide customization support at the software development stage.
+This is the author's version of the work.
+It is posted here for your personal use.
+The definitive Version of Record was published in Proceedings of the ACM SIGCHI Conference on Human Factors in Computing Systems.
+Owing to the above issues, many software developers do not provide support for add-ons.
+Even when they do, such support is often limited .
+To address this limitation, much research has focused on approaches that enable thirdparty developers to modify the interface or behavior of existing applications without access to source code or to an external API.
+For convenience, we call the former as surface-based approaches and the latter as toolkit-based deep approaches.
+Surface-based approaches allow modifications to GUI elements without access to the internal structure of an application.
+For example, Facade allows for reconfiguring GUI elements via a simple drag and drop interface .
+However, such approaches are limited by their ability to infer the structure and functionality of the interface because they do not have access to the internal program objects or their semantics.
+E.g., adding new functionality or modifying the behavior of a GUI widget is difficult to accomplish using surface-based approaches .
+This limitation can be overcome to some extent by toolkitbased deep approaches such as Scotty  or SubArctic , which operate below the surface of the program to reveal the underlying program logic and functionalities.
+This allows them to alter the system's appearance and behaviors beyond the surface level.
+However, toolkit-based deep approaches can be challenging to use.
+They require a thorough understanding of the relevant parts of the system in order to realize the desired behavior.
+Even for experienced developers, much effort is needed to make relatively simple modifications to third party software.
+Therefore, there exists a trade-off between generalizability, ease of use, and power .
+While all previous approaches have their advantages, additional solutions are still needed to better balance the power and ease of use for runtime modification of third-party software.
+In this paper, we propose WADE, a simplified and WSYWYG Add-on Development Environment that can ease the task of modifying GUI-based functions in existing software with or without source code, while still enabling developers to make deep changes to the software behavior.
+To achieve this, WADE injects a dynamically-linked library  into the host program to retrieve the GUI hierarchy of the host program.
+It then clones the interface in the IDE so that properties of GUI elements can be directly modified.
+Figure 1 shows an example add-on development scenario using WADE.
+Currently, WADE supports add-on development using both the open source SharpDevelop 4.2 and the Microsoft Visual Studio 2012 Ultimate IDEs for Windows Form applications on the Windows XP and Windows 7 platforms.
+We conducted an experiment to compare WADE with a Scotty-like toolkit-based deep approach for modifying third party applications.
+Our results show that users subjectively found WADE much easier to use, and were objectively able to develop GUI-based modifications 2.4 times faster than the alternative approach on average.
+To summarize, the contributions of this work are: * We present the WADE prototype along with its software architecture as an integrated solution for significantly facilitating add-on creation for third party software without source code.
+As previously mentioned, surface-based adaptation  and toolkit-based subsurface modification  are the two main approaches that support third-party application modifications without access to the software's source code.
+As a comprehensive review of the different variants of these two approaches has already been discussed in Eagan et al.
+Surface-level modifications do not require any support by the application developer.
+Instead, they operate on the interface that is presented to the user and the input events he or she provides.
+For example, Yeh et al.
+This allows a developer to easily replace them at the window server level with an alternate implementation, such as by regrouping together widgets from different applications or replacing a radio button with a pop-down menu.
+Dixon and Fogarty's Prefab  examines pixels as they are drawn on the screen to infer which parts correspond to which widgets.
+Combined with input redirection, Prefab can enable alternate software functionality.
+However, all of these solutions are limited by their ability to infer the structure and functionality of the interface.
+They do not have direct access to internal program objects or their semantics.
+As a result, it is typically challenging for such approaches to make modifications that alter both GUI elements and their underlying program logic.
+Such limitations can be overcome to some extent by toolkit-based deep modification approaches.
+These hooks provide specific support for extensibility, allowing a third-party developer to add new functionality to existing applications built with the SubArctic toolkit, without explicit software support.
+However, UI modifications are only feasible for applications built using the SubArctic toolkit.
+For other types of applications, such modifications become infeasible.
+It provides a meta-toolkit for developers to modify existing third-party applications.
+Third-party developers must, however, explicitly inspect and make sense of the existing application before eventually applying acquired knowledge in a separate coding environment .
+This process can be complex, creating barriers that limit such modifications to experienced and dedicated programmers.
+Kevin then decides to add a toolbar button as a shortcut to the new diary template he has created.
+While the property editor can alter properties of existing widgets, it cannot add new widgets.
+Kevin loads the WADE IDE and chooses the Clone GUI command to clone the Notepad.NET interface into a new project.
+Using the WADE add-on that Kevin already loaded into Notepad.NET for translation, the clone command walks the interface hierarchy and serializes it to the WADE IDE.
+In the WADE IDE's GUI builder, Kevin then adds a new toolbar button for the diary.
+He then uses WADE to generate an event handler template, into which he writes the code to load his new diary template.
+Our goal with WADE was to create an interface that unifies the various tasks and tools involved in creating third-party program modifications.
+In contrast to Scotty, where sensemaking and coding are independent, WADE integrates the two phases into a single environment, making software modification more user-friendly and practicable even to novice programmers.
+We demonstrate the utility of WADE through the following scenarios.
+All scenarios have been implemented using WADE.
+Kevin has created a diary template for Notepad.NET and wants to share it with his Russian friend Ivanov, who is not comfortable with English.
+Unfortunately, Notepad.NET does not currently have a Russian translation, so Kevin loads the WADE property editor add-on into Notepad.NET.
+Lee took a lot of photos in RAW format on her recent trip to Toronto and wants to convert them to JPEGs so that she can open them in Paint.NET.
+Unfortunately, Paint.NET does not have a batch conversion interface.
+There is a command-line tool that offers that capability, but she can never remember the right incantation to make it work.
+The above scenarios illustrate some of the different kinds of third-party program modifications that WADE supports.
+In the first example, Kevin is able to provide a translation for a third-party interface for his friend Ivanov, just by using WADE's property editor add-on for existing programs.
+For more complex modifications to the interface, such as when Lee adds batch conversion support to Paint.NET, it is necessary to write some code for the new functionality.
+The only code she needs to write is the code specifically related to her functionality, which she can then integrate into the cloned GUI hierarchy using WADE's GUI editor.
+We present the detailed implementation in the following sections.
+Therefore, an environment should be designed in which the host application can manage and communicate with add-ons created and integrated with it at a later time.
+Second, because the application source code is not available, the IDE must facilitate understanding of the host application's internal structure and provide tools to support the creation of add-ons.
+Other tools provide similar kinds of third-party program modification.
+Facade  enables the user to easily simplify an interface by removing and regrouping widgets.
+However, it does not support changing labels, font styles, background images, etc.
+Prefab uses a localization example similar to Kevin's scenario in order to show the power of pixel-based approaches.
+However, Prefab can only access pixels but not the text, and must therefore apply a character recognition process to extract associated text strings.
+In contrast, WADE retrieves the original label text directly from the host application's internal structure.
+The remaining modifications require deep access to the program's internal structures.
+As such, surface approaches such as Facade and Prefab cannot pierce through the surface to decipher these structures.
+Toolkit-based subsurface approaches, such as Scotty, can accomplish all the tasks above, but do not provide the scaffolding and support of an IDE that WADE does.
+In order to perform language localization, for example, a developer must inspect the UI hierarchy and associate program objects to identify widgets and corresponding labels, before writing the appropriate code from scratch to change the labels to another language.
+WADE, on the other hand, simplifies this process by presenting a unified environment and scaffolding for many of these changes.
+We now describe how WADE facilitates software modifications using the GUI builder.
+To achieve the first goal, WADE adopts an approach similar to Scotty's, by injecting an add-on manager into the host application's process space.
+While Scotty is designed to work on the Mac OS X Cocoa platform, WADE is developed for Windows Form applications on the Windows operating system.
+WADE uses the registry key binding technique to insert compiled code, in the form of a Dynamic Linked Library , into the host application at runtime.
+Once loaded, the injected DLL can use the CreateRemoteThread method to create threads that run in the virtual address space of the host processor.
+This allows it to serve as an add-on manager to load and register any compiled add-ons  within the host application .
+However, simply enabling external add-ons to be integrated with the host application is not enough.
+In order to create meaningful add-ons, a third-party programmer must make sense of an existing application, and apply that knowledge to the development of any new functionality.
+Scotty provides various tools including a hierarchy browser, an object inspector, a widget picker, and an interactive interpreter  to support sense-making in the Cocoa environment .
+While none of the individual tools may be too difficult to use, they only provide partial answers.
+Knowing how and where to get the different pieces of information, and discovering how to combine them effectively to obtain a high level picture, are both tedious and challenging.
+Therefore, typically, only experienced programmers are able to use Scotty-like approaches.
+In order to reduce the knowledge barrier involved in integrating the different tasks mentioned above, we introduce an IDE specifically for third-party add-on development.
+An IDE is a software application that provides comprehensive facilities to computer programmers for software development.
+It is designed to maximize programmer productivity by providing tightly-knit components for authoring, modifying, compiling, deploying and debugging software with similar user interfaces.
+The IDE, therefore, is more user-friendly and powerful as compared to multiple distinct tools provided by Scotty.
+Modern IDEs often come with an integrated GUI builder , which simplifies GUI creation by allowing the designer to arrange widgets using a dragand-drop WYSIWYG editor.
+However, integrating an IDE with a GUI builder into the third party add-on development process is no simple task.
+GUI builders in existing IDEs are designed to facilitate the creation of new interfaces from scratch, rather than to modify existing interfaces.
+In addition, existing GUI builders tend to assume that source code associated with the GUI components will be available.
+In our case, however, that crucial piece of information is missing.
+In order to enable the WADE GUI builder to modify GUI components and their associated program logic for a thirdparty application, the following steps are needed:
+Send this information to the GUI builder inside of an IDE.
+In the IDE, convert this information into a format that can be displayed as GUI widgets in the GUI builder, so programmers can manipulate them in a WYSIWYG fashion.
+Analyze and compile the changes made by the programmer into an add-on that can correctly modify the appearance and behavior of the host application at runtime.
+We use the System.Windows.Forms.Control class in .NET, whose controls property exposes a collection of all of these child controls.
+Through this component, we can access the structure and properties of an entire application's existing interface.
+In addition, the Injected Add-on Manager constructs a component dictionary of all the widgets of the unmodified host GUI hierarchy by using the name and address of each widget as a  pair in the dictionary.
+This information is saved as a reference point so that any potential changes made by a third-party programmer using the IDE can later be discovered.
+Before elaborating on the implementation process, we will first define a few terms.
+GUI frameworks typically organize widgets into a tree.
+The root tree has sub-trees that represent windows and their associated widgets.
+We term the root tree of the host application as host GUI hierarchy, which contains many host widget sub-trees.
+Each host widget sub-tree represents a window that has a hierarchy of host widgets.
+We replicate the host GUI hierarchy inside the IDE's GUI builder.
+The replicated copy is called the cloned GUI hierarchy, which consists of many cloned widget sub-trees.
+Each cloned widget sub-tree has many cloned widgets.
+The relationship between these terms is illustrated in the left and right panels of Figure 4.
+We now describe in more detail the steps involved in using WADE to modify GUI components and associated program logic for a third-party applications.
+Figure 4: WADE components: the Injected Add-on Manager  inside the host application manages add-ons and communicates the GUI information with a compatible IDE via the WADE IDE Add-on component .
+The WADE IDE Add-on then clones the host application's GUI in the IDE's GUI Builder to allow WYSWYG modification of the original UI.
+The changes made in IDE can then be compiled into a third-party add-on to alter the appearance and behavior of the host application.
+The Injected Add-on Manager then serializes the extracted properties of each host widget via the WADE IDE Add-on to the IDE.
+For most widgets, information such as name, size, location, text, etc.
+For widgets with background images or complex structures, such information is first saved as cache files in image or XML format before being transferred over.
+After receiving complete GUI information from the Injected Add-on Manager, the WADE IDE Add-on then constructs a project with the same UI properties as extracted from the original program.
+With the extracted UI information, the WADE IDE Add-on clones the existing interface into a new project in the IDE.
+In our current WADE implementation, we have integrated the WADE IDE Add-on with SharpDevelop 4.2 and Microsoft Visual Studio 2012 Ultimate to provide code and GUI builder support.
+Third-party add-on developers can then modify the cloned GUI hierarchy in a WYSIWYG fashion.
+This modified cloned GUI hierarchy and its associated program behavior is compiled into an add-on  that can be loaded into the host application by the Injected Add-on Manager.
+Property modification of a widget is also handled in a simple yet effective fashion in the 5th and 6th statements of the algorithm.
+The number of widgets in the host GUI hierarchy is typically not exhaustive.
+So, instead of expending effort to explicitly detect individual changes, we simply reset all properties of all host widgets to the properties of their corresponding cloned widgets, regardless of whether the cloned widget has been modified or not.
+Event handler modifications are also implicitly handled during the property resetting process because the .NET framework treats event handlers as part of the properties of a widget.
+Changing and associating new program logic with host widgets can be effectively applied without much additional effort beyond implementing the desired functionality.
+As such, we successfully integrate the GUI builder and a number of IDE features into the third-party software add-on development process.
+While WADE demonstrates a promising step towards addressing the power and ease of use trade-off for runtime modifications, it is important to note that WADE is not without limitations.
+Using this algorithm, WADE can apply a third-party programmer's changes in the cloned GUI hierarchy to the GUI hierarchy of the host application.
+These changes include adding or deleting a widget, modifying the properties of a widget, or adding or modifying the event handlers of a widget.
+Adding widgets is handled in the 7th and 8th statements of the algorithm.
+When the Injected Add-on Manager finds a cloned widget not in the component dictionary, it knows it is a new widget and adds it accordingly to the host GUI hierarchy.
+Deleting widgets is implicitly handled by initially setting all host widgets to be invisible , and only making visible those found in the cloned GUI hierarchy.
+The deleted widgets therefore will remain invisible after this process, and will appear to the user as if they had been deleted from the host application.
+We choose to hide the widget instead of deleting it because removing a widget at runtime may be risky.
+As a widget may have unknown runtime dependencies, permanently removing it may cause the application to crash.
+Thus, we choose a safer approach to achieve a similar effect.
+WADE enables the user to perform WYSIWYG modification of the GUI hierarchy only to the initial application state.
+Many interfaces, however, are dynamic and rely on runtime code that may alter the interface from how it appeared at the moment it was imported into WADE .
+Since the content of a widget can change at runtime, content modification through the GUI editor may not be applied back to the original application.
+Changes to the application may also conflict with the modifications implemented in WADE, possibly leading to unstable modifications that may not behave as expected.
+However, certain interface dynamics can still be addressed using the WADE approach.
+For example, if dynamic widgets are initialized only once upon program invocation, it may still be possible to apply modifications using a monitoring program that knows when to take action after initialization.
+Another limitation of WADE is that the current implementation provides limited support for modification of custom widgets.
+Custom widgets often have derived custom properties and behaviors that are not recognizable by the GUI builder; they therefore cannot be properly displayed in the IDE.
+However, not all custom widgets are unrecognizable.
+Custom widgets that derive from a standard, known widget will be treated as the base widget.
+The GUI editor can thus handle the inherited properties, but will be ignorant of any derivative behavior and properties.
+Runtime add-on manager: a tool that enables a compiled add-on to be installed onto an existing program at runtime.
+ManagedSpy: a Microsoft utility program that allows developers to spy on an application's GUI at runtime.
+Figure 5 presents a screen-shot of the program which allows a user to discover the names, types, and properties of the host application's GUI components at runtime.
+The ManagedSpy serves a similar functionality to the hierarchy browser, widget picker, and object observer tools offered in the Scotty environment.
+For WADE, we provided the addon manager and the WADE IDE based on SharpDevelop 4.2 with GUI builder as previously described.
+Overloading at runtime can cause problems if the replacement method violates any of the assumptions in the original application's design.
+It is thus recommended to practice careful and defensive programming to avoid breaking the original application logic .
+However, as compared to toolkit modification approaches, WADE diminishes the risk of breaking the host application.
+In existing approaches, all modifications involve writing arbitrary code.
+With WADE's property editors and templates, the surface footprint of this code is diminished, and supported modifications can use known clean implementations.
+Writing additional code will remain risky as in Scotty and other toolkit approaches, but certain common modifications are now much safer.
+Before the actual experiment, each participant was given a tutorial demonstration and three practice tasks similar to the experimental tasks to familiarize him/herself with the use of the Scotty simulator and WADE.
+For each approach, we provided a manual with the information necessary for the users to complete the tasks.
+In order to assess the usefulness of WADE, we performed a user study.
+In terms of purpose and capabilities, WADE is most similar to Scotty .
+Other alternatives, while having their own advantages, are less comparable to WADE in terms of the functionality provided or applicability.
+For example, surface-based approaches such as Facade and Prefab lack the ability penetrate underneath the surface; SubArtic requires use of the SubArtic toolkit to begin with.
+While we expected WADE to significantly simplify add-on development as compared to Scotty, a primary objective of the user-study was to quantify the speed-up obtained with WADE over Scotty while modifying third-party software, and identify those WADE characteristics responsible for the speed-up.
+To this end, we performed a controlled experiment to assess and compare the strengths and limitations of the Scotty and WADE approaches.
+The experiment was conducted using a DELL Optiplex 990 Desktop computer running on the Windows XP operating system, with 4 GB RAM and Intel Core i7-2600-3.40 GHz CPU.
+A Dell E2211H monitor, a USB optical mouse and a standard keyboard were used as the input/output devices.
+The Paint.NET interface to be modified is implemented in C# using Microsoft Visual Studio.
+As Scotty was developed for the Cocoa framework in Mac OS whereas WADE runs on the .NET framework in Windows, we created a Scotty-like development environment  to support user tasks on Windows using the following tools:
+The manual for the Scotty-like approach included step-bystep instructions for  accessing the GUI window and child widgets,  changing widget properties using the information retrieved by ManagedSpy,  coding snippets to hide items,  coding snippets to add new widgets, and  using the add-on manager to insert DLLs back to the host application.
+The WADE manual included instructions on how to  trigger commands to inject the add-on manager DLL,  clone the host application,  write GUI modifications to a DLL and  re-inject this DLL back to the host program.
+Note that the instructions we provided made code-based modifications  much easier, because in real world scenarios, the methodology for achieving GUI modifications is not obvious and must be figured out in a trial and error fashion.
+However, to facilitate participants' completion of the tasks, we provided all the requisite information in the user manual.
+The tasks to be completed using  our Scotty simulator and  WADE in the experiment are described below:
+We used a within-participants design in which all participants were asked to perform all tasks using both approaches.
+Participants were randomly assigned to two groups of four participants each.
+Half of the participants performed the two tasks with the Scotty simulator first, followed by WADE, while the other half performed the two tasks in the reverse order.
+Each participant performed the entire experiment in one sitting lasting 1-2 hours, with optional breaks between tasks.
+In summary, the design was as follows : 8 subjects x 2 coding approaches  x 2 tasks  = 32 tasks in total.
+Comparative factors were time spent on the tasks, whether or not the task was successful, and participants' subjective preferences in their post-experiment questionnaire.
+Qualitative comparison: After the experiment, participants were asked to rate various aspects of the two approaches on a 5-point Likert scale.
+WADE received a minimum average score of 4.75 on all counts.
+On the other hand, the Scottylike approach received a highest score of 3.25 for usefulness, and a lowest score of 2.25 on user productivity.
+The user-study results confirmed that software modification is much easier with WADE than with Scotty.
+Accuracy: Seven participants finished all tasks, while one participant only finished the first task using both approaches.
+Therefore, from the task completion point of view, there was no difference between the two approaches.
+However, there was a difference in the number of attempts it took for participants to finish each task.
+An attempt denotes each instance a participant believed the task was complete, and tried to execute the modifications he/she had made.
+Errors in program execution, therefore, resulted in multiple attempts.
+On average, participants required 1.13 attempts to complete a task using WADE, and 1.75 attempts with the Scotty-like approach.
+A paired t-test comparison between the two approaches revealed that this difference is marginally significant .
+This result suggests that users are likely to commit fewer mistakes during interface modification using WADE than Scotty.
+Time to task completion: We then conducted a 2x2 repeated measures ANOVA on the task-completion times with the approach type  and task type  as the relevant factors.
+Figure 6 presents the results.
+Results of the user study clearly demonstrate the advantages of using WADE's integrated approach for reconfiguration and add-on development tasks.
+The performance gain with WADE arose due to a number of factors as enumerated below.
+This consequently saves time and effort required to look up the GUI widget hierarchy for appropriate names and properties before applying any changes, as indicated by our participants: "WADE enables direct manipulation which is easy, faster and intuitive.
+It is easier to make mistakes using the pure coding approach, as indicated by the higher average number of attempts mentioned earlier.
+In WADE, the IDE provides an integrated environment for coding, which can reduce the time spent on managing and interpreting the code.
+As indicated by P4: "Switching back and forth between ManagedSpy and IDE is tedious and frustrating".
+Therefore, one can expect WADE to enable an even larger performance gain over toolkit-based deep approaches such as Scotty in real-world scenarios.
+In summary, the advantages of WADE over Scotty-like approaches are  Direct and easy location-cummanipulation of target widgets due to the WYSIWYG editor;  Fewer chances of committing errors during interface modification as the UI modification process is simplified by the WADE IDE;  Scaffolding provided by WADE for incorporating add-ons, in the form of event handlers, enables easier and faster addition/modification of functionality;  Facilitation provided by the IDE significantly reduces switching time between different applications and tools;  Less search time required to find the correct statements to manipulate GUI properties.
+While the user study conclusions are not surprising, as WYSIWYG GUI editing is easier than explicit code hacking, it demonstrates that an IDE greatly simplifies UI modification as compared to a Scotty-like approach even for relatively experienced programmers.
+All of our participants mentioned that they are less likely to use the Scotty simulator for implementing third-party add-ons.
+On the other hand, WADE significantly lowers the knowledge barrier for developing third-party GUI add-ons.
+Six out of eight participants indicated that they would use WADE to write add-ons for third-party software.
+Combining both approaches may mitigate this trade-off.
+For example, Inky  allows for sloppy command input and provides rich visual feedback to reduce the cost on user's memory, making it less error-prone.
+Sikuli , on the other hand, enables inclusion of visual images in the command to make it easier and more intuitive to refer to graphical elements.
+To some extent, WADE follows the same approach by introducing the GUI builder into Scotty's command line programming environment to improve the ease of use and robustness of the third party add-on development.
+However, our user study has revealed that there is room for improvement to better combine the advantages of the GUI builder and command line programming to further improve the efficiency and ease of use of third party add-on development.
+Although WADE is currently only implemented for the Windows Forms framework, its approach can be generalized to most other frameworks and platforms.
+The key to step 1 is runtime code observation and intervention.
+On Windows, we use DLL injection.
+Registry key-based injection works by adding a new DLL to a registry AppInit key.
+In Windows Vista and Windows 7, this feature is disabled by default, but can be achieved through code signing.
+Whenever a new application loads, the DLL will be loaded into the same process as well.
+System hook-based injection works by using a separate background monitoring application that detects new programs and uses methods such as SetWindowsHookEx.
+While more cumbersome and complex, this approach injects the DLL at the deeper thread level and can be used by all versions of Windows.
+While many of the modifications were easier to perform using a GUI builder, participants also found it less convenient when dealing with repetitive or looping tasks.
+For example, if a participant is asked to change 6 out of 7 labels to a different font type, it is easier to use a loop than manually perform the changes multiple times.
+The GUI metaphor delivers important benefits to learnability, memorability, and error prevention, but it can be inefficient for frequent users .
+Choosing which method to use depends on the frameworks used.
+Some  allow modification of the UI thread in the process level.
+Other frameworks  do not allow such modifications; therefore, thread level intervention becomes necessary.
+Once the appropriate runtime code observation and intervention method is identified for a particular framework and platform, the remaining effort mostly concerns the work of writing the injected add-on manager for the framework.
+The second step is to choose a suitable IDE that supports GUI editing for add-on development.
+To shorten the development time, it is recommended that an existing IDE be chosen for a particular framework to work.
+As WYSIWYG GUI editing becomes more popular, it is not difficult to identify such IDEs for many of the modern frameworks.
+For example, in the Java platform, NetBeans and Eclipse are two such IDEs; Qt Creator  is an example that satisfies these requirements for the popular Qt framework; XCode is an IDE that is suitable for the Mac OS Cocoa framework.
+We implemented the WADE prototype for both the Visual Studio and Sharp Develop IDEs.
+Once a suitable IDE is identified, the steps mentioned in the implementation section can be followed to create an add-on that can import and present the host GUI hierarchy in the IDE's GUI builder.
+The exact process of implementing addons may be complex and depends on the details of the particular environment.
+However, it is technically feasible and the approach we have proposed in the implementation section can serve as a useful guideline for the development process.
+The WADE IDE is shown to be useful for realizing a variety of GUI-based modifications in existing software.
+The presented user study confirms that while these modifications are achievable employing alternative approaches, WADE significantly lowers the requisite knowledge and effort barriers.
+Future work involves extending the current implementation to other OS platforms, widening WADE support to handle custom and dynamic widgets, and potentially enabling debugging capabilities inside the WADE IDE for add-on development.
+We thank the AC and anonymous reviewers for their constructive comments and feedback.
+We thank members of the NUS-HCI Lab for their support.
+This research is supported by National University of Singapore Academic Research Fund WBS R-252-000-414-101 and by A*STAR, Singapore, under the Human Sixth Sense Program  grant.

@@ -1,0 +1,288 @@
+Typical Human Robot Interaction  assumes that the user explicitly interacts with robots.
+However, explicit control with robots can be unnecessary or even undesirable in certain cases, such as dealing with domestic services .
+In this paper, we propose an alternative strategy of interaction: the user implicitly controls a robot by issuing commands on corresponding real world objects and the environment.
+Robots then discover these commands and complete them in the background.
+We implemented a paper-tag-based interface to support such implicit robot control in a sensor-augmented home environment.
+Our initial user studies indicated that the paper-tag-based interface is particularly simple to use and provides users with flexibility in planning and controlling their housework tasks in a simulated home environment.
+For example, the vacuum robot, Roomba, has been on the market for seven years and reached millions of users worldwide .
+Other domestic-service robots including Scooba , Robomower , Dirt Dog , Dressman , and Paro  have also appeared in the market place .
+Although progress has been encouraging, especially regarding the positive user response generated while using Roomba , we still have not reached the vision described earlier.
+Typical interfaces for robot control assume that users explicitly interact with robots.
+We acknowledge that explicit interactions between humans and robots are essential, especially when working with entertainment and social robots.
+However, in some other cases, such as dealing with domestic housework, having the tasks done is the ultimate goal, rather than interacting with the robots.
+It has long been our dream to have things done "magically".
+In the West, the Brothers Grimm told a famous fairy tale about an honest and hardworking shoemaker getting magical help from two little dwarfs with his cobbling while sleeping .
+In the East, an ancient Chinese story fantasized about a girl hidden inside an oyster shell, completing housework while her host was away .
+The fairy tales may still sound like dreams, but recent advances in robot technologies have brought us closer to achieving this vision, especially when dealing with domestic services.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In the following sections, we first present several usage scenarios to provide an overview of how the system works from the users' point of view.
+We then describe the related work, followed by a detailed explanation of the paper-tag user interface, the overall system architecture and its implementation, and the results of the various user studies before concluding the paper.
+We envision several advantages of this new approach.
+First, it is simpler to only deal with "tasks".
+In traditional HRI approaches, the user would have needed to interact with both "robots" and "tasks", while in our approach, "tasks" is the only concern.
+Second, compared to robot technology, daily housework tasks have a much longer history and are relatively stable.
+Less change is likely to happen to the nature of tasks.
+In contrast, robot technology is still immature and rapidly evolving.
+Interactive techniques designed for specific robots are more likely to become obsolete in the future.
+In other words, focusing on tasks can better encapsulate users from pursuing ever-changing technology, leaving the enabling technology to evolve in the background without any active involvement by users.
+Third, our approach encourages asynchronous operation: users assign tasks and have them completed later.
+Many of us spend significant amounts of time at work, in school, or enjoying various activities outside our homes.
+Ideally, tasks can be completed while we are away, sleeping, or in a different room, which leads to magical experiences.
+To explore the above vision, we designed a simple papertag-based programming interface to describe daily housework tasks such as vacuuming or delivering an object to a specific location.
+Users place paper tags on corresponding real-world objects and the environment to assign tasks.
+Paper tags are selected because they are tangible, simple to use, and "computerand screen-less", which allows the proposed solution to better reach the numerous housewives, elderly, and disabled users who are unfamiliar with  computers.
+In our initial prototype, all robots are customized from iRobot Create and are currently only capable of completing tasks on the ground level; therefore, only limited types of tasks are supported.
+Profile * John and Mary are a working couple without children.
+During weekdays, John and Mary wake up early and leave for work at 7 am.
+In the evening, Mary usually arrives home around 6:30 pm while John does not return until 8 to 9 pm.
+Mary is responsible for most of the housework in their two-bedroom apartment.
+Maintenance tasks, such as vacuuming and trash management, are typically done during the weekdays while major cleaning is left to weekends.
+Setup * Now, let us see how the robot housework system with an interface of Magic Cards can assist their lives.
+The installation process is handled by professionals and involves mounting cameras on the ceiling and setting up the software.
+Object tags are placed on certain objects Mary wants the system to uniquely identify and handle, such as trash bins.
+Finally, she receives a set of paper tags organized in a binder to give instructions to the system with a simple tutorial on how to use it.
+First day * In the evening, the system is ready.
+Mary starts to use it to plan housework tasks for the next day.
+One task she wants done tomorrow is vacuuming, since the installation process left dust and dirt behind.
+To have the robots carry out the task, she places a "Vacuum this room" tag and a "Start at noon" tag in each of the two rooms.
+In addition, she needs the trash bin to be placed at the door before 8 am the following morning for pickup.
+However, since more trash will be produced in the morning, she does not want it to be moved now.
+She also wants the empty trash bin to be returned to the original location in the evening.
+To do that, she places a "Take me to `destinations'" tag beside the trash bin, the "First destination" tag near the apartment door, and a "Start at 7:30 am" tag next to the deliver tag to specify the time for the act of delivery.
+The "Second destination" tag and a "Start at evening" tag are placed at the current location of the trash bin.
+The next day, Mary goes to work at 7 am as usual, and when she returns home in the evening, she finds that the tags have been removed.
+Another day * One day, Mary is alone at home, plans to watch a movie in the living room, and she decides she wants the bedroom to be cleaned while she is watching the movie.
+She then places a "Mop this room" tag and a "Do this second" tag on the ground.
+There is one especially dirty spot in the bedroom, so she places a "Mop this location" tag at that spot to ensure that location will be cleaned multiple times.
+She also has an expensive vase near the corner of the room and she is afraid that the robot's movements may accidentally break it, so she places an "Avoid this object" tag next to it.
+Excessive housework also has various objectionable effects .
+To most people, housework is still a tedious necessity rather than an enjoyable pastime.
+The emergence of domestic service robots, such as the vacuum robot  and other types of robots from iRobot , points to a start in solving this problem in the future.
+Various studies in the HRI community focusing on Roomba and domestic service robots  have pointed out the potential of these robots as well as the challenges of introducing them into our homes.
+However, "homes are not simply designed to accommodate service-robot technologies, rather, domesticservice robots need to be designed to `artfully integrate' with structures and practices of the home" , which motivated the approach we took.
+Both conceptually and technologically, our approach was inspired by the vision and practices of several fields in Human Computer Interaction , including "Ubiquitous Computing" , "Augmented Reality" , Tangible User Interface  , and various work on paper-based interfaces .
+Recently, efforts have been made to introduce UbiComp into the home environment .
+Due to the special role of the home environment and housework nature of these tasks, we felt it was even more important to shift away from the traditional HRI approach where humans directly interact with robots and move robots and sensors into the background.
+To accomplish this vision, we leveraged tools and results from the Augmented Reality  community, which has a long history of integrating real-world environments with computational media.
+Several AR programming libraries, such as the open source package of ARToolkit  and robust marker technology  allowed us to build a system to support the kind of interactive style.
+In designing interaction with the system, we were inspired by work on TUIs , which uses rich physical affordance of real world objects to assist interaction.
+In particular, the extensive work on using paper as a computer interface  led us to use paper cards as our interactive media.
+Two projects in particular have influenced our design of the overall system: Collaborage  and Zombie board  from Xerox PARC, which themselves have been inspired by the earlier work of Insight Lab  and BrightBoard .
+These systems use vision technology to detect either paper tags or diagrams drawn in ink to control the system.
+Compound task * Using the system for a while, Mary found some sets of tasks appeared repeatedly, which could be reused.
+To do that, after planning a set of tasks such as vacuuming first and then mopping, she places an additional "Memorize this set of tasks for future reuse" tag, and when these tasks are finished, a new "Memorized set of tasks" tag representing the combination of these tasks appears  and is ready to be reused for similar occasions in the future.
+The above highlights the basic usage scenarios for our system and how it can improve people's lives.
+The most important aspect is that the system allows the robot's services to be fully controlled  while the complexity of the system is hidden in the background.
+No menus, buttons, or even displays are needed.
+Placing paper tags at appropriate locations and housework will be done automatically.
+Although these projects focused on whiteboard interactions, similar approaches can be adopted for our system.
+While various work has inspired us, our research is nevertheless different.
+Compared with traditional robotcentric HRI approaches, our interaction focuses on tasks.
+Instead of interacting with robots, we use paper cards to interact with tasks and objects.
+The complexity of robots and the system are hidden in the background.
+When compared with UbiComp, AR, and TUI, our research can be distinguished by using real-world artifacts to manipulate real-world objects and tasks.
+This is in contrast to the conventional approach of using specialized input devices  to manipulate objects in the virtual world , or using real-world environments or objects to augment or manipulate the digital world or digital objects .
+Although the interaction regarding input in our approach is similar to both AR and TUI, the output or outcome of the system is different: instead of moving and manipulating bits and bytes, we move real objects using mobile robots.
+Task-centric approach in tele-operation robots  shares the goal of freeing the users from low-level control with our work.
+However, these systems still require the user to explicitly interact with the remote robot using a control console in front of the user.
+It assumes full attention of the operator during the task execution.
+Our goal is to make the user unaware of the robot as a physical entity.
+The user only leaves a command in the environment and tasks will be executed in the absence of the user.
+The design of the layout of the cards is similar to that of Collaborage .
+The paper tags in our system serve a dual purpose: they both inform humans so that they know how to assign tasks easily and accurately, and the system itself about the nature of the tasks and where exactly these tasks are located.
+Natural language and intuitive image icons are used to communicate with humans while 2-D id-markers are used to instruct the system.
+There is an example of this design in Fig.
+Note that 2-D planar id-markers are not the only solution to providing identity, position, and orientation information on objects as well as that on robots to the system.
+Other methods, including magnetic fields, radio, active LED, and laser beacons can also be used.
+Nevertheless, passive marker patterns that can be detected by computer vision were chosen because they are the most simple and inexpensive.
+We used proprietary 2-D planar id-markers, which were very similar to those in earlier work such as CyberCode , and ARTag .
+Each marker was about 5 x 5 cm, which we managed to recognize each stably using a 960x720 resolution ceiling camera  covering a 2.5 x 2 m region on the floor.
+Our system could uniquely identify 120 patterns with their orientations.
+We observed that it worked robustly in various illumination environments, sufficient for our initial study.
+Considering all these factors, we designed a paper-tagbased interface inspired by the grammar of natural languages .
+Paper is used because of its tangible nature and long history of use, which makes it easy to understand and be manipulated.
+English as a natural language has long been used by people to communicating about daily tasks.
+In English grammar, tasks are generally described using the subject, verb, object, and modifiers .
+However, to focus on tasks and objects, the subject in the task description is intentionally avoided.
+4 summarizes all tags supported by our current design.
+In addition to the previously-mentioned action tags, object tags, and modifier tags, a few special purpose tags are used to provide additional functions for the system.
+For convenience, in addition to organize tags into types, they were further divided into functional sets within types.
+Each set was labeled with a number in Fig.
+A total of 14 functional tag sets are listed.
+We will use phrases of "set" + "a number" to refer to a particular tag set in our text .
+Different types of tags were placed on different pages and highlighted with different colors.
+To make it easier for users, tags were organized in a binder.
+Ideally, action tags can include all types of housework such as ironing, folding, hanging clothes, cooking meals, washing dishes, trimming plants in the garden, and cleaning the toilet.
+However, many of these tasks are difficult today even for the most advanced robots.
+Each of these delivery types follows examples from the real world.
+For example, "bring a chair from the bedroom to the living room" is an example of one-to-one delivery, "take the trash bin to the dumpster  in the morning and bring it back  in the afternoon" is an example of one-to many-delivery, and "collect all toys and put them in the toy bin" is an example of many-to-one delivery.
+Since all three types of delivery involve more than one card, it is important for us to allow users to understand the three types of delivery behaviors.
+One-to-many delivery is more difficult, since it is not easy to intuitively express this to users.
+After several design iterations, we chose the following labels.
+It uses the metaphor of riding a bus, where it will stop at different bus stops on the way.
+Many-to-one delivery uses a different metaphor, but is easy to understand.
+Avoid tag: It often occurs that there are certain areas in the household one want robots to avoid, such as locations with fragile or expensive objects.
+By placing an "avoid this object" tag beside an object, the system will prevent any robots from moving close to it.
+Two types of vacuuming and mopping are supported.
+Object tags are arguably unnecessary, since action tags can implicitly indicate the location of objects and the system in theory can intelligently infer these objects by analyzing the visual images.
+These object tags are preregistered and are printed on sticky paper so they can be easily applied to an object of interest.
+Note that this process only needs to be done once.
+However, one particular design passed our user test, which is described here.
+In this approach, users no longer have to "compose" a compound task.
+They simply plan their tasks as usual.
+If they like their planning and want to use it later, they simply apply this card to tell the system to save the entire set of actions into a preset.
+To help the user to reuse this compound task, the system will print out a new tag with all the task descriptions printed on the back of the card, and this card can then be used as a handle to represent all the tasks the user wants to perform in a group.
+Note that this process can be done hierarchically, and a compound task that is made of other compound tasks is also possible.
+Due to assistance from object tags, the system can uniquely remember objects involved in a compound task even if their location has changed.
+This provides some intelligence and robustness to the compound tasks.
+For example, if a compound task involves moving several objects to multiple locations, even if the initial object locations have been changed, the system can still find these objects and deliver them to the required locations specified by the compound task.
+As soon as the system detects this tag, even if the image in the camera has not been stabilized, the system will start the activities immediately.
+This can be useful when immediate action is preferred.
+We did not preclude them from using them while at home.
+This was especially useful if some rooms were unoccupied and could be left for robots to do their work.
+In such cases, human hosts may occasionally want to interrupt robots' activities if they want to use these rooms again.
+The "Pause activities" card was designed to serve this purpose.
+This card, together with the "Start tasks now" tag, once recognized by the system is executed immediately, regardless of whether any human motions are detected.
+Note that a "Resume activities" tag is not necessary since it can be implicitly indicated by removing the "Pause activities" card.
+In summary, these are the basic cards supported by our system.
+They enable users to carry out various simple tasks in different configurations as well as compound tasks that are composed of simple or compound tasks.
+What we presented here obviously does not cover all the possible actions and configurations for performing domestic services; however, the overall design and the classification system provide a framework that can be extended in the future.
+In the next section, we will describe the overall system architecture as well as implementation details.
+Modifier tags define the context of action, specifying when, where, and how the action is performed.
+The current implementation supports three types of modifier tags: time tags, location tags, and order tags.
+Each of them is briefly described below.
+If no time tags are specified, actions will start at a default time specified by the system.
+When interviewing our users, we found out that most of them typically had only a few important timeslots, and people found general terms such as "morning", "noon", "evening", and "night" were more intuitive and easier to think about than precise terms such as 1:23 pm.
+However, users often have different preferences, and to different people, their exact interpretation of the time concept such as "morning" or "evening" is different.
+To allow users to specify personalized time slots, we implemented a simple time-tag creation interface  where users could enter a convenient time and name and the system assigned a machine readable id to it.
+Users could print this out according to their needs.
+Location tags * The location of an action is typically implicitly implied by the placement of the action tag in the physical world.
+However, certain actions  involve more than one location.
+Additional location tags are needed to specify target locations.
+Location tags are typically coupled with action tags and do not exist independently.
+For example, one can use order tags to ask the system to do vacuuming before mopping.
+We can use "Do this first", "Do this second", "Do this third" and so on to label the order tags.
+In addition to the tags mentioned above, several special purpose tags are designed, including "memorize this set of tasks for future reuse" tag, "start activities now" tag, and "pause activities" tag.
+However, it is important to allow users to group simple tasks into a higher-level compound task, and reuse it later.
+The challenge, however, is to come up with an intuitive design so that ordinary users  can understand and use this in real life.
+The sensors are Logitech QuickCam Pro for notebooks installed on the ceiling 2.5 meters above the floor.
+In the current implementation, they are connected to computers using extended USB cables.
+In the future, wireless connection is certainly preferred.
+Each camera covered an area of ; with a combination of four cameras, a total area of 20 m2  was covered.
+Each camera had 960x780 resolution, and is capable of detecting markers with the size of 4.5 x 4.5 cm.
+The cameras are set up so that images slightly overlapped to allow image calibration and combination using the markers.
+The current implementation uses two computers connected via a TCP/IP network.
+The first has wireless receptors and is responsible for communicating with robots via Bluetooth.
+All robots are products of iRobot Corporation.
+According to their functionality, they can be roughly divided into working robots  and administrative robots .
+The administrative robots include a printer robot and a card pickup robot.
+The printer can be remotely controlled to print out card-size notes to be dropped on the ground by the iRobot Create.
+The card pickup robot is also modified using an iRobot Create.
+Due to this restriction, if users want to automatically pick up the cards, they can only be placed on the ground.
+Working robots include Roomba , Scooba , and delivery robots , which do the vacuuming and mopping, and deliver objects.
+We turned off default automatic behavior  and directly controlled them using low-level control commands such as move forward and spin left.
+Vacuuming and mopping are relatively simple.
+The system simply moves the robot to the target location, turns on the vacuum or mop, and then moves it so that it covers the target area while avoiding obstacles.
+Delivery is a bit more involved.
+The system first moves the robot behind the target object and then moves the robot toward the target location.
+The system works in the following way.
+Using these tags is straightforward as described earlier in the usage scenarios.
+While a user is placing the tags, if none of the special tags that required immediate action were found , the system waits until the image stabilizes before instructing robots.
+This is similar to the design of the Collaborage system .
+The recognition algorithm works as follows.
+The system needs to first group the cards into various tasks, and then prepare a plan for the robots to execute them.
+As previously described, a task may be defined by a number of cards representing the verb, object, and modifiers.
+Of these, the central piece is the "verb", which is the action tag.
+Once all the tasks are defined and remembered, the system then brings out the card-pickup robot to collect all the cards, .
+After that, the system then brings out the appropriate robots to perform various tasks, such as vacuuming, mopping, and delivery.
+If any errors occur during these, the system will remember the location , and once all the activities have finished, the system will bring out the printer robot to print an error message at the exact location where the error occurred.
+Finally, if it is a compound task, the system will ask the printer robot to print out a new tag and drop it at the same location as the "Memorize this set of tasks for future reuse" tag is dropped.
+Second, the feedback from interviewees helped us greatly improve the design of our paper tags.
+Most of the tags  were conceptually simple and took only two to three iterations before an intuitive design was found and approved by all users.
+However, one type of tag, the compound-task tags, was much more challenging before we came up with an intuitive solution that could easily be understood by users.
+These early explorations provided us with valuable feedback on the design of the Magic Cards interface.
+To find out the usability issues of the entire system, we also performed an evaluation with the working prototype, which is described below.
+These interviews taught us about their current living conditions and habits, and how they wanted to use our proposed system.
+A preliminary design for the paper tags were also presented to them for feedback.
+Interviews  were conducted on separate days over the course of two weeks, during which we incorporated their feedback to iteratively refine the design of the paper tags.
+This early exploratory evaluation helped us in many ways.
+First, it provided us with a better understanding of what people need and how our system can fit into their lives.
+Our interviewees helped us to confirm many of our initial ideas while clarifying some of our misperceptions.
+All interviewees liked the asynchronous model of completing housework.
+Many of them spent a significant amount of time outside the home.
+They thought having their housework done while they were away was a great idea.
+We learned that most of them did both opportunistic cleaning as well as scheduled cleaning, consistent with the previous survey results .
+Scheduled cleaning typically occurs on the weekend, while opportunistic cleaning can happen at any time.
+We were originally more interested in spot-oriented cleaning, but our interviewees taught us that most people only undertake room-based or house-based vacuuming or mopping.
+As soon as the system is implemented, 8 more participants  were invited to participate in the user study.
+Three of them are single; five are married; four are housewives; and three have children.
+Participants received $20 per hour for taking part in our study.
+The study involves three steps.
+Hardware and software setup is exactly as described earlier.
+Questionnaire collects background information such as demographic information, living condition and habits, housework duties and types of work they want robots to help.
+Paper tag evaluation aims to further test the intuitiveness of the supported tags.
+Users were presented with 13 sets of tags  after a brief introduction of the general purpose of the project.
+They were then asked to write down the meaning and usage of these tags based on the text and image presented on the front side of a tag, text from the backside was not provided.
+Instructions to tasks were given in everyday language  with words directly from tag names purposely avoided.
+They started with simple tasks followed by more advanced tasks.
+Simple tasks included: vacuum, mop, and various types of delivery.
+Advanced tasks included combinations of simple tasks in different time and order.
+To save time, time based interaction were accelerated using a much short interval.
+After going through the planned tasks, users were asked to suggest their own tasks using the provided tags.
+All three steps, including break time, lasted about two hours for each participant.
+Overall, users did very well in understanding the meaning of tags in step 2.
+6 out of 8 users correctly interpreted the meaning of all 13 groups of cards.
+Two users misinterpreted the meaning for tag set 8 , and one of them also did not understand set 11 .
+Their misinterpretations were not far from the correct meaning.
+One user interpreted set 8 as distributing multiple mails to multiple persons, while the other person thought it was used to deliver an object to one of the destinations, instead all destinations in sequence.
+The person who did not understand the meaning of compound task tag simply wrote that she cannot imagine a scenario of how to use it.
+All participants also did a great job in planning the tasks using paper tags in the simulated home environment.
+Interestingly, users found advanced tasks not more difficult to plan than simple tasks.
+All of them mentioned that it was straightforward to use them.
+Users created some interesting compound tasks with the tags.
+For example, one subject suggested an interesting cleaning routine by combining delivery tags, vacuum-spot tags, and order tags.
+She first placed a delivery tag to move the toy bin to the side, a vacuum-spot tag to clean the area previously covered by the toy bin, and another delivery tag to move the toy bin back to the original location.
+In the post experiment interview, users' response for the paper tag interface was very positive.
+All users highly applauded the simplicity of our paper-tag based interface.
+Many participants suggested that our interface is simple enough for elderly to use.
+This is further indicated by positive feedback received from the oldest participant in this study: a 52-year old housewife, self described as "terrible at any kind of instructions".
+She highly praised the simplicity and intuitiveness of the paper-tag-based interface which allows her to plan tasks without hitting a single button.
+She was self-described as hesitant to touch any buttons in fear of any undesirable consequences, but much more comfortable to handle and place paper cards because they seemed safe and harmless.
+She envisioned that our system would be useful for elderly and disabled to remain independence and perform housework by themselves.
+While being aware of the limitations of the current system, users were surprised about the versatility of the system.
+By combining several tags, many potential useful tasks could be planned easily.
+Many expressed high interest in purchasing the system if it becomes available.
+Compared with the positive responses, perhaps we, as researchers, were more interested in any problems and concerns found from the user study since these will lead to future improvements.
+One concern with the paper-tag interface was possible misuse by small children, as pointed out by the two users with small children.
+To them, cards cannot be left on the ground unattended.
+It is often essential to immediately collect these cards after planning, and as an extra precaution, they wanted to ensure all cards were collected before leaving home.
+In addition, they preferred to have the robots work while their children were not at home.
+The use of multiple robots to complete different tasks is often a concern for users living in small apartments or houses.
+They prefer an all-encompassing robot that is capable of doing all tasks instead of using multiple robots.
+The use of many cameras in the environment also raises concerns for users who rent their abodes since mounting cameras to the ceiling may not be permitted by their landlords, and for aesthetics, they prefer cameras to be invisible.
+Instead of mounting cameras within the environment, future systems may consider using nonvision-based sensors or using robots equipped with a vision system that is capable of detecting tags in the environment.
+During the course of the study, we experienced some surprising errors.
+Roomba may get stuck in an enclosed area or accidently bump into another robot and cause the robot to reset itself.
+Communication with robots is via a Bluetooth connection and this may break down unexpectedly if battery power is running low.
+Considering that all these errors happened in a controlled environment, errors are unavoidable in more complex real-life situations.
+Currently, these errors are handled by more experienced technical people.
+How to implement an automatic errorrecovery system  can be an interesting and promising research topic for the future.
+As an exploratory project, this nevertheless had a number of limitations.
+The current system uses id-markers and computer vision to track these tags, which makes it vulnerable to occlusion problems as well as illumination conditions.
+The subjects need to be careful where they place the paper tags and when the tasks can be done .
+In the future, paper tags may be replaced by more advanced technologies such as Ubisense .
+The robots used in this project are also primitive.
+These robots can only move on the ground level with a smooth surface.
+They have limited power and cannot support the delivery of large and heavy objects.
+Many advanced robots that are capable of walking, climbing the stairs, or imitating various human behaviors are being developed or already exist in laboratories or factories.
+These can be used to enhance our system to complete more interesting and complex tasks in the future.
+While encouraged by the overall positive feedback, the raised concerns reconciled the earlier point that homes are not simply designed to accommodate service robot technologies; they need to be `artfully integrate' with structures and practices of the home.
+In conclusion, we presented an implicit robot control interface using paper tags  to systematically manage the robots to complete housework in a sensor augmented home environment.
+An initial prototype system that supported a limited number of housework tasks on smooth grounded surfaces was developed to explore this concept.
+Our user study has shown that our paper tag based interface is particularly simple to use, and provide users with flexibility in planning and controlling their housework tasks in a simulated home environment.
+The overall positive response from our users has indicated great potential for our paper-tag-based interface approach to design, and it arguably has a better chance of surviving over time because the design is based on more stable daily housework tasks.
+Although our system can be used by everyone, particular interests have been raised about the potential benefit it can bring to the elderly and disabled.
+Instead of relying on outside assists, systems like ours can help them to regain independence by engaging  in housework themselves.
+The simplicity of the paper-tag-based interface may help domestic service robot technologies to be used by people previously difficult to reach.
+We hope our exploratory work can somehow accelerate the attainment of our dreams to complete housework tasks "magically" in the near future.
+We thank Minghui Sun for programming and helping make the video, Yoshiki Takeoka, Sorahiko Nukatani, and Tak Miyake for helping make the video, Zoey Yu for drawing figures and helping make the video, Yotam Gingold and other JST ERATO project staff and researchers for providing suggestions and help, and anonymous reviewers for their valuable and constructive feedback.

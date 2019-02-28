@@ -1,0 +1,132 @@
+Predictive models in HCI, such as models of user performance, are often expressed as multivariate nonlinear regressions.
+This approach has been preferred, because it is compact and allows scrutiny.
+However, existing modeling tools in HCI, along with the common statistical packages, are limited to predefined nonlinear models or support linear models only.
+To assist researchers in the task of identifying novel nonlinear models, we propose a stochastic local search method that constructs equations iteratively.
+Instead of predefining a model equation, the researcher defines constraints that guide the search process.
+Comparison of outputs to published baselines in HCI shows improvements in model fit in seven out of 11 cases.
+We present a few ways in which the method can help HCI researchers explore modeling problems.
+We conclude that the approach is particularly suitable for complex datasets that have many predictor variables.
+Also, predictions can be computed rapidly, which makes regression models useful in online applications such as adaptive interfaces and interface optimization.
+Thirdly, it is flexible: a pragmatic researcher can improve model fit by introducing more free parameters and predictor variables, though at the expense of parsimony and generalizability.
+This Note addresses the issue that identifying nonlinear models can be a grueling enterprise since the number of  possible models grows exponentially with the number of predictor variables.
+While present-day tools support parameter estimation and analytics of predefined equations, they do not adequately support the process of identifying equations with desirable qualities.
+We work from the observation that a nonlinear regression model can be produced by a sequence of operations starting with a linear model.
+We present an algorithmic approach for exploring model spaces like this.
+The method is aimed at finding the best function that maps experimental variables  to a response variable while respecting researcher-defined constraints to the function.
+It is a stochastic local search method that permits control of the model's content and the search process.
+The method allows the researcher to set constraints that aid in striking a balance among parsimony, consistency with assumptions, and model fitness.
+Instead of working with one equation at a time, the researcher can work with sets of models found via changes in constraints that guide the search algorithm.
+The requirement of complete pre-knowledge is relaxed.
+Such capability can be useful for four purposes: 1.
+Identifying a "lower bound" for optimal model fit 2.
+Seeing whether a problem is "modelable" in the first place 3.
+Exploring alternative models that conform to the desired constraints 4.
+The datasets range from pointing tasks to menu selection and multitouch rotations.
+The method did find improvements in more than half of the cases and showed comparable performance in the others.
+The results were particularly promising for complex datasets with more predictors and observations.
+Predictive models are used in human-computer interaction  in theory construction, user-interface  design, adaptive UIs, and UI optimization.
+This paper addresses multivariate nonlinear regression equations, a popular approach to modeling .
+As a concrete example, consider Fitts' law.
+Although at times presented as a linear model, it is a nonlinear one: Given movement amplitude  and target width  , Fitts' law predicts movement time T  as T = a + bID = a + b log2 .
+Fitts' law is linear only after the nonlinear transformation that yields ID.
+However, nonlinear models are not limited to pointing tasks; in fact, they are used in many modeling papers in the HCI field.
+HCI researchers have preferred regression because it supports many research goals.
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The available tools do not adequately support the task of automatically identifying multivariate nonlinear models.
+Firstly, the tools previously developed within HCI  support model fitting, diagnostics, and visualizations but have been limited to predefined pointing models .
+Secondly, although the general statistical packages1 allow a researcher to enter arbitrary nonlinear models, they support only parameter estimation, not the identification of models.
+Thirdly, while some tools do support automatic exploration of nonlinear models, they do not support a larger number of predictors .
+Finally, a recent interactive tool  supports the construction of models with visualizations, but the process is manual and time-consuming.
+We build on optimization solutions  to the "symbolic regression" problem .
+We propose a variant of stochastic local search methods motivated by four observations of HCI.
+First, HCI modeling often favors particular operations on terms.
+Next, the number of predictors is relatively small and typically limited by that of independent variables in the experiment wherein the data are collected.
+This number typically lies in the range 1-6.
+These two observations imply that variable selection  is not a significant challenge but the control of terms in the equation is.
+In contrast, automated tools in, for example, chemistry  target problems with hundreds of predictors and need different controls.
+Thirdly, our examination of some of the existing models  suggested that a linear model with all predictors as separate terms can serve as an initialization for search.
+Fourth, HCI models are typically based on averaged point data.
+Thus, model fitting is significantly faster than with unaveraged data.
+These observations imply that even local search may yield good results.
+Moreover, we hybridize this method with a hill climbing method .
+Hill climbing methods examine neighbor candidates locally and select the best neighbor.
+The probability with which it will perform greedy local search  versus stochastic search can be controlled by the user on the basis of time constraints.
+In our implementation, search starts with a linear model with every predictor separately as a term.
+In every iteration, we take the model with the highest fitness value, generate a set of neighbors, and evaluate them.
+The strategy here on depends on the outcome: if an improvement was found, all single-operation neighbors are examined, for finding the best improvement ; if no improvements were found, the neighborhood is searched more deeply via generation of multi-operation variants.
+The best candidate is always selected.
+However, we use the Metropolis criterion  to stochastically accept a candidate that is poorer than the best known, if it is not too much worse and if many rounds have passed without improvements.
+A tabu list keeps track of already visited models and prevents re-accessing them.
+Our prime goal has been to provide sufficient control over the process and outcomes.
+The user can change: 1.
+The maximum number of free parameters The types of operations permitted The maximum number of operations allowed per term The maximum number of neighbors generated in each iteration 5.
+A seed equation for search with a list of terms that are not to be changed 6.
+Stochasticity factor: with a zero value, search is deterministic and favors steepest ascent to find a local maximum quickly; with a higher value, search is slower and stochastic, but it has an improved chance of finding the optimum 7.
+Fitness function: R2 , AIC , AICc , and BIC  
+The task of the algorithm is to find the functions fj  that maximize model fitness .
+It achieves this by performing a sequence of operations on terms in each iteration.
+The operations are the familiar algebraic 
+At present, we cover 16 operations, but this range is extendable.
+Our method is stochastic local search, a random search method .
+Stochastic local search includes a probabilistic decision criterion that allows it to get past local maxima.
+Stochastic hill climbing is a baseline method for biologically inspired methods such as genetic algorithms .
+The algorithm is implemented in Python and uses OLS  for fitting.
+The program is operated from the command line by a user specifying an input file and parameters.
+By default, variables are treated as scalars, but dummy coding can be applied for categorical variables.
+It prints intermediate results to display and file and can be stopped during search.
+The program outputs the best equation found with coefficients and reports a few statistics of model fit and residuals, along with some simple diagnostics .
+Benchmarking automatic modeling against previously published models of response time in HCI.
+A second is deciding on a meaningful fitness score - we currently use R2 , but this can be changed to cross-validation metrics.
+A third is model diagnostics.
+For instance, the use of OLS assumes collinearity and homogenous error variance .
+The latter is probably an unrealistic assumption in many HCI datasets.
+Analytics are needed to examine the consequences.
+Fourthly, the equations are not always elegant and require manual "beautification."
+Fifthly, since the outputs are multivariate models with case-specific semantics, we cannot offer tools for plotting or diagnostics.
+We evaluate the method with a benchmark against published models.
+We then consider two exploration exercises and finally a more complex modeling case.
+Our intent is not to propose that the outcomes should replace published models but to test whether the method could have aided in the exploration of model spaces.
+We also considered modeling multiple datasets with a single model.
+Here, as in some pointing papers, the model terms are kept the same but free parameters fitted per dataset.
+The datasets shown in Table 1 cover traditional pointing tasks with 2-3 predictors , more complex pointing models , and more complex compound tasks that involve visual attention and cognition .
+To match the prediction task to those in the corresponding papers, we use the same input data, including the predictor variables.
+Moreover, we cap the number of free parameters  at the one reported in the paper and use the same fitness metric .
+Second-order predictors - i.e., variables derived from independent variables, such as ID  - are not included in the input data.
+Search parameters  were set by hand for each case after experience obtained in a few trials.
+A MacBook Pro 2.8 GHz with 8 GB of RAM was used for all results reported here.
+Every dataset was given a minimum of 1 hour 30 minutes of runtime, but the winner was often found much sooner.
+Table 1 shows the results: the models identified by the method improved on model fitness in seven of the 11 cases.
+Model fit was the same in one case.
+Interestingly, the method "found Fitts' law" for Fitts' original data from 1954 .
+In three cases the outcomes were inferior.
+To evaluate performance when there are substantially more observations and predictors, we obtained the dataset of a recent study of multitouch rotations .
+In the study, five factors were controlled: angle , direction , xposition on the surface , y -position on the surface , and diameter , yielding an experimental design with 288 cells.
+The original paper did not present a model, and Fitts' law  yields a low fit .
+Our input data contain averaged movement time from trials without contact loss.
+Because no reference model existed, we allowed more time  to search.
+The same setup was used as previously.
+For the case with all data, a model was found with seven parameters and a fit of R2 = 0.672.
+For the counterclockwise case, the best model had 11 parameters and a fit of R2 = 0.730.
+The method was more successful in the clockwise-only case.
+This paper has presented a proof-of-concept for automated nonlinear regression modeling in HCI.
+It builds on the observation that many HCI problems involve a small number of predictors, averaged point data, and preference for simple models.
+The implementation offers multiple controls to constrain and guide search.
+It runs on a regular computer and produces the first results in a matter of seconds.
+It is perhaps unsurprising that better models can be found with a search algorithm, because we have defined these tasks such that they involve relatively small search spaces - at least for a computer.
+However, the results confirm that the approach is sensible.
+For tasks involving one or two predictors, the results are comparable to those in the literature when model fitness is considered.
+For tasks involving two or more predictor variables, it found models that improve on the reference papers'.
+For instance, the original model of Dataset 10 had six free parameters, but the method found a superior model with only two free parameters.
+We hope that automated modeling can aid in both pragmatic and theoretical efforts.
+The ability to obtain a model automatically can accelerate research in pragmatic pursuits like adaptive UIs and UI optimization.
+On the other hand, for theoretically oriented researchers who previously regarded modeling as an arcane enterprise, it might lower the barrier of entry.
+However, we want to warn against "fishing" in theoryconstruction.
+Although the method helps with the process of identifying models, it is the modeler's responsibility to explain the terms and parameters.
+Two challenges stand out for future work.
+First, performance should be improved, perhaps by using a tree representation for equations  and genetic algorithms instead of local search.
+Second, to better assist the identification of theoretically plausible models, we need visualizations and more interactive ways to construct models.
+This research was funded by the Max Planck Centre for Visual Computing and Communication and the Cluster of Excellence on Multimodal Computing and Interaction at Saarland University.
+We thank Miikka Miettinen, Gilles Bailly, Michael Rohs, Andy Cockburn, Stephanie Wuhrer, Timo K otzing, and Miguel Nacenta.
+Code and data are shared on the project homepage.

@@ -1,0 +1,261 @@
+We present a finger-tracking system for touch-based interaction which can track 3D finger angle in addition to position, using low-resolution conventional capacitive sensors, therefore compensating for the inaccuracy due to pose variation in conventional touch systems.
+Probabilistic inference about the pose of the finger is carried out in real-time using a particle filter; this results in an efficient and robust pose estimator which also gives appropriate uncertainty estimates.
+We show empirically that tracking the full pose of the finger results in greater accuracy in pointing tasks with small targets than competitive techniques.
+Our model can detect and cope with different finger sizes and the use of either fingers or thumbs, bringing a significant potential for improvement in one-handed interaction with touch devices.
+In addition to the gain in accuracy we also give examples of how this technique could open up the space of novel interactions.
+This is because the current devices' sense of touch is impoverished compared to the quality of information that could be captured.
+Most capacitive touch devices can measure one or more points of contact; but fingers are not points floating in space.
+Enhanced touch sensing has been demonstrated elsewhere , but such methods rely on additional non-mobile  sensing.
+In this paper we demonstrate rich pose detection using very low-resolution capacitive sensors and sophisticated probabilistic inference to extract every bit of information from the sensors.
+We extend the particle filtering work described in  to do real-time tracking of finger angle - both pitch and yaw - using a probabilistic model of the form of the finger as it appears to the sensor.
+Additionally, this model automatically adapts to the small but significant variation in gross finger shape among the population.
+The ability to infer these userand touch-specific variables in real time allows the system to more accurately deduce the intended touch point.
+Experiments in  demonstrated that varying pitch and yaw led to consistent variation in sensed touch location for the same intended touch location.
+By explicitly modelling these characteristics, we demonstrate how it is possible to improve the accuracy of pointing.
+These improvements open up the use of smaller devices and denser control layouts, both as a result of increased accuracy in determining intended touch points, and because a range of new interaction techniques based on finger angle detection can be implemented.
+This technique works with multiple points of contact using small, coarse sensor arrays.
+Touch sensing has rapidly become a major method of interacting with computing devices, especially mobile phones.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The models in our system are fully probabilistic, and provide distributions over finger parameters.
+When the sensing is insufficient to reliably determine the position or orientation of the finger, the distribution naturally represents the increasing uncertainty.
+Applications using these methods can degrade gracefully in a range of ways, from simply ignoring very noisy inputs to gradually handing over autonomy to the system as control quality decreases.
+This handover of control, is referred to as the "H-metaphor" in , as a metaphor for the relation between a horse and rider, and is explored in the context of touch sensing in .
+The availability of meaningful uncertainty estimates is one of the major advantages of this approach to touch interaction.
+Current mobile touch technology exhibits reasonable accuracy in stationary settings with two-handed use.
+Performance rapidly deteriorates when interacting one-handed or while mobile.
+The ability to infer full finger pose with well-calibrated uncertainty estimates offers potential improvements in such scenarios.
+Improving the accuracy in tasks such as typing on small onscreen keyboards whilst walking would substantially improve the usability of many current mobile devices.
+With our relatively small sensors, this gives a vertical range of approximately 15mm.
+In our work, the finger is modelled as a hinged rectangular surface.
+This can be seen in Figure 2.
+These five parameters correspond to x, y, w, y , p , as shown in Figure 2.
+These are  the estimated intended contact point, the finger width, the angle of yaw and the angle of pitch.
+All of these parameters are inferred by the system and in our experiments, the intended touch point is taken as , the center of the w x w square.
+Because of the size of the finger relative to the size of our hardware, we assume that the rectangle is infinitely long although an additional parameter could be used.
+It is possible to imagine more sophisticated models for a finger that would be suitable in this case - the model described here is relatively crude.
+For example, one may wish to encode more of the physical constraints on finger positions by modelling the jointed action of the finger.
+It is important to note that the inference framework that we describe does not preclude any such model and is certainly not unique to the model we have chosen.
+A number of papers have used sensing of finger positions using a range of technologies to explore novel interaction mechanisms.
+Rekimoto and colleagues' Presense  system used capacitive sensing to infer finger position above a conventional keyboard, and explored its use for previews and gestures.
+Alternatives to capacitive sensing in the literature include magnetic sensing , and vision systems .
+Work on pen-based interaction, such as  is also relevant, given the ready availability of proximity measures in many pen input systems.
+Particle filtering, the algorithm used in this work for probabilistic tracking, is described extensively in the literature.
+Particularly relevant and accessible is the work of Isard and Blake , who used particle filters for visual tracking.
+The technique is described more comprehensively in .
+Key to our approach is the development of an explicit model of a finger in contact with the sensor array.
+The model describes the finger position, the size of the contact area and the finger's pitch and yaw and we can infer each of these parameters in real time.
+Our implementation allows for real-time tracking of the finger pose  as touch is not a static process.
+It seems reasonable to assume that if we knew the values of  , they would vary within a particular touch operation  and across several touch operations .
+In addition, the characteristics of the touch  vary depending on where the user is touching.
+As an example, consider holding a touch-screen mobile phone in the right hand and using the thumb of the same hand to touch the top left of the screen and then the bottom right.
+The size of the contact area  and the thumb angle will be different in both cases.
+To further complicate matters, different users will add an extra dimen-
+Figure 3 shows a visualisation of the finger pose using our filter implementation.
+The pose compared with the actual and estimated sensor readings is shown in Figure 4.
+The finger angle estimation has some non-linearity in the estimated pitch angle due to the simplificiation of the finger into a flat hinged surface, but still varies monotonically with actual pitch angle.
+The filter gives the full distribution over the position and angles; as the finger is removed, the distribution expands as the sensing loses the ability to resolve the finger accurately.
+The angle estimation loses some accuracy towards the edge of the sensor array because there is insufficient coverage to distinguish different poses, but the increasing variance of the filter distribution makes this clear.
+The model is general enough to easily cope with multi-touch interaction, simply by introducing additional parameters to estimate .
+Figure 4, ,  shows the system estimating the orientation and position of two fingers simultaneously.
+The availability of these degrees of freedom has obvious potential for designing new interfaces; effectively there is a now a joystick everywhere on the touch surface.
+The orientation estimation also directly improves the estimate of the finger position, because the model is a better approximation of the configuration of the the finger than orientation-less models.
+We anticipate that we can also improve touch interaction performance for dynamic gestures, such as distinguishing taps .
+Thus, the conventional 2D tracking accuracy should be improved by jointly tracking all the parameters of the model.
+The finger pose , as shown in the visualisation, along with  the mean of the values the particle filter expected to observe - that is the average of the sensor "image" for each particle, given its current location and orientation, and  the the sensor values the that were actually observed.
+Values are interpolated from the 6x4 grid to more clearly show the finger shape.
+The numbers indicate the orientation.
+Given  and the size and position of the individual sensors, we can easily compute the area of overlap between the finger rectangle and each sensor.
+It is equally straightforward to compute the height of the finger rectangle above any position within a sensor .
+Because the height will vary across each particular sensor, we use a single value for each sensor, computed at its centre.
+If the overlap for sensor i is Ai  and the height of the centre is given by hi , we compute the theoretical capaci2 tance of sensor i  as: zi = Ai h- i where hi is clipped at a minimum value of 1 to ensure 0  zi  1, and compatibility with the sensor output values.
+Much like the finger model, this sensor model is quite crude and could be improved.
+However, as we demonstrate later, it gives excellent empirical performance.
+To infer the finger pose from the sensor values, we need a theoretical sensor model: what will the sensor "see" when the finger is in a given pose.
+Comparing the theoretical values of c with the true value would allow us to rank candidate values for  or use more sophisticated methods .
+Whilst it would be possible to use an optimisation routine to find an optimal value of  for each c, we follow  and  and adopt a probabilistic approach.
+Rather than a single value of  , we will work with a probability density.
+In particular, p, the density of  given the current sensor readings  and any other necessary parameters .
+Due to the nature of the theoretical sensor model, the density p cannot be computed analytically.
+As in  and , we will use a particle filter to track it in real time.
+Particle filters  are from a family of techniques known collectively as Stochastic Monte-Carlo techniques .
+Particle filters use a set of samples  from the density as a proxy for the actual density at a particular time.
+Given S particles at time t, the filter produces a set of S particles at time t + 1 by sampling from the population at t with probability proportional to how good the particles are - how well their theoretical sensor values agree with the actual values - and modifying them according to a pre-determined model of how we anticipate the finger  changing - in other words a model of the dynamics of the finger.
+At any time instant, these particles can be passed to the current application as a proxy for the full density  or can be used to compute expectations.
+For example, if a single value of  is required, the particles can be used to compute the mean of p.
+Similarly, if one is interested in the covariance of the elements of  , this is also easily computed.
+Once the particles have been weighted according to their quality, they can be used to create a new generation.
+The new generation consists of two types of particle: R random particles , as in step 1 above to ensure that the system can track very rapid changes and  re-sampled from the current population.
+For each of these  particles, a particle from the previous generation - say  s - is chosen with probability ws and then modified to become a particle in the new generation - say  s - according to some density p.
+This density encodes our belief in how the finger moves, and again here we make the prior assumption of independence: p = pppp.
+Once the particle population has been re-sampled, the system returns to the particle weighting step  using the new current sensor input.
+An additional feature of the filter that we use in our experiments is the generation of a particular particle.
+Randomly produced particles  are given a generation of 0.
+When a particle is re-sampled, its generation is incremented.
+We use the average generation within the population to signal a press operation - as the finger is temporarily stationary, the average generation will be gradually increasing.
+The model requires the choice of several densities; priors and movement models.
+Rather than being a weakness, this is a strength of the proposed approach.
+Take for example the prior probability on particle position p.
+There will often be information available to us from the current application that can inform this choice - the position of targets, buttons or links.
+Movement models are harder to pin down but it is worth remembering that all we are interested in is how far the finger is likely to move in a very small time instant.
+As such, we have found that Gaussians with very low variance are suitable for all parameters.
+This is not to say that more realistic models  could not be used - the only restriction on the choice of these densities is that we can sample from them.
+The first step, is populating the filter with a set of S particles.
+In the absence of any sensor information , these are drawn from a prior density, p.
+The form of this density should reflect our belief in the poses that are possible.
+Although in reality there are clear physical relationships between the elements of  we assume independent priors on the different elements, p = pppp.
+It is important to realise that this does not imply that the elements will be independent in the posterior density p.
+For example, we shall see that there are clear dependencies between the position  and the two angles.
+For each particle , we compute its implied theoretical sensor value for each of the C sensors using the equation for the sensor model.
+The Gaussian likelihood suffices as a simple and tractable measure of similarity.
+To determine the enhancements that better pose tracking can provide, we ran two experiments using the particle filter model described above.
+In these experiments, we sought to determine whether the pose information could be used to improve the accuracy of targeting; in other words whether the system could better interpret where users had intended to touch.
+Our hypothesis is that our pose estimating particle filter will yield higher accuracy - the estimated touch point will be closer to the intended touch point - than naive interpretation of the sensors.
+We did not conduct a formal study of people's ability to directly control the pitch and yaw of their fingers, partly because of the difficulty in reliably controlling such an experiment , and partly because if orientation tracking works well, this will be directly reflected in the improvement in targeting accuracy.
+Participants were asked to touch marked points on a keypad layout .
+The data from these touches was captured, and the test algorithms were run on this data to obtain the estimated touch points.
+The system used in the experiments gave participants no feedback as to how either of the algorithms being tested interpreted the touch; this ensured that an entirely fair and blind comparison of the algorithms could be made.
+The first experiment involved participants "entering" a sequence of digits by touching marked points on a flat surface, firstly with their fore-finger with the device resting on the table, and secondly with their thumb while their hand gripped the sensor in a phone-shaped case.
+The second experiment involved participants entering sequences of four digit groups , again on the flat, marked surface.
+The tasks in this experiment were performed with the thumb only, and with two different sizes of target grid.
+The total size of smaller target grid was smaller than most participants thumbs.
+For experimental testing, an SK7 sensor pack from SAMH Engineering1 was interfaced to the SK7-ExtCS1 capacitive sensor array .
+This array is a capacitanceto-ground  touch sensor with 24 individual sensing pads in a 6 x 4 layout.
+This is in contrast to the row-column sensors on many touch controllers.
+This has the advantage of having a sensitive region which extends further from the pads at the cost of reduced XY resolution.
+The sensitive region measures 52mmx34mm.
+Each pad is 7mmx7mm with a 2mm gap between sensors.
+The capacitance to ground on each pad is sampled at 5kHz with 16-bit resolution and then low pass filtered and decimated.
+A notouch and full-touch level that are measured as part of an initial calibration are applied to the data and the resulting signals are sent to the PC as 8-bit resolution signals at 60Hz using a USB connection.
+A plexiglass sheet of 2mm thickness was attached to the top side of the board with clear double-sided sticky tape, to ensure the absence of air bubbles.
+On to this sheet a 3x3 grid of target points was marked, at the junctions where four capacitive pads meet.
+A smaller 3x3 grid of 10mmx10mm was also laid out inside for testing extremely small target sizes.
+The entire board was mounted a 40mm thick foam block and placed inside a plastic enclosure shaped like a mobile phone.
+This additional material made it possible to hold the assembly with the hands at the rear of the experimental hardware unduly interfering with the capacitive sensing.
+The surface of the board was smooth and featureless.
+The targets were only marked on visually.
+All values given below correspond to this coordinate system.
+We used a total of S = 1000 particles, of which 20 percent were randomly sampled at each iteration and the remaining were re-sampled from the previous population.
+The individual components were defined as follows:
+Note that elevation is restricted to be between 0  and /2 .
+Also, as the users were only using the device in the upright orientation, the angle of rotation was restricted to be between 0 and  .
+We also assume prior independence across movement models.
+The individual movement models were all Gaussian densities, centred on the previous particle value with small variances.
+These gave excellent performance across a wide range of users.
+The precision of the Gaussian likelihood was set at a relatively high value of 1 x 105 although varying this made little difference to the results.
+Data was captured from 10 participants, 9 male, 1 female, aged between 20 and 41, all members of the local Computing Science Department.
+Subjects used their dominant hand for all tasks: eight of the subjects were right-handed  and two  were left-handed .
+Results of ten participants touching digit `1' with their index finger.
+Blue circles show the model output and red squares the result of sensor interpolation.
+Axes are labeled in millimetres.
+Notice the consistent bias below and to the right for all subjects except those who are left-handed .
+Users were not requested to touch in any particular manner and were free to touch however they felt comfortable.
+Diversity in touch styles was evident whilst observing the users and can be clearly seen in Figure 6.
+Each participant was asked to treat the dots marked on the larger 3x3 grid  as a numeric keypad in telephone layout, containing only digits 1 through 9.
+In each session, participants had to enter a pseudo-random sequence of digits.
+During the trial, the participant heard a numeral and were then asked to place their finger on the appropriate point until they heard a beep .
+The touch location was taken at the same time as the beep was heard.
+The use of audio cues is intended to remove any effects from dividing visual attention.
+The users received no feedback as to how the system interpreted their press.
+This continued until 90 digits had been entered.
+Each participant completed this experiment twice, once using their forefinger with the device resting on a desk and once with their thumb whilst holding the device in the same hand .
+This was chosen as a baseline for comparison because the conventional technique of finding the centroid of a blob on a binary thresholded sensor image would be unreasonably inaccurate on our low resolution grid.
+In the second experiment  we show that interpolation provides a reasonable approximation to the accuracy of state-of-the-art technology .
+Figure 6 shows an example of the results obtained.
+The top row shows the data for all users pressing digit `1' with their index finger and the lower row shows them all pressing digit `1' with their thumbs.
+The units on the axis are millimetres.
+In each panel, the squares show the result of interpolation and the circles the position inferred by the model.
+Two things are immediately obvious.
+Firstly, there is a great diversity amongst users  and across finger/thumb for individual users .
+This confirms the observations in .
+Secondly, the model provides a far more accurate position estimate than interpolation.
+The improvement provided by the model is best quantified by computing the implied minimum button size that each method can tolerate.
+Assuming that buttons are round, with a particular radius, we can compute accuracy  for a range of radii across all digits and subjects.
+The results are shown in Figure 7.
+The solid lines correspond to the model  and the dashed lines to interpolation.
+The improvement offered by the model is clear: for both finger and thumb, 95% accuracy is achievable for a button with radius 3mm .
+Their model assumed that a finger could be represented as a point, as such a consistent bias is present.
+Lines show projection of finger rectangle onto sensor plane .
+In  the lines are of a consistent length - when the device is on the table, the finger makes contact in roughly the same manner for each digit.
+In , the restrictions in movement caused by one-handed operation are clearly visible with pitch varying dramatically across the array.
+Note that interpolation gives values of approximately 70% and 65% at 3mm for finger and thumb respectively.
+Our results suggest that the interpolation can achieve approximately 95% accuracy for sensors of radius 5mm.
+This is significantly better than the value of approximately 7mm presented in  and is likely due to some of the extreme pitch, roll and yaw angles that the users were asked to perform in that study.
+The improvement that we see is a direct consequence of the explicit finger model.
+When a user performs a touch, parts of the their finger towards the hand will cause a response from the sensors.
+This response will naturally pull the interpolated value away from the intended touch location.
+By modelling this additional signal, our approach is able to automatically correct for this deviation.
+Figure 9 plots the mean squared error for the model and interpolation across all right handed subjects.
+It is clear that the most consistent improvement is to be had  when the users have to reach further to the target.
+Hence, the biggest overall improvement is for the thumb reaching across to the digit 1 with high improvements also seen for other digits towards the top and left of the grid.
+The smallest improvement is for those digits towards the bottom and right , where little of the thumb would be over the sensor area.
+The pattern for left-handers is similar  but not shown for space reasons.
+Mean squared error for model and interpolation across right handed participants  for each digit and thumb/forefinger.
+Plain  numbers correspond to the finger, numbers followed by a `*'  correspond to thumb.
+Points above the y = x line describe an improvement for the model over interpolation.
+The second experiment involved a more realistic data entry task, where participants were asked to enter a sequence of four digit numbers, again consisting of the digits 1 through 9 only.
+The hardware, particle filtering code and physical set up was identical to the first experiment.
+The task was performed with the dominant thumb only, with the sensor held in the same hand in the phone-shaped case shown in Figure 5.
+Participants heard each four digit sequence read by a synthetic voice.
+Each time a touch was registered, the participants heard a beep.
+After four touches, the next four digit sequence was heard.
+This continued for 36 four digit groups .
+No feedback on the interpretation of the touches was given.
+6 participants took part in this part of the study, 1 female, 5 male.
+5 were right-handed and 1 left-handed, and again the tasks were performed with dominant hand only.
+Comparison with the data from the iPhone .
+Model and interpolation values not shown as too many points overlap.
+For clarity ellipses rather than raw data shown.
+Comparison of contact points for the model , Interpolation  and iPhone .
+Here the model performs consistently better than both alternatives.
+An application which displayed an exact, to-scale image of the target grid was implemented.
+This was not an implementation of our particle filter but rather a test to ensure that our interpolation baseline wasn't unfairly inaccurate.
+The application followed an identical experimental protocol: users again held the device in their dominant hand and heard four digit sequences, whereupon they had to press on the target with their thumb and hold until a beep was heard.
+This was conducted for both the coarse and the fine target grid.
+36 sequences were again used for each grid.
+The reported touch points on the iPhone were logged, and subsequently converted from pixels to mm.
+This gives a baseline measure of the accuracy of a high-resolution capacitive sensing system with post-processing.
+The results of this are shown in Figure 10.
+In general the iPhone performance was substantially better than the interpolation algorithm, but was not nearly as good as the pose tracking particle filter.
+Although these are very preliminary results with a very small test population, it is worth noting that our system generally outperforms the iPhone, despite having a very coarse sensing array.
+The large sensor pad size in our hardware also makes hover tracking out to 15mm or more feasible.
+Whilst in our experiments we have concentrated on touch events, the dynamic tracking performance compares competitively with the particle filter of , which does not model full finger pose.
+It is difficult to perform a rigorous comparison with the iPhone  but in the best comparison we were able to do, the accuracy achieved by the model exceeded that of the iPhone.
+The filter model clearly performs well in tracking the intended finger location with relatively coarse sensing hardware.
+The results indicate that the performance is much better than simple weighted interpolation of sensor locations in terms of accuracy.
+Although looking at plots of touch points for individual users would suggest a simple offset would give high accuracy, in reality the offsets between sensed and intended touch points vary across individuals and contexts.
+The pooled variance in touch location for the interpolated model is much larger than that given by our pose-tracking model.
+The model copes easily with the variation in digit width and orientation caused by using the device one-handedly.
+We now explore more innovative interaction mechanisms based on finger pose dynamics - effectively giving users a subtle, context-sensitive joystick.
+Rolling Context Menus Touching a surface to select an option is direct and intuitive but is limited by the size of the touching object.
+The initial finger position narrows down the range of options, but a secondary interaction method could open up controlled by pitch and bearing changes.
+For example, in Figure 12 we show a rolling context menu, which is controlled by changes in bearing.
+These techniques are similar to methods proposed in , but benefit from the ability to refine selection based on finger pose, rather than position in , or roll in .
+Occlusion As the filter tracks the whole finger with a relatively high degree of accuracy, there are straightforward ways of automatically avoiding the common issue of finger occlusion.
+The work described in  could be enhanced with the knowledge of the orientation of the finger.
+Text could wrap around the "shadow" of the finger, adapting as the orientation changes.
+Hidden Flaps The emotional content of messages passed between people changes the way such messages are opened.
+We suggest an interaction style where users conceal the message with their hand and reveal it carefully by levering the cover with their hand to expose the message .
+Secret messages passed between classmates are hidden from view and unfolded discreetly.
+Effective button sizes for experiment 2.
+Shown are the average curves for the population as well as the specific performance for user A and the same users performance on the iPhone .
+The potential uses for increased precision and additional degrees of freedom are numerous; we have identified several concepts which could be implemented on small-screen devices.
+We have experimentally demonstrated that properly estimating finger pose with both pitch and yaw is both feasible on low-resolution capacitive sensor arrays, and significantly improves targeting performance when 2D target positions are estimated.
+The estimate of the point a user intended to touch can be improved using more complete knowledge of how the finger is posed in space.
+These targeting improvements mean that devices can have dense control layouts using only cheap and readily available electronics.
+The limitation on device size is not human finger size, but the crude interpretation of capacitive arrays in existing technologies.
+We have shown that buttons densely packed at a spacing of 4mm can be made usable with a sensor grid with a resolution of 6x4 pads in an overall area of 34mmx55mm; even smaller layouts are possible if coupled with appropriate secondary interaction mechanisms, such as the rolling context menus.
+This size of button is equivalent to that required for a QWERTY key-
+Conventional touch sensing hardware is quite capable of extracting rich information about the pose and movement of fingers above and in contact with it.
+Our approach explicitly formulates a model of the finger and estimates the pose using probabilistic particle filtering.
+The model clearly encodes the assumptions about the physical nature of the fingers and the sensors, and is easy to extend to different contexts.
+This approach allows the extraction of additional degrees of freedom from the input, beyond simple 2D contact points.
+The probabilistic nature of our model results in meaningful uncertainty estimates as sensing degrades.
+It also makes for a consistent framework for integrating uncertainty from higher levels of the interface with and as a result the values measured by the sensor can be interpreted in the context of the entire interaction, from electrical and biomechanical con-
+Our hardware comprised a small number of long range capacitive sensors in contrast to the fine row-column style prevalent in current devices.
+Our investigation suggests that a shift towards the type of hardware that we have used could offer significant accuracy advantages at very low cost.
+Heterogenous sensors composed of a spectrum of coarse longrange sensors through ultra-fine but short range sensors with regular or irregular shapes can easily be used with our algorithms, unlike conventional approaches.
+Such sensor arrays represent a simple way of extracting detailed 3D pose information across the entire surface of a device.
+Our current implementation runs on a desktop system and has not been optimised for mobile technology.
+We expect that an efficient fixed point implementation could easily run on modern smartphones at low CPU cost.
+These probabilistic models demonstrate that by simply modelling the problem in terms of the expected measurements given known constraints, surprising amounts of relevant information can be extracted even from crude sensors.
+Wider use of these techniques in HCI could dramatically extend the capabilities of existing and yet-to-be-imagined hardware.

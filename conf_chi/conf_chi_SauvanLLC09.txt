@@ -1,0 +1,100 @@
+In this paper, we propose a model to predict the performance of selection techniques using Brain-Computer Interfaces based on P300 signals.
+This model is based on Markov theory and can compute both the time required to select a target and the number of visual flashes needed.
+We illustrate how to use this model with three different interaction techniques to select a target.
+A first experimental evaluation with three healthy participants shows a good match between the model and the experimental data.
+However, even with this averaging process, it should be noted that the BCI system still makes mistakes and can sometimes select the wrong target.
+The P300 signal is often used in virtual keyboard applications , in which users select alphabet letters successively .
+The letters are displayed on a uniform grid  with each letter flashing successively , or the letters can flash by groups  using a decision tree with successive layers of letters displayed until the final letter is selected.
+The P300 approach was also used in multimedia and virtual reality applications to select or activate virtual objects , and to move a wheelchair .
+Studies on the design and evaluation of P300-based interactive techniques have already been conducted , but they mostly focus on specific aspects of visual feedback.
+In this paper, we introduce a novel approach that can model a wide range of techniques for BCI based on P300 signals.
+Our model is based on Markov chains that can predict both the time required to perform an action and the number of flashes needed.
+Such a model could be useful to anticipate the efficiency of different techniques before testing them experimentally.
+We illustrate how to use this model with three different interaction techniques aiming at selecting a target on a map.
+Finally, we compare our model with experimental data obtained with three healthy participants.
+A Brain-Computer Interface  is a communication system which enables a person to send commands to a computer only by means of voluntary variations of her brain activity .
+The current BCI systems rely mostly on ElectroEncephaloGraphy  to measure brain electrical signals and identify brain activity.
+Among the various existing BCI paradigms, the "P300 evoked potential" consists in making use of a positive waveform appearing 300ms in the EEG signals after a rare stimulus expected by the user has occurred .
+In typical applications based on P300, several buttons or objects are displayed on screen and flash randomly.
+The user is instructed to count, over a time period, the times that the object he wants to select is flashing.
+When a P300 is detected in the EEG, the system can identify the target as the object that was flashing 300ms earlier.
+Since the detection of the P300 in EEG signals is currently not perfect , the flashingcounting operation is repeated several times.
+An interaction technique using P300 can be represented by a graph comprising a finite set of states, and transitions between these different states.
+The time can also be considered as discrete: transitions between states can only occur at times known in advance.
+The time between two transitions is a function of the number of flashes, the duration of these flashes, and the duration of an action .
+Each transition is associated with a probability which is a function of the accuracy of the EEG classifier.
+Thus, this probability is related to the chance of correctly interpreting the user's choice.
+Consequently, we propose to model P300-based interaction processes by using static Markov chains , which can be seen as probabilistic graphs.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The Markov chains can be used to compute:  the time required to perform an action, and  the corresponding number of flashes needed.
+Note that in practice, a high number of flashes might induce visual fatigue since the user must concentrate without blinking as flashes occur.
+We define P as the transition matrix associated to the Markov chain.
+In order to build this model, we assume we know the state the user wants to reach and define this state as an absorbing state .
+We denote by Q the submatrix of P which contains only the rows and columns of P corresponding to transient states, i.e., states different from the absorbing state.
+We then define the matrix N by using N= -1 with I being the identity matrix.
+The ij entry Nij of N is the expected number of times the chain is in state number j , given that it started in state i .
+So far, we have proposed a general model that can be used to compute the time and number of flashes needed to reach a given state for any P300-Markov chain.
+In this section, we illustrate how to use our model for three specific P300based selection techniques that aim at selecting a target on a map.
+In this case, states represent targets or groups of targets as areas on a map.
+The three techniques proposed are the following: * A global technique, where all the targets on the map flash alternatively in order to be directly selected.
+The graph associated with this technique is a totally connected graph : from each state, we can go to any target.
+The user selects sub-regions of targets before selecting single targets.
+The graph associated with this technique has the shape of a well-balanced tree where each region is represented by an intermediate state.
+Such an intermediate state is the root of a subtree where leaves represent the targets contained in the sub-region .
+After a selection, the current state becomes the selected one.
+As a result, the user reaches the final target by moving from one target to another.
+Here the right border of the map is connected to the left border, and the upper border is connected to the lower border of the map, so that each target is equivalent.
+Each state of this graph is connected to the four closest states of the graph and represents one of the targets where the user can move to .
+To compute the mean time needed to select any target on the map, we assume that the user plans to follow the shortest path between an initial state intialState and the final state finalState which corresponds to the target to be selected.
+The algorithm 1 describes how to build the Markov chain and compute performances for a given interaction technique.
+In this algorithm, p is the EEG classifier accuracy.
+These values depend on the number of flashes needed to perform a selection, the flash duration, the time intervals between these flashes, and the duration of the action following the selection, if any.
+In order to perform a selection, a flash with a duration Tf occurs for each selectable target : i.e., for each one of the nj states connected to the current state.
+There is a break with a duration of Tw between each one of these flashes.
+In order to perform the averaging process mentioned in the introduction section, this set of flashes is repeated ns times, with a break of duration Tt between each set of flashes.
+When all these flashes have occured, the selection is performed as well as the associated action, if any.
+Time predicted by the model for the global, 4-chotomy, and relative techniques for a square map.
+Each point represents the mean time to select a target considering a classifier accuracy varying between 70% and 100%.
+The square map was chosen to simplify the simulation.
+The performance of relative technique is calculated as an average on all targets.
+Algorithm 1: builds a Markov chain for a given P300-based interaction technique and computes its performance Input: technique, initialState, finalState, p Output: graph, meanTime, meanFlashNumber graph = computeGraph foreach state Si in graph except finalState do shortestPath  computeShortestPath nbTransition  getNbTransition foreach transition ti connected to Si do if ti in shortestPath then setProbability end else setProbability/ end end end meanTime  computeMeanTime meanFlashNumber  computeMeanFlashNumber * computeGraph defines the structure of the Markov chain for a given P300-based interaction technique.
+In other words, this function defines the states and possible transitions between these states, depending on the interaction technique used.
+To do so, a suitable graph theory algorithm could be used, such as Dijsktra's algorithm.
+With this algorithm, our model can be used to predict the efficiency of different selection techniques before testing them experimentally.
+As an example, Figure 2 displays the selection time as a function of the number of targets for a regular square map.
+The global technique is predicted to perform the best up to 50 targets.
+The 4-chotomy technique becomes faster for larger map sizes above 50 targets.
+The 4-chotomy is preferred to the 2-chotomy as our model predicts better performance.
+Figure 3 displays the influence of the classifier's accuracy on the selection time for the different techniques using a single 4x4 map size.
+The classifier accuracy can affect the difference in performance between the three techniques: low accuracy gives stronger differences across the techniques compared to high accuracy.
+Before starting a trial, the target to be selected  was displayed in green for 3 seconds before turning black.
+Participants had to successfully select this target before moving to the next one.
+No confirmation step was used, and missed targets had to be repeated.
+We used a red color for flashes, and for the relative technique, the current target was highlighted in blue .
+Depending on the technique, a group of targets, or a single target, flashed 12 times  at each step of the selection process.
+The independent variable was Technique .
+The two dependent variables measured were the selection time and number of flashes.
+Each technique was repeated 8 times.
+The experiment lasted around 100 minutes including breaks.
+A Linear Discriminant Analysis  classifier was trained one time for each interaction technique and each participant.
+More precisely, before using a given interaction technique, the participants had to focus their attention successively on a set of flashing targets, in the same fashion as with the real interaction technique except that they were not provided with any feedback .
+These recorded EEG signals were used to train the LDA classifier, and the trained classifier could then be used during the experiment.
+A preliminary experiment with three healthy participants showed that our experimental data is similar to the performance predicted by our theoretical model.
+Future work is necessary to fully evaluate our model with more participants, different sizes of maps and other selection techniques.
+This expanded testing should also take into account the handling of errors.
+Effects of SOA and flash pattern manipulations on ERPs, performance, and preference: Implications for a BCI system.
+Use of the evoked potential P3 component for control in a virtual apartment.
+New methods for the P300 visual speller.
+Lab Rotation Report, MPI Biological Cybernetics, Dept.
+E. Donchin, K. M. Spencer, and R. Wijesinghe.
+The mental prosthesis: assessing the speed of a P300-based brain-computer interface.
+C. M. Grinstead and J. L. Snell.
+Controlling a wheelchair indoors using thought.
+J. R. Wolpaw, N. Birbaumer, D. J. McFarland, G. Pfurtscheller, and T. M. Vaughan.
+Bain-computer interfaces for communication and control.
+The classifier accuracy ranged from 50% to 100% across all participants and techniques.
+We used that range to compute the average selection time and number of flashes predicted by the model.
+Taken together, our results suggest that the global technique is more efficient than the 4-chotomy in terms of selection time but at the cost of more flashes.
+Statistical analysis did not show significant differences between the experimental and model data.
+The differences between the experimental data and the model range from 0% to 22% for the selection time and the number of flashes .
+This preliminary result shows a good match between the model and the experimental results.

@@ -1,0 +1,217 @@
+Alpha blending allows the simultaneous display of overlapping windows--such as palette windows in visual workspaces.
+Although alpha blending has been used in some applications, such as games, it has not been widely adopted.
+One reason for the limited acceptance is that in many scenarios, alpha blending compromises the readability of content.
+We introduce a new blending mechanism called multiblending that uses a vector of blending weights, one for each class of features, rather than a single transparency value.
+Multiblending can in most cases be automatically optimized to preserve the most relevant features of both the palette and the background window.
+We present the results of a user study in which multiblended palettes provided higher recognizability of both the background and the palette than the best participating version of alpha blending.
+Categories & Subject Descriptors: H5.2 : User Interfaces.
+General Terms: Human Factors, Design.
+Keywords: Alpha blending, semitransparency, windows.
+In order to deal with the many palette windows that come with many professional applications, such as CAD or software development environments, users often use additional screen space such as a second monitor .
+The drawback of this solution is that palettes are further away, and acquiring them thus takes more time.
+Also, adding screen space is not an option for users on mobile computing devices.
+Semitransparency, using a technique called alpha blending , allows two windows to be displayed on the same piece of screen space.
+Semitransparent palettes show the contents of both windows, reducing the need for switching between overlapping windows.
+However, semitransparency still seems far from reaching its potential.
+While it has been adopted into some gaming applications such as EverQuest , and is available on a window level in some operating systems , it has not been implemented as part of any multi-window/multi-palette application even though it seems to be an obvious answer to an ongoing problem.
+One reason for the limited acceptance seems to be that for many scenarios, alpha blending affects the readability of window contents too much .
+In this paper, we argue that we can make window blending applicable to a wider range of applications by extending alpha blending to selectively preserve image features.
+The new technique, called multiblending, blends the individual color and texture features of palette and window separately, using a range of image processing techniques.
+Overlapping windows and 21/2-D interfaces were developed to let applications use limited screen space multiple times.
+However, since overlapping windows occlude each other, users have to switch back and forth between windows in order to access the different tools and information.
+This switching becomes especially cumbersome when the overlapping windows belong to the same application.
+Many visual applications make tools and controls available in permanently visible interface components, such as tool palettes.
+Palettes can be positioned on top of the workspace to allow tools to be closer to the area where the work is being done.
+Palettes are a tradeoff of 21/2D interfaces, between the availability of objects in the foreground and background layers.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In applications that use palettes and other floating windows, several techniques have been proposed to help manage the tradeoff between the visibility of palette and background.
+Although some research has been done in techniques for placing palettes into areas that result in the least amount of conflict , the majority of work looks at various methods for diminishing palettes in situ.
+These techniques reduce either the palette's size or opacity.
+The techniques that reduce palette size either shrink the entire palette , eliminate everything but the palette's title bar , or hide the palette altogether  Photoshop .
+The techniques that reduce opacity either remove some pixels entirely or all pixels by a certain amount.
+Overlays make part of the palette's surface transparent.
+This allows content from both palette and background window to remain visible to some degree.
+Alpha blending has been used in a number of scenarios, including popup menus , tool glasses and magic lenses , and multiple representations of the same image .
+Several operating systems including Linux/KDE and Mac OS 10 also allow for semitransparent windows, and add-ons for window managers are available that manage the transparency of application windows .
+Since all diminishing techniques affect the readability of the palette, they typically provide a `restored' representation in addition to the diminished version that is easier to read and manipulate.
+The individual techniques switch between representations either manually or automatically.
+Manual techniques include double-clicking the diminished palette , selecting a `restore' operation from a menu, or hitting a keyboard shortcut .
+The automatic mechanisms proposed so far are based on the proximity of the mouse cursor .
+Moving the mouse cursor towards the palette restores the palette either gradually or abruptly, as a threshold distance is passed.
+All these techniques fully restore palettes when the mouse reaches the palette; the boundaries of the palette in motor space thereby remain unchanged, aiding acquisition.
+Of all the diminishing techniques, alpha blending has been paid the most attention, and several results have appeared that consider the usability of semi-transparent tool windows.
+Harrison and colleagues  found that 50% transparent palettes can greatly improve workspace visibility without degrading icon selection performance.
+Other studies have shown that users can perform targeting tasks well with 25% or even 10% opacity, depending on the complexity of the workspace data .
+Unlike techniques that reduce the size of the palette, alpha blending has the benefit that all palette content remains on the screen--although in diminished form.
+Alpha-blending thus potentially allows users to monitor changing palette content, such as a display of the cursor coordinates or warning signs.
+The drawback of alpha blending is that it causes the contents of palette and background to interfere with each other.
+This interference will often make both palette and background hard to read and makes it hard to say whether two features belong to the same window.
+We will discuss these issues in more detail as we introduce our proposed blending technique in the following section.
+To address the drawbacks of alpha blending, we have developed a new technique called multiblending that allows the use of different blending functions for different visual features.
+Multiblending is based on the observation that for a particular task, users typically need only a subset of the visual features in the involved windows or palettes.
+Multiblending modifies the blending process to enable it to preserve more of these relevant features--if necessary at the expense of reducing other, less relevant features.
+To explain this, we first describe what we mean by "features."
+Our current approach to multiblending is based on four classes of features: three color classes and one class of textural features.
+We focus on `apparent' features--that is, those that are particularly easily perceived by humans.
+The three classes of color feature used by multiblending are the ones encoded by the CIE Lab color model .
+CIE Lab is a perception-oriented color model that represents color as luminance, red-green and blue-yellow difference.
+We picked this model because it largely matches the color model the human visual apparatus uses when sending color information to the brain.
+Multiblending uses only a single textural feature class--the presence of high-frequency data, such as edges or other areas of high contrast in the image.
+When analyzing Figure 1 with respect to colors and high frequencies, we see that the screen is not as crowded as it seems.
+Most parts of the palettes are grayscale, i.e., contain no red/green and blue/yellow information; the photograph, on the other hand, contains large areas that contain no visible edges.
+It is these "unpopulated" areas that we exploit in our approach.
+A palette window may, for example, be desaturated in order to not affect color in the background image.
+Limiting multiblending to Boolean weights eliminates visual ambiguity; now each type of feature can stem from only one of the two windows, and all features of the same type belong to the same window, which clarifies their grouping.
+Interference that is caused by the same features stemming from different windows is eliminated.
+Converting a regular opaque palette into a multiblending palette thus mainly requires deciding for each of the four feature classes which windows to take these features from.
+The actual computation is then straightforward.
+Given that color is represented using the CIE Lab model, computing output color only requires picking each channel from either palette or window and reassembling them.
+The removal of texture information is accomplished with filters that blur or sharpen images.
+These filters generally do not interact with the overall color of a window; whenever making one pixel darker, these filters make some nearby pixel lighter.
+Having defined this set of features, we can now better express the limitations of alpha blending.
+In terms of color, alpha blending computes the output image as a weighted sum of the two source windows.
+This makes the red, green, and blue channel, as well as the channels of the CIE Lab representation, into weighted sums--each weighted by the same ratio .
+In other words, all color channels get diluted by the respective contribution of the other window.
+In terms of texture, alpha blending is subject to interference effects, since image frequencies in the two images will reinforce each other in some cases, while they will cancel out in others, depending on how the two images are aligned.
+If a feature is sensitive to that dilution or interference, it disappears.
+If that feature would have been relevant to the user's task, alpha blending becomes unsuitable.
+A further drawback that affects all features is that alpha blending introduces visual ambiguity.
+Looking at a blended image, it is hard to say which layer a specific feature belongs to .
+Also, the relationships between features become obscured: it can be difficult to determine whether two observed features belong to the same window and thus are semantically related.
+In this section, we detail the steps used to create a type of multiblended palette introduced earlier as the glass palette, using Boolean weights for each feature class.
+These Boolean values are provided by the designer, an effort roughly equivalent to the input required for alpha blending, where only a single, but therefore real-valued opacity value needs to be provided.
+We will show methods for manual improvement in a later section.
+Note that many of the following examples require seeing a color version of this paper.
+The scenario for our walkthrough is an image editing/retouching session in Adobe Photoshop .
+The goal of palette creation is to support this task by showing as much of the surfaces and color of the photograph.
+The final result of this walkthrough is shown in Figure 2.
+Figure 3 shows a part of the screen that contains several palettes floating on top of a photograph the user intends to retouch.
+By default, the tool palette is opaque and occludes the photograph .
+When the palette is alphablended with the background , the photograph shows through, but its contrast and colors are still affected.
+Step 1: Desaturating: The Photoshop tool palette contains no useful color information, so we eliminate it by desaturating .
+To fully preserve the color of the photograph , we use a blending function that combines the palette's luminance with the red/green and blue/yellow information from the underlying photograph.
+Each of the color channels is taken from only one of the two windows, which prevents them from getting diluted.
+Step 2: Making surfaces transparent: The tool palette mainly consists of icons, and it is the icon's contours that are most important for recognition.
+The icon's surfaces, on the other hand, seem to play a lesser role.
+In order to prevent relevant features from disappearing, multiblending assigns each class of features an individual weight, instead of using the single global weight used by alpha blending.
+Even though theoretically, multiblending allows weights to range from zero to one, it will often be beneficial to limit the technique to weights that are either zero or one.
+In detail, this is done as follows.
+First, we apply a highpass filter  to bring out edges.
+This produces a grayscale image with light and dark edges.
+The edges can be interpreted as a 3D effect; but most importantly, the effect makes the edges stand out against light and dark backgrounds.
+We then remap that grayscale image to translucency by using an appropriate blending function .
+See  for a survey of related techniques.
+Step 5: Remapping channels: In most cases, steps 1-4 will suffice to produce a satisfactory image; however, some situations of high interference require an additional step where information from one source is remapped to an alternate channel.
+Figure 6 shows a worst case scenario-- two pieces of text in bitmap format, both using the same font and font size.
+Both windows need to preserve the same features in order to be readable - and given that text contains less redundancy than photographs, both windows are more sensitive to mutilation than the image content we have looked at so far.
+When alpha blended, both text segments become unreadable .
+Step 3: Blurring noisy backgrounds: Noisy backgrounds interfere with multiblended palettes as much as they do with alpha-blended palettes , making both palettes virtually disappear.
+Multiblending therefore eliminates high frequencies from the background image by applying a blur filter to the background behind the palette .
+Multiblending uses a smart filter that moves with the palette, and that blurs only those areas that exceeds a certain contrast threshold, a concept similar to the "unsharp mask" filter in .
+The resulting palette is easy to read; all high contrast content is clearly on the palette, while all low contrast content is in the photograph behind it.
+The resulting palette seems to be made of a piece of frosted glass1, a palette style we will refer to as the glass palette.
+Step 4: Area-based opacity based on usage data.
+In Figure 5a and b, a significant part of the palette consists of window decoration, unused icons, or labels that never change, such as "R", "G", and "B".
+Once users have learned such static palette elements, they offer little information to the user.
+While varying opacity across alpha palettes leads to a noisy appearance, diminishing parts of glass palettes works well and can be used to make additional background space visible .
+Frequently used areas are determined automatically based on click data, frequently chang-
+The palette can also be thought of as a relief palette with the photograph pressed onto it.
+This underlines that when blending windows, the notion of Z-order as a means for defining an occlusion order goes away.
+Z-order is only needed to decide which window receives mouse input, and if only one window can receive mouse input, Z-order becomes unimportant.
+When applying steps 1-4, only blurring actually affects the palette.
+The problem is that both windows use the same color channel  to convey their information.
+We address this by remapping the luminance channel of the foreground text to a different color channel, here the redgreen difference .
+Then we use a blending function that assembles the final image from the hue of the foreground and luminance and saturation from the back-
+The resulting image allows the blurry text to be read based on its luminance , while the crisp text can be read based on its color .
+Note that this is a worst case scenario.
+We created multiblending with graphical material in mind; even with the enhancements of multiblending, blending text will generally remain undesirable.
+Nonetheless, pre-filtering text segments creates a limited amount of readability where alpha blending does not.
+When converting opaque palettes to multiblended palettes, the individual weights are best chosen such that the window with the more prevalent features of that class `wins.'
+These initializations can generally be done automatically; and loading a different picture or moving palettes to a different background can even be used to trigger a change in the palette's representation.
+These initializations may, however, need manual correction.
+For example, removing a red-eye effect requires preservation of color, even if the rest of the picture has little saturation.
+Allowing users to manually switch between palette representations at runtime allows obtaining the best results for the task at hand.
+Also during palette creation, the quality of multiblended palettes can be improved by manual input.
+Figure 8 shows an example of manual background removal.
+Alpha blending color swatches results in diluted, thus inaccurate colors .
+The swatches thus need to be rendered as fully opaque.
+Manual cropping of swatches  allows preservation of the colors with minimal occlusion, while the decoration of the palette uses the known glass effect.
+In this walkthrough, steps 1-3 removed features in order to preserve the respective class of features in the other window from interference.
+We applied a blur filter to remove textural features and we used customized blending function to selectively process color channels.
+In step 4, we extended the approach by allowing different blending parameters for individual areas.
+In step 5, finally, we solved collisions in requirements by remapping a channel.
+As a result, each feature class is now used by either palette or background.
+This eliminates visual ambiguity, as each feature is clearly associated with only one window.
+Figure 7 gives an idea of the applicability of the glass palette.
+In this example, we merge two windows that have identical features, as the shown overview palette shows the same photograph as the background.
+We decide that the overview palette contains less task-relevant information than the background photo and thus turn the overview into a glass palette.
+While the outline information in the overview is still sufficient for showing which part of the photograph is currently visible, this palette avoids the visual ambiguity that the alpha palette introduces.
+We implemented an initial Java version of the glass palettes described above.
+The program works by rendering an opaque version of each palette into an off-screen buffer, applying all required filters to that off-screen image, merging it with a copy of the respective fragment of the screen buffers, and then copying the resulting bitmap back onto the screen.
+Since our prototype does not yet use graphical acceleration its rendering performance is fairly limited; rendering is therefore not done while palettes are moving, and there is a noticeable pause after moving a palette before the multiblending effect appears.
+However, for stationary palettes, our experience with this prototype suggests that the technique is viable from an implementation standpoint; future versions in native code will easily overcome the current performance limitations.
+In order to validate the multiblending approach, we conducted two user experiments comparing the glass palette to alpha-blended palettes at different levels of opacity.
+Our main hypothesis was that the glass palette would simultaneously deliver better recognizability of foreground and background than any alpha palette.
+Each of the two studies measured one of these aspects using a distinct task.
+Twenty-four participants were recruited from a local university.
+All had normal or corrected-to-normal visual acuity and normal color vision.
+All had extensive experience  with applications that used palettes and visual workspaces; 8 participants had experience  with an image-processing application.
+The study was conducted on a Pentium4 Windows PC running a custom-built Java application.
+The study system was displayed on a 21-inch monitor at 1280x1024 resolution.
+The study compared three alpha palette types and a glass palette type .
+Palette visuals were taken from Adobe Photoshop  and converted automatically.
+Alpha-blended palettes computed pixel colors as a weighted sum of palette and background using opacities 10%, 25%, and 50%, as suggested by .
+Glass palettes computed pixel colors using the following four steps: emboss  and desaturate to the palette, Gaussian blur  to the background underneath the palette, and blending .
+The task asked participants to look at a source image that was covered by palettes , and click on the exact match of that image from among a set of three candidate images .
+This simulated the real-world task of image retouching, where the user must assess the correctness of the overall image after every stroke.
+In two of the three candidates, one image feature  had been altered by changing either its brightness or its contrast by 1, 2, or 3 steps in either direction.
+The modified feature was either light  or dark .
+Participants were given four practice trials with each of the palettes, and then completed 10 test trials in each condition.
+Most of the palette surface  was light.
+Alpha Palettes thus formed a stronger contrast with the dark background features than with the light ones.
+Since alpha blending reduces contrast, we hypothesized that it would affect the recognizability of the dark features more.
+Measures in this task included completion time and error magnitude--that is, the number of steps difference between the two images when an error was made.
+The study used a 4x2 mixed factorial design.
+The factors were palette type  and feature type .
+Palette type was a within-participants factor, and feature type was a betweenparticipants factor.
+Order and spatial position in the quadrants were counter-balanced so that each condition was seen equally in each quadrant.
+The study system collected completion time and error data.
+Participants' accuracy in matching the source image using different palette types is shown in Figure 12.
+Analysis of variance  x 2  ANOVA with feature type being a between subjects factor was used to test the effects of the two factors.
+We carried out follow-up analyses to compare individual conditions.
+Participants were given 12 practice trials when starting a different palette type.
+Since participants thus had a good general idea of where each icon was , the task did not test visual search over a large area, but rather assessed localized search, icon recognizability, and target acquisition.
+Measures for this task were task completion time and number of incorrect clicks.
+This study used a 4x2 within-participants factorial design with the same factors  used previously; however, in this study both factors were within-subject factors.
+Completion time data was also analyzed using ANOVA, but no main effect  or interactions were found.
+On average, each trial took between 40 and 70 seconds.
+Experience with image-processing applications did not have any effect on performance.
+We will now first present the second study, which will allow us to discuss the results of both studies in conjunction.
+Twelve participants were recruited in the same way as for the first study.
+The study was conducted on the same apparatus, with a similar Java application.
+The same four palettes types were used.
+Participants were presented the apparatus shown in Figure 13.
+In each trial, an icon was shown in the middle of the screen.
+The participants' task was to click on the matching icon located in one of the four six-icon palettes on the screen as quickly as possible.
+The task consisted of 24 trials per palette type.
+Each icon was presented once per condition; the same icons and palettes were used in all conditions.
+We used the same background image as in the previous study.
+Using a 4x2 ANOVA, the main result was the clear difference between alpha-10 and the other three palette types.
+Where the error rate with the other three types was about one in 25 trials, the rate for alpha-10 averaged more than one in three for light backgrounds, and more than 1.5 per trial for dark .
+Completion time ranged from more than five seconds on average for the alpha-10 condition, to less than two seconds for all the other palette types.
+By eliminating the drawbacks of alpha blending, such as visual ambiguity, loss of contrast, and unfaithful reproduction of colors, multiblending helps optimize the readability of palettes and background.
+For the tasks examined in our user study, multiblending maintained recognizability of palette and background significantly better than any of the tested alpha-blended palettes.
+On the other hand, multiblending is computationally more expensive and optimization of palettes requires a certain understanding of the application scenario.
+For future work, we plan to test multiblended palettes in a variety of applications scenarios, ranging from games, image editors and CAD systems to instant messengers, audio players, and task bars.
+Participants in the first study were also shown the targeting task at the end of their session, so they could compare the conditions both for background and foreground visibility.
+We then asked them which technique they felt best supported both tasks, considered together.
+Of the 24 participants, 20 chose the glass palette and 4 the alpha-25 palette.
+The tradeoff of alpha blended palettes is that increasing opacity to perform better on foreground tasks necessarily implies worse performance on background tasks.
+The studies showed that a multiblended palette is able to offer a better tradeoff, and perform well on both tasks.
+Glass palettes were at least as good as the best alpha palettes for both tasks, and were also significantly better than the best overall alpha palette  for certain image types.
+Moreover, the majority of participants preferred the glass palettes.
+Although our study tested only a comparably small sample of alpha values, it seems unlikely that a different choice of alpha values would have lead to a different outcome of the experiment: opacities above 50% should perform even worse in the background recognizability task that alpha-50; opacities below 10% should be even less recognizable in the foreground task than alpha-10.
+The better performance of the glass palettes seemed to be caused by two main properties of this palette style.
+First, by making most of the palette surface completely transparent they provide an unaltered view on larger parts of the background.
+This allows users to see and check important image background features, such as color and brightness.
+Second, the emboss effect applied to palettes produces outlines with both light and dark components, making edges stand out on a variety of background color and brightness.

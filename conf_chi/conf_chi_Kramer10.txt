@@ -1,0 +1,67 @@
+I analyze the use of emotion words for approximately 100 million Facebook users since September of 2007.
+I begin to validate this metric by showing that positive and negative word use in status updates covaries with selfreported satisfaction with life , and also note that the graph shows peaks and valleys on days that are culturally and emotionally significant .
+I discuss the development and computation of this metric, argue that this metric and graph serves as a representation of the overall emotional health of the nation, and discuss the importance of tracking such metrics.
+Current methods of measuring GNH employ a self-report methodology .
+The proponents of these metrics argue consistently and convincingly that self reports are appropriate for this context: Because the very construct is subjective, self-reports effectively have no "bias" due to misperception .
+In other words, if I claim to be happy, who can argue that I'm not?
+In parallel with the psychological study of happiness, research in communication and HCI has been growingly interested in "sentiment analysis."
+This research program is largely dedicated to the systematic or algorithmic extraction of a user's emotional state from text they produce naturally, such as in a blog post, tweet, or Facebook status update.
+Though there are many methods of extracting text from natural language posts, I use the process described in , referred to as a "word count" procedure.
+In this approach, a set of words  is defined as having some psychological meaning , such that a user or group of users who use more words from a certain category are higher in the psychological construct that the category is designed to measure.
+This top-down approach is useful for the study of known topics, as it allows for validation studies to cross word-use contexts and corpora: A more bottom-up approach, such as LSA, may allow discovery of positive terms not present in the LIWC corpus , but would require separate validation of the resulting model.
+The word-count approach, conversely, has been used extensively in the fields of HCI and psychology.
+For example,  showed that in short blog posts, users known to be angrier show higher incidence of LIWC negative emotion words, while more joyful authors use more LIWC positive emotion words;  showed that these word categories could be used to differentiate happy romantic couples from unhappy couples' instant message communications.
+Further, since I model word use in terms of its variability, ensuring that the words I use are correctly coded  is more important than ensuring that I have counted every emotion word .
+Interest in the basic happiness or well-being of a person, group of people, or nation has grown over the past several decades, receiving a great deal of attention in the psychological literature.
+The most notable drive to measure this was undertaken by Ed Diener and his colleagues, starting in the mid 1980s, formalizing the notion of "subjective well-being," specifically the "satisfaction with life"  component, which has since come to represent the extent to which a person feels that their life is worthwhile or, in essence, "good" .
+Diener and others have since championed use of subjective well-being as a comparable metric to socio-economic status or credit score, which can be used to classify individuals into categories or to represent people relative to each other in a broad  context.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Though these  approaches have provided consistent evidence that it is reasonable to use a wordcategorization approach to extract sentiment from online word use, I present the first few steps towards taking this approach "to scale," and provide preliminary evidence for the validity of a daily national-level happiness index.
+This approach to modeling GNH is based on Facebook status updates, of which there are over 40 million posted per day .
+I then narrowed the focus to users from United States who had selected English as the language in which they preferred to view the website; all such users' updates were anonymously analyzed beginning September 7, 2007.
+Status updates are short-format  notes that are broadcast to some or all of the user's friends.
+These updates start with the user's name, and contain text provided by the user .
+I chose status updates on Facebook for several reasons: x These updates are largely "undirected:" there is no specific target for the status update.
+In other words, this is a self-descriptive text modality, optimized and designed to elicit updates about the self, many of which contain emotional or affective content.
+This makes status updates a better choice than tweets, which are not explicitly updates about the self, but contain a wide variety of information .
+This allows the presence or absence of positive or negative emotional words to "stand out" more than they would in a longer-format post such as a blog post.
+I note that the above claims regard status updates in general; I do not argue that every update fulfills these qualities, but rather that they do as a corpus.
+I also do not argue that an analysis of other Internet data, such as tweets or blog posts, would be inappropriate or biased: Rather, I chose status updates because I believe them to provide the strongest signal of the emotional well-being of the posters.
+I used the Hive data warehousing infrastructure atop the Hadoop framework , an open-source system that allows massively parallel processing of custom database queries , using the Text Analysis and Word Count  program , as the LIWC software itself is ill-suited to the scale of millions of updates per day.
+To protect users' privacy, data was piped directly from Hive into TAWC, so that no update was ever seen by a researcher during analysis.
+This resulted in a count of the number of positive words, the number of negative words, and the total number of words for every status update made by every individual who logged in from the United States and used American English as the language in which they preferred to view Facebook.
+To control for "wordiness," I computed a positivity  and negativity  score for each status update.
+As such, a status update of "I am happy today" would get a positivity rating of .25  and negativity of 0, while an update of "yes yes YES YES YES" would receive a positivity rating of 1.0  and a negativity of 0, and an update of "Today was kinda good, kinda bad" would receive a positivity score of .17 because of the word "good" and a negativity score of .17 because of the word "bad."
+These percentage scores, however, are not directly comparable, because the potential for positive and negative word use is not equivalent: The LIWC dictionaries define 506 words as "negative" but only 407 as "positive," indicating that meaning of "percent positive" is due in part to the use of the English language and perhaps the LIWC dictionaries.
+To account for this and generate a metric that is interpretable independent of language and dictionary, I used this formula:
+This is important to note, as users may opt to report only some emotional events: By standardizing positivity and negativity separately, I focus on variation in each emotional valence separately.
+In other words, even if people dramatically underreport negative events in status updates, each day's relative negativity should still be informative.
+By then subtracting the standardized negativity score for a day from the standardized positivity score for a day, I effectively weight negativity and positivity equally, as equal representations of "happiness."
+The result indicates the difference between how "remarkably positive" the day is and how "remarkably negative" the day is, as positivity and negativity are not precisely opposites .
+If a day is far more positive than usual , the GNH score for that day will be higher .
+The results of this graph can be viewed online at , via a Flash-driven Facebook app, showing positivity and negativity scores, as well as the GNH aggregate.
+This graph updates automatically every day with a two-day delay and provides the GNH score for every day; readers are encouraged to view the online application.
+I then conducted a simple hierarchical linear model , using the nlme packages's lme function for the R project for statistical computing .
+This allowed prediction of the positivity of status updates  from SWL scores , effectively asking the question, "Does knowing how satisfied one is with one's life predict how positive one's status updates are?"
+If so, this would indicate that this method of coding status updates represents a true measure of SWL, a component of happiness .
+SWL was a significant predictor, b=0.05, t=6.27, p < .001, corresponding to a correlation of about r=.17: Those more satisfied with their life do indeed score higher on the metric, relative to other users, for a given day.
+To demonstrate face validity, I examined the peaks and dips of the graph itself : The graph provides a face-valid measure of national happiness for a given day if the graph is high on days when the nation is expected to be happy and low on days that the nation is expected to be unhappy.
+I also note a short  cycle throughout the graph, corresponding to the common knowledge that Fridays are the best day of the week, a full 9.7% happier than the worst day of the week , t=273.5, p < .001.
+I present two methods of validating the use of this metric to represent GNH: Convergent validity measured by showing that Facebook users' life satisfaction scores predict the positivity of their own personal status updates , and face validity by examining the high and low points of the GNH graph.
+To demonstrate convergent validity, I show that for individual status updates, this aggregation  produces a variable that is related to a validated measure of well-being at the level of the individual.
+To compute the aggregate for an individual status update, I used the following formula:
+This allows removal of "day" effects as well as "language" and "dictionary" effects from each individual's post.
+This is desirable because one would only call a status update "remarkably positive" if it were positive for the day in question: For example, if everybody uses the word "happy" on Thanksgiving  wishes everyone a Happy Thanksgiving", then an update with 20% positive words would be unremarkable.
+I attempted to predict this metric using Diener and colleagues'  SWL scale, which I collected from nusers=1,341 Facebook users who had at least three status updates.
+There are several limitations to the conclusion as well as the method.
+The first limitation is the question of demographics: Facebook's early adopters were primarily college students, though several reports suggest that the demographic composition of Facebook is broadening .
+I also note that even if the demographic of individuals using Facebook is notably nonrepresentative of the national population, the graph will disproportionately represent the happiness of some citizens over others.
+Consistent disparities of happiness among demographic groups within the same country, however, presents a larger issue at the level of measuring happiness at the national level at all.
+The second limitation is the possibility that the choice of sentiment analysis method  may throw off the model on certain days.
+I note first that the separate modeling of positivity and negativity provides a check on these data: Holidays also show a dip in negativity corresponding to the positive spikes on these holidays , which cannot be due to the fact that positive salutations may not indicate a positive state.
+I also note that wishing someone a happy holiday is itself a positive emotional act designed to make others feel good and to raise holiday cheer: I do not believe that the word in this context is in fact emotionally "blank," and so I did not actively seek to eliminate this word from the model.
+Perhaps the most obvious future direction is to extend this work to model other countries' GNH in a manner that allows comparisons among countries.
+To this end, the process and system of computation have been developed in a manner that is independent of language and word corpus used; in this sense, the task of extending this project to other countries is the development of a corpus of positive and negative words for other languages or dialects.
+The second future direction, currently underway, is to show the validity of the metric using other national-level metrics of happiness .
+The current utility of this graph, however, is to have a behavioral method with which to track the emotional health of the nation, both in terms of evaluating whether the population as a whole is in a positive or negative state.
+In brief, this work uses well-established HCI methods , taken in an unobtrusive manner , creates an aggregate metric out of citizens' posts , validates the metric , scales the metric to a national level , and publishes it online .

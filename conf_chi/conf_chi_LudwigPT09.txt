@@ -1,0 +1,251 @@
+Many online mapping applications let users define routes, perhaps for sharing a favorite bicycle commuting route or rating several contiguous city blocks.
+At the UI level, defining a route amounts to selecting a fairly large number of objects - the individual segments of roads and trails that make up the route.
+We present a novel interaction technique for this task called path selection.
+We implemented the technique and evaluated it experimentally, finding that adding path selection to a state-of-the-art technique for selecting individual objects reduced route definition time by about a factor of 2, reduced errors, and improved user satisfaction.
+Detailed analysis of the results showed path selection is most advantageous  for routes with long straight segments and  when objects that are optimal click targets also are visually attractive.
+However, existing route definition techniques have several problems.
+First, nearly all of them are built on top of Google Maps or one of its peers.
+As we have pointed out previously , these systems have a major limit: users cannot directly interact with the actual geographic data.
+This precludes important functions such as tagging and rating geographic objects, which enable powerful features like personalized route finding.
+For the current purpose, the relevant point is that users create routes by drawing lines in a completely separate layer overlaid atop the "real" road segments; i.e., the only link between the routes and the roads is visual co-location.
+The Cyclopath system  does let users interact with the geographic data; a user defines a route by selecting the edges within the transportation graph  that comprise the route.
+However, this raises a second, different problem: as Figure 1 shows, even short routes consist of many individual edges.
+This turns route definition into a tedious multiple selection task.
+Over the past few years, mapping applications have become popular on the World Wide Web.
+Systems like MapQuest and Google Maps let users search and browse within geographic regions.
+Many also allow users to define routes and share them with other users.
+This is particularly popular in recreational applications like bicycling, running, and hiking, where individual users have useful personal experience and are eager to share it .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Our work addresses this problem.
+We designed and implemented path selection, a novel technique that dynamically computes the shortest path from the most recently selected node to the node nearest the cursor.
+Continuously updated visual feedback shows the shortest path, and when a user selects the next node, the entire path is added to the route.
+While developed for route selection, we believe this technique is useful for any application with graph data where users want to define paths through that graph.
+We empirically compared this technique to a state-ofthe-art single selection technique, and found that adding path-finding results in faster route definition and greater user satisfaction.
+Detailed analysis identified structural properties of routes and nodes that determine how much path selection will help; for example, long straight segments within a route result in greater advantages.
+The remainder of the paper is organized as follows.
+First, we survey related work.
+Next, we describe the context for our research and detail the selection tools we implemented.
+We then present the design of our experimental evaluation, show basic performance and user satisfaction results, and analyze the results in detail.
+Lastly, we identify areas for future research and conclude with a brief summary.
+The intuition of Fitts' Law is simple: it says that the time to acquire a target increases as the distance to the target increases, and decreases as the size of the target increases.
+Many research projects have sought to create improved selection techniques, seeking ways to either increase target size or decrease distance to the target.
+To reduce the distance required to move the cursor to a target, researchers have invented techniques such as analyzing cursor motion to bring virtual proxies of targets towards the cursor  or jumping the cursor across empty spaces directly to potential targets .
+However, neither of these techniques works well in interfaces that are dense with many potential targets - which is precisely what a map interface is, with targets like roads and points of interest often within a few dozen pixels of each other.
+Increasing target size does not require changing the visual display.
+Instead, effective selection size can be manipulated by creating a larger activation zone around either targets  or the cursor .
+Some techniques  combine distance decreasing and size increasing.
+Again, however, these techniques tend to suffer in target-dense environments: as a user moves toward a goal target, intervening targets slow down the cursor.
+Many applications let users define and share routes through a road or trail map.
+A typical function is to let communities of users share knowledge that is valuable and hard to come by.
+For example, one could share a Google Maps tour of historical sites in Boston or a Bikely.com route of a safe bicycle commute into downtown.
+Counts & Smith created a research prototype aimed at sharing "recreational" routes, e.g., for runners, cyclists, or skiers.
+Their system let users capture routes with GPS devices and upload route data to a map interface.
+As mentioned, in both the routedrawing and GPS-upload technique, the routes are weakly associated with the underlying geographic graph, linked only by visual co-location.
+We want routes to be defined directly in terms of the geographic data.
+This  requires exposing the geographic data to users for manipulation, and  transforms the process of route definition into a multiple selection task.
+We elaborate this point in our discussion of Cyclopath below.
+Bubble cursors  are another technique for increasing cursor activation area.
+As a user moves the cursor, the system computes and displays a "bubble" that is centered around the cursor and envelops the nearest target.
+The area for any target is computed using Voronoi regions , which take into account the distance of that target to other nearby targets.
+The dynamic area computation makes this method work better in target-dense environments.
+Experiments showed significant performance benefits; however, bubble cursors do not address the problem that route selection requires clicking on many individual targets.
+Recently, Google Maps enhanced its automated route finder to allow a user to modify a route by moving a point on the route, causing the route finder to compute a new route from the start to destination that includes the new intermediate point.
+We compare this interesting technique to ours in the Discussion section below.
+Cyclopath  is the context for our research.
+A web-based mapping application with an interface that works similarly to Google Maps, Cyclopath is targeted to the route finding needs of bicyclists.
+The critical difference is that Cyclopath is a geowiki, meaning that all data can be edited by users.
+Users can annotate and rate edges of the transportation graph , and can edit - modify, delete, and add - the geometry and topology of the graph and attributes of its edges.
+In Cyclopath, users do not simply draw lines to indicate a route, they select objects  in the map.
+Users define routes for two main purposes: * Mass rating or annotation of a sequence of edges, e.g., rating the whole sequence as "good" or adding a note about heavy traffic during morning rush hour.
+First and most important, we decided it would be visually awkward to draw bubbles around edges.
+Because edges have irregular shapes and varying lengths, bubbles of different sizes and shapes would be continually appearing, growing, shrinking, and disappearing.
+Thus, we decided to make nodes the targets of selection.
+To select an edge, a user must select both of the edge's nodes in turn.
+Second, making nodes the targets of selection requires using limited knowledge of the transportation graph to constrain selection.
+After selecting one node, the only valid targets are nodes directly reachable  from the just-selected node.
+Continually updated visual feedback  indicates valid targets.
+Finally, we felt that warping the cursor would be visually confusing and unappealing in the target-dense environment of a mapping application.
+Therefore, we chose to draw bubble targets around the targeted node using the Voronoi method of Grossman  to compute the area of the bubble.
+The second approach was to reduce the number of nodes users had to select to define a path.
+We were inspired by Cyclopath's route-finding feature.
+After a user selects one node  and then moves the cursor, the system continuously computes the shortest path from the anchor to the node nearest the cursor.
+Then, if the user clicks, the entire shortest path is added to the route .
+Taking the cross product of these two approaches yields a 2x2 design space, as shown in Table 1.
+While we believed that a tool that used both bubble targets and path-finding would work best, implementing all four designs let us quantify and compare the benefits of each of the pure techniques and how much they improve over a baseline.
+We next present design details for each of the four tools.
+As the BUBBLES and CTRL-CLICK tools differ in several ways, the reason for any performance differences between the two will not be clear.
+However, testing both still furthers our research goals, because our primary aim is to compare the benefits derived from a state-of-the-research single target selection technique  with our innovative path selection technique.
+CTRL-CLICK serves as a "sanity check" to verify that our advanced methods were improvements over a very simple technique.
+For a simple baseline, we chose the technique for selecting multiple objects that is implemented in widely used applications like file browsers and drawing programs: clicking on an edge selects it.
+Clicking on an edge with the CTRL key down toggles its selection state: if it was not selected, it is added to the set of selected edges, and if it was selected, it is removed.
+This tool does not enforce route semantics.
+That is, a user can select non-contiguous edges and can select the edges on a route in any order.
+We did not expect this tool to perform well.
+Rather, it served as a state-of-the-practice baseline for comparison to the advanced tools.
+Like the BUBBLES tool, the PATH tool is node-based.
+However, it does not use bubbling; targets  have the same constant size in both visual and motor space.
+Instead, it uses continuous path-finding to let users short-circuit the process of selecting each of the many nodes in a typical route.
+Thus, the benefit of this approach is reducing the number of selections required to select an entire route.
+At all times during the route selection process, the system computes the shortest path through the graph from the last selected node  to the node nearest the cursor .
+It does this using the A* search algorithm.
+When the user clicks on a node, the entire shortest path is added to the route.
+The tool shows a preview of what selecting a particular node would do: the continuously-updated shortest path from the anchor to that node is indicated with a green highlight.
+We call this the path extension.
+Cyclopath is implemented as a Flex application, written in the ActionScript language and viewed using the Adobe Flash Player browser plugin.
+All the selection tools are implemented in ActionScript and run locally in the browser.
+Thus, even though Cyclopath is web-based, selection does not require fetching data from the server.
+This makes it possible for all the selection tools, even the ones that do path-finding, to operate without noticeable lag.
+For each of the four selection tools: Experimenter demonstrated the tool Subject used the tool for 2 practice routes.
+Subject asked clarification questions .
+Subject used the tool for the 5 test routes.
+Subject completed a user satisfaction survey for that tool.
+We selected  a subset of questions from the QUIUS survey .
+As we have noted, the obvious advantage of path selection is that it can reduce the number of objects that must be selected to define a route.
+The route shown in Figure 2 below consists of 38 edges; however, with path-finding, only 7 selections are needed to select the entire route.
+We use the term optimal to denote the nodes that comprise the minimal set necessary to select a route.
+For a given route, we define the optimal selection reduction ratio  as the total number of nodes in the route divided by the number of optimal nodes.
+Routes with many long straightaways, i.e., long sequences of contiguous edges that are more or less parallel to each other , have high OSR ratios.
+However, a high OSR ratio does not guarantee gains from using path selection.
+Path selection imposes a new perceptual/cognitive task: users must identify which nodes to select.
+They do this by moving the cursor to the vicinity of a candidate, then evaluating the path extension visual feedback to determine if  the path extension is on the desired route, and  if it advances the route "far enough" .
+Thus, it is possible that identifying nodes to select is too much work; if so, path selection tools might actually be slower.
+Put another way: path selection suffers when optimal nodes are difficult to identify or visually "attractive" nodes are not optimal .
+Therefore, we evaluate the four tools experimentally, using a number of routes with different characteristics.
+Each subject had a unique permutation of tool order and test route order.
+For example, one subject may have done the test routes in the order 3, 2, 5, 1, 4 , and may have used the tools in the order BUBBLE, CTRL-CLICK, PATH, BUBBLE-PATH.
+Order of tools for subjects was controlled as follows: we generated all 24 possible permutations of the four tools, randomized the set, then assigned tool orderings to subjects according to this order.
+Routes were indicated with a dark blue line through the relevant edges, with start and end nodes marked.
+Figure 2 is an annotated illustration of what a subject might see while using BUBBLE-PATH for Experimental Route 2.
+Route selection is complete when a subject selects every edge on the route, and no edge not on the route is selected.
+All user interaction events were logged and timestamped.
+Panning and zooming were disabled to create a consistent environment for all subjects.
+The subjects were students and staff at the University of Minnesota.
+We recruited subjects using relevant email lists, posters, and personal contacts.
+All subjects reported themselves to be daily computer users and occasional users of Web-based mapping applications.
+Subjects were given a $10 participation incentive.
+The experiment was conducted on a 2.2Ghz MacBook Pro with a 15" built-in LCD display at 1440x900 resolution.
+Subjects used a mouse for input.
+To compare performance across the tools, we computed the following metrics: * Time to select a route.
+This is relevant only for path selection tools.
+We derive several additional metrics from these basic ones, introducing them as appropriate below.
+In actual use, a desired route is known only to the user who is selecting it.
+However, for experimental purposes, we wanted all subjects to use the same routes.
+Figure 3 shows the average time subjects took to complete each task  with each tool.
+There were significant differences among the tools for all routes .
+Follow-up T-tests showed that all differences between pairs of tools for a route were significant, with three exceptions.
+For Routes 3 and 4, BUBBLES and PATH were indistinguishable, and for Route 5, BUBBLES and BUBBLE-PATH were indistinguishable.
+BUBBLEPATH had the fewest errors for all routes except Route 5, but the differences between it and both BUBBLE and PATH were not significant, although there were strong trends for routes 2 and 3.
+BUBBLE and PATH were roughly comparable: except for Route 5, the average number of errors was similar.
+We offer a caveat in interpreting these results.
+As discussed below, subjects made many more selections with BUBBLE than with path selection tools.
+Thus, the proportion of erroneous clicks made with BUBBLE always was lower than PATH, and usually was lower than BUBBLE-PATH.
+There is no obvious right measure - absolute or proportional number of errors - the whole point of path selection is to reduce the number of clicks needed to select a route.
+However, the proportional analysis confirms an obvious hunch: bubble targets make each selection act easier, and path selection does not.
+Therefore, selection errors should decrease for the tools that use bubble targets, BUBBLE and BUBBLE-PATH.
+The number of errors was low for all tools.
+However, ANOVA did show significant differences for each route .
+As Figure 4 shows, CTRL-CLICK fared the worst.
+This is what we expected: selecting irregular and varying edge shapes is harder, and thus should be more error-prone.
+Figure 5 summarizes the survey responses.
+There are several significant differences, as well as interesting trends.
+BUBBLE-PATH was always either significantly preferred over the other tools or statistically indistinguishable from them.
+One notable difference was seen for the "Overall: Terrible to Wonderful" question; an ANOVA showed significant differences , and pairwise T-tests showed BUBBLEPATH rated higher than all the other tools .
+Another important difference was for the "Route Speed: Slow to Fast" question , which measured how fast users perceived route construction to be.
+There was a trend favoring BUBBLE-PATH over PATH , and BUBBLE-PATH was rated significantly higher than BUBBLE and CTRL-CLICK .
+For the other Overall question, "Frustrating to Easy", there was a trend favoring BUBBLE-PATH over PATH  and BUBBLE , and all three of these tools were significantly higher than the baseline CTRL-CLICK .
+We wanted to understand in more detail the properties of routes that led to different levels of benefit for path selection: large advantages for PATH over BUBBLE on three routes, but no advantage on the other two routes.
+Our preliminary analysis led to three conjectures: * * * The greater the actual selection reduction ratio, the greater the advantages of path selection.
+More long straightaways in a route means greater advantages for path selection.
+When the optimal nodes for a route are also the visually attractive nodes for that route, path selection will have greater advantages.
+However, the potential reduction in selections doesn't tell the whole story.
+Most dramatically, Routes 1 and 3 had the same OSR ratio, yet Figure 3 shows that while PATH had a large advantage over BUBBLE for Route 1, the two tools were equivalent for Route 3.
+However, the actual selection ratios for the two routes differ dramatically: the ASR ratio for Route 1 was 4.7, and the ASR ratio for Route 3 was 2.3.
+We next investigate the second conjecture: long straightaways increase the advantage of path selection.
+There are two reasons for this.
+First, the potential reduction in clicks is high.
+Second, we thought that this would be apparent to users: i.e., they would find it easy to identify the beginning and end nodes of the straightaway as appropriate targets to select.
+This is because these nodes are, by definition, "corners", and we believed that users will be likely to click on corner nodes.
+We analyzed the relative time benefit of path selection as segment length  increases.
+The intuition is that path selection should have greater benefits when users select a segment of length 8, for example, than one of length 3.
+To compute this, we wanted to compare the time it took users to go "the same distance" using BUBBLE and BUBBLEPATH, and see how the time varied with the distance.
+The following procedure formalizes this intuition:
+A simple application of these results is that path selection should yield little or no advantage for routes with many short segments.
+For each route, it shows the proportion of segments  of different lengths.
+Routes 3 and 4 had the largest proportion of short segments, and the smallest proportion of long segments, and BUBBLE-PATH had the smallest time advantage over BUBBLE for these routes.
+2 Routes 1, 2, and 5 had the most longer segments, and the fewest segments of length 1, and BUBBLE-PATH had the largest time advantage over BUBBLE for these routes.
+The final conjecture is that path selection would not confer advantages when optimal nodes and attractive nodes do not align well.
+This situation would occur in routes with high potential selection reduction ratios, but low actual ratios.
+We identified several characteristics of a node that we thought might change the likelihood of being selected: o o Angle - the angle between the two edges on a route that impinge on a node.
+Segment position - this is a proxy for how far along in a straight segment a node is, formalized as the number of previous nodes with angle < 5.
+Bubble target area - since the size of the bubble target for a node depends on how close other nodes are, this is a proxy for visual density.
+Intuitively, higher density makes it harder to distinguish an individual node and thus may decrease its selection probability.
+Figure 6 shows the results, graphing segment length against the time advantage of BUBBLE-PATH over BUBBLE .
+The graph shows a linear relationship that supports our conjecture: the longer the segment, the greater the advantage of path selection.
+Further, the data point for segments of length 1 illustrates the overhead involved in path selection: it took users slightly more time to select a given segment of length 1 using BUBBLE-PATH than using BUBBLE.
+We believe that this is due to the perceptual and cognitive cost of identifying nodes to click on.
+The rules are exemplified by a visualization of the selection data from the PATH tool for Route 1  and Route 3 .
+The key to the visualization is:    A square is displayed for any node that any subject selected .
+A thick black border indicates optimal nodes; a gray border indicates non-optimal nodes.
+The number in each square shows the proportion of subjects who clicked on that node.
+We experimented with machine learning models that used these factors to predict whether a node would be selected.
+We divided all the nodes in all the routes - a total of 192 - into 3 categories based on how many subjects selected them using PATH.
+We tried out several of the learning algorithms included in the Weka software , frequently achieving over 90% classification accuracy.
+We then manually examined several of the best decision-tree rule sets.
+Surprisingly, these rule sets achieved such high accuracy using only the angle factor.
+After manually removing some redundant clauses, we ended up with a simple classification rule: category is Rare if angle < 6, category is Sometimes if 6  angle  33, and category is Frequent otherwise.
+This rule says that the more a node is "like a corner", the higher the probability of user acquisition.
+Classification accuracy for these rules is 98% ; the confusion matrix is shown in Table 3.
+Second, since in many applications a user's desired route is not known a priori, a promising approach is to dynamically predict what nodes a user is most likely to click on at any given time.
+We can use three factors to make such predictions:  history of selections by this and other users,  properties of edges other than distance that may make them likely to be added to a route , and  the direction of the user's mouse motion .
+Once likely nodes are identified, they can be made more visually attractive  and easier to select .
+Third, our analysis of the conditions when path selection works best suggests another experiment.
+We could test path selection with a set of routes that vary precisely along the factors we identified, e.g., turn angle of optimal and nonoptimal nodes, length of straightaways, and visual density.
+Fourth, we would like to compare path selection to Google Maps' "route-then-refine" technique.
+Google Maps lets users modify an automatically generated route from point A to point C by allowing a new point B to be added in the middle of the route.
+This creates a new route from A to C that is the composition of a route from A to B and a route from B to C. It is an open question how well this approach works in practice for domains such as bicycling and how it compares to path selection.
+Several factors may influence the relative success of the two techniques, and thus should be controlled in an experimental evaluation:  Path length.
+We think path selection is likely to work better for shorter paths.
+For longer paths, the picture is less clear, and is likely to depend on  number of modifications required.
+The work of refining a route in Google Maps is non-trivial: a user must select a part of the route to move, identify where to move it to, and then evaluate the new route.
+Further, these tasks may require panning and zooming, with multiple visits to particular map regions.
+Finally, another potential technique for defining a path through a graph is simply to let users "draw" the path, i.e., move the cursor along the desired path without clicking objects.
+The system then could add edges to the route whenever a complete edge is traversed .
+This is rather like letting users "steer" along the desired path .
+A step to assess the promise of this technique is to log use of our current path selection technique at the mouse motion - not just mouse click - level.
+This would let us see whether users typically do steer along a path or whether they "cut corners" to reach desired nodes.
+Path selection had a large time advantage for this route.
+It has high OSR and ASR ratios, and it consists almost entirely of long straightaway segments.
+The optimal nodes are all corners, and all the corners are optimal.
+Path selection had no advantage for this route.
+It has a high OSR ratio, but a low ASR ratios.
+It contains many short segments.
+Even worse, while all the optimal nodes are corners, there are many corners that are not optimal, and the data confirm that these non-optimal corner nodes are frequently selected.
+Path selection can be applied directly in any mapping application that lets users define routes.
+Even if it applied only to mapping applications, it still would be a significant contribution, since such applications are important and increasingly common.
+However, we believe it is useful for any application where the data being manipulated form a graph, and users want to define paths through that graph.
+Such applications include biological networks , anatomical systems, architectural diagrams and floor plans, and flow charts.
+An important point is that the A* algorithm we use to compute best path extensions gives us flexibility when moving to different domains.
+A parameter to the algorithm, the cost function, controls what path the algorithm computes; for our purposes, we use distance .
+We present a novel technique for selecting routes in a graph based on dynamic shortest-path computation and continuously updated visual feedback.
+The technique adds significant benefits beyond state-of-the-art-techniques for selecting single objects: faster route selection, fewer errors, and greater user satisfaction.
+Our analysis revealed what properties of routes make this new technique especially beneficial: long straight segments and a close alignment between optimal and visually attractive nodes.
+Grossman, T. and Balakrishnan, R. The Bubble Cursor: Enhancing Target Acquisition by Dynamic Resizing of the Cursor's Activation Area.
+Guiard, Y., Blanch, R., and Beaudouin-Lafon, M. Object pointing: A complement to bitmap pointing in GUIs.
+Kabbash, P. and Buxton, W. The "Prince" technique: Fitts' Law and selection using area cursors.
+MacKenzie, S. Fitts' Law as a research and design tool in human-computer interaction.
+MacKenzie, S. and Buxton, W. Extending Fitts' Law to two-dimensional tasks.
+Fitts' Law and expanding targets: An experimental study and applications to user interface design, M.Sc.
+Thesis, Department of Computer Science, University of Toronto 16.
+McGuffin, M. and Balakrishnan, R. Acquisition of expanding targets.
+Priedhorsky, R., Jordan, B., and Terveen, L. How a personalized geowiki can help bicyclists share information more effectively.
+Priedhorsky, R. and Terveen, L. The computational geowiki: What, why, and how.
+Worden, A., Walker, N., Bharat, K., and Hudson, S. Making computers easier for older adults to use: Area cursors and sticky icons.
+Human on-line response to target expansion.
+Accot, J. and Zhai, S. Beyond Fitts' Law: Models for trajectory-based HCI tasks.
+Aurenhammer, F. and Klein, R. Voronoi Diagrams.
+Chapter 5, in Handbook of computational geometry, J. Sack and J. Urrutia, Editors.
+Baudisch, P., Cutrell, E., Robbins, D., Czerwinski, M., Tandler, P., Bederson, B., and Zierlinger, A. Drag-andpop and drag-and-pick: Techniques for accessing remote screen content on touch- and pen-oriented systems.
+Semantic pointing: Improving target acquisition with control-display ratio adaptation.
+Chin, J. P., Diehl, V. A., and Norman, K. L.. Development of an instrument measuring user satisfaction of the human-computer interface.
+Cockburn, A. and Firth, A.
+Improving the acquisition of small targets.

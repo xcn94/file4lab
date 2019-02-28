@@ -1,0 +1,246 @@
+We present DynaSpot, a new technique for acquiring targets based on the area cursor.
+DynaSpot couples the cursor's activation area with its speed, behaving like a point cursor at low speed or when motionless.
+This technique minimizes visual distraction and allows pointing anywhere in empty space without requiring an explicit mode switch, thus enabling users to perform common interactions such as region selections seamlessly.
+The results of our controlled experiments show that the performance of DynaSpot can be modeled by Fitts' law, and that DynaSpot significantly outperforms the point cursor and achieves, in most conditions, the same level of performance as one of the most promising techniques to date, the Bubble cursor.
+Other promising techniques have been proposed recently that work better in a wider range of configurations, including many variations on expanding targets , the Ninja cursor  and Starburst .
+One of the most promising technique, the Bubble cursor , is a variation on the Area cursor  that dynamically adapts its activation area to encompass the closest object only.
+This is achieved by expanding the boundaries of each target based on a Voronoi tessellation that fills the empty space surrounding each potential target thus maximizing their effective size.
+While this optimizes pointing performance, problems arise when considering interaction beyond the acquisition of a single interface component.
+First, as with several of the abovementioned techniques, selecting a position in the "empty" space between targets requires a mode switch.
+Yet empty space selection is crucial to many common interactions, e.g., to select groups of objects.
+The mode switch solution results in "a slightly less than seamless interaction style"  for these essential object manipulation features .
+Second, rapid and large changes of the bubble size in non-uniform target distributions may distract the user and hinder user acceptance , a crucial factor  that is sometimes overlooked.
+In this paper, we present DynaSpot, a new type of area cursor that couples the cursor's activation area with its speed, as illustrated in Figure 1.
+The activation area grows as a function of speed up to a maximum size, typically set to a few dozen pixels, thus minimizing visual distraction.
+At low speed and when motionless, DynaSpot behaves as a regular point cursor, making all conventional point cursor interactions, including empty space selection, possible without the need for an explicit mode switch.
+The increase in both resolution and size of computer displays requires users of desktop interfaces based on the ubiquitous WIMP paradigm to make highly precise pointing movements to acquire small interface components over possibly long distances when using a conventional point cursor.
+Several techniques have been proposed to make this fundamental task easier.
+Many have been shown to perform better than the point cursor in experimental settings that were consisting of isolated targets on fairly sparse desktops .
+However, these techniques are very sensitive to the layout and density of interface components, and difficulties arise when selecting one target among multiple objects that are spatially close together.
+As noted by Baudisch et al.
+In such configurations, these techniques do not provide a significant advantage and some can actually degrade performance.
+After a review of related work, we discuss the design and implementation of DynaSpot, and report the results of two controlled experiments.
+Results show that DynaSpot significantly outperforms the point cursor and achieves levels of pointing performance similar to the Bubble cursor in most layout configurations, including densely populated scenes.
+We then show that its performance can be modeled with Fitts' law.
+We conclude with a discussion of our findings and directions for future work.
+Fitts' law is the fundamental tool used to study pointing in human-computer interfaces .
+Techniques developed to facilitate pointing in virtual worlds try to decrease movement time either by reducing A, increasing W , or a combination of both.
+We direct interested readers to a survey by Balakrishnan  and an overview by Grossman et al.
+In the following, we consider existing techniques from a slightly different perspective, considering not only performance but compatibility with conventional cursor interactions beyond single target acquisition, and user acceptance.
+Sticky icons  and Semantic pointing  dynamically adapt the control-display ratio, slowing down the cursor as it approaches a potential target.
+These techniques support conventional point cursor interactions.
+They are, however, very sensitive to the layout and density of potential targets; while they work well in sparsely populated workspaces, intervening distractors on the path to the actual intended target in denser workspaces slow down cursor movements, possibly degrading performance compared to a regular point cursor.
+Cockburn and Firth  propose to enable the control-display adaptation on one axis only depending on the widget's orientation, thus partially solving the problem for some types of widgets such as scrollbars.
+Drag-and-pop  reduces amplitude of movement  when dragging an object by temporarily bringing potential targets, closer to the cursor.
+As such, the technique efficiently solves one particular type of pointing-based interaction, but is not a general desktop pointing technique.
+Object pointing  takes a radical approach, ignoring the empty space between targets by making the cursor jump from one object to the nearest one in the direction of movement, thus considerably reducing A.
+The Delphian desktop  follows the same principle, taking into account peak velocity to determine the goal target, allowing to jump over potential distractors.
+Both techniques are very sensitive to the layout and density of objects, which can have a strong impact on the accuracy of the goal target prediction method.
+Still, wrong predictions can be frustrating, and the behavior of the cursor, jumping from object to object, can be annoying.
+By skipping empty space, these techniques do not allow the user to perform some useful point cursor interactions, such as region selection, without an explicit mode switch.
+Kobayashi and Igarashi propose another promising way to reduce the amplitude of movement  by having multiple cursor instances all synchronized with the same input device: by distributing the cursors over the screen, Ninja cursor  reduces the average distance to any given target using interactive, seamless disambiguation methods to activate the appropriate cursor.
+General point cursor interactions that require clicking in empty space are however not possible without mode switching, except for a restricted form of lasso selection.
+Several techniques focus on increasing target width .
+Techniques based on lenses coupled with the cursor magnify objects but usually operate in the original, unmagnified, motor space, thus providing no actual advantage in terms of pointing facilitation .
+Another solution consists in expanding targets dynamically when a point cursor approaches them.
+McGuffin and Balakrishnan  have found that users can still benefit from expansions that occur as late as after 90% of the movement has been completed.
+They were further studied in , and experiments by Cockburn and Brock suggest that visual expansion plays a more important role than motor expansion .
+They also note that "enlarged motor-spaces actually make the targets appear smaller than they really are", as empty space around objects is actually empty in visual space only, not in motor space, meaning that it cannot be used for interactions such as region selection.
+Fitts' law can accurately model pointing to thin targets using area cursors with a simple modification to the equation: instead of representing the target width, the term W represents the cursor width .
+This implies that cursors with larger activation areas make pointing easier, but such larger areas are more likely to encompass several objects, thus creating ambiguities.
+These can be resolved by using a secondary point cursor  or by interactively adjusting the cursor area on multi-point touchpads .
+The Bubble cursor  improves upon the area cursor by partitioning empty space so as to maximize the activation area of each target.
+Starburst  relies on a different partitioning of space, better adapted to non-uniform target distributions.
+As mentioned earlier, this optimizes pointing performance, but prevents point cursor interactions that require clicking in empty space.
+The Bubble cursor's growing/shrinking area has also been reported to cause visual distraction in some situations .
+Several variations on the technique have been designed , but have had limited success both in terms of performance and user acceptance.
+The lazy bubble  makes it possible to point in some areas of empty space, but these are severely limited and difficult to identify, making interactions such as region selection impractical.
+In his survey of pointing facilitation techniques , Balakrishnan identifies the final acceptability of a technique by end-users as a critical measure, seen as a complement to quantitative performance measures such as selection times and error rates.
+The visual distraction caused by some techniques and the mode switches required by earlier-mentioned techniques hinder their acceptance for many types of applications and environments.
+DynaSpot has been designed to facilitate pointing while taking this more qualitative measure into account.
+It was not designed to perform better than all other techniques under all conditions, but to strike a balance between performance, end-user acceptance and implementation in a realistic context.
+DynaSpot builds upon area cursors.
+It uses the dynamic characteristics of the pointer to adapt the size of the cursor's activation area and facilitate difficult pointing tasks while behaving as a conventional point cursor when appropriate, without the need for an explicit mode switch.
+DynaSpot takes inspiration from other techniques that have successfully made use of the cursor's dynamic characteristics, such as Speed-Dependent Automatic Zooming , Sigma Lenses  and the Speed-coupled flattening lens .
+As shown in Figure 2, the size of the activation area  starts to increase as a function of cursor speed past a given threshold, and up to a maximal size S POT W IDTH.
+When the cursor comes to a full stop, reduction of the spot starts after a certain duration L AG, and takes R EDUC T IME to complete.
+As with regular area cursors, the spot is made translucent so as to avoid obscuring screen information relevant to the task .
+According to Fitts' law, DynaSpot should facilitate pointing because the potential effective width of a target can be larger than its actual width.
+Thus, when the user clicks on the target before the spot starts shrinking , the effective width of the target is EW = W + S POT W IDTH, as illustrated in Figure 3-a.
+The optimal S POT W IDTH will depend on a number of factors: interface type, display resolution, input device, but also on each user.
+In a typical desktop environment, a S POT W IDTH between 16 and 32 pixels represents a good compromise: it is large enough to facilitate the acquisition of small targets, yet small enough to prevent size variations from causing too much visual distraction.
+Figure 2 gives a general idea of the speed coupling between cursor speed and spot width.
+The details of this coupling play a fundamental role in the overall usability of the technique, and are described in this section.
+The behavior rules are as follows: * when the cursor is moved fast enough , the width of the spot is increased, provided that it has not yet reached its maximal value S POT W IDTH; * when the cursor comes to a full stop and does not move for a period of time equal to L AG, the spot shrinks to a point  over a period of R EDUC T IME, provided the user does not move it again, in which case it would grow again; * for slow movements below the speed threshold, the spot width remains constant.
+Threshold speed M IN S PEED allows the user to perform small, precise pointing movements using a conventional point cursor, without being distracted by a growing spot.
+When the cursor is moved faster, beyond this threshold, the spot grows, facilitating distant target acquisition.
+We have found 100 pixel.s-1 to be a reasonable value for M IN S PEED.
+A target can be selected as soon as the spot overlaps it.
+While early area cursor designs  used a square shape, DynaSpot's activation area takes the shape of a circle, as does Bubble cursor's, so as to ensure that the nearest target is captured first.
+Still, as opposed to the latter technique, there can be situations where the spot overlaps more than one potential target, creating ambiguities regarding the one to select.
+To resolve such ambiguities, DynaSpot always selects the target closest to the cursor center .
+This implies that the system should provide feedback about which target is currently selected , as is the case for Bubble cursor.
+The transitions from point cursor to area cursor and conversely can be achieved in various ways.
+We tested several possibilities through trial and error, and made the following observations.
+The spot should grow quickly once M IN S PEED has been reached, but the growth profile does not seem to play an important role.
+We found that an exponential growth  by a factor of 1.2 at each input event works well.
+The reduction transition, controlled by L AG and R EDUC T IME , is more complex because it has a direct impact on the potential effective width at the time of target selection.
+Higher values for both parameters should make the task easier.
+However, too high values imply that the user will potentially have to wait longer before she can perform interactions initiated by an implicit selection in empty space.
+In addition, the reduction profile applied during R EDUC T IME also plays a role.
+The task was a simple reciprocal pointing task.
+The two targets were represented as circles 8 pixels in diameter, painted with a green fill color and outlined in black.
+They were centered horizontally, with a distance of 512 pixels between them, and were each surrounded by four distractors of the same size, painted with a white fill color and outlined in black.
+These four distractors were laid out so that the interspace IS between a distractor and the target would always match the S POT W IDTH set for the current trial, as illustrated in Figure 8-b.
+We focused on small targets in this preliminary study as DynaSpot is expected to be most useful in this type of configuration.
+The object captured by the cursor  was filled with a red color.
+Each target had to actually be selected before proceeding to the next: clicks outside the current target were counted as errors but did not end the task.
+Our experiment was a 2 x 3 x 3 within-participant design.
+We grouped trials into two blocks, one for each spot width.
+Four participants started with the small DynaSpot  while the four others started with the larger one .
+Within a block, trials were grouped by L AG x R EDUC T IME condition presented in a pseudo-random order, each subblock containing three series of 16 reciprocal pointing tasks.
+The first series was used for training, allowing participants to adapt to the new parameters before we measured their performance.
+They were then instructed to be as accurate and as fast as possible.
+The 16 pointing tasks of a series had to be performed in a row, but participants were allowed to rest between trials.
+The first targeting task of each trial was ignored.
+A total of 4,320 actual pointing tasks were thus taken into account in the analysis .
+The experiment started with a 3 minute training session where the experimenter explained DynaSpot's behavior and how to operate it to the participant.
+The experiment lasted approximately 20 minutes.
+We informally tested three methods to perform this reduction, as illustrated in Figure 4:  an "exponential" one where the spot width is reduced by a given percentage at each step;  a "linear" one where the spot width is reduced by a given constant at each step, and  a "co-exponential" one that mirrors the first method.
+We found that the exponential reduction yields more target acquisition errors, probably because of the abrupt transition after the L AG period, due to the fast reduction of the spot.
+The co-exponential method starts reducing the spot at a lower pace, providing a smoother transition than the linear and exponential methods.
+We used a 3.2 GHz Pentium4 PC running X Window under Linux, equipped with an NVidia Quadro FX 1500 graphics card, a 1600 x 1200 LCD monitor , and a standard optical mouse  with the default X Window acceleration function.
+Our program was written in Java using the OpenGL pipeline for graphics rendering.
+We carefully checked the refresh rate , ensuring that timers were matching the lag and reduction set for each condition.
+This is confirmed by post-hoc tests, which show a significant difference in mean between all L AG values for R EDUC T IME = 100, between L AG 60 and 100 for R EDUC T IME = 180, but no significant difference for R EDUC T IME = 260.
+The overall error rate is 4.5%.
+As for movement time, we observe a significant interaction for L AG x R EDUC T IME only , as illustrated in Figure 5 .
+These results show that for a long-enough R EDUC T IME, L AG can be set to any value within the considered range.
+For shorter R EDUC T IMEs, the duration of L AG has a significant effect on both movement time and error rate, and has to be chosen carefully.
+Overall, the fastest and least error prone condition evaluated was L AG = 140 ms and R EDUC T IME = 180 ms. For our implementation of DynaSpot, we did not want the full reduction phase to last longer than 300 ms, as longer delays can be frustrating.
+We thus used the following values: L AG = 120 ms and R EDUC T IME = 180 ms.
+NVidia Quadro FX4500 graphics card, a 1600 x 1200 LCD monitor  and a standard optical mouse  with the default X Window acceleration function.
+Our program was written in Java using the OpenGL pipeline for graphics rendering, thus ensuring a minimum frame rate of 50 fps even for large alpha-blended Bubble cursor areas .
+Having fine-tuned DynaSpot's parameters, we ran a second experiment to evaluate the quantitative performance of DynaSpot and get the subjective impressions of participants.
+We compared two DynaSpots with different spot widths  against a regular point cursor, serving as a baseline, and the Bubble cursor , one of the most efficient general pointing techniques to date .
+We followed the same general procedure as the one used by Grossman and Balakrishnan to compare Bubble cursor with object pointing and a point cursor : participants had to select a target rendered as a solid green circle outlined in black, surrounded by a set of distractors.
+Additional distractors were placed on the path from the trial start point to the target.
+As illustrated in Figure 7, all distractors were the same size as the target and were rendered as black outlined circles.
+As in our preliminary experiment, the object captured by the cursor  was painted red.
+The bubble cursor area and the DynaSpot disc were both rendered with a semitransparent gray.
+Two were placed along the direction of movement, one on each side of the target, while the other two were placed perpendicular to the direction of movement .
+The remaining distractors were laid out so as to match the density condition DD on the path to the target.
+For DD = 0, there were no additional distractors on the path to the target.
+For DD = 1, additional distractors were packed from the start point to the closest main distractor, and offset in the direction perpendicular to the line of movement by a pseudo-random length, keeping them within a 20 degree slice centered in this line of movement.
+Additional distractors outside this slice were placed pseudo-randomly to match the density within the slice.
+For DD = 0.5, there were half as many distractors.
+We made the following adjustments to the original design.
+Instead of making the next target appear in an unpredictable location, we laid out all 16 targets of a trial series in a circular manner.
+The order of appearance followed the recommendations of the ISO 9241-9 standard forcing participants to perform pointing tasks in every direction .
+We chose this more predictable behavior of targets, encountered in several pointing experiments, e.g., , as it better simulates situations where users have a rough idea about the direction of the target they are aiming at before starting the pointing task.
+Each target had to actually be selected before proceeding to the next: clicks outside the current target were counted as errors but did not end the task.
+We grouped trials into four blocks, one per technique.
+Each T ECH block was divided into 3 sub-blocks, one per EW/W condition.
+Each of these sub-blocks was composed of 3 W x 3 A series of 16 pointing tasks where each DD was used 5 times .
+An additional sub-block at the beginning  was used for training.
+To counterbalance the presentation order of conditions, we computed a Latin square for T ECH and a Latin square for EW/W and crossed them, obtaining 12 orders, one for each participant.
+The order of the W x A conditions, as well as the density DD, were chosen randomly but the same order was used for each T ECH across participants for the 15 recorded tasks of a series.
+The experiment started with a training session consisting of 4 T ECH x 3 EW/W series, each with W = 16 and A = 512.
+The experimenter introduced each technique to the participant during the first series of each corresponding T ECH block; the two remaining blocks being used as actual training.
+For the series actually recorded, participants were instructed to be as accurate and as fast as possible.
+The 16 pointing tasks of a series had to be performed in a row, but participants were allowed to rest between series.
+A total of 19,440 actual pointing tasks were thus taken into account in the analysis .
+The experiment lasted approximately 45 minutes.
+The factors W and EW/W can be grouped into one factor that we call the combined width CW.
+In the remainder of this paper, we use the following notation for each pair of conditions W x EW/W:  where BW is the Bubble cursor's effective width, DW16 and DW32 are the potential effective widths for the two DynaSpot sizes, and W is the target's width .
+The factors described in the previous section yield nine combined widths CW, listed in Table 2.
+When the interspace IS is equal to one of the DynaSpot T ECH's potential effective width  of Figure 8, we underline the corresponding DynaSpot .
+Our main hypothesis is that for a given combined width CW, the effective width EW for each technique should determine the performance ordering among techniques: if the effective width for technique a is larger than for technique b , then a should be faster than b .
+When the effective widths of two techniques are equal, we do not expect to find significant differences in terms of performance.
+However, we expect a performance degradation when DynaSpot is at its limit effective width .
+Indeed, in this particular case, the spot reduction and small intersection between the target and the spot may forbid the user to use the full potential effective width of DynaSpot.
+Additionally, we hypothesize that density DD will have a similar effect on point cursor and both DynaSpots, as the behavior of all three techniques is not directly impacted by density.
+On the contrary, we expect a performance degradation for low densities in the case of Bubble cursor, consistent with Grossman and Balakrishnan's observations regarding visual distraction in this condition .
+One of the main factors used in the experiment comparing Bubble cursor to other techniques  was the EW/W ratio .
+The combination of this and factor W controls the distance between the goal target and the four distractors surrounding it.
+This abstraction, well-adapted to the former experiment, is however not best suited to analyze the different conditions with DynaSpot.
+As expected CW and A have a significant effect on movement time MT.
+We also observe an effect of T ECH on movement time.
+However, the ANOVA also reveals significant interactions: T ECH x CW, T ECH x DD and T ECH x A.
+A thorough comparison between techniques must thus take into account combined width, density of distractors, and amplitude.
+Figure 10-a shows mean movement time for each technique grouped by distractor density.
+We see that movement time increases as density increases for Point cursor and DynaSpot, but not for Bubble cursor.
+For Bubble cursor, a post-hoc Tukey test reveals that it is faster for DD=0.5 than for DD=0, confirming the results of .
+The test also reveals that each of DynaSpot16, DynaSpot32 and Point cursor is faster for DD=0 than for DD=1.
+Moreover, as shown in Table 2, Bubble cursor is slower than DynaSpot for DD=0 in most conditions where the effective widths are equal, while Bubble cursor is faster than DynaSpot for DD=1 when the Bubble's effective width is larger than the DynaSpot's effective width.
+Figure 10-b shows mean movement time for each technique grouped by movement amplitude.
+We see that the difference between Bubble cursor and DynaSpot increases with amplitude.
+A post-hoc Tukey test shows that DynaSpot32 is faster than Bubble for an amplitude of 768, but no such difference is detected for smaller amplitudes.
+Moreover, removing the data for which DD=0 makes this significant difference disappear .
+These results show that the effective width determines the performance ordering among techniques only under certain conditions regarding distractor density.
+Our hypothesis is thus only partially verified.
+Distractor density affects Bubble cursor performance, especially for large movement amplitudes.
+As predicted, a significant degradation is observed when DD=0, i.e., when the bubble's envelope varies most during movement, causing visual distraction.
+Finally, distractor density also affects Point cursor and DynaSpot in a similar way, degrading performance as it increases.
+Regarding errors, we find an overall error rate of 6.5%.
+As usual in pointing task experiments, error rate decreases as the  width grows and the amplitude decreases.
+Figure 11 shows error rate for each T ECH grouped by combined width CW.
+Figure 9 shows the mean movement time for each T ECH by combined width CW.
+Table 2 gives the results of the Tukey HSD post-hoc test for differences in mean between techniques by combined width .
+The test shows that Bubble and DynaSpot are both significantly faster than Point and that there is little difference between Bubble and DynaSpot.
+Removing errors trials or taking the time of the first click  does not change the results.
+We checked the number of outliers by counting the number of trials where the time is 3 standard deviations away from the mean movement time .
+The data contains only 0.99% such outliers; 87% of them are errors, and none of them is more than 3.6 standard deviations away.
+Again the analysis without these outliers yields the same results.
+Performance results for Point and Bubble cursors are consistent with those in .
+However, our participants perform faster overall: 10.6% faster for Bubble cursor and 9.6% faster for Point cursor.
+This can be explained by the use of a ratio of 1.5 instead of 1.3 for the smallest value of EW/W, a larger error rate in our experiment, and by the details of the task: the location of the next target in our case was predictable, whereas it was not in .
+Participants were asked to rank the techniques by subjective preference in a post-hoc questionnaire.
+All participants ranked DynaSpot  as their preferred technique, followed by the other DynaSpot in second.
+Only two participants chose another technique than the other DynaSpot as the second best.
+One ranked the Bubble cursor second, the other DynaSpot third and Point last, while the other participant ranked the Point cursor second, the other DynaSpot third, and Bubble cursor last.
+Most participants complained about the visual distraction caused by the Bubble cursor envelope's strong variations under certain conditions, leading seven of them to rank that technique last.
+This is again consistent with earlier results .
+For instance, one participant said that "Bubble cursor is distracting when the target is far away because the bubble has a big size".
+Figure 13 shows the position of user clicks relative to the target, and the potential/effective target width for one combined width: .
+We observe that clicks are scattered across a larger area for Bubble cursor than for DynaSpot32, even though both have the same effective width for this combined width.
+We explain this by the fact that, for DynaSpot32, this corresponds to the case described in Figure 8-b, with the interspace equal to the spot's width, preventing users from fully taking advantage of the effective width.
+Interestingly, we observe that users do not use the full potential of the Bubble cursor either, as there are very few clicks in the corners of the target's activation area.
+In an effort to formalize these observations, we measured the distance to the center of the target for all clicks by combined width, and analyzed the 95% quantile of these distances.
+As expected, effective widths are reflected in these distances.
+But other observations can be made.
+For instance when DynaSpot is at its limit potential effective width , as for DynaSpot32 in Figure 13, we do find a significant difference between DynaSpot and Bubble cursor, as observed above, but also between DynaSpot32 and DynaSpot16 when the latter is at its limit potential effective width.
+Another interesting observation is that none of the 95%-quantile distances are larger than the effective width, confirming our initial observation that the corner of the Bubble's activation area are seldom used.
+Another type of "effective width", that we call the a posteriori effective width and denote We , was introduced by Crossmann in his 1956 doctoral dissertation and advocated by MacKenzie and others in the field of HCI .
+Figure 12 plots movement time as a function of IDE , the index of difficulty computed with the target's potential effective width.
+We take the mean for each combined width, amplitude and technique, fitting 27 points for each technique.
+Table 3 gives the intercept, the slope and the adjusted r2 for both IDE and ID, the latter being computed using the actual width of the target.
+We see that using the effective width yields higher r2 values and improves the fit.
+This shows that the potential effective width for DynaSpot provides a "definition" of the width appropriate for applying Fitts' Law.
+A priori, this normalization process leads to more robust results, allowing for better comparisons between experiments.
+In the following, we check that this definition of effective width can be used to model DynaSpot movement time.
+This involves removing outliers, using the time at first button press, computing by participant and full condition, with We = 4.133 * sd where sd is the standard deviation of the oriented  distance from the click to the target's center divided by 2.
+Mean values of We for each technique T ECH at each combined width CW are given in the table below.
+Iu indicates the degree to which the participants over-utilize  or under-utilize  the potential effective target.
+We observe that the index of occupation is systematically higher for Point cursor, and then for Bubble cursor, and that it globally decreases as the width grows.
+This can be explained by the error rate  especially for Point cursor.
+When comparing Bubble cursor and DynaSpot, which have similar error rates, this confirms that participants better use the full effective target width with Bubble rather than with DynaSpot.
+The counterpart of We , the a posteriori effective amplitude Ae , is computed as the mean of the distance from the movement start point to the point where the user clicks.
+We can compute the effective index of difficulty: IDe = log2  Table 4 gives Fitts' law equation parameters for IDe , and the throughput in bit * s-1 , computed using either the slope of Fitts' equation, or the formula recommended in .
+This throughput has the advantage of taking the intercept into account and to be less dependent both on the ID range used  and on the users' nominal pointing speed .
+The results of our experiments are very encouraging.
+They show that DynaSpot provides an average speed-up of 18% over a conventional point cursor, and that for equivalent effective widths it achieves the same level of performance as the Bubble cursor, one of the more promising techniques to date.
+DynaSpot is slightly more efficient for low object densities and slightly less efficient for high ones.
+But most importantly, DynaSpot provides these quantitative performance benefits without departing too much from the conventional point cursor technique.
+This has at least three significant practical consequences.
+First, end-users are more likely to adopt the new technique in their daily use of GUIs because DynaSpot behaves "almost like" a point cursor and does not cause a strong visual distraction.
+Second, DynaSpot is compatible with all point cursor interactions such as region selections initiated by clicking in empty space without requiring an explicit mode switch.
+Finally, implementing DynaSpot does not require significant changes to existing GUI frameworks to support the technique: we implemented support for DynaSpot in the ZVTM Java toolkit2 in less than 500 lines of code, and a lazy version of the technique3 was implemented in the Metisse windowing system4 , relying solely on the accessibility API to make the technique work across unmodified applications.
+Somewhat unexpectedly, DynaSpot proves to be on a par with Bubble cursor in most targeting situations.
+If Bubble cursor's effective width is sufficiently larger than DynaSpot's, then Bubble cursor is faster.
+However, this happens mostly in configurations where the bubble cursor size is likely to vary dramatically, causing visual distractions that both hinder performance and user acceptance of the technique.
+As future work we would like to evaluate area selection.
+We can predict what should happen with DynaSpot:  if empty space between targets is sufficiently large compared to the maximum spot size, the time it takes to initiate a selection in empty space should be similar to the time it takes with a point cursor;  in a dense layout, we expect DynaSpot to be penalized because of the lag+reduction time .
+In this particular situation, an explicit mode-switching mechanism might represent an interesting compromise.
+DynaSpot would then have to be compared, for dense layouts, to Bubble and Area cursors augmented with such an explicit modeswitch, but also to an augmented DynaSpot featuring both time-based  and explicit mode-switching.
+We also plan to investigate the use of speed coupling in other pointing techniques, as this seems to be an efficient way of adapting a technique's behavior.

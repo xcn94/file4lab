@@ -1,0 +1,209 @@
+The Web provides a corpus of design examples unparalleled in human history.
+However, leveraging existing designs to produce new pages is often difficult.
+This paper introduces the Bricolage algorithm for transferring design and content between Web pages.
+Bricolage employs a novel, structuredprediction technique that learns to create coherent mappings between pages by training on human-generated exemplars.
+The produced mappings are then used to automatically transfer the content from one page into the style and layout of another.
+We show that Bricolage can learn to accurately reproduce human page mappings, and that it provides a general, efficient, and automatic technique for retargeting content between a variety of real Web pages.
+Designers in many fields rely on examples for inspiration , and examples can facilitate better design work .
+Examples can illustrate the space of possible solutions and how to implement those possibilities .
+Furthermore, repurposing successful elements from prior ideas can be more efficient than reinventing them from scratch .
+The Web provides a corpus of design examples unparalleled in human history: by 2008, Google had indexed more than one trillion unique URLs .
+However, we hypothesize that this rich resource is underutilized for design tasks.
+While current systems assist with browsing examples and cloning individual design elements, adapting the gestalt structure of Web designs remains a time-intensive, manual process .
+Most design reuse today is accomplished with templates .
+Templates use standardized page semantics to render content into predesigned layouts.
+This strength is also a weakness: templates homogenize page structure, limit customization and creativity, and yield cookie-cutter designs.
+Ideally, tools should offer both the ease of templates and the diversity of the entire Web.
+What if any Web page could be a design template?
+This paper introduces the Bricolage algorithm for transferring design and content between Web pages.
+The term "bricolage" refers to the creation of a work from a diverse range of things that happen to be available.
+Bricolage matches visually and semantically similar elements in pages to create coherent mappings between them.
+These mappings can then be used to automatically transfer the content from one page into the style and layout of the other .
+Bricolage uses structured prediction  to learn how to transfer content between pages.
+It trains on a corpus of human-generated mappings, collected using a Web-based crowdsourcing interface, the Bricolage Collector.
+The Collector was seeded with 50 popular Web pages that were decomposed into a visual hierarchy by a novel, constraint-
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In an online study, 39 participants with some Web design experience specified correspondences between page regions and answered free-response questions about their rationale.
+These mappings guided the design of Bricolage's matching algorithm.
+We found consistent structural patterns in how people created mappings between pages.
+Participants not only identified elements with similar visual and semantic properties, but also used their location in the pages' hierarchies to guide their assignments.
+Consequently, Bricolage employs a novel tree-matching algorithm that flexibly balances visual, semantic, and structural considerations.
+We demonstrate that this yields significantly more human-like mappings.
+This paper presents the Bento page segmentation algorithm, the data collection study, the mapping algorithm, and the machine learning method.
+It then shows results demonstrating that Bricolage can learn to closely produce human mappings.
+Lastly, it illustrates how Bricolage is useful for a diverse set of design applications: for rapidly prototyping alternatives, retargeting content to alternate form factors such as mobile devices, and measuring the similarity of Web designs.
+When this constraint is violated, the DOM is adjusted accordingly, taking care to preserve layout details when nodes are reshuffled.
+Third, redundant and superfluous nodes that do not contribute to the visual layout of the page are removed.
+Fourth, the hierarchy is supplemented to introduce missing visual structures.
+These structural elements are added by computing horizontal and vertical separators across each page region and inserting enclosing DOM nodes accordingly, similar to VIPS .
+At the end of these four steps, all page content is assigned to a leaf node in the DOM tree, and every non-leaf node contains its children in screen space .
+Bento is available as a web service and a BSD open-source C++ library at http://hci.stanford.edu/bento.
+To transfer content between Web pages, Bricolage first segments each page into a hierarchy of salient regions that can be extracted and manipulated.
+The page's Document Object Model  tree, which describes the page's content, structure, and style, provides a convenient starting point for this segmentation .
+Existing page segmentation algorithms begin by partitioning the DOM into discrete, visually-salient regions .
+These algorithms produce good results whenever a page's DOM closely mirrors its visual hierarchy, which is the case for many simple Web pages.
+However, these techniques fail on more complex pages.
+Modern CSS allows content to be arbitrarily repositioned, meaning that the structural hierarchy of the DOM may only loosely approximate the page's visual layout.
+In our 50-page corpus, we found disparities between the DOM and the visual layout an average of 2.3 times per page.
+Similarly, inlined text blocks are not assigned individual DOM elements, and therefore cannot be separated from surrounding markup.
+In practice, these issues render existing segmentation algorithms poorly suited to real-world Web pages.
+This paper introduces Bento, a page segmentation algorithm that "re-DOMs" the input page in order to produce clean and consistent segmentations.
+The algorithm comprises four stages.
+Next, the hierarchy is reshuffled so that parent-child relationships in the tree correspond to visual containment on the page.
+Retargeting Web pages is closely related to automatic document layout and UI generation.
+In these domains, the stateof-the-art is constraint-based synthesis , which begins with the designer building an abstract data model for each individual class of designs.
+While this strategy works well in highly-structured domains, the heterogeneous nature of the Web makes model construction impracticable.
+We hypothesized that a more general retargeting scheme could be produced by training a machine learning algorithm on human-generated mappings between pages.
+To this end, we created the Bricolage Collector, a Web application for gathering human page mappings from online workers.
+We deployed the Collector online, and analyzed the produced mappings to understand how people map Web pages.
+We selected a diverse corpus of 50 popular Web pages chosen from the Alexa Top 100, Webby award winners, highlyregarded design blogs, and personal bookmarks.
+Within this corpus, we selected a focus set of eight page pairs.
+Each participant was asked to match one or two pairs from the focus set, and one or two more chosen uniformly at random from the corpus as a whole.
+The Collector gathered data about how different people map the same pair of pages, and about how people map many different pairs.
+We recruited 39 participants through email lists and online advertisements.
+Each reported some Web design experience.
+We followed the standard approach, treating each rationale as a document and forming the termdocument matrix where each cell's value counts the occurrences of a term in a document.
+We used Euclidean normalization to make annotations of different lengths comparable, and inverse document-frequency weighting to deemphasize common words like a and the.
+LSA decomposes the space of rationales into semantic "concepts."
+Each concept is represented by a principal component of the term-document matrix, and the words with the largest projections onto the component are the concept's descriptors.
+For the first component, the words with the largest projections are: footer, link, menu, description, videos, picture, login, content, image, title, body, header, search, and graphic.
+These words pertain primarily to visual and semantic attributes of page content.
+For the second component, the words with the largest projections are: both, position, about, layout, bottom, one, two, three, subsection, leftmost, space, column, from, and horizontal.
+These words are mostly concerned with structural and spatial relationships between page elements.
+Participants watched a tutorial video demonstrating the Collector interface and describing the task.
+The video instructed participants to produce mappings for transferring the left page's content into the right page's layout.
+It emphasized that participants could use any criteria they deemed appropriate to match elements.
+After the tutorial, the Collector presented participants with the first pair of pages .
+The Collector interface iterates over the segmented regions in the content page one at a time, asking participants to find a matching region in the layout page.
+The user selects a matching region via the mouse or keyboard, and confirms it by clicking the MATCH button.
+If no good match exists for a particular region, the user clicks the NO MATCH button.
+After every fifth match, the interface presents a dialog box asking,"Why did you choose this assignment?"
+These rationale responses are logged along with the mappings, and submitted to a central server.
+Two statistics examine the mappings' structural and hierarchical properties: one measuring how frequently the mapping preserves ancestry, and the other measuring how frequently it preserves siblings.
+We define two matched regions to be ancestry preserving if their parent regions are also matched .
+A mapping's degree of ancestry preservation is the number of ancestrypreserving regions divided by the total number of matched regions.
+Similarly, we define a set of page regions sharing a common parent to be sibling preserving if the regions they are matched to also share a common parent .
+Participants generated 117 mappings between 52 unique pairs of pages: 73 mappings for the 8 pairs in the focus set, and 44 covering the rest of the corpus.
+Participants provided rationales for 227 individual region assignments, averaging 4.7 words in length.
+Participants provided rationales like "Title of rightmost body pane in both pages."
+We analyzed these rationales with Latent Semantic Analysis , which extracts contextual language usage in a set of documents .
+LSA takes a bag-of-words approach to textual analysis: each document is treated as an unordered collection of words, ignoring gram-
+The study's results suggest that mappings produced by different people are highly consistent: there is a "method to the madness" that may be learned.
+Moreover, the results suggest that algorithmically producing human-like mappings requires incorporating both semantic and structural constraints, and learning how to balance between them.
+Prior work in mapping HTML documents presents two distinct approaches.
+The second uses tree-matching techniques , which strictly preserve hierarchical relationships: once two nodes have been placed in correspondence, their descendants must be matched as well .
+The results from our study suggest that neither extreme is desirable.
+Bricolage introduces a novel optimization algorithm which flexibly balances semantic and structural constraints.
+The algorithm connects the nodes of the two page trees to form a complete bipartite graph, and for each edge, assigns a cost comprising three terms.
+The first term measures visual and semantic differences between the corresponding page elements, the second penalizes edges that violate ancestry relationships, and the third penalizes edges that break up sibling groups.
+Determining the best page mapping then reduces to finding a minimum-cost matching of the constructed graph.
+Bricolage uses structured prediction to learn a cost function under which the set of exemplar mappings are minimal .
+Formally, given two page trees with nodes T1 and T2 , we construct a complete bipartite graph G between T1  {1 } and T2  {2 }, where 1 and 2 are no-match nodes.
+These two nomatch nodes enable the model to track which nodes in one tree have no counterpart in the other.
+We then define a page mapping M to be a set of edges from G such that every node in T1  T2 is covered by precisely one edge.
+In this paper, given a tree node m, M  denotes its image .
+The algorithm assigns a cost c to each edge e  M , and aggregates them to compute the total mapping cost c = eM c.
+Bricolage then searches for the leastcost mapping M = argminM c.
+The sibling cost cs  penalizes edges that fail to preserve sibling relationships between trees.
+To calculate this term, we first define a few tree-related concepts.
+Let P  denote the parent of m. Then, the sibling group of a node m is the set comprising the children of its parent: S  = {C }.
+We define the cost of an edge e  T1 x T2 to be the sum of the visual, ancestry, and sibling costs c = cv  + ca  + cs .
+For the edges in G connecting tree nodes to no-match nodes, we fix the cost c = wn , where wn is a constant no-match weight.
+The edge between the two no-match nodes is assigned a cost of 0 to prevent it from influencing the final mapping.
+To compute cv , the algorithm compares visual and semantic properties of m and n by inspecting their DOM nodes.
+The Learning the Cost Model section describes this computation in detail.
+The ancestry cost ca  penalizes edges that violate ancestry relationships between the pages' elements.
+While this cost model balances semantic, ancestral, and sibling constraints, it cannot be used to search for the optimal mapping M directly.
+Although cv  can be evaluated for an edge by inspecting m and n, ca  and cs  require information about the other edges in the mapping.
+While we cannot precisely evaluate ca  and cs  a priori, we can compute bounds for them on a per-edge basis .
+Moreover, each time we accept an edge  into M , we can remove all the other edges incident on m and n from G. Each time we prune an edge in this way, the bounds for other nearby edges may be improved.
+Therefore, we employ a Monte Carlo algorithm to approximate M , stochastically fixing an edge in G, pruning away the other edges incident on its nodes, and updating the bounds on those that remain.
+To bound the ancestry cost of an edge   G, we must consider each child of m and n and answer two questions.
+First, is it impossible for this node to induce an ancestry violation?
+Second, is it unavoidable that this node will induce an ancestry violation?
+The answer to the first question informs the upper bound for ca ; the answer to the second informs the lower.
+A node m  C  can induce an ancestry violation if there is some edge between it and a node in T2   {2 }.
+Accordingly, we define indicator functions 1U a  = 1 if   G s.t.
+Figure 6 illustrates the computation of these bounds.
+Pruning edges from G causes the upper bound for ca  to decrease, and the lower bound to increase.
+Let S  consider a node m  S .
+To initialize M , the bipartite graph G is constructed and the edge bounds initialized.
+Then, the edges in G are traversed in order of increasing bound.
+Each edge is considered for assignment to M with some fixed probability  , until an edge is chosen.
+If the candidate edge can be fixed and at least one complete matching still exists, it is appended to M , the other edges incident on its terminal nodes are pruned, and the bounds for the remaining edges in G are tightened.
+To produce the rest of the matching, we repeat the iterative edge selection process described above.
+In our implementation, we take  = .7 and N = 100;  is chosen on a per-domain basis, based on the size of the trees.
+While this mapping algorithm can be used with any visual and semantic cost model and weights wn , wa , and ws , Bricolage seeks to learn a model that will produce human-like mappings.
+It employs a feature-based approach to compute the visual and semantic cost cv  between nodes, and trains the weights of these features and those for the no-match, ancestry, and sibling terms.
+The algorithm computes a set of visual and semantic properties for each node in the page trees.
+Visual properties are computed using a node's render-time appearance, and include attributes like width, font size, and mean RGB values.
+Semantic properties take Boolean values, computed by attribute tests such as "is an image" or "is contained in the header."
+The Appendix gives a full list of these properties.
+To approximate the optimal mapping M  , we use the Metropolis algorithm .
+We represent each matching as an ordered list of edges M , and define a Boltzmann-like objective function f  = exp  , where  is a constant.
+In each subThe perceptron begins by initializing w sequent iteration, the perceptron randomly selects a pair of page trees and an associated human mapping M from the training set.
+A current limitation of the content transfer algorithm illustrating the challenges of HTML/CSS.
+The target page's CSS prevents the bounding beige box from expanding.
+This causes the text to overflow .
+Also, the target page expects all headers to be images.
+This causes the "About Me" header to disappear .
+An improved content transfer algorithm could likely address both of these issues.
+The perceptron algorithm is only guaranteed to converge if the training set is linearly separable; in practice, it produces good results for many diverse data sets .
+Since the weights may oscillate during the final stages of the learning, the final cost model is produced by averaging over the last few iterations.
+This approach works well for many pages.
+Occasionally, the complexity and diversity of modern Web technologies pose practical challenges to resynthesizing coherent HTML.
+Many pages specify style rules and expect certain markup patterns, which may cause the new content to be rendered incorrectly .
+Furthermore, images and plugin objects  have no CSS style information that can be borrowed; when replaced, the new content will not exhibit the same visual appearance and may seem out of place.
+Lastly, embedded scripts are often tightly coupled with the original page's markup and break when na ively transferred.
+Consequently, the current implementation ignores them, preventing dynamic behavior from being borrowed.
+A more robust content transfer algorithm is required to address these issues and remains future work.
+Once a cost model is trained, it is fed to the matching algorithm, which uses it to predict mappings between any two pages.
+Bricolage then uses these computed mappings to automatically transfer the content from one page into the style and layout of another.
+In its segmented page representation, page content  lives on the leaf nodes of the page tree.
+Before transferring content, the inner HTML of each node in the source page is preprocessed to inline CSS styles and convert embedded URLs to absolute paths.
+Then, content is moved between mapped nodes by replacing the inner HTML of the target node with the inner HTML of the source node.
+Content matched to a no-match node can be handled in one of two ways.
+In the simplest case, unmatched source nodes are ignored.
+However, if important content in the source page is not mapped, it may be more desirable to insert the unmatched node into the target page parallel to its mapped siblings, or beneath its lowest mapped ancestor.
+Figure 10 demonstrates the algorithm in a rapid prototyping scenario, in which an existing page is transformed into several potential replacement designs.
+Creating multiple alternatives facilitates comparison, team discussion, and design space exploration .
+Figure 11 demonstrates that Bricolage can be used to retarget content across form factors, showing a full-size Web page automatically mapped into two different mobile layouts.
+Figure 9 illustrates an ancillary benefit of Bricolage's cost model.
+Since Bricolage searches for the optimal mapping between pages, the returned cost can be interpreted as an approximate distance metric on the space of page designs.
+Although the theoretical properties of this metric are not strong , in practice it may provide a useful mechanism for automatically differentiating between pages with similar and dissimilar designs.
+The perceptron was run for 400 iterations, and the weight vector averaged over the last 20.
+The learned cost model was used to predict mappings for each of the 8 focus pairs.
+Table 1 shows the comparison between the learned and reference mappings using three different metrics: average similarity, nearest neighbor similarity, and percentage of edges that appear in at least one mapping.
+The online mapping experiment found a 78% inter-mapping consistency between the participants.
+This might be considered a gold standard against which page mapping algorithms are measured.
+Currently, Bricolage achieves a 69% consistency.
+By this measure, there is room for improvement.
+However, Bricolage's mappings overlap an average of 78% with their nearest human neighbor, and 88% of the edges generated by Bricolage appear in some human mapping.
+This structured prediction approach was motivated by the hypothesis that ancestry and sibling relationships are crucial to predicting human mappings.
+We tested this hypothesis by training three additional cost models containing different feature subsets: visual terms only, visual and ancestry terms, and visual and sibling terms.
+Considering only local features yields an average nearest neighbor match of 53%; mapping with local and sibling features yields 67%; mapping with local and ancestry features yields 75%.
+Accounting for all of these features yields 78%, a result that dominates that of any subset.
+In short, flexibly preserving structure is crucial to producing good mappings.
+The current prototype employs thirty visual and semantic features.
+Adding more sophisticated properties--such as those based on computer vision techniques--will likely improve the quality of the machine learning.
+Future work could extend example-based design to other domains.
+The current Bricolage implementation is HTML specific.
+In principle, the retargeting algorithm can be applied to any document with hierarchical structure such as slide presentation and vector graphics files.
+With richer vision techniques , the Bricolage approach might extend to documents and interfaces without accessible structure.
+Finally, an important next step is to create a retargeting design tool that allows both novice and experts to more creatively use examples.
+Observing how people use such a tool will provide valuable research knowledge about the role examples can play in amplifying creativity.
+Bricolage's page segmentation, mapping, and machine learning libraries are implemented in C++ using the Qt framework, and use Qt's WebKit API in order to interface directly with a browser engine.
+Once a cost model has been trained, Bricolage produces mappings between pages in about 1.04 seconds on a 2.55 Ghz Intel Core i7, averaging roughly 0.02 seconds per node.
+The corpus pages are archived using the Mozilla Archive File Format and hosted on a server running Apache.
+For efficiency, page segmentations and associated DOM node features are computed and cached for each page when it is added to the corpus.
+Each feature has its own dynamic plug-in library, allowing the set of features to be extended with minimal overhead, and mixed and matched at runtime.
+The Bricolage Collector is written in HTML, Javascript, and CSS.
+Mapping results are sent to a centralized Ruby on Rails server and stored in a SQLite database.
+We thank Tim Roughgarden for helpful discussions about the matching algorithm; Chuong Do for helpful discussions about structured prediction techniques; Amy Jang for implementing machine learning features; Juho Kim and Kanya Siangliulue for helping prototype the Bricolage Collector; Mira Dontcheva and the reviewers for their helpful comments.
+This research was supported in part by NSF Grant IIS-0745320.
+This paper introduced the Bricolage algorithm for automatically transferring design and content between Web pages.
+Bricolage's major algorithmic insight was a technique for capturing the structural relationships between elements, and using an optimization approach to balance local and global concerns.
+This work takes a first step towards a powerful new paradigm for example-based Web design, and opens up exciting areas for future research.
+The Bricolage prototype uses the following DOM properties as features in the learning.
+The visual properties include: width, height, area, aspectRatio, fontSize, fontWeight, meanColor, numLinks, numColors, numChildren, numImages, numSiblings, siblingOrder, textArea, wordCount, treeLevel, verticalSidedness , horizontalSidedness , leftSidedness , topSidedness , and shapeAppearance .
+The semantic properties include: search, footer, header, image, logo, navigation, bottom , top , fillsHeight , and fillsWidth .

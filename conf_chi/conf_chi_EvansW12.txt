@@ -1,0 +1,251 @@
+We present the Input Observer, a tool that can run quietly in the background of users' computers and measure their text entry and mouse pointing performance from everyday use.
+In lab studies, participants are presented with prescribed tasks, enabling easy identification of speeds and errors.
+In everyday use, no such prescriptions exist.
+We devised novel algorithms to segment text entry and mouse pointing input streams into "trials."
+We are the first to measure errors for unprescribed text entry and mouse pointing.
+To measure errors, we utilize web search engines, adaptive offline dictionaries, an Automation API, and crowdsourcing.
+Capturing errors allows us to employ Crossman's  speed-accuracy normalization when calculating Fitts' law throughputs.
+To validate the Input Observer, we compared its measures from 12 participants over a week of computer use to the same participants' results from a lab study.
+Overall, in the lab and field, average text entry speeds were 74.47 WPM and 80.59 WPM, respectively.
+For mouse pointing, average movement times were 971 ms and 870 ms. Average pointing error rates were 4.42% and 4.66%.
+Device makers, researchers, and assistive technology specialists may benefit from measures of everyday use.
+Understanding human performance with input techniques has traditionally required controlled lab studies for accurate and rigorous quantification of speeds and errors .
+Hence, "breaking from the lab" has not occurred for input research as it has for other areas of HCI.
+While input-oriented field studies are seen occasionally , basic logging can only produce counts, proportions, and durations-of-use.
+In the wild, calculating text entry speeds in words per minute, or pointing speeds in milliseconds, requires parsing out portions of data input streams.
+Calculating error rates requires knowing what users intended to do.
+Such a requirement can feel frighteningly close to a need for mind-reading.
+Unsurprisingly, prior studies of pointing "in the wild"  ignored error rates.
+The Input Observer runs on Windows and measures text entry and mouse pointing by:  observing keyboard and mouse input streams using lowlevel hooks;  extracting "trials" where input behavior is directed, contiguous, and similar to behavior in the lab;  measuring speeds from "trial"-starts to "trial"-ends;  measuring errors by,  in the case of text, consulting adaptive offline dictionaries and the Bing search engine, and  in the case of mouse pointing, consulting the Windows Automation API and crowdsourced results with Mechanical Turk in which Turkers are asked to identify intended targets; and  measuring Fitts' law throughput .
+Crucially, our ability to measure pointing errors enables us to employ Crossman's  speed-accuracy correction based on the spread of hits around targets at the same distance  and of the same size .
+As pointing in the wild occurs without any notion of AxW conditions, we employ the G-means  and k-means++  clustering algorithms to extract post hoc AxW "conditions," similar to those used lab experiments .
+Without the use of Crossman's correction, throughputs cannot be normalized to make comparable, e.g., fast-but-sloppy users and slowand-careful users .
+There is a growing desire in human-computer interaction  to "break from the lab," i.e., to understand users' behavior, performance, attitudes, emotions, etc.
+Methods like ethnography and diary studies have supported this trend, as have novel tools for experience sampling  and behavior sensing and recognition .
+We envision at least three types of potential users of the Input Observer:  assistive technology specialists seeking to gain quantitative insights into clients' performance with devices in home settings, as such specialists have little time to match clients to the best possible devices ;  device manufacturers seeking to understand, through extended field testing, whether new prototypes outperform existing devices; and  researchers seeking to add an in situ component to their understanding of new input techniques and devices.
+Researchers may also seek quantitative models for parameterizing an automatic user interface generator such as SUPPLE  to create "ability-based user interfaces" tailored to users' motor skills without requiring a controlled test.
+In general, the Input Observer can be a tool for supporting various aspects of ability-based design .
+To validate the Input Observer, we compared its measurements of 12 participants over a week of everyday computer use to the performance by the same participants in controlled lab studies.
+Overall, in the lab and field, average text entry speeds were 74.47 WPM and 80.59 WPM, respectively.
+For mouse pointing, average movement times were 971 ms and 870 ms. Average pointing error rates were 4.42% and 4.66%.
+The primary contribution of this paper is the development of a new tool for measuring text entry and mouse pointing performance from everyday computer use based on two novel algorithms for extracting lab-like "trials" from undifferentiated text entry and mouse pointing input streams.
+Secondary contributions are:  an approach to measuring text entry errors using the web;  an approach to measuring pointing errors using crowdsourcing; and,  a method for applying Crossman's  speed-accuracy normalization to "wild" pointing data without prescribed target distances  or target sizes .
+Both studies found that pointing "in the wild" differs from pointing in the lab in important ways.
+Unlike the current work, however, these studies did not measure errors, extract post hoc AxW "conditions," apply Crossman's correction  in Fitts' law, or produce a reusable tool for others to employ.
+They also did not consider text entry at all.
+In other work, Hurst et al.
+In contrast, the Input Observer collects mouse and text entry data directly from the operating system and is therefore application-agnostic.
+We are not the first to attempt to identify real-world targets.
+The Accessibility API alone enabled the researchers to find 74% of on-screen targets, but when it was combined with machine learning and computer vision, 84% of targets were discovered.
+For a different approach, Dixon and Fogarty  used pixel-based matching methods to identify targets.
+We use yet another approach, namely a combination of the Windows Automation API 1 and crowdsourcing on Mechanical Turk to identify targets.
+An advantage of using crowdsourcing is that it enables us to identify pointing errors for the first time.
+The review above makes it clear that although pointing performance outside the lab has been touched on by prior work, everyday text entry has been largely ignored.
+In this section, we describe the Input Observer's approach to measuring text entry performance beyond the lab.
+In controlled studies of text entry performance, users transcribe presented phrases as "quickly and accurately as possible" .
+Each phrase is considered a single trial.
+Transcribing presented phrases ensures that participants only need to copy text, not compose it, which would ruin experimental control, error measurement, and reproducibility .
+Further, controlled text entry studies disallow the use of the mouse cursor or text cursor keys during entry, permitting backspace as the only mechanism for correction .
+Doing so enables error rate calculation , but limits the ecological validity of lab studies.
+Key performance measures calculated in controlled text entry studies are words per minute  and uncorrected error rates .
+Uncorrected errors are those remaining in the final transcribed string.
+There are also corrected errors, which are any characters backspaced during entry, but these are of less interest because error correction takes time and is therefore subsumed in WPM  .
+The Input Observer is produces all of these measures, but without presenting phrases for transcription.
+Instead, the tool examines the text input stream and extracts phrases, or "trials," in which text entry is continuous.
+Instead, the stream is segmented into "trials" as the participant types.
+Each "trial" has a start point--the first key-press--and an end point--the last key-press--before an identified segmenting event.
+In everyday text entry, finding the start and end points analogous to those from a controlled trial can be tricky.
+For segmenting events, we use the entry of end-ofsentence punctuation , the ENTER key, and characters not appearing in the MacKenzie and Soukoreff text entry phrase set .
+Successive capital letters and numbers are also segmenting events, as is any mouse movement.
+Pauses are also used for segmentation.
+However, a single pause value is not sufficient to properly segment everyday text input streams into "trials" similar to those from lab studies.
+Users pause for different lengths of time while typing depending on whether they are typing letters or backspaces, or transitioning between the two.
+Empirically, we observed from 9 participants that two successive nonbackspaces or backspaces were fastest ; a nonbackspace following a backspace was next ; and a backspace following a non-backspace was slowest .
+Adding 3 SD to each of these means gives us our three pause segmentation times: 1270 ms, 2085 ms, and 3215 ms. With the criteria above, some segmented phrases can be very short, even a few characters.
+Such phrases result in unreliable and inaccurate measures; therefore, to be logged as "trials," segmented phrases must contain at least 24 characters.
+This length is 1 SD less than the mean length of phrases in the MacKenzie and Soukoreff phrase set .
+Measuring text entry speed is straightforward once a "trial" is properly segmented .
+However, text entry error rates are much more complicated.
+A source of complication is distinguishing text entry errors from edits, described next.
+In a lab study, all backspaces can be regarded as error corrections because participants are attempting to match presented strings.
+Outside the lab, however, backspaces may correct errors, or they may indicate "changes of mind."
+We therefore must distinguish errors from edits, an issue that affects both corrected and uncorrected error rates.
+While backspaces from error corrections must remain in a "trial" to measure corrected error rates, backspaces from editing should not be included, as they do not reflect errors.
+To distinguish errors from edits, backspaced text is compared to the text entered in its place, word by word.
+If users stop backspacing partway through a word, as in Figures 1a & 1c, the partial word is extended up to the nearest space to make a complete word.
+If the backspaced word is not the same as the word that replaced it, the Bing API's spell query 2 is used to identify errors in the backspaced word.
+If the two words are the same, the original edits are considered errors .
+If Bing has no suggestion, or the suggested word and the re-entered word are different, then the backspaces and subsequent entries are edits, and the phrase is segmented just before the first backspace .
+As it does not equal "brown", the changes are called edits and no errors are counted.
+Corrected errors are characters that are backspaced during entry and therefore do not remain in the transcribed string .
+As described in the previous subsection, backspaces used to correct errors are distinguished from backspaces used to edit text.
+Therefore, when a user's log file is analyzed, the corrected error rate can be calculated simply from the backspaces recorded in the log.
+In controlled text entry studies, uncorrected errors are calculated using the minimum string distance between the presented and transcribed strings .
+The Input Observer has no presented strings, so uncorrected errors must be calculated from transcribed strings another way.
+To measure uncorrected errors, each "trial" is broken into words by looking for spaces and between-word punctuation.
+Each word is checked against an offline lexicon containing ~80,000 words from the freely available Washington University in St. Louis English Lexicon Project .
+If the word is found, it is considered correct.
+If the word is not found, the Input Observer calls the Bing API's spell query.
+If the word contains an error recognized by the API, the query returns a suggested word .
+In such cases, the word entered by the user is marked as containing one or more errors, and the suggested word from Bing is taken to be the intended word.
+The minimum string distance  between the entered word and the suggested word is calculated for the uncorrected error rate .
+To reduce repeat queries to the Bing API, suggested words returned by Bing are added to the offline lexicon.
+When no suggested word is returned from a spell query to the Bing API, the word entered by the user is either errorfree, or it contains an unrecognized error for which Bing cannot find an alternative.
+If the query returns any results, then the word has a definition and is taken to be correct and added to the lexicon.
+If no definition is found, then the word is marked as containing an unknown error and cached for later.
+At the end of text entry data collection, the average minimum string distance from words containing known errors is applied to all cached words containing unknown errors.
+Segmenting pauses frequently occur in the middle of words.
+Mid-word pauses can lead to partial words at the start and end of "trials," falsely inflating the uncorrected error rate.
+To address this issue, the initially-segmented phrase is maintained for the speed calculation but may be adjusted to complete partial words for the purpose of error-checking.
+If the last character before the pause is a letter or hyphen, it is assumed that the word was split by the pause and the first word of the next "trial" is adjusted to include the part of the word entered before the pause.
+Any errors that are found are only counted as part of the second "trial" to prevent errors from being counted twice.
+Other segmenting events, such as mouse movements and cursor key-presses, can also occur in the middle of words.
+In these cases, the position of the text entry cursor may have changed since the last entered text so it is not possible to complete partial words.
+Instead, if an error is found in the first word of a "trial" following such a segmenting event, that word is omitted from the uncorrected error calculation.
+As noted above, in lab studies, participants may only use backspace to correct errors .
+In everyday use, however, users can employ several methods, including the mouse and cursor keys, to position the text cursor for error correction.
+To date, no theoretical breakthroughs have enabled the handling of the mouse or cursor keys in text entry error measurement.
+As a result, errors corrected using the mouse or cursor keys remain in segmented "trials" and falsely appear as uncorrected errors.
+To address this for cursor keys, phrases segmented by them are not included in the calculation of uncorrected or corrected error rates.
+We do not address this issue for mouse-based error correction.
+Clearly, the Input Observer's text entry measurement features introduce privacy concerns, as every extracted text "trial" is recorded in a log file.
+The Input Observer's minimum trial length of 24 characters ensures that usernames and passwords are not logged.
+However, longer phrases of text from personal communications still raise privacy concerns.
+We added an obfuscation feature that causes the Input Observer to log the letter "m" in place of actual text.
+In this case, the Input Observer still performs the above measurements on entered text, stores the results,
+In addition, participants can turn off text entry logging at any time.
+The pointing performance measures calculated by the Input Observer are time , error rate , and throughput , an important combined speed-accuracy measure of efficiency .
+The Input Observer also generates MacKenzie et al.
+Unlike in controlled pointing studies, in everyday computer use, there are no defined trials or conditions.
+An important feature of the Input Observer is its ability to extract pointing "trials" that resemble pointing behavior in the lab and build post hoc "conditions" from myriad unsorted pointing events.
+The Input Observer is also the first to measure error rates for unprescribed pointing.
+Rosenbaum  argues that the leading explanatory theory of Fitts' law is Meyer et al.
+In this model, an aimed pointing attempt comprises a ballistic movement to the target vicinity and one or two optional corrective submovements for acquisition.
+The Input Observer examines mouse movements using this model to extract aimed pointing "trials."
+When the user signals the end of a pointing attempt with a click , the Input Observer moves through the movement backwards in time to find the "trial" start.
+This may be the first movement after a previous click, or it may be the first movement after the mouse velocity last fell to zero , whichever occurred closer in time to the current click.
+Prior to this scan, the mouse velocity is temporally resampled at 100 Hz and then smoothed using a Gaussian kernel filter with standard deviation parameter of 3 .
+With start and end points now identified, the smoothed velocity profile is scanned to find all local maxima and minima.
+The highest peak , representing the ballistic phase of the movement, should also be the first maximum.
+The submovement maxima are smaller than the ballistic maximum and occur later in time .
+The number of submovements can be set in the Input Observer's configuration dialog.
+If the number of submovements is less than or equal to the maximum set by the researcher, the movement data is retained as a "trial."
+Movements that exceed the allowable number of submovements are discarded.
+The maximum allowed in our study was three, one extra than prescribed by Meyer et al.
+Admittedly, uses of the Input Observer for alternative input devices  or users with motor challenges  would need to adjust this parameter.
+Turkers communicate target locations, dimensions, and pointing errors in one swift step by dragging a bounding box around the target for which they think the user was aiming .
+Turkers can also indicate with a checkbox that the intended target is not identifiable within the thumbnail image.
+In such cases, the "trial" is excluded from error rate and throughput calculations, regardless of whether the Automation API provided target dimensions.
+Each image is sent to three Turkers to ensure the accuracy of responses.
+Targets' left , top , width, and height from each Turker for each "trial" are compared.
+When two or more sets of results have all four values within 10 pixels of each other, the results are considered "in agreement," and the mean values are calculated and kept.
+Mechanical Turk results are also compared to results from the Automation API.
+In the case of agreement between Mechanical Turk and the Automation API, the Automation results are used.
+If there is agreement among Mechanical Turk results but the Automation API returns different target dimensions, the Automation results are ignored--such results can be misleading for missed targets and targets to which the API has no access, such as buttons on web pages.
+In our study, the Automation API was incorrect for 33% of the targets identified correctly by Turkers.
+Pointing errors are identified based on the target boundary results obtained.
+If the click-point is outside the identified target dimensions, the "trial" is marked as a pointing error.
+Of the 20,380 "trials" sent to Mechanical Turk by the Input Observer during our study, Turkers' bounding boxes agreed on target locations for 39.7%  of the thumbnails.
+Those "trials" in the other 60.3% either had results failing to agree or Turkers agreed that no target could be identified.
+Pointing time  can be calculated easily after extracting the velocity profile, but pointing error rate  and Fitts' throughput  calculations require knowing target locations and dimensions.
+When a user clicks, the clicked target's coordinates can sometimes be obtained through the Windows Automation API.
+However, a number of common targets, such as buttons in web pages, are not accessible through the Automation API.
+Also, the Automation API can only provide information on targets that the user successfully acquired--it cannot discern whether a user may have missed in the first place.
+To identify targets invisible to the Automation API and to identify pointing errors, we utilize Amazon's Mechanical Turk.
+3 For each extracted "trial," a thumbnail screenshot 300 x 300 pixels in size is captured at the click point.
+A dotted line representing the path of the mouse cursor up to the click-point and a picture of an arrow cursor are superimposed on the thumbnails .
+Even if the Automation API gives information about the widget the user clicked upon, the screenshots are sent to Mechanical Turk as the Automation results are not always reliable.
+Once the Mechanical Turk results have been compiled and "trials" with inconclusive target boundaries have been discarded, remaining "trials" are grouped into "conditions" by target distance  and target size  to produce Fitts' law models for each user.
+To understand the need for AxW "conditions," we must review Fitts' law lab studies.
+In lab studies, participants are presented with conditions defined by target distance  and target size , within which they perform numerous individual pointing trials .
+Subsequently, when fitting Fitts' law to a participant, each nominal AxW condition provides one data point to the set of points on which Fitts' linear relationship between index of difficulty and movement time is established.
+The data point for a single AxW condition is plotted as IDe , MT , where MT is the average movement time of trials in the AxW condition and IDe is the effective index of difficulty, which utilizes Crossman's  post hoc speedis calculated as accuracy normalization.
+IDe log2, where Ae is the average movement distance of trials in the given AxW condition and We reflects the spread of hits; in two dimensions, it is equal to 4.133xSDx,y, where SDx,y is the bivariate deviation of endpoints from their centroid .
+In using the Anderson-Darling test, G-means requires a significance value  to be specified, which we set based on the number of data points.
+Therefore, nonnormality is asserted if A2, the outcome of the AndersonDarling test, is greater than the critical value.
+Within each cluster, outliers in -space are defined as being more than 1.5xSDx,y from the centroid of the cluster.
+Similarly, temporal outlier "trials" with movement times longer than 1.5xSDMT from the cluster's mean movement time are also removed.
+Twelve percent of all "trials" were identified as spatial or temporal outliers.
+To ensure that the "conditions" used to produce Fitts' law models still contain sufficient points after outlier removal, only clusters with 10+ surviving data points are retained.
+Fifty-seven percent of "trials" contained fewer than 10 data points after outlier removal.
+We chose an IDe of 1 as the threshold for inclusion in the throughput calculation.
+Eight percent of "trials" were removed because IDe was less than 1.
+In our study, the Input Observer formed, on average, 14.1  clusters, or AxW "conditions," per participant.
+This number turned out to be close to the 18 conditions used in our lab study of 3 levels of A x 6 levels of W. On average, there were 12.7 "trials" in each cluster  and the IDe ranged from 1.01 to 5.80.
+At 300 x 300 pixels, the thumbnails extracted around clickpoints are large enough that a user's privacy could be compromised when the images are uploaded to Mechanical Turk.
+For example, when a user clicks in a mail program to read email, or clicks on a link in an online banking site, readable areas of potentially sensitive text may be visible.
+We have taken several steps to protect users' privacy.
+First, Tessnet2, 4 a .NET wrapper for the Tesseract OCR library , is used to identify areas of text in each thumbnail.
+Those areas are then blacked out .
+In addition, the Emgu wrapper 5 for OpenCV's  face detection library is used to find and black out faces .
+Although the text and face detection processes go a long way towards protecting privacy, they are not perfect.
+Therefore, a narrow "filmstrip" showing thumbnails queued for Mechanical Turk remains docked at the right side of the desktop for users to observe while the Input Observer is running .
+Users can see full-size images by hovering their mouse over thumbnails.
+The above procedure depends on having well-defined AxW conditions within which Ae and We can be calculated.
+These calculations are important for normalizing speed-accuracy tradeoffs and avoiding inflated throughputs that result from using nominal ID = log2 .
+AxW conditions also enable us to retain error trials, rather than discarding errors, which must be done when using nominal ID.
+But for pointing "in the wild," there are no inherent AxW conditions, resulting in prior work only using nominal IDs and disregarding errors .
+In seeking to utilize Crossman's  speed-accuracy correction and retain error trials, we enabled the Input Observer to cluster trials in our field data such that AxW "conditions" could naturally arise from the data itself.
+Given all pointing "trials" for a participant, the Input Observer clusters them into "conditions" using the nominal A and W parameters.
+After the AxW "conditions" are established, IDe can be calculated as usual.
+To find the groups of "trials" to serve as AxW "conditions" for a given user, that user's "trials," plotted as  ordered pairs, are clustered.
+The popular k-means algorithm  is not adequate because of the requirement that k, the number of clusters, be specified.
+Therefore, the G-means algorithm , which requires no specification of k, is used to cluster "trials."
+We augmented the G-means algorithm to use k-means++ , which provides better initial cluster centers to G-means as G-means iteratively searches.
+Gmeans uses the Anderson-Darling test for normality , the statistic from which, called A2, we adjust with Stephens'
+The text entry results were analyzed using StreamAnalyzer .
+FittsStudy  was used for the pointing lab sessions.
+In each AxW condition, participants performed 23 trials, the first 3 of which were practice.
+Circular two-dimensional targets were used.
+The lab studies were conducted and analyzed based on prior work .
+Our evaluation of the Input Observer comprised a weeklong field deployment and lab tests of participants' text entry and pointing performance.
+The lab results provided a baseline to which we compared the Input Observer data.
+It is important to note that human behavior differs between the lab and the field, and so there is no a priori reason to expect results from the Input Observer to exactly match those from the lab.
+Rather, our comparison is for gaining confidence that the Input Observer's measurements are not horribly awry.
+Twelve participants ran the Input Observer on their own computers for the equivalent of one work-week.
+Five participants provided both text and mouse data, 5 provided only mouse data, and 2 provided only text data.
+All participants providing pointing data used an optical mouse.
+Table 1 summarizes participant demographics and the amount of field data collected.
+Although of lesser importance  , corrected errors were also measured.
+Recall that due to theoretical limitations, backspaces are the only error correction mechanism allowed in lab studies.
+In the field, however, error correction may also employ the mouse or cursor keys.
+Unfortunately, until theoretical breakthroughs incorporating such mechanisms are made, these error correction activities will remain elusive to tools like the Input Observer.
+Note that movement times are dependent upon the A and W task parameters.
+A benefit of Fitts' law, of course, is that it is independent of A and W and only considers their ratio.
+That movement time is longer in the lab than the field indicates that lab targets may have been further away or smaller than those encountered in the field.
+For text entry uncorrected error rates, both lab and field rates were nearly zero, but the field results were higher.
+Manual review of our log files showed that the differences were largely due to actual human behavior differences between lab and field, with more errors occurring in the field.
+One reason for this could be differences in the need for accurate spelling.
+In controlled studies, participants are told to be both fast and accurate.
+This resembles formal writing situations where accuracy is important.
+However, in informal writing, such as instant messaging, accuracy is less important and may even be undesirable, as error correction slows typed conversations.
+We also manually crosschecked the Bing API to see how reliably it detected text entry errors.
+In most cases, the Bing API was good at catching errors.
+However, it occasionally marked error-free proper nouns, such as event names, as containing unknown errors.
+Although the Input Observer follows up on words not found by the Bing spell query with a web search to define the unknown word, Bing does not always return definition results for proper nouns.
+Google, on the other hand, does return definitions for proper nouns.
+Initially, the Input Observer used Google for text errors.
+However, Google changed its API during our project, necessitating the switch to Bing.
+Fortunately, proper nouns comprised only about 2% of words per participant.
+Corrected error rates were different between the lab and field.
+Concern over corrected errors is mitigated by two points:  although corrected error rates give insight into the text entry process, they do not say much about the ultimate speed or accuracy of a method, as they are subsumed in WPM and, for methods with efficient error correction, do not imply that inaccurate text will be ultimately produced; and  forms of text entry error correction available in the field, such as using the mouse or text cursor keys, are not allowed in lab settings due to a theoretical inability to accommodate such behaviors in error rate analyses.
+Our manual review of field log files reveals that our participants frequently used the text cursor keys.
+Although we can see that a cursor key was used, we cannot see whether it was used to correct an error, make an edit, or even to scroll a web page or Adobe PDF file.
+We are pleased with the Input Observer's ability to calculate pointing errors using crowdsourcing.
+Error calculation enabled the use of Crossman's  speedaccuracy normalization in calculating Fitts' throughputs.
+Although calculating pointing errors, Crossman's correction, and Fitts' throughputs required substantial infrastructure involving Automation APIs, crowdsourcing on Mechanical Turk, and data clustering with G-means  and k-means++ , we were able to extract "trials" from field data and obtain performance measures that were similar to lab results.
+Recall that throughput is a combined speed-accuracy measure of pointing efficiency.
+Table 4 gives the Fitts' law models for each participant's lab and field data.
+Figure 6 shows an example plot of MT  by IDe  for one participant's extracted field data.
+A better understanding of application and environmental context and how it affects text entry and mouse pointing would be useful to this work.
+Supporting pointing devices other than conventional mice such as touchpads, trackballs, or isometric joysticks is also important, as these devices produce different submovement profiles .
+An Input Observer for mobile devices would be useful for the study of "situational impairments" .
+Similarly, enabling the Input Observer to segment text entry and mouse pointing for users with different abilities, such as older users , children , or people with motor impairments , is an important future step.
+The Input Observer already exposes parameters for the number of allowable submovements, and additional "knobs" are foreseeable.
+Finally, a challenging future topic is the extension of text entry error correction measurement to include not just the backspace key, but also the mouse and cursor keys.
+The Input Observer is a potentially useful tool enabling field data to be gathered and analyzed unobtrusively and with sensitivity to privacy.
+We have shown that it is possible to extract lab-like "trials" and associated measures from everyday text entry and mouse pointing.
+Doing so entails inferring users' intentions with online resources such as web search and crowdsourcing.
+Our work may benefit researchers, device makers, and assistive technology specialists interested in evaluating and measuring performance during extended periods of "wild behavior."
+This work was supported in part by the National Science Foundation under grant IIS-0952786.
+Any opinions, findings, conclusions or recommendations expressed in this work are those of the authors and do not necessarily reflect those of the National Science Foundation.

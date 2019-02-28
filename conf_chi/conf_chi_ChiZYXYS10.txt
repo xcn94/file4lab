@@ -1,0 +1,165 @@
+Dandelion is a tool that extends wikis to support coordinated, collaborative authoring using a tag-based approach.
+Specifically, users can insert tags in a wiki page to specify various co-authoring tasks.
+These tags can then be executed to help drive and manage the collaboration workflow, and provide content-centric collaboration awareness for all the co-authors.
+Four successful pilot deployments and positive user feedback show the practical value of Dandelion, especially its value in supporting a structured, collaborative authoring process often seen in business settings.
+Wikis have become a common tool used by many to author a document together.
+For example, a team of engineers may use a wiki to create a product manual together.
+For various reasons , collaborative authoring especially in a business setting often requires coordination, including assigning authors to specific sections and managing their progresses .
+Nevertheless, wikis do not directly support coordinated, collaborative authoring.
+As a result, users often face two challenges in such a process.
+First, users need to use a wiki and additional tools together to do their work.
+For example, a lead author may use a wiki to input content, while using email or phone to coordinate the contributions from others.
+Frequent interruptions on users' writing not only can impact the document quality, but may also raise their level of annoyance and anxiety .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+This lack of awareness prevents an effective collaboration .
+To address the above challenges, we are building Dandelion on top of a wiki to support coordinated, collaborative authoring.
+Dandelion employs a tag-based approach that allows users to use tags to specify co-authoring tasks directly within a wiki .
+These tags can then be executed by Dandelion to automatically drive the collaboration workflow .
+The tags are also used to record co-authors' activities and status and thus provide users with the desired awareness especially in the context of associated content .
+As the result, Dandelion extends wikis from two aspects.
+First, it extends wikis to support tag-based collaboration management with little interruptions on a user's primary task of content authoring.
+Second, it extends wikis to support content-centric collaboration awareness .
+Since April 2009, we have deployed Dandelion in four successful pilot trials in our company, involving about 70 users.
+All trials have lasted several months and are still continuing.
+We have also conducted surveys and interviews of pilot users in various roles .
+Researchers have worked on extending wikis to provide awareness for collaborative writing .
+Similar to these systems, Dandelion also supports group awareness in a collaborative writing process.
+However, it tightly integrates the awareness features within document content instead of separating them as other systems do.
+Another piece of related work is to use annotations to guide users in collaborative writing .
+In these systems, annotations are meant for humans to read and then follow a workflow.
+In contrast, annotations  in Dandelion are "runnable" and can be invoked to automatically drive a collaboration workflow.
+For example, tags are used to specify authoring tasks and can be invoked to automatically send email notifications to the designated users.
+There is also work on supporting collaboration workflows within semantic wikis .
+While this work focuses on the semantic model of a workflow, Dandelion is on the user interaction aspects .
+Wikis are designed to support collaborative authoring, which is a complex process involving various user roles and tasks .
+For the scope of this work, currently we support two key user roles and their associated tasks that are most common to coordinated, collaborative authoring practices in business settings .
+To best support the two user roles and associated tasks mentioned above, Dandelion is designed to meet two goals.
+First, Dandelion must help users better manage a collaborative authoring process  to minimize interruptions on their own content writing.
+Second, Dandelion must help increase users' awareness of each other's activities and status for a more transparent and efficient collaboration.
+Next, we describe how our design guidelines and implementation help meet the two design goals.
+In many business settings, collaborative authoring often requires the role of a coordinator, who initiates and manages the overall process.
+For example, a sales manager leads his team to co-write a sales report; and a project lead organizes her members to co-author project updates.
+In such cases, a coordinator often performs three main tasks:  define authoring tasks for individual members ,  manage member progresses , and  write part of content.
+To minimize interruptions, our first design guideline is to let a user performs all her tasks in the main workspace.
+In our case, the main workspace is a wiki page where the content is being created, edited, and viewed.
+To support all tasks of a user in a wiki, we are inspired by a tag-based approach to document authoring.
+For our purpose, tags are directly attached to the content inside a wiki page to indicate related activities and status.
+Tags can also be executed to drive a collaboration flow .
+Since we now only handle tags that specify co-authoring tasks, we refer to them as task tags.
+Second, we want the use of tags to be an integral feature of a wiki.
+To do so, we support tag editing  in a wiki edit mode.
+This design makes tag editing a natural part of the content editing, minimizing the interruptions on a user's primary task of content writing.
+This feature also supports our observed user behavior in practices.
+Users often define authoring assignments while they are writing or editing specific portions of a document.
+Third, we want task tags to have simple and unambiguous semantics.
+This is to allow tags to be easily defined and understood by intended recipients .
+Specifically, Dandelion needs to extract task parameters  to drive the collaboration process .
+To do so, we decide to use a tag widget with structured fields instead of a plain text-based tag .
+Besides coordinators, Dandelion supports the role of a participant, who is a co-author invited by a coordinator to write designated sections of a document.
+A participant's main task is to handle the received writing assignments in one of the three ways:  accept to write the specified sections,  reject, and  delegate part or whole to others.
+To support flexible user roles in a dynamic collaborative authoring process , Dandelion allows a participant to initiate authoring tasks in the same workflow .
+In this case, the participant plays the role of a local coordinator, managing the initiated authoring tasks.
+Fourth, we want to use task tags to provide collaboration awareness for all the co-authors.
+This is because task tags already contain information about collaborators' activities and status.
+They are to be dynamically updated and visually encoded to reflect the evolving task status.
+Last, we are careful about preserving standard wiki features to make Dandelion a natural extension of wikis.
+Like working in a regular wiki, coordinators can enter and modify content anywhere in a wiki page.
+Similarly, participants can enter content in their designated space or any unrestricted areas of the page.
+However, they can only view but not modify others' work unless they are invited to do so.
+Upon receiving the email notification of a writing assignment, a participant can follow the URL link embedded in the email to open the wiki page.
+The participant is directed to enter content in the designated area right below the task tag.
+S/he can also reject or transfer the task by clicking on the corresponding button next to the tag .
+When a task is transferred, Dandelion automatically updates the participant field of the transferred task with new participants .
+The corresponding log field is also updated to indicate the transfer path .
+This information is useful for users to keep track of re-routed tasks.
+We have also added the Submit button to allow a participant to submit her finished work .
+Once the work is submitted, it is available for the coordinator and other coauthors to view.
+Currently, Dandelion does not allow others to view one's writing prior to its submission.
+This decision is mainly based on our preliminary user survey, where most users did not want others to view their work in progress.
+We have implemented Dandelion on top of Lotus Connections 2.5 Wikis.
+On the client side, we used JavaScript and Dojo to augment Wikis with task tags and support user interaction with the tags.
+On the server side, we implemented collaboration management functions in Java and added them to Wikis.
+We describe our implementation of task tags and then the functions that support the use of the tags.
+In our current implementation, a task tag has five fields that describe key aspects of a collaborative writing process .
+Three of them are user-defined: participants, due time, and task description.
+The remaining two are reserved for Dandelion to track and update a collaboration flow: status and log .
+Although we could use more fields to describe collaborative authoring , so far the five fields are sufficient for Dandelion.
+The appearance of our task tags is inspired by Post-it flag, a plastic strip that is widely used to attach to the side of a document to flag its specific sections.
+A user can toggle among its three display modes: full, summary, and iconic view .
+Additional visual cues  are used to differentiate the tag content from the document content.
+For example, we use arrow direction to indicate the task flow related to the current user .
+To support the role of a coordinator, Dandelion allows a user to:  Add Task: creating a task tag to assign participants to a specific section,  Send Task: triggering Dandelion to email task recipients, and  Remind: triggering Dandelion to send an email reminder to designated participants.
+Once a tag is added, our current implementation permits only the tag creator to edit its fields.
+A valid authoring task must have participants specified.
+Dandelion allows users to specify participants' names or email addresses .
+It eventually maps all names to email addresses before emailing designated participants about their tasks upon a Send Task request.
+On the server side, we implemented an event-driven finite state machine to handle various user requests  and drive the collaboration flow .
+Currently, we restrain Dandelion not to act on its own.
+For example, Dandelion does not send users automatic reminders for overdue tasks.
+We deployed Dandelion in our company in April 2009 and about 70 users used Dandelion by the end of August.
+Among Dandelion usage scenarios, we have closely followed five pilot trials, each of which has lasted several months.
+These five pilots are:  composing monthly department newsletters by a manager and her 20+ team members;  writing quarterly lab highlights by a communication specialist and 12+ managers;  synthesizing weekly project meeting agenda by a manager and her 10+ members;  creating daily scrum notes by a project leader and a team of 20+ software developers; and  writing a product proposal by 10+ researchers and business people.
+Among the five pilots, the first four were considered successful as the users routinely used Dandelion to create target documents and continue doing so.
+However, the users of the fifth pilot abandoned Dandelion before the proposal was completed.
+We examined the five pilot usages closely to better understand the rationale behind the outcome.
+We observed that the nature of the task in P1-4 differs from that of P5.
+In P1-4, there has been a clear leader who played the role of a coordinator .
+The leader also knew the outline of the document and easily divided up the writing among the members.
+In contrast, there was not a clear leader in P5, nor was the outline of the proposal crisp.
+In addition, both the content and structure of the proposal changed rapidly from time to time.
+In this case, Dandelion's key features such as adding task tags were hardly used.
+The users only used the basic wiki features to list to-dos or summarize discussions.
+For free-formed collaborative authoring, Dandelion adds little on top of a standard wiki.
+To better understand users' behavior in Dandelion and their attitude toward various Dandelion features, we conducted a preliminary user survey.
+Based on the logged usage data, we surveyed ten Dandelion users.
+All of them have routinely used Dandelion for their activities in one of the four successful pilots.
+Two of them acted as coordinators and 8 were regular participants.
+Our survey mainly probed the users for feedback on usability  and usefulness of Dandelion.
+We devised a set of statements to describe the ease-of-use and the usefulness of each Dandelion key feature .
+Our sample statements included: "It is easy to add a task during my content editing" , and "It is useful to have Dandelion send emails to participants about their tasks" .
+We then asked the users to rate how much they would agree with the statements on a 7-point Likert scale .
+Finally, we asked the users about their most and least liked features of Dandelion and suggestions for enhancements.
+All users thought Dandelion was easy to use .
+Both coordinators believed that the most useful awareness features  were their participants' working status and the task delegation path.
+The eight participants also believed it was useful  to be aware of their peers' status.
+One user said: "I like to know others' status.
+If everyone has submitted their work, I'd better hurry up to finish mine."
+Another user also mentioned "I think that wikis support similar features but it may not put people and their content together as Dandelion did.
+So we can easily see who wrote what and what their status is".
+The users didn't think the feature of hiding task tags useful .
+They mentioned that tags should always be visible to provide collaboration awareness.
+We noticed that all documents created so far in our pilots were short  with about 10 tags.
+In such cases, task tags didn't seem interfering with the content flow.
+The situation might be different in longer documents especially with a number of distributed authoring tasks.
+It is also interesting to note the opposite opinions on making one's work in progress available to others.
+Coordinators strongly preferred to view the participants' work in progress .
+Their main rationale is that "I'd like to see it earlier so I can give them my feedback".
+On the opposite, participants strongly opposed to disclosing their unfinished products  until they were ready.
+Another conflict of opinion is on the use of reminders.
+Coordinators very much liked the feature of having Dandelion send reminders to designated participants .
+However, the participants did not think reminders much useful .
+From these two sets of conflicted opinions, we sensed that there was a need of balancing both coordinators' and participants' preferences.
+Further studies are warranted to better understand what these preferences are and how to balance them.
+When asked their most and least liked features, coordinators liked the use of tags to manage a co-authoring process.
+One user commented "I often work with more than 10 people on our weekly meeting agenda.
+In Dandelion, I just need to draft an outline and add a bunch of tags to assign people to write different parts.
+All gets done at once."
+For other users, their most favorite feature was that Dandelion directs them to the designated area after opening a wiki page.
+Most users did not list the least-liked features.
+However, all users suggested that it is desirable to abstract templates or template fragments from composed documents for their reuse.
+One user said "I don't want to start from scratch every time.
+It would be great to get a template from my previous compositions and I can then use it to start the new one".
+Since Dandelion records both task tags and content in a document, it would be interesting to explore whether both data are needed in generating a template.
+We have presented Dandelion, a tool that extends wikis to support coordinated, collaborative authoring.
+It lets users insert task tags in a wiki page to specify co-authoring tasks for a group of people.
+These tags can then be executed to drive the collaboration flow.
+Task tags are also used to provide collaboration awareness for all users involved in the process, including co-authors' activities and status.
+Moreover, four successful real-world pilot trials demonstrate the usefulness of Dandelion especially in structured, collaborative authoring situations with designated coordinators.
+Dello K., Nixon L., Tolksdorf R., Extending the Makna Semantic Wiki to support Workflows, in Proc.
+Haake, J. M., Neuwirth, M. C., Collaborative authoring of hypermedia documents.
+Kasemvilas S. and Olfman L., Design alternatives for a MediaWiki to support collaborative writing in higher education classes.
+Kittur, A., Lee, B. and Kraut, R. Coordination in Collective Intelligence: The Role of Team Structure and Task Interdependence.
+Liccardi, I., Davis, H.C, White, S., CAWS: Visualizing awareness to improve the effectiveness of co-authoring activities.
+Posner, I. R., and Baecker, R. M., How people write together.
+Weng, C. and Gennari, J. Asynchronous collaborative writing through annotations.
+Zheng Q., Booth K., McGrenere J., Co-authoring with structured annotations.

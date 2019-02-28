@@ -1,0 +1,336 @@
+Statistical topic models can help analysts discover patterns in large text corpora by identifying recurring sets of words and enabling exploration by topical concepts.
+However, understanding and validating the output of these models can itself be a challenging analysis task.
+In this paper, we offer two design considerations -- interpretation and trust -- for designing visualizations based on data-driven models.
+Interpretation refers to the facility with which an analyst makes inferences about the data through the lens of a model abstraction.
+Trust refers to the actual and perceived accuracy of an analyst's inferences.
+These considerations derive from our experiences developing the Stanford Dissertation Browser, a tool for exploring over 9,000 Ph.D. theses by topical similarity, and a subsequent review of existing literature.
+We contribute a novel similarity measure for text collections based on a notion of "word-borrowing" that arose from an iterative design process.
+Based on our experiences and a literature review, we distill a set of design recommendations and describe how they promote interpretable and trustworthy visual analysis tools.
+To make sense of complex data, analysts often employ models: abstractions  that represent data in terms of entities and relationships relevant to a domain of inquiry.
+Subsequent visual representations may depict a model, source data, or both.
+A central goal of visual analytics research is to augment human cognition by devising new methods of coupling data modeling and interactive visualization .
+By suppressing noise and revealing structure, model-driven visualizations can greatly increase the scale of an analysis.
+However, unsuitable or unfamiliar abstractions may impede interpretation.
+Ideally, model abstractions should correspond to analysts' mental models of a domain to aid reasoning.
+Reliable discoveries arise from analysts' ability to scrutinize both data and model, and to verify that a visualization shows real phenomena rooted in appropriate model assumptions.
+The curious case of Petroleum Engineering.
+The top visualization shows a 2D projection of pairwise topical distances between academic departments.
+In 2005, Petroleum Engineering appears similar to Neurobiology, Medicine, and Biology.
+Was there a collaboration among those departments?
+The bottom visualization shows the undistorted distances from Petroleum Engineering to other departments by radial distance.
+The connection to biology disappears: it was an artifact of dimensionality reduction.
+The visual encoding of spatial distance in the first view is interpretable, but on its own is not trustworthy.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Consider the visualizations in Figure 1, which depict "topical similarity" between university departments in terms of their published Ph.D. theses.
+We fit a statistical topic model  to the text and compute similarity using the angle  between departments' topic vectors.
+In the top view, we project departments to 2D via principal component analysis of the similarity matrix.
+Using this visualization we note an unexpected trend: over the years Petroleum Engineering pulls away from other engineering departments, and in 2005 it is situated between Neurobiology, Medicine, and Biology.
+This observation comes easily, as the visualization is readily interpretable: pixel distance on the screen ostensibly represents topical similarity.
+However, the display is the result of a chain of transformations: topic modeling, similarity measures, and dimensionality reduction.
+Can an analyst trust the observed pattern?
+The bottom view instead shows undistorted distances from Petroleum Engineering to the other departments.
+The relationship with Biology evaporates: it is an artifact of dimensionality reduction.
+Stripping a layer of modeling  enables validation and disconfirms the initial insight.
+In this paper we introduce interpretation and trust, two design considerations for model-driven visual analytics.
+We define interpretation as the facility with which an analyst makes inferences about the underlying data and trust as the actual and perceived accuracy of an analyst's inferences.
+Designs lacking in either restrict an analyst's ability to generate and validate insights derived from a visualization.
+Our understanding of these issues is shaped by our experiences designing the Stanford Dissertation Browser and refined via a survey of text analysis and visualization research.
+The Dissertation Browser is a visual analysis tool for investigating shared ideas and interdisciplinary collaboration between academic departments.
+We initially envisioned an interface using existing statistical models.
+However, we quickly arrived at a working visualization that revealed unexpected shortcomings in the underlying model.
+Our design work instead involved close collaboration among HCI and NLP researchers to develop and evaluate models that better supported our analysis goals.
+In a subsequent literature review, we observed that many tools lack consideration of how model abstractions align with analysis tasks; iterative design often focuses on the visual interface alone, not modeling choices.
+In this paper, we first present selected examples from prior work, drawing attention to issues of interpretation and trust as well as highlighting successful design decisions.
+We then describe our experience of building the Dissertation Browser.
+In the process, we contribute a novel similarity measure for text collections based on the notion of "word-borrowing" and show how it arose from our iterative design process.
+Finally we contribute a series of design process recommendations for constructing interpretable and trustworthy visual analysis systems.
+While we focus on the domain of exploratory text analysis, we believe our recommendations can help inform the design of a wide range of model-driven visualizations.
+Word clouds are a popular visualization method used to summarize unstructured text.
+A typical word cloud shows a 2D spatial arrangement of individual words with font size proportional to term frequency.
+Despite documented perceptual issues , word clouds are regularly found both in analysis tools and across the web .
+Though simple, a word cloud rests on a number of modeling assumptions.
+Input text is typically treated as a "bag of words": analyses focus on individual words ignoring structures  and semantic relationships .
+Most implementations assume raw term counts are a sufficient statistic for indicating the importance of terms in a text.
+The ostensible goal of most word clouds is to provide a highlevel summary of a text.
+Is the visualization well suited for the task?
+A strength of word clouds is that they are highly interpretable and directly display the units of analysis, words and word-level statistics.
+Users can readily assess word distributions and identify key recurring terms.
+Studies found summary information provided by a word cloud can help form meaningful impressions  and answer broad queries .
+To enable more specialized tasks, however, changes are required to the underlying language model.
+For decades, researchers have anecdotally noted that the most descriptive terms are often not the most frequent terms .
+Significant absence of a word can be a distinguishing indicator of a document's content relative to a corpus.
+To better support document comparison, Parallel Tag Clouds  apply G2 statistics to surface both over- and under-represented terms.
+Others note that single words account for only a small fraction of descriptive phrases used by people .
+To better capture sentiment in restaurant reviews, Review Spotlight  extends the bag-of-words model to consider adjective-noun pairs .
+By modifying the unit of analysis, the tool improves impression formation while retaining a familiar visual design.
+In-depth analyses may require more than inspection of individual words.
+Analysts may want additional context in order to verify observed patterns and trust that their interpretation is accurate.
+For example, does the presence of the word "matrix" indicate an emphasis on linear algebra, the use of matrices to represent network data, or a scatterplot matrix for statistical analysis?
+Interactive techniques can provide progressive disclosure across modeling abstractions, e.g., selecting a word in a cloud can trigger highlighting of term occurrences in a view of the source text.
+In other tools, changes in visual design are accompanied by corresponding changes in the model.
+WordTree  discloses all sentences in which a term occurs using a tree layout.
+Taking into account the frequency of adjacent terms, WordTree expands branches in the tree to surface recurring phrase patterns.
+DocuBurst  applies radial layout to show word hierarchy; the tool infers word relationships by traversing the WordNet hypernym graph.
+A rich and growing literature considers the use of modeling methods to drive text visualizations.
+Many, such as tag clouds , analyze documents by their constituent words to support impression formation , augment search , reveal language structure , or aid document comparison .
+For large corpora, a common approach is to model document similarities, and visually convey patterns in the corpus via dimensionality reduction .
+A related literature concerns "science mapping" , often via 2D projection of academic citation networks.
+Here, we review in greater detail a subset of this prior work.
+A growing body of visual analytics research attempts to support document understanding using topic modeling.
+Latent Dirichlet allocation   is a popular method of discovering latent topics in a text corpus by automatically learning distributions of words that tend to co-occur in the same documents.
+For example, a "physics" topic may contain with high probability words such as "optical," "quantum," "frequency," "laser," etc.
+Simultaneously, LDA recovers the per-document mixture of topics d that best describes each document.
+For example, a document about using lasers to measure biological activity might be modeled as a mixture of words from a "physics" topic and a "biology" topic.
+Latent topics are often presented to analysts as a list of probable terms , which imposes on the analysts the potentially arduous task of inferring meaningful concepts from the list and verifying that these topics are responsive to their goals.
+In this case, modeling abstraction increases the gulf of evaluation  required to interpret the visualization.
+Evaluations of existing visualizations indicate that an analysis of "topical concepts" can provide an overview of a collection , but that the value of the model decreases when the analysis tasks become more specific .
+Beyond "highlevel understanding," many existing systems  stop short of identifying specific analysis tasks or contexts of use.
+This omission makes it difficult to assess their utility.
+Notable issues of trust arise in the application of topic models to specific domains.
+To characterize research output, the authors applied LDA to uncover 700 latent topics in 110,000 grants over a four-year period.
+To verify that the topics accurately capture significant research fields, the authors manually rated individual topics and noted the presence of a large number of "junk" or nonsensical topics.
+The authors modified the model by removing 1,200 non-informative words from the analysis and inserting 4,200 additional phrases.
+The authors then performed extensive parameter search and removed poor topics from the final model before incorporating model output into their analysis.
+The authors applied LDA on 14,000 papers published at multiple conferences to analyze research trends over time, and recruited experts to verify the quality of every topic.
+The experts retained only 36 out of 100 automatically discovered topics, and manually inserted 10 additional topics not produced by the model.
+In many real-world analyses, extensive research effort is spent on validating the latent topics that support the analysis results.
+In contrast to other text visualization systems, these tools exhibit clearly-defined units of analysis and provide strong support for model verification, model modification, and progressive disclosure of model abstractions.
+First, the units of analysis  are well-aligned to the analysis tasks.
+The entity-relationship model provides an interpretable analytical abstraction that can be populated by statistical methods  and modified by manual annotations  or other override mechanisms .
+Jigsaw uses a simple heuristic to determine relations among entities: co-occurrence within a document.
+This model assumption is readily interpretable and verifiable, but might be revisited to infer more meaningful links.
+To foster trust, Palantir provides an auditable history for inspecting the provenance of an observed entity or relation.
+Progressive disclosure, particularly in the form of linked highlighting, is used extensively by both Jigsaw and Palantir to enable scalable investigation and verification.
+According to Jigsaw's creators, the "workhorses" of the tool are the list view  and the document view .
+In contrast, Jigsaw's cluster view receives less use, perhaps due to the interpretation and trust issues inherent in assessing an arbitrary number of automatically-generated groupings.
+Across these examples, we note that successful model-driven visualizations exhibit relevant units of analysis responsive to delineated analysis tasks.
+However, we also find that many text visualizations fail to align model abstractions with realworld tasks; iterative design often considers interface elements, but not modeling choices.
+These observations emphasize a recurring lack of attention to model design and a need for principled approaches.
+In the remainder of this paper, we share both a case study exploring these issues and a set of process-oriented design guidelines for model-driven systems.
+Our interest in model-driven visualization stems from our experiences working on an interdisciplinary team involving social scientists, NLP and HCI researchers.
+We were tasked with investigating the impact of interdisciplinary collaboration at Stanford University.
+Our approach adopted the idea that we could identify influences and convergent lines of research across disciplines by detecting shared language use within university-wide publications.
+Manually reading the document collection is infeasible due to both the size of the corpus and the expertise required to discern topical overlap between papers.
+The project also receives the attention of university administrators who wish to evaluate the effectiveness of various research institutes on campus.
+Do multi-million dollar collaborative centers return suitable intellectual dividends?
+Our collaboration has resulted in the Stanford Dissertation Browser, a visual analysis tool for exploring 16 years of Ph.D. theses from 75 departments.
+The social scientists hypothesized that interdisciplinary collaborations foster high-impact research, and wanted to identify ideas that might bridge disciplines.
+For example, they posited that statistical methods are topically situated at the center of the sciences and engineering.
+What data, models and representations would enable rapid assessment of such hypotheses?
+We began by collecting 16 years of dissertation abstracts, for which text and metadata were readily available.
+Early conversations with our collaborators emphasized the need to examine large scale patterns in the university's output.
+A first step toward that goal is to survey the research at a "disciplinary" level.
+Such a survey might suggest areas of horizontal knowledge transfer -- such as application of theory, methodology, or techniques across domains -- that could be verified as interdisciplinary collaborations.
+Because each department approximately acts as its own discipline, the university's 75 academic departments were suggested as a sensible baseline unit of analysis.
+Each department's school  provides further organizational context that is meaningful to our collaborators and target audience within the university.
+A visualization that demonstrates which departments share content would allow our collaborators to discover unexpected areas of inter-disciplinary collaboration and verify known ones.
+Our collaborators also emphasized the need to assess the impact of interdisciplinary initiatives, which requires tracking the topical composition of involved groups over time.
+Our collaborators want to correlate change in research output to the formation of academic ties that cross disciplinary boundaries, such as the creation of research institutes, joint grant proposals, and co-authorship.
+Time, in this case the year of filing, is therefore necessary for the analysis tasks.
+Textual similarity provides one means of identifying which disciplines are sharing information.
+Because each dissertation is associated with one or more departments, the content of these dissertations was seen as a reasonable basis for inferring whether two departments are working on the same content as seen through the words in their published dissertations.
+We thus explored various text-derived similarity measures as the basis of these similarity scores.
+We can compute the word similarity of departments as the cosine similarity of TF-IDF vectors representing each department, a standard approach used in information retrieval .
+Each component i of the vector for a department vD is computed by multiplying the number of times term i occurs in the dissertations from that department  by the inverse document frequency , computed as log where N is the number of dissertations in the dataset and dfi is the number of dissertations that contain the term i.
+While TF-IDF is effective for scoring similarity for documents that use exactly identical words, it cannot assign a high score to the shared use of related terms  because each term is represented as its own dimension in the vector space.
+To address term sparsity issues, we apply latent Dirichlet allocation   to infer latent topics in the corpus, and represent documents as a lower-dimensional distribution over the topics.
+We compute the topic similarity of two departments D1 and D2 as the cosine similarity of their expected distribution over the topics d learned by LDA.
+Our dataset contains abstracts from 9,068 Ph.D. dissertations from Stanford University published from 1993 to 2008.
+These dissertations represent over 97% of all Ph.D. degrees conferred by Stanford during that time period.
+The text of the abstract could not be recovered for the remaining 263 dissertations.
+The advisor and department of each dissertation are included as metadata as well as the year of each publication.
+The abstracts average 181 words in length after tokenization, case-folding, and removal of common stop words and very rare terms .
+The total vocabulary contains 20,961 word types.
+These words serve as the input to our models, from which we derive scores of departmental similarity based on the text of each department's dissertations.
+In both of the models above, we quantify the similarity of departments over time by computing a time-aware signature vector.
+The extra years are included in the signature to 6 reduce sparsity and account for the influence of a student's work prior to completing a dissertation.
+The first visualization we created is the Landscape View .
+The intention of the view was to reveal global patterns of change in department's topical compositions.
+We encode academic departments as circles, with areas proportional to the number of dissertations filed in a given year.
+Distance between circles encodes one of the similarity measures, subject to PCA projection.
+We ensured visual stability by limiting the amount of movement between adjacent years under the projection.
+Time is controlled by a slider bar that enables analysts to view an animation of temporal changes or immediately access a specific year.
+Consider the landscapes in Figure 2.
+Word similarity suggests a relatively uniform landscape, while topic similarity predicts tight overlap of research topics in Medicine  and Humanities  with a relative diverse set of topics in Engineering  and Sciences .
+Which measure best characterizes the university's research output?
+Without an interactive validation mechanism or an external ground truth, we were left with no way to choose between the similarity measures, nor to trust that the projection faithfully represents the similarity scores derived from each model.
+The social scientists were unable to confirm whether the observations  correspond to interdisciplinary work, nor to gain insight about the nature of potential collaborations.
+In response to these issues of trust, we designed the Department View to focus on a single department at a time.
+This view explicitly shows the distance from a focused department to every other department .
+Similarities are encoded as radial distances from the focused department at the center of the display.
+The remaining departments are arranged around the circle, first grouped by school, then alphabetically within school.
+A circular representation was chosen to avoid a false impression of rankordering among departments and to fit in a single display without scrolling.
+By restricting the data visible at a single time, the department view avoids projection artifacts.
+This view enabled our collaborators to observe expected patterns  and discover surprises.
+For example, contrary to their expectations, they found that statistics and computer science were not becoming consistently more similar: indeed, they were most similar in 1999.
+This surprise suggests the need for an even deeper level of verification: to examine the dissertations that contribute to the high  similarity scores of two departments in a given year.
+The department view also reveals peculiarities in the underlying models.
+Figure 3 centers on English, and corresponds to the landscape view in Figure 2.
+For the model in Figure 3, we chose the topic count that maximizes the perplexity of held-out data -- the technique most commonly used to select the number of topics.
+However, the visualization demonstrates that the model clearly has too few topics to adequately describe variation within the humanities.
+A larger number of topics may mitigate this effect, but we lack data-driven metrics for making a principled selection.
+As a result, we added the Thesis View  to support validation and exploration of observed similarity scores.
+The thesis view is presented in response to a click on the centered department in the department view.
+The TF-IDF measure used for word similarity, on the other hand, often assigned documents very high similarity to departments that happened to heavily use a common rare word.
+We also used our own domain knowledge to examine the relationships between dissertations and departments.
+The placement of three computational linguistics Ph.D.s that graduated in 2005 provides an illustrative example .
+We expected these dissertations to fall on the line between computer science and linguistics.
+In the latent topic model's similarity function, two of them did, but several unrelated dissertations were deemed substantially more similar to linguistics than the computational linguistics dissertations.
+We discovered this was due to a shared latent topic that covered both linguistics and information retrieval.
+While the TF-IDF model succeeds in placing these three dissertations between computer science and linguistics, it failed to accurately describe the relationship between the two departments: a year with only one dissertation  is the year of maximum similarity even though the dissertation is not computational in nature.
+The Thesis View shows individual dissertations as small circles placed between the focus department and the next most similar department.
+Reading the original text of the dissertation enables experts to evaluate observed dept-dept similarities, and confirm the placement of three computational linguistics Ph.D.s that graduated in 2005.
+The angular position of a thesis aligns with the most similar department, excluding the focus; the radial position is a function of the ratio of the dissertation's similarity to those two departments.
+This encoding provides a simple means to note theses that might connect two departments.
+Upon mouse-over, the text of the thesis abstract is shown, enabling analysts to read the source text and judge whether the two departments are sensible anchors for the dissertation.
+This view enables users to explore the relationships between departments at a fine-grained level, providing texture and context to the observed department-level similarities.
+To assess our modeling options, we conducted an expert review.
+We invited academic domain experts  to use the interface and recorded their responses.
+We found that the visualizations benefit from being model agnostic: they display departmental similarity, but otherwise are not constrained by other modeling assumptions.
+Thus, we can use the visualizations to compare the results of different modeling approaches.
+Using the landscape view, participants could not fully justify their observations.
+Many potentially interesting patterns turned out to be projection artifacts, ultimately leading us to remove this view from the tool.
+Using the department view, participants were adept at noting similarities that violated their assumptions.
+Both word and topic similarity led to many such instances.
+Rather than identify a preferred model, we became increasingly skeptical of both approaches.
+The successes and mistakes of each similarity model were revealed by the thesis view through the placement of individual dissertations with respect to the other departments.
+Participants were able to discover systematic errors made by topic similarity.
+The high frequency of "mismatch" between experts' mental models and our similarity scores led us to revisit our modeling assumptions.
+First, we wished to avoid arbitrary parameters such as the number of latent topics  and realized that we might better exploit the available metadata.
+Second, we had implicitly assumed that our similarity measure should be symmetric, as required by the mathematical definition of a metric.
+However, this need not be true of analysts' views of departmental similarity.
+In response, we formulated a novel similarity score that we call the department mixture proportion.
+This measure uses a supervised machine learning approach to directly represent the contents of each department, our primary unit of analysis.
+We estimate the similarity of two departments by measuring how often dissertations from one department "borrow" words from another.
+To compute the department mixture proportion, we use the machinery of Labeled LDA1 , which models each document as a latent mixture of known labels.
+In a two-step process, we first learn latent topics using the departments associated with each dissertation as labels.
+In a second inference step where labels are subsequently ignored, we infer department mixtures for each thesis.
+We train a Labeled LDA model using the departmental affiliations of dissertation committee members as labels.
+Thus the departments themselves are the "topics".
+Each dissertation may have one or more labels.
+During training, we learn both the per-topic term distributions  and initial label-based topic mixtures .
+In Labeled LDA, topical term distributions are allowed to take on any word, as in normal LDA training.
+However, per-document topic mixtures are restricted to only labels associated with the document.
+Using the learned topical term distributions , we next ignore all labels and perform standard LDA inference on each dissertation .
+This results in a new topic mixture  in which the dissertation can "borrow" words from any department, not just the ones it was initially labeled with.
+We average the distributions for all dissertations in a given department to construct the department mixture proportion.
+The values of this averaged distribution are the desired similarity scores.
+In short, we first determine the term distributions of each department, and then use these distributions to answer a simple hypothetical: if we let each dissertation borrow words from any department, what mixture of departments would it use?
+The resulting mixture proportion tells us the fraction of words in each dissertation that can be best attributed to each department.
+Unlike the previous measures, this score need not be symmetric.
+For instance, Music may borrow more words from Computer Science than Computer Science does from Music, which indeed we find in several years where computational music Ph.D. dissertations are filed.
+We find that this new similarity score ameliorates many of the "mismatches" identified by our earlier expert review.
+We observed commenters interpreting specific patterns of interest: "I was not surprised to see the link between Computer Science and Philosophy.
+Heartened by a slight connection between dissertations in Computer Science and Genetics."
+We also observed issues of trust: " thinks neurobiology is closer to electrical engineering than to biology.
+It is easy to see why that might be so based on key vocabulary terms , but ...".
+From these and similar comments, we note that the ability to transition between levels of model abstractions enabled users to interrogate the model and assess unexpected correlations.
+To facilitate interpretation and trust in model-driven visualizations, we distilled a set of guidelines from both our experiences and literature review.
+Along with illustrative examples, we now present process-oriented recommendations for model and visualization design: * Align the analysis tasks, visual encodings, and modeling decisions along appropriate units of analysis.
+We first deployed the Dissertation Browser outside of our research team in March 2010, as part of a presentation to the University President's Office.
+For convenience, we launched the tool on the web, where it remained available after the presentation.
+Our collaborators found the primary value of the tool to be in validation and communication.
+They noted the start of a large-scale Biophysics project connecting Biology and Physics in 2006.
+Several finer stories were discovered that exhibit interdisciplinary collaboration and knowledge transfer.
+In one case, the visualization demonstrated a strong connection between two departments driven by a small number of individuals centered around the Magnetic Resonance Systems Research Lab.
+This lab graduated a series of Electrical Engineering Ph.D. students in the 1990's who worked on EE-aspects of various MRI techniques.
+Around the same time, a hire in Radiology held a courtesy appointment in Electrical Engineering.
+For the next decade, the influence of these groups strongly connected the two departments until both eventually moved onto other research areas.
+As we made no effort to publicize our tool, we were taken by surprise when the system gained public attention from users on the web  beginning in December 2010.
+The majority of tweets expressed interest or enjoyment in the use of the tool .
+Several pointed to specific patterns .
+We use the term alignment to describe the correspondences among modeling decisions, visual encoding decisions, and an analyst's tasks, expectations, and background knowledge.
+We consider a visual analysis system to be well-aligned when the details surfaced in the visualization are responsive to analyst's tasks, while minimizing extraneous information that might confuse or hamper interpretation.
+Alignment does not result from interface design alone; both the visualization and model may require iterative design.
+Alignment requires a sufficient understanding of users, their tasks, and the context of use.
+Such domain characterization  relies on methods familiar to HCI researchers .
+However, these techniques may be foreign to model designers in fields such as statistics or machine learning.
+To facilitate communication among stakeholders with varying backgrounds, we found it useful to frame insights in terms of units of analysis: entities, relationships, and concepts about which the analysts reason.
+These units serve as a resource for evaluating models and their fitness to the analysis task.
+With the Dissertation Browser, we engaged in participatory design meetings with our collaborators to determine the units of analysis.
+This process led us to realize that changes in inter-department similarity could provide answers to the social scientists' research questions.
+In later iterations we further aligned our model with this unit of analysis: we reduced the number of abstractions by computing similarity directly as the department mixture proportion.
+This eliminated the need to set model parameters such as the number of topics and freed analysts from unnecessarily assessing and classifying latent topics.
+Selecting the appropriate units of analysis often involves a balance between how reliably a concept can be identified, and how relevant the concept is to the analysis task.
+The final units of analysis reflected in a visual analysis tool may result from a compromise: the units should correspond to the analysts' questions but must also be practical to model.
+In the Dissertation Browser, we quantify "units of research" as academic departments.
+While our social science collaborators would ideally like to assess research at a finer granularity , we lacked reliable means to quantify such units of research.
+LDA models have the potential to discover unnamed research activities, but in our case collapsed all of the humanities into a single topic.
+Similarly, while investigating historical trends using LDA models, Hall et al.
+Named organizations such as departments can be identified reliably, and correspond to concepts that the analysts can comprehend and verify during analysis.
+More generally, we recommend leveraging available metadata to provide reliable and relevant units of analysis.
+In domains with objective accuracies, one can take a quantitative approach to verification: common evaluation measures include precision  or internal goodness-of-fit statistics .
+However, one should ensure that such metrics correlate with analysis goals.
+Domains such as text interpretation may be subjective in nature and so difficult to quantify.
+For LDA topic models, quality is typically measured in perplexity, which describes the "distinctiveness" of the learned topics.
+While perplexity is a sensible measure of encoding quality in an informationtheoretic sense, in our case it did not correspond to our task: identifying concepts representing coherent "research topics."
+To assess alignment, it is valuable to explicitly enumerate the assumptions implicit in a modeling approach.
+Common assumptions in quantitative statistics are that data values are independently and identically distributed according to a known probability distribution .
+Within text processing, many models are predicated on a bag-ofwords assumption that ignores word ordering and relations.
+Understanding such assumptions is important for determining if a model is appropriate for the given units of analysis.
+Enumerating assumptions also provides a resource for design, suggesting potential starting points for alternative models.
+While designing the Dissertation Browser, we assumed that similarity must be based on a proper metric, and hence symmetric.
+Once we identified this assumption, it freed us to consider the possibility of asymmetric similarity scores, ultimately leading to a "word borrowing" model based on the department mixture proportion.
+In Review Spotlight , the mismatch between the bag-of-words model and sentiment perception was resolved by making adjective-noun pairs the units of analysis, yielding improved performance.
+HCI evaluation methods can enable verification.
+For example, task-based user studies or real-world deployments may be used to assess how well a system aids analysis tasks.
+Walkthroughs with representative users can help designers gauge analysts' familiarity with a presented analytical abstraction.
+A potential trade-off is that if analysts don't fully understand the model  but gain more useful and verifiable insights, a less familiar model may be preferred.
+In our case, we found that expert review was a relatively lightweight means to assess model quality by cataloging instances in which users believed the model to be in error.
+These "mismatches" became points of comparison across modeling options.
+An interesting challenge for future work is to better correlate the results of user-centered evaluation with less costly model quality metrics: Can we identify or invent better metrics that reliably accelerate verification?
+Another method for verification is triangulation: comparing the output of multiple models or parameter settings and gauging agreement.
+To enable cross-model comparison in a modeldriven visualization, the visualized units of analysis should be stable across modeling choices.
+We use the term modelagnostic views to describe visualizations that use a single analytical abstraction to compare the output of various underlying modeling options.
+To be clear, such views rely on a stable abstraction; what they are "agnostic" to is the inferential machinery of the models.
+For example, the Dissertation Browser uses inter-department similarity as the shared unit of analysis, enabling comparisons with any model that can generate suitable similarity scores.
+Interactive comparison of parameter settings and modeling options can be invaluable to model designers when assessing choices.
+Providing similar facilities to end users is also helpful, but might best be treated as a "last resort" when an accurate, well-aligned model can't be found.
+A simple form of model modification is to adjust free parameters.
+Examples include setting the number of topics in an LDA model or adjusting threshold values for data inclusion .
+We have found that this ability is critical for early stage model exploration.
+While ideally this would not be necessary in a final analysis tool, in practice one rarely finds a "perfect" model.
+Consequently it is important for analysts to be able to assess various parameterizations.
+One challenge is to support real-time interactivity, as changes of model parameters may require expensive re-fitting or other operations.
+For such cases, visual analysis tools might provide facilities for scheduling offline, batch computation across a range of parameter values.
+A tool can support reasoning and improve interpretation by displaying the right level of detail when it is needed.
+The critical concerns are that detailed data  is revealed on an as-needed basis to avoid clutter and  highlights the connections between levels of abstraction to aid verification.
+Another approach to model modification is to introduce additional training data.
+For example, an analyst might add new text documents labeled as positive or negative examples of a category.
+In the context of the Dissertation Browser, new inference procedures might incorporate expert annotations into the model fitting process.
+To avoid costly re-fitting, designers might leverage techniques for online, interactive machine learning .
+An important research challenge is to design reflective systems that elicit the most useful training data from users, perhaps using active learning methods .
+Semantic zooming changes the visible properties of an information space based on the current "zoom" level, exposing additional detail within an existing view.
+Using semantic zooming for progressive disclosure entails incorporating elements across different levels of modeling abstraction.
+The Dissertation Browser uses semantic zooming to move from department view to thesis view: individual dissertations are visualized in relation to the higher-level departmental structure.
+We hypothesize that semantic zooming is particularly effective for facilitating interpretation if it can show the next level of abstraction within the context of an established abstraction.
+Semantic zooming relies on a hierarchical organization of relevant model abstractions or metadata.
+Analysts familiar with a modeling method may wish to directly edit the model structure.
+An analyst might add new latent variables or conditional dependencies within a Bayesian network, or add a new factor to a generalized linear model.
+In this case, the model itself becomes a unit of analysis, requiring that users possess sufficient modeling expertise.
+An alternative approach is to bypass the modeling machinery entirely to override model output.
+For example, to correct modeling mistakes or impose relations outside the scope of the model or source data.
+Analysts may wish to delete or modify inferred LDA topics.
+Similar to model agnostic views, manual override benefits from an analytical abstraction decoupled from any inferential machinery.
+However, overrides may prove problematic with dynamic data: should overrides persist when modeling incoming data?
+Another option is to present different levels of analytical abstraction in distinct visualizations.
+Linked selection and highlighting between views can then enable investigation: given distinct visualizations at different levels of abstraction  highlight the cross-abstraction connections .
+Perhaps the simplest case is showing details-on-demand.
+The Dissertation Browser shows the source text of a dissertation abstract in a separate panel when a thesis is selected.
+Linked highlighting is desirable if the different levels of abstraction are more effectively presented using disjoint visual encodings -- that is, when combining levels via semantic zooming is either impossible or inadvisable.
+When faced with non-hierarchical relations or simultaneous inspection of three or more levels of abstraction, linked views are likely to be preferable to semantic zooming.
+By abstracting source data, models can improve scalability, surface higher-order patterns and suppress noise.
+However, they might also discard relevant information.
+To compensate, model-driven visualizations can enable analysts to shift among levels of abstraction on-demand.
+Progressive disclosure is the strategy of drilling down from high-level overview, to intermediate abstractions, and eventually to the underlying data itself.
+A primary design challenge for progressive disclosure is to select the proper levels of abstraction.
+We consider this an instance of  model alignment that depends on the identified units of analysis.
+Another outstanding question is how "deep" progressive disclosure should go.
+For example, comments from Dissertation Browser users suggest that our design would be further improved by incorporating wordlevel details to aid verification of thesis-level similarities .
+In most instances, we find that progressive disclosure should terminate in the original source data, enabling analysts to connect model abstractions to the raw input.
+This oversight constitutes a limitation in the face of big data applications and the growing need for models.
+Moreover, machine learning research has normally been content with formal measures of model quality, with less emphasis on user- and task-centric evaluations, even though the limited effectiveness of formal measures has become increasingly evident.
+In this paper, we proposed interpretation and trust as criteria to guide the design of modeldriven visualizations.
+We described the design of the Stanford Dissertation Browser, and demonstrated how a novel "wordborrowing" similarity measure arose through an iterative design process that considered task analysis, visualization design, and modeling choices in a unified fashion.
+We contributed strategies  as practical aids for designers to achieve interpretability and trustworthiness in visual analysis tools.
+With these strategies, HCI methods can play an important role in the formulation of new interfaces, algorithms, evaluations, and models to enable productive analytic reasoning with massive data sets.

@@ -1,0 +1,100 @@
+We describe an approach to improving the design and development of Brain-Computer Interface  applications by simulating the error-prone characteristics and subjective feel of electroencephalogram , motor-imagery based BCIs.
+BCIs have the potential to enhance the quality of life of people who are severely disabled, but it is often timeconsuming to test and develop the systems.
+Simulation of BCI characteristics allows developers to rapidly test design options, and gain both subjective and quantitative insight into expected behaviour without using an EEG cap.
+A further motivation for the use of simulation is that `impairing' a person without motor disabilities in a game with a disabled BCI user can create a level playing field and help carers empathise with BCI users.
+We demonstrate a use of the simulator in controlling a game of Brain Pong.
+A problem with testing and debugging BCI applications is that it can take a long time - up to an hour - to set up and calibrate a BCI.
+The input is also slow compared to most other methods and thus time consuming to run user trials: the highest performance reported for motor-imagery BCI so far is 40 bits/min , while a fast speller yields 7 chars/minute .
+This note describes how modelling the classifier output of a motor-imagery BCI can be used to simulate interaction characteristics such as error rate, delay and noise.
+We aim to use the simulator to speed up and improve the development process, to enhance social interaction and to aid understanding of the constraints and skill involved in using a BCI.
+The electroencephalogram  is a technique used to measure electrical brain activity arising from a large number of neurons near the surface of the brain.
+It has been used for brain-computer communication in recent years .
+Typically, a set of electrodes is gelled to the scalp with the help of a positioning cap.
+Certain mental states that a BCI user produces at will are recognized through machine learning techniques and mapped to interface controls.
+For example, a person might continuously do complex sums in one's head  in order to move a ball to the left of the screen .
+The current simulator is modelled on BCIs driven by motor-imagery, which refers to the imagining of moving a body part .
+The feet and hands are the most commonly used body parts in current BCI literature.
+Characteristics of a motor-imagery based BCI.
+A typical BCI system goes through the general process shown in Figure 1.
+The user intends an action , for example, to select left.
+The raw EEG signals are recorded , features of the signals are selected  and subsequently classified , into two or more mental states, or classes .
+Two classes are most commonly used allowing for binary input, although multi-class BCIs have also been demonstrated .
+The noisy output of the classifier is usually integrated , to lessen errors .
+Finally, the application presents the system's belief about the user's intention .
+A Brain-Computer Interface  is a system that harnesses a person's brain activity to interact with a computer or other electronic device.
+For people who are severely paralyzed, a BCI might provide the only means of communication; more commonly it potentially serves as an additional channel of input for those with a very limited control of movement.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Individual differences in motor-imagery based BCI control are pronounced, with an estimated 15-30% of subjects being unable to operate such a BCI .
+Figure 2 shows two control characteristics from the calibration data used in our current model, giving some examples of the error rate and variability in selection time.
+The minimum accuracy required for being able to communicate using a BCI is generally taken to be 70% .
+False positives, where the system makes a selection despite the user not wishing to select anything, are a problem for current development of BCI applications because of the `continuous' production of the brain signal.
+There is a delay between a user `switching' mental states and its effect being displayed on the screen, and users also differ in their ability to sustain a mental state  such that it can be accurately classified.
+Simulation for design and understanding impairment.
+Designing for disabled people can be difficult for those who do not have the same disabilities.
+Simulation can help designers to understand what a particular impairment feels like in order to provide solutions to problems.
+For example, the Third Age Suit  is a wearable outfit which simulates the restricted movement experienced by the elderly for the purpose of design.
+In the context of BCI, low-level simulation can potentially enable people to experience the frustration of using a BCI without needing to wear an EEG cap.
+On the other hand, learning to achieve control of a BCI can be fun and challenging, so in the same way that flight simulators are entertaining for people who might never become a pilot, understanding the skill required to control a BCI through using a simulator could bring respect for a trained BCI user.
+Simulation is useful for improving user interfaces for Assistive Technologies  because of the large variability in the population of users.
+However, the BCI characteristics mentioned previously require different models than those for input devices that are commonly investigated.
+In addition, this method does not allow analysis of interfaces based on continuous interfaces, such as hex-o-spell .
+Low-level characteristics of BCI can be simulated to explore these at a lower cost.
+Simulation for testing and evaluting interfaces.
+Conducting user trials with BCI is expensive: it can be difficult to find people who have been sufficiently trained for testing the interfaces effectively, and it is undesirable to allow disabled people to sit for long periods of time with an EEG cap on, which can become uncomfortable.
+Since a BCI may be much slower and more error-prone than people with disabilities may be used to, it is important to obtain feedback about applications using BCI input.
+By using a simulator, user evaluation and testing can take place early on in the development cycle, affording BCI design the rapid prototyping methods that are taken for granted in mainstream HCI.
+Simulation to support social interaction.
+Through interviews and focus groups carried out within the TOBI Project1 , disabled people have indicated a significant interest in interacting more with other people through playing games.
+One way of achieving this might be to `impair' the non-disabled player in order to establish a level playing field.
+For example, the keyboard or mouse input could be modified to emulate the BCI user's input, with similar error rate and timing.
+In addition to making the games fairer for both parties, this could help the non-disabled player to empathize with the disabled player.
+The current simulator was developed using data and infor mation from BCI researchers at Ecole Polytechnique F ed erale de Lausanne  .
+Data from 5 users was taken from the usual procedure used to train a user, which is briefly described as follows.
+At a rate of 16Hz, EEG features are computed and classified into the left or right classes.
+The output of probabilities at each time step indicate the system's belief that the person is imagining movement of the body part assigned to these classes .
+This noisy signal is integrated to give a smoother signal.
+The horizontal position of the cursor correlates with the value of the integrated classifier: when this reaches a user-dependent threshold, the bar reaches the corresponding side and a selection is made.
+This last integrated value is the output of the simulator since our aim is to simulate the subjective feel of the interaction.
+We developed a simulation toolkit in Python where signal generation or modulation blocks, or tools, are linked together in a series.
+Tools can be replaced, added or removed easily.
+This is useful for improving the model as well as to simulate different BCI systems that use different techniques.
+Each modulation tool receives a signal from the preceding tool, modifies it and passes it along to the next tool in the series.
+The value of a signal at a particular point in the sequence can be captured using the Probe tool.
+The output of real BCIs is replaced seamlessly by sending these discrete values over the network to the application, using the same protocols as the real BCI.
+A GUI was developed in order to easily change the tools used in a model, their parameters and order in the series.
+We now describe in more detail how the tools work and relate to the current model, following the tool series in Figure 1  from left to right.
+The KeyMapper tool assigns a keyboard key to a particular state, for example the left arrow key to the `left' state.
+To change the properties of the signal, the parameters for other tools in the model are updated when the state of the system changes.
+The BetaVariateSwitch tool is the core tool in the current simulator model which generates both the signal and noise in this system.
+Samples are drawn from a Beta distribution whose probability density function is given by 1 x-1  -1  f  = B Essentially, the drawn sample can be biased more or less strongly towards 0 or 1, e.g.
+To obtain a noisy signal, we switch between two sets of opposing  and  values.
+A Markov chain is employed to influence the probability of and time taken for the integrated signal to reach the desired class threshold.
+Next, the MovingAverage tool implements an nth order moving average which arises from the feature extraction stage.
+The Delay tool accounts for the time delay due to the feature extraction and classification process.
+This was estimated to be 0.5s, as the output at each time step takes into account the last 1s of data; it seems reasonable that a change in state would be seen from around half this time.
+A Gamma distribution was used to model the delay that occurs when switching from one mental state to another, as a large variance was expected.
+The initial parameters were chosen by a reasonable estimation and optimized automatically.
+Finally, the PIntegration tool integrates the classifier output that has been generated.
+This is a direct implementation of the integration method used at EPFL .
+Keyboard input was used rather than mouse as it is more appropriate to generate the classifier output signal based on discrete input to represent the switching between mental states, rather than a continuous input.
+In this first approximation, some BCI characteristics not accounted for are the ability to hold a mental state once the threshold is reached, the closedloop interaction between the subject's thoughts and the influence of feedback, and the longer term deterioration in performance that occurs due to fatigue or stress .
+However, the flexibility of the simulator allows additional tools to be added as the model is improved.
+The parameters of the model are optimized for the subjective feel of the BCI.
+This is added to the difference in selection accuracy, xdif f erence , where x is determined by trial and error.
+The result is used as a cost function to be minimized using Powell's method.
+Comparison of real and simulated BCI signals for one user.
+Left: Time series of the integrated classifier output.
+This is reset to 0.5 at the start of every trial; a selection is made when the output reaches a threshold .
+Right: Comparison of the average position, velocity and acceleration for real and simulated signals for correct left trials, showing a close match between the two signals.
+Objective and subjective evaluation of the output of our simulator provide a basis for using it to predict usability of interfaces both offline through simulation and online with user studies.
+Simulation can allow interaction designers to explore BCI characteristics with little effort, and afford end user engagement on issues that arise from the input constraints.
+We also proposed that the simulator be used to create a more level playing field between disabled and nondisabled people, and validated the feasibility of this with the simulator-controlled game of Brain Pong.
+Although many BCI applications currently employ discrete selection as input, modelling the continuous control of a BCI is important as novel interaction techniques might improve performance.
+For example, the fastest motor-imagery BCI speller to date, hex-o-spell, uses the time taken to switch between mental states .
+We used a version of the simulator adapted for a BCI research group at the Berlin Institute of Technology as input to Brain Pong, a BCI version of the classic game Pong.
+This directly replaced the BCI input expected by the application to control a paddle .
+The game used the Pythonic Feedback Framework , a BCI application platform used by several BCI labs.
+This preliminary finding provides a credible basis for carrying out a more rigorous validation.
+Using a simulator adapted to match BCI characteristics in real time, a non-disabled person could play games either face-to-face or over the Internet with a BCI user, which could help to provide fairer competition.
+We have built a simulator that models the essential characteristics of motor-imagery based BCIs that are relevant to the design and development of BCI applications.
+As far as we know, this is the first attempt to model the low-level characteristics of a BCI for interface design purposes.

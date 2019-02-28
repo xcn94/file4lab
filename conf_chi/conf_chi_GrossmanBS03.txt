@@ -1,0 +1,185 @@
+Current interfaces for manipulating curves typically use a standard point cursor to indirectly adjust curve parameters.
+We present an interface for far more direct manipulation of curves using a specialized high degree-of-freedom curve input device, called ShapeTape.
+This device allows us to directly control the shape and position of a virtual curve widget.
+We describe the design and implementation of a variety of interaction techniques that use this curve widget to create and manipulate other virtual curves in 2D and 3D space.
+The input device is also used to sense a set of user gestures for invoking commands and tools.
+The result is an effective alternate user interface for curve manipulation that can be used in 2D and 3D graphics applications.
+Here, curves are created directly by copying segments from physical templates  or using physical tools, which flex to produce curves .
+Many of these physical techniques allow for very fast and accurate specification of curves, while current virtual techniques are typically more cumbersome.
+Given the success of these techniques in the real world, it is reasonable to expect that virtual interaction techniques could benefit from the use of physical artifacts more closely matched to the task .
+In , based on physical techniques used in the design industry, Balakrishnan et.
+While theirs was the first such system that exploited the affordances of physical tools for manipulating virtual curves, their interaction techniques were limited by simple absolute mappings between physical tool and virtual curves/surfaces.
+Their system also provided little precision control over virtual curve parameters.
+In this paper, we present a system that significantly extends this previous research, demonstrating the use of a high degree-of-freedom curve input device for quick but precise curve creation and manipulation in both 2D and 3D space.
+The system achieves this via a suite of new interaction techniques for relative mapping of the parameters of the physical device to the virtual world.
+In computer graphics, curves are a fundamental primitive used in a variety of applications.
+These include direct use in 2D drawings, specification of surfaces in 3D geometric modeling, and specification of motion and camera paths in animation and virtual reality systems.
+Thus, the ability to quickly and precisely create an appropriate set of curves is a crucially important task in these graphics applications.
+Most current interactive curve manipulation techniques require that the user, to some extent, understand and work with the underlying mathematical representations of curves in order to control its shape and size.
+Recognizing the limitations of these existing tools, researchers have been working on tools for sketching and refining curves in a more direct manner .
+While sketching is a very useful paradigm for creating and refining curves, another paradigm that has not received as much attention is the use of high degree-of-freedom input devices to directly manipulate virtual curves.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The tape is secured at point #1.
+The first half of the tape  is used to position and orient the starting point  of the second half of the tape .
+The position and shape of the second half of the tape  is mapped to the virtual TapeWidget .
+The primary input device that forms the core of our interface is the ShapeTape : a 96 x 1 x 0.1 cm rubber tape with a flexible spring steel core that has 32 fiber optic sensors distributed in pairs uniformly, 6 cm apart, along its length.
+Each sensor pair provides bend and twist information at its location, and by summing the bends and twists of the sensors along the tape, the shape of the tape can be reconstructed in three dimensions.
+This shape reconstruction is relative to the location of the first sensor pair.
+The tape was secured to a desk at the location of this first sensor pair.
+In , a separate position and orientation tracker was used to determine the location of the starting point of the tape in 3D space.
+Rather than adding another piece of hardware to our system, we instead used the first half of the tape to position and orient in physical 3D space the starting point of the second half of the tape.
+The second half of the tape was then used to input shape information.
+Figure1 illustrates this hardware setup.
+The only other input device used was a footpedal hinged in the middle, with two momentary buttons: one at the front of the pedal  and the other at the back .
+It is important to note that we have deliberately chosen this minimal hardware setup, in order see how far we could go with using only a curve input device and two buttons.
+As will be evident as we progress through this paper, we were able to develop a significant repertoire of gestural interaction techniques using only this minimalist configuration.
+We readily admit, however, that while this was an excellent setup for pushing the boundaries of our research, any commercially viable system for curve manipulation using curve input devices would likely require additional input modalities.
+Unlike the standard point cursor that has only two changeable parameters , analogous intermediaries for high degree-of-freedom devices would likely have more parameters that can be manipulated by the device.
+Based on previous experience , and building on foundational work on three dimensional widgets by Conner et.
+Manipulations on the tape are used to control parameters of the TapeWidget, including position in space, size, and shape.
+The TapeWidget is then used to create, edit, and manipulate other virtual curves in the graphical scene.
+This TapeWidget is one major difference between this present system and the exploratory work done in .
+The following subsections describe the various techniques we have developed that use manipulations of the tape to change the TapeWidget's parameters.
+In building a usable system for curve manipulation using such a minimal hardware configuration, we are faced with the challenge of providing a mechanism for command input.
+We use the footpedal's two buttons for the most frequently used commands, and to kinesthetically maintain a few modes.
+Additional commands are specified via a set of gestures performed using the physical tape .
+Figure 2 illustrates this gesture set.
+These eight gestures are used throughout our system.
+The commands associated with these gestures will be described as we progress through the paper explaining the various interaction techniques.
+The first half of the tape, which is used to track the location in space of the second half of the tape, does not allow for enough freedom to move the TapeWidget around the entire screen.
+As such, we need an interaction technique for gross scale position of the TapeWidget in space.
+This is accomplished as follows using a "flying" metaphor: when the FrontButton is pushed and held, moving the tape moves the TapeWidget in the same direction with a velocity relative to the tape's distance from it's starting point.
+The two endpoints that are set by default to map a section of the tape to the TapeWidget can be changed at any time using a double twist gesture.
+Together with scaling, this enables subsections of the tape to be mapped to the TapeWidget, resulting in changing the gain between the tape and the TapeWidget.
+If a small section of the tape is mapped to the entire TapeWidget, the resulting high gain mapping is good for changing the shape of the entire TapeWidget with just a small change in the shape of the tape.
+Conversely, mapping a large section of the tape to the TapeWidget results in a low gain mapping that is better for precise tweaking of portions of the TapeWidget.
+A snap gesture restores the default endpoint mapping.
+So far, apart from the technique for creating sharp corners, all the manipulations we have described result in the TapeWidget taking on the exact orientation of the tape.
+However, it is sometimes desirable to have a more relative mapping between the orientation of the tape and TapeWidget, particularly in situations where the desired orientation of the TapeWidget would otherwise necessitate holding the tape in an awkward position.
+To support relative orientation mapping, we first click the BackButton to lock the TapeWidget.
+The tape can now be reoriented in a comfortable pose by the user, without affecting the TapeWidget.
+Again, a snap gesture restores the default absolute mapping.
+Since the tape cannot be physically bent into sharp corners , the TapeWidget's shape by default also cannot have sharp corners.
+However, in many curve editing tasks, it is desirable to be able to create sharp changes in a curve's shape.
+The tape is held in a fairly awkward position.
+BackButton is clicked to lock the TapeWidget.
+The tape now be repositioned without affecting the TapeWidget.
+Tape manipulations are now mapped with a relative orientation to the TapeWidget.
+These techniques result in a sophisticated interface between the physical tape and its virtual instantiation - the TapeWidget.
+The interface supports both simple and complex  control of the TapeWidget's parameters.
+The metaphor here is that of "pushing forward to drop a curve onto the scene", echoing the paradigm shift from control point based creation to a faster, more direct approach.
+Invoking this gesture creates a new curve at the position of the TapeWidget that replicates its current shape and size.
+We lock the TapeWidget  before invoking the push gesture.
+This prevents any movements in the tape caused by the gesture itself from accidentally changing TapeWidget parameters.
+If the TapeWidget intersects a selected curve at two points, the red preview curves appears, taking on the shape of the TapeWidget between these two intersection points.
+As with the previous technique, clicking the FrontButton results in the curve taking on the shape of the preview curve.
+Our curve editing design philosophy is based on a sculpting metaphor with the TapeWidget as the analogue of a sculpting tool.
+Just as a sculpting tool's behaviour changes depending on how it is used, we implicitly use the TapeWidget's proximity to, and intersection with, curves in the scene to determine the type of editing to be performed.
+We have developed four example editing techniques that as a whole can be viewed as a single editing mechanism that changes its behaviour depending on the proximity and intersection of the TapeWidget to the curve.
+The next few subsections describe these techniques.
+To edit a curve, the user must first select it.
+Our system considers the curve closest to the endpoint of the TapeWidget to be the "current curve".
+To distinguish the current curve from others in the scene, we render it as a thicker curve.
+Clicking the FrontButton toggles selection and deselection of the current curve.
+We can select multiple curves by moving the TapeWidget around the scene.
+The simplest method for reshaping a curve is by intersecting one endpoint of the TapeWidget with a selected curve.
+Two interpolation endpoints are placed on either side of the point of intersection, at a default distance.
+A third method, useful for precise but compound relative reshaping of curves, is now described with Figure 9 illustrating.
+This is the analogue of point snapping to parts of a scene when using a standard point cursor for editing.
+Once glued, the TapeWidget is controlled by both the endpoints and subsequent manipulation of the physical tape.
+When the TapeWidget's shape is changed, we keep the end points constrained to their original glued position by displacing every point on the TapeWidget by an offset vector as follows: The difference vectors between the original end points e1, e2, and the end points after the TapeWidget's shape is changed, are shown in Fig.
+These offset vectors are added to the TapeWidget, with results as shown in Fig.
+Clicking the FrontButton reglues the TapeWidget in its current state, while preserving the same end points.
+The other set of extents seen in Fig.
+9b, called interpolation extents, are used to blend the results of the curve generated using the algorithm described above with the unedited segments of the curves.
+The end points and interpolation extents can also be edited from their default locations.
+Either set of extents are active at any given time.
+When the tape is twisted close to the center, the active set of extents move closer together or further apart, depending on the twist direction.
+If either endpoint of the tape is twisted, then only its corresponding extent will move.
+A double twist toggles the active set of extents.
+A push gesture makes the existing curve permanently take on the shape of the preview curve in between the endpoint extents .
+The TapeWidget remains glued, so the process can be repeated.
+This technique allows for precise, compound, relative reshaping of curves to be performed, which would be quite difficult to achieve using existing curve editing techniques.
+The TapeWidget unglues with a tug gesture.
+Manipulating the TapeWidget again results in the curve being further reshaped in a relative manner.
+If the TapeWidget is close to an endpoint of a curve, it glues to that endpoint.
+As usual, the TapeWidget can be locked and unlocked by clicking the BackButton.
+A push gesture makes the curve extension permanent.
+When editing curves, it is often desirable to be able to reuse a previously defined TapeWidget shape.
+We support this by creating, saving, and recalling a set of user defined tools.
+To create a tool a crack gesture is made while the TapeWidget is locked.
+This closes the shape of the TapeWidget and locks it.
+The endpoint of the tape can then be used to control the position and rotation angle of the tool.
+The tool can be scaled and moved around the screen just like the regular TapeWidget.
+Similar to the TapeWidget, a tool can be used to drop new curves of the same shape as the tool into the scene, or to reshape existing curves.
+We also implemented a menuing system to provide the user with access to tools that have been previously created.
+A stab gesture pops up the menu directly above the position of the TapeWidget.
+A maximum of six tools are displayed at a time.
+If the menu has more than six tools, the edges of the menu fade out to indicate that the menu can be scrolled.
+Twisting the tape rotates the menu left or right, scrolling through all available tools.
+By moving the TapeWidget over a tool and clicking the FrontButton, the TapeWidget will take on the shape of that tool.
+We now extend our interactions into 3D space.
+Previous work  on the design of 3D curve editing tools have indicated that to ensure accuracy it is preferable for 3D curves to be created and manipulated in 2D orthographic views of the 3D scene.
+Given that all the 2D techniques described in the previous sections will seamlessly work on 2D orthographic views of 3D space, we already have a suite of tools for 3D curve manipulation.
+What remains to be developed are techniques for use in the 3D perspective view, including: camera controls for maneuvering around the 3D view, selecting curves and construction planes, creating new 3D construction planes, and transitioning between 3D and 2D views.
+Once a construction plane has been selected, a tug gesture smoothly transitions from the 3D perspective view to a 2D orthographic view perpendicular to that construction plane.
+In this 2D view, curves can be created and edited using all the techniques previously described.
+Any new curves created are projected onto the surface of the construction plane.
+Another tug gesture returns to the 3D view.
+When an existing plane has been selected in the perspective view, a push gesture creates a new plane that's positioned perpendicular to this selected plane.
+The new plane is either flat or curved, depending on the type of plane last created.
+A snap gesture changes the plane from flat to curved, and a crack gesture does the opposite.
+As in previous systems , we support standard camera controls of tumble, pan, and zoom.
+However, we have adapted these techniques to work with the tape.
+If the user points the tape towards the screen while pressing and holding down the FrontButton, movement of the tape's endpoint rotates the camera around the 3D scene.
+If the tape is parallel to the screen while the FrontButton is pressed and held, a pan-zoom mode is entered.
+The two endpoints of the tape control the panning and zooming.
+Based on the technique used in , moving the two endpoints closer together or further apart zooms in or out respectively.
+Neither user chose to build complex 3D models with the system.
+One user did, however, build up a relatively simple 3D model of a table consisting of a circular body and four legs.
+Both users did become familiar enough with the system to get the overall feel of the various techniques, and were able to give us valuable feedback, leading to the following observations: * Both users liked using the tape to directly manipulate curves without the abstractions found in current interfaces.
+However, they both felt that the tape would be more useful if it were complementing other tools and input devices, rather than being the only tool available.
+One user said he would like to be able to put the tape down and sketch part of a curve with a pen - in other words, using the best tool for the job as needed.
+Both users liked the fact that the tape could be manipulated using both hands simultaneously, and even suggested potentially new ways in which two-handed manipulation of the tape could be used.
+In particular, the push gesture resonated with both users.
+This is likely because it only required a simple flick of the wrists and also because the metaphor was very obvious - that of pushing a curve or plane into the scene.
+He said he much prefers a small tablet that can be used without lifting his wrist.
+We note that while there will always be some physical effort required when using tangible devices, more extensive use of the widget flying technique and relative mappings we provide could have significantly reduced the effort required.
+Almost all tangible user interfaces  face this challenge of providing simple, easily understood physical artifacts to control virtual elements without increasing the work required of the user.
+Indeed, one of the reasons why the mouse is such a popular device is that it can be operated in a "lazy" fashion .
+However, he said he sometimes felt uncomfortable creating and editing curves without direct control over the underlying mathematics of the curve.
+This complaint could be due to the fact that this user is very highly skilled in the use of current interfaces that demand that the user understand the underlying math.
+Indeed, one of the goals of our system was to insulate the user from the math!
+So, in a sense this user's comment could be viewed as a measure of how well we had managed to achieve this separation between the underlying math and the interaction techniques.
+On the other hand, this could be an argument for providing other tools to complement the tape so that the user would have the choice of either very direct manipulation with the tape or more abstract manipulations of the foundational curve parameters.
+14a shows, the location of a flat plane is controlled by the two endpoints of the tape.
+When the new flat plane's location is within a small delta of either major axis of the base selected plane, the flat plane will snap to that axis.
+14b illustrates how the shape of a curved plane is determined by the shape of the tape.
+A new plane can be moved around the 3D scene by moving the tape, using the same technique for moving the TapeWidget around when in the 2D orthographic view.
+The shape, position, and orientation of the plane can also be locked and unlocked by clicking the BackButton .
+When the new plane is locked, another push gesture confirms the addition of this plane, with its locked shape, into the scene at its current position and orientation.
+The technique for plane creation described above works fine for planes of approximate shape.
+If more precise shape and location is required of a plane, its curvature can be defined in the orthographic view.
+First, a curve is drawn using the previously described techniques.
+With a pull gesture this curve will be used to define the curvature of a new surface, extruded along the normal of the currently selected plane.
+While our system is still in the research prototype stage, we thought that it was important to get some early feedback from potential users.
+We felt that at this stage it would be more valuable to obtain feedback from expert users of other curve manipulation systems, rather than rely on novices who would be unlikely to understand all the subtleties involved in complex curve manipulation tasks.
+We asked two subjects very experienced in using various commercial 2D and 3D graphics software - one an academy-award nominated 3D modeler, and the other an industrial designer - to try out the system for a two hour session each.
+The first hour was used by the subject to learn the various gestures and interaction techniques.
+During the second hour, the subject was asked to freely use the system to create and manipulate curves of their own choosing.
+One of the first challenges we faced was finding a way to use the tape not only for the curve manipulation tasks that it was very well suited for, but also for command input.
+Our solution was to use the tape to capture user gestures, and we defined an initial set of eight distinct gestures.
+Note that each of these gestures was assigned a consistent meaning in our system.
+For example, the push gesture was consistently used to add elements to the scene: curves when in a 2D view, planes when in a 3D view.
+Similarly, the twist gesture was used to increase or decrease a particular variable: interpolation interval, widget size, and menu item position.
+Overall, we found that this small but well defined gesture set enabled us to support the fairly large set of interaction techniques used in our system.
+While our minimalist hardware configuration was useful in forcing us to push the envelope on developing novel interaction techniques, including gestural command input, user feedback indicated that our system would benefit from integrating other techniques, such as sketching .
+We also believe that it would be beneficial to have a suite of different physical tapes, each with unique physical characteristics such as bending tension, thickness, length, and precision.
+As discussed in , it could also be useful to have tapes that can maintain their physical shape over time.
+An interesting design element of our system was the focus on a thorough set of 2D curve editing techniques, and then using these 2D techniques to create and manipulate 3D curves.
+Simply by adding construction planes and camera controls, we got a useful set of 3D tools "for free".
+However, given that we use 2D techniques to project curves onto 3D planes that are either flat or curved along one axis, only planar 3D curves are possible.
+In the current system, we restricted ourselves to using only the 2D shape information of the tape, although the tape itself can provide 3D shape data.
+Accordingly, we intend to explore using the 3D shape information for creating nonplanar 3D curves, building on techniques developed in .
+Overall, our system has demonstrated how a high degreeof-freedom curve input device can be used for complex curve manipulations.
+It is also an example of a graspable  or tangible  interface that goes beyond the simple one-to-one mappings between physical and virtual artifacts that have typically been demonstrated by previous research.

@@ -1,0 +1,268 @@
+The ubiquity of smartphones has led to the emergence of mobile crowdsourcing markets, where smartphone users participate to perform tasks in the physical world.
+Mobile crowdsourcing markets are uniquely different from their online counterparts in that they require spatial mobility, and are therefore impacted by geographic factors and constraints that are not present in the online case.
+Despite the emergence and importance of such mobile marketplaces, little to none is known about the labor dynamics and mobility patterns of agents.
+This paper provides an in-depth exploration of labor dynamics in mobile task markets based on a year-long dataset from a leading mobile crowdsourcing platform.
+We find that a small core group of workers  account for a disproportionately large proportion of activity  generated in the market.
+We find that super agent efficiency stems from two simple optimizations -- they are 3x more likely than other agents to chain tasks and they pick fewer lower priced tasks than other agents.
+We compare mobile and online micro-task markets, and discuss differences in demographics, data quality, and time of use, as well as similarities in super agent behavior.
+We conclude with a discussion of how a mobile micro-task market might leverage some of our results to improve performance.
+The past decade has seen unprecedented growth in smartphones, with millions of these devices becoming first-class citizens of the Internet.
+The growing smartphone user base has enabled new paid mobile crowdsourcing marketplaces, where individuals are paid to perform tasks using their mobile phones as they move around in their day-to-day lives.
+Such task markets represent the mobile equivalent of online task markets such as the Amazon Mechanical Turk , and provide an exchange for short and generic micro-tasks that can be performed by any individual with a smartphone.
+Several instances of such mobile crowdsourcing markets have emerged commercially including Gigwalk , FieldAgent , and TaskRabbit  -- typical tasks pay users a few dollars for capturing photos of buildings or sites, price checks, product placement checks in stores, traffic checks, location-aware surveys, and so on.
+While there has been significant prior work on online microtask markets such as the Amazon Mechanical Turk, they do not capture several unique characteristics of mobile crowdsourcing markets.
+These markets are different from their online counterparts in that they involve mobility in the physical world.
+As a consequence, they are influenced by a host of location-dependent factors such as population density, transportation modes, commute costs, and geographically scoped supply and demand, none of which play a role in online task markets.
+Such mobile task markets provide valuable and unique insights into the labor dynamics for micro-tasks in the physical world, and our understanding of how location-
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In this paper, we leverage a large dataset of several hundreds of thousands of mobile micro-tasks and tens of thousands of agents from a popular mobile crowdsourcing platform.
+First, we mine the dataset to answer several questions about spatio-temporal labor dynamics of agents in a mobile task market.
+We look at how far agents are willing to move to perform tasks, how they amortize the costs associated with travel across tasks that they perform, how efficient they are in locating tasks that they wish to perform and in actually executing the tasks, and the quality of data that they provide.
+We look at temporal trends across all of these metrics to understand whether their efficiency tends to improve or reduce over time.
+Our analysis reveals that a small fraction of agents , whom we refer to as super-agents, perform more than 80% of the tasks and earn more than 80% of the total earnings.
+We track these super agents to understand what makes them so good at leveraging a mobile crowdsourcing system.
+We find that super agents are willing to travel longer distances to reach jobs and thereby incur larger fixed travel costs, yet they are more efficient and amortize the fixed costs by performing several back-to-back jobs at locations that they travel to as well as by optimizing the time spent in searching and completing jobs.
+We also find that super agents are constantly improving in their efficiency across spatial and temporal dimensions, as well as improving the quality of data they provide.
+Second, we contrast mobile crowdsourcing and online crowdsourcing markets in terms of demographics, super agent behavior, data quality and other metrics.
+We find that mobile markets have more male, educated, and younger agents in comparison with online task markets.
+We also see fewer data quality issues in mobile crowdsourcing markets compared to the online case, perhaps because of location-based validation and the high commute costs.
+We find similarities in super agent behavior across these task markets but differences in usage behavior.
+Third, we discuss implications of our analysis for the design of mobile task markets, how to design these markets to make them more effective, and how to use our findings about super agent behavior to enable other agents to be more efficient and productive.
+Our analysis provides a valuable first look at labor dynamics in a large-scale mobile crowdsourcing system.
+One of the biggest categories of tasks in the dataset is the Photosynth category.
+It requires agents to capture high quality panoramic images using the Microsoft Photosynth1 app.
+Traffic tasks may have agents investigate the existence of a roadblock at a particular location.
+Workers can search for tasks easily on a map, clicking through to view details of the task.
+Almost all tasks  required agents to be present at the location of the task before they can accept one.
+Upon downloading the app, agents report their gender, age, highest level of education, and current profession, providing valuable information about the demographics of the agents on MobileCrowd.
+All activity generated by the agent on the app is logged with a timestamp and location.
+This includes agent authentication events, profile update events, task downloads and views, starting and completion of tasks, acceptance and rejection of tasks by task posters, etc.
+Overall, the dataset contained over 28 million log entries, providing a wealth of data about agent behavior that forms the basis of our analysis.
+MobileCrowd was initially released on the Apple iPhone, and has subsequently been released for the Android OS.
+We have data for over 400 days of MobileCrowd agent activity ending in September 2011.
+Our trace ended before the Android app was released so the dataset contains only iPhone users.
+Out of the tens of thousands of unique agents who were registered to use the service, several thousand agents successfully completed at least one assignment, whom we call active agents.
+All analyses presented in the paper are over these active agents, and a subset of these active agents whom we refer to as super-agents, unless mentioned otherwise.
+MobileCrowd  is a smartphone-based crowdsourcing platform.
+It allows individuals with smartphones easy access to flexible work, while allowing businesses to tap into a mobile workforce.
+MobileCrowd is active in several major metros in the US including Los Angeles, New York City, San Francisco Bay Area, Seattle, among others.
+MobileCrowd customers post tasks, which usually have more than one instantiation and may be assigned in various locations.
+For example, a task could be to try a product and report on the customer experience and this task may be assigned for multiple stores in different locations.
+While examining MobileCrowd user behavior, we observe an interesting trend -- a relatively small core-group of users generate a disproportionately large fraction of the activity.
+Figure 1 shows that 10% of active agents are responsible for a remarkable 84% of total earnings, and for 80% of the total tasks done on MobileCrowd.
+The existence of such heavily skewed behavior on MobileCrowd makes it important to focus on this critical group of users since they play a dominant role in the overall dynamics of the system and contribute the most value to task posters in such a marketplace.
+We refer to this top 10% of active agents as super-agents, a term that we will use throughout this paper to refer to this group.
+Our analyses in the rest of this section examines several questions pertinent to user behavior through a super agent lens.
+Why are super agents significantly more effective at performing tasks and earning money through mobile crowdsourcing?
+Rather, we focus on understanding performance of agents, and comparing different groups in terms of their efficiency.
+Is traveling longer distances correlated with higher activity on MobileCrowd?
+Do agents who have larger geographically "active" regions perform better?
+Can the success of super agents be explained by their willingness to travel larger distances?
+The metric that we use for capturing these tradeoffs is distance efficiency, which we define as the number of dollars earned per mile traveled in a day.
+A higher distance efficiency means that an agent earned more dollars per mile, which is preferred irrespective of the transportation mode that the agent used.
+Estimating distance traveled: To compute distance efficiency, we must first estimate the distance traveled in a day to perform the tasks.
+However, measuring the total distance traveled by a super-agent is not straightforward since we first need to identify the "home" location for each agent, and then calculate the round-trip distance between home and the tasks that were performed in the day.
+In addition, it is possible that agents further amortize travel costs by performing tasks that are closer to their "work" location or other meaningful locations where they may be visiting.
+We approximate the total distance traveled by an agent as follows.
+We look at all the locations at which the app was used but where a task was not actually completed -- this includes browsing for tasks, updating profile, or viewing earnings, but does not include working on and submitting tasks.
+We assume that most of these points are likely to emerge from the "planning" location i.e.
+We identify this planning location for each active agent as the largest cluster among the non-worked location samples, generated by running an hierarchical clustering algorithm on the dataset, where clusters are not allowed to span more than a mile in radius.
+Once the planning location is identified, our estimate for the daily distance travelled is the length of the simple cycle starting from the planning location, and visiting all completed assignments in a day.
+For example, if an agent does most of his planning in location A and in one day completed a task in location B and another in location C , the daily distance traveled would be the sum of the distance between A and B , B and C , and C and A, where each distance is the great circle distance between the two points.
+We filtered out cases where agents traveled more than 100 miles since agents sometimes performed work in other cities while traveling.
+Figure 2 shows the CDF of the daily distances travelled on days where at least one task was completed.
+We find that super-agents travel on average 14.07 miles each day in-order to complete tasks, which is 2.91 miles longer in a day than other agents .
+Do super agents earn more simply because they perform more tasks or do they have any tricks that make them more efficient in performing these tasks?
+How far are agents willing to travel to perform tasks?
+Are the amounts earned on tasks sufficient to amortize commute costs?
+Are there any demographic differences between super agents and other agents?
+Through the process of answering these questions, we hope to identify characteristics that distinguish this group, and that could provide useful insights for task posters and agents.
+We use mixed-effects regressions analyses, which account for correlation of observations within individuals, to test for significant differences.
+Where useful, p-values are reported with the means and confidence bounds of the corresponding distributions.
+In this section, we look at the efficiency of agents on the MobileCrowd platform.
+Since mobile tasks involve both physical mobility as well as time spent on the app to perform the task, we need to consider both the spatial and temporal efficiency of an agent.
+From a spatial perspective, Labor Economists have argued that higher labor mobility, either in the form of occupational mobility  or geographic mobility , contributes to economic growth by eliminating inefficiencies in the economy .
+In the context of mobile crowdsourcing, we see a lot of geographical labor mobility.
+While this does not manifest in the sense of uprooting livelihoods and relocating as commonly understood by Economists, willingness to move longer distances generally makes more tasks accessible to workers provided that there are tasks available further away.
+From a temporal perspective, a pertinent question is how efficiently agents perform work in a mobile task market.
+Just as labor mobility incurs the overhead of moving to the task location, there is also temporal overhead incurred in searching across the list of available tasks in an area, and deciding which tasks to perform.
+In the rest of this section, we look at these two aspects of efficiency of mobile agents.
+Figure 3 shows the CDF of distance efficiency for all active agents.
+The graph shows that super agents have higher distance efficiency in all except the last quartile of agents, where the trend flips.
+This demonstrates that longer distances that super agents are willing to travel occasionally hurts their distance efficiency.
+The higher distance efficiency for some of the other agents also arises from the fact that they perform only a few tasks that are very proximate to their residences, leading to high efficiency.
+In terms of average earnings, super agents and other agents are similar earning on average 6.51 and 6.57 dollars per mile respectively.
+In summary, we see that even though super agents travel longer distances, they earn more in their travels, thereby making their distance efficiency higher than a majority of other agents.
+Since our dataset includes details on exactly what action was performed on the app each time it was used, it allows us to precisely separate the two metrics.
+Together, these metrics capture the temporal efficiency of a user.
+Working efficiency: In order to measure how well an agent uses her time while working, we define working efficiency as the number of dollars earned per hour spent working on assignments.
+Figure 4 shows the CDF of working efficiency for all active agents.
+Super agents earn on average 19.84 dollars per hour, while other agents earn 10.82 dollars per hour  Searching efficiency: The temporal efficiency of a mobile agent depends not only on the time spent working on assignments, but also the time agents spend planning and looking for tasks to perform.
+In this section we look at these sessions in which agents do no work, but spend searching and planning.
+Similar to working efficiency, we define searching efficiency as the dollars earned per hour that an agent spends planning and searching for tasks.
+Figure 5 shows the CDF of searching efficiency of agents.
+We find that super agents earn on average 40.19 dollars per minute spent plan-
+Having looked at the mobility patterns of agents in MobileCrowd, we turn to the temporal aspects of their behavior.
+Specifically, we look at how efficiently they use their time on MobileCrowd.
+A session is defined as a series of agent activity events whose inter-event gap is not longer than ten minutes and the inter-event distance is not more than half a mile.
+A worked session is a session during which at least one task was attempted.
+Figure 6 shows that while non-super agents chained more than one assignment in only 5% of worked sessions, super agents chained more than one assignment in almost 20% of worked sessions - a four-fold difference.
+Indeed, we find super agents are 3x more likely to chain multiple assignments into one .
+This difference is even more significant if we look at the proportion of total earnings generated by sessions where chaining occurred.
+Figure 7 shows the cumulative fraction of the agents' earnings produced by sessions where they completed one assignment, two assignments, and so on.
+For super agents, this plot shows that this 20% of worked sessions, where more than one assignment was completed, is responsible for nearly 50% of total super-agent earnings.
+For the rest of the agents, this plot shows that the corresponding 5% of sessions generated only about 15% of non-super-agent earnings.
+This explains why, in a majority of cases, super agents have higher distance efficiency even though they travel longer distances -- they amortize the travel costs better by chaining multiple tasks into one worked sessions.
+These results are in line with labor economic theories about the impact of mobility on overall economic activity -- more willingness to move can provide larger rewards in terms of earnings.
+Higher paid tasks: The above result explains how super agents are more efficient along the spatial dimension but how do they improve temporal efficiency?
+First, we look at the rewards for tasks that agents perform, and see if there is a difference in rewards for tasks that are selected by super agents v.s.
+Figure 8 shows the CDF of offered rewards on completed assignments.
+We see that the super agent distribution is to the right of that for the other agent, implying that super agents do in fact work on higher priced tasks in comparison with other agents .
+Our results so far have demonstrated that super agents are more efficient along the spatial and temporal dimensions.
+We now ask "how" they achieve higher efficiencies.
+Are there any specific techniques that super agents utilize to improve their efficiencies?
+Chaining Tasks: One intuitive method by which super agents may be improving efficiency is by working on several spatially proximate tasks each time they travel to a location.
+Since many tasks involve photos and information about businesses, they tend to be clustered in downtown areas and malls where several businesses are present.
+This provides an opportunity to "chain" several tasks and perform them in a single batch.
+We find that super agents travel larger distances to complete tasks over time .
+This indicates increasing involvement in MobileCrowd as super agents continue to use the system.
+Second, we look at whether agents learn to improve their distance efficiency score over time.
+For both super agents  and other agents  we find a positive effect of time on distance efficiency.
+This implies that all agents on average improve their distance efficiency score as they continue to participate in MobileCrowd.
+Temporal efficiency trends: We now turn to trends in temporal efficiency.
+We look at whether agents are able to improve their working and searching efficiency over time.
+We find that all agents, not just super agents, improve their working efficiency over time .
+This indicates that agents are either chaining more tasks over time, shifting to higher paid tasks, getting faster in completing tasks, or any combination thereof.
+In terms of searching efficiency, we find no statistical evidence to suggest that super agents improve on this dimension, whereas other agents improve searching efficiency over time .
+Thus, we see that super agents, and other agents as well, generally improve in their efficiency as they continue to use the mobile task market.
+This improvement in efficiency is both a sign of increasing engagement in the system, and a sign that they are learning ways to reduce the overhead of using such a platform.
+In particular, the fact that super agent participation increases over time suggests that the demand side of such a market place is steady -- once agents become active participants in such a system, they remain active.
+Second, we look at the rate at which super agents perform tasks and see if there are intrinsic differences in the rate at which work is done by different agent groups.
+In order to understand this behavior, we look at the largest category of tasks in MobileCrowd, which are the Photosynth tasks and check if super agents are quicker to complete these tasks.
+We fix the category of tasks to control for any differences between tasks in terms of the amount of work involved.
+Figure 9 shows the CDF of time taken by agents to complete these Photosynth assignments.
+While the rest of the crowd takes 14.75 minutes on average to complete these Photosynth tasks, super agents take merely 4.58 minutes on average to complete these tasks .
+Super agents are more than 3 times more efficient at doing Photosynth tasks than the rest of the agents!
+Thus, the high temporal efficiency of super agents is a combination of selection of higher paid tasks as well as being faster in completing these tasks.
+An important question in a crowdsourcing task market is how agents change their behavior over time.
+We discussed several measures of agent efficiency, but do these efficiency measures improve over time or do they wane?
+In addition to providing insights into how agents learn methods to utilize the system more effectively, perhaps a bigger reason to analyze trends is to understand if the market place remains attractive for agents over a long term.
+Retention of important personnel is critical to any organization, and particularly to a task market where an agent can leave at any time.
+If the efficiency numbers remain steady or rise over time, that suggests a vibrant marketplace, and if the efficiency numbers dip, it suggests a marketplace in decline.
+To understand such "retention" aspects of MobileCrowd, we look at trends in efficiency i.e.
+Spatial efficiency trends: First, we look at the distance agents travel to do tasks and its variation over time.
+To do this analysis, we take the time every assignment was completed and normalize by the day they joined MobileCrowd.
+Our analysis of spatial efficiencies assumed that agents across the country were homogeneous in their travel patterns, and efficiencies.
+We now separate agent behavior across different geographies to understand whether there are differences across different metros and/or states, and how we might understand agent behavior in different geographies.
+First, we look at how travel distances and distance efficiencies vary across metros in the U.S. We pick five metros where a significant fraction of tasks were located, and compare them across the two metrics.
+Major metros in the U.S. differ widely in their geographic spread and urban sprawl, typical commute patterns and transportation modes, availability and popularity of public transportation, proximity between downtowns  and residential areas , and so on.
+Figure 10 shows a box plot of distances traveled by agents on days where at least one task was completed broken down by five major metros in the U.S. We observe some interesting trends -- commute in LA is double that of NYC, and easily the largest across all metros.
+Miami is the second highest in terms of commute, followed by SF, Chicago, and the lowest being NYC.
+We find trends that are similar to those observed for the key metros.
+In general, agents in FL and CA earn less per mile traveled compared to agents in the other states, and agents in NY and MA earn the most per mile traveled, reflecting the sprawl of cities in the corresponding states.
+However, regardless of the state, super agents have better distance efficiency numbers compared to the rest of the agents as they are able to amortize travel costs over their comparatively larger daily earnings.
+The results show that while there are differences across metros/states as might be expected based on the differences in population spread and urban sprawl, the overall conclusion remains remarkably consistent -- super agents travel more than other agents but they have higher distance efficiency.
+Other cities fall in between these extremes.
+Regardless of the metro, however, we find that super agents are willing to move more, meaning that they are willing to incur more travel costs  for performing tasks each day.
+The differences in distance traveled is reflected in the distance efficiencies of agents in the different metros.
+Figure 11 show that agents in NYC have the highest efficiency, followed by Chicago, SF, Miami and the lowest being LA.
+This reflects the fact that the super agents in LA or Miami are not able to amortize their travels over more tasks than their counterparts in NYC or Chicago.
+Thus, the overall earnings per trip remains roughly the same across the metros, leading to lower distance efficiency for some of the cities.
+As with distance traveled, we find that super agents have higher distance efficiency than other agents in all except the third quartile for NYC.
+Our results thus far have shown that super agents are more efficient in spatial and temporal dimensions, but is the data quality good or do they submit low quality responses in their effort to make more money?
+To understand the difference in data quality between super agents and the rest, we look at whether the domain expert who requested the job accepted or rejected the submission.
+If accepted, the agent who completed the task is paid.
+Otherwise, it is automatically reposted allowing agents to reattempt the task.
+The acceptance rate for an agent is defined as the fraction of the tasks completed by the agent that has been accepted by the requester.
+Figure 12 shows the CDF of acceptance rates broken down by agent class.
+We find that super agents on average have an acceptance rate of 90.73% while other agents have an acceptance rate of 69.58%.
+Furthermore, we find that super agents tend to improve their acceptance rate over time .
+These result shows that super agents are not only more efficient, but also provide higher quality responses than the rest of the agents.
+Perhaps this is unsurprising, since rejected responses would reduce the overall efficiency of super agents since the time/cost of searching, working, and traveling would have been wasted.
+In their effort to maximize overall efficiency, they provide good data to ensure that their responses are not rejected.
+In this section, we contrast some of the results that we have observed with observations made in online crowdsourcing counterparts.
+While location-related aspects are unique to mobile crowdsourcing, we find commonalities in super agent behavior and differences in the demographics of users who participate in mobile v.s.
+The super agents are clearly more efficient in every dimension -- spatial, temporal and quality.
+So, who are these people?
+How do they differ from the other agents?
+Table 2 shows that agents on MobileCrowd are highly educated.
+Over 75% of agents hold a college degree, and over 20% hold an advanced degree.
+We find that more educated agents are significantly more likely to become super agents .
+Table 3 shows that most agents are young.
+Almost 70% of active agents are under 35 years of age.
+However, we find that older agents are more likely to become super agents .
+Table 4 shows two groups of agents: students , who made up the largest profession on MobileCrowd, and photographers , who had the highest completed assignment yield, i.e.
+Despite being the largest profession on MobileCrowd, students are less likely to become super agents .
+In contrast, we find photographers to be more likely to become super agent .
+Photographers had a completed assignment yield of 23.57 assignments/agent, while the overall active agent population had a yield of 6.93 assignments/agent.
+The fact that photographers are more likely to become super agents may be attributed to the fact that a large fraction of mobile crowdsourcing jobs involved capturing images of a physical location or building .
+Photographers have a natural inclination for such jobs, and seemed to be better suited for them.
+Thus, even though mobile crowdsourcing jobs are simple enough to be performed by any user with a smartphone, the nature of the job tends to attract users with certain types of interests and skillset more than others.
+While a few of the demographic make up and behavioral patterns we observe on MobileCrowd are consistent with their online counterparts, many are different.
+Whereas women  outnumbered men  amongst MTurkers in the U.S. , we find the opposite on MobileCrowd, there are signficantly more male  agents than female  agents.
+Perhaps this difference is due to the high mobility requirement in mobile crowdsourcing markets.
+Yet, we did not find evidence that suggested that active male agents had any higher probability of success on MobileCrowd.
+In MobileCrowd, the corresponding figure is over 62%, suggesting that whilst crowdsourcing in general is most popular amongst the young, mobile crowdsourcing is slightly more so.
+Despite this skew, and somewhat surprisingly, we find that the older agents have a higher probability of success on MobileCrowd.
+Whereas  found 55% of MTurkers in the U.S. reported they hold at least a college degree, in MobileCrowd, over 75% reported holding at least a college degree, indicating a significantly more educated labor market in the mobile crowdsourcing sphere.
+These last two findings may be the result of the higher barrier to entry into the mobile crowdsourcing market.
+Many have access to the web, but not as many have access to smartphones.
+A heavy tail of participants who have a significantly lower level of activity compared to the top contributors is not uncommon for any online community .
+In online crowdsourcing, MTurk, one of the most well-studied platforms, was found to exhibit this heavy-tail characteristic .
+In one longitudinal study , 10% of the most active MTurkers were found to complete 75% of the HITS.
+The same study reported that 16% of the most active MTurkers earned 70% of total income.
+This characteristic has been independently verified in , which found that the top 22% of MTurkers on AMT completed 80% of the HITs.
+Such a long-tail phenomenon is not only exhibited by the MTurkers , but also seen on the part of requesters .
+Indeed, it was observed by 
+A WitKey website is an online knowledge market where users post questions or problems and other users provide solutions competing for a monetary award.
+Task.cn is one of the biggest WitKey websites in China with millions of registered users.
+They found that 0.1% of active users were responsible for proposing 20% of the winning solutions  This 0.1% of users were additionally found to increase their win to submission ratio over time, similar to efficiency trends that we observed about super agents.
+One of the challenges in online crowdsourcing is obtaining high quality data from agents.
+This is the result of the difficulty involved in manually verifying the quality of submitted responses, which can be time-consuming and can negate the benefits of crowdsourcing.
+As a consequence, many requesters only sample some of the results, and are more likely to automatically pay workers since the price is low.
+Malicious workers  can take advantage of the verification difficulty, and submit low-quality responses in the hope that they will not be checked .
+For example,  cites an example where users are required to classify a website into G/PG/R or X categories, but it is difficult to verify if the worker actually visited the site.
+We find that the difficulty with verifying data quality is less prevalent in mobile crowdsourcing systems.
+Most submissions are of high quality, and the rejected submissions are often because users did not provide high-quality photos or fill out all fields rather than malicious intent.
+Our hypothesis is that this is because of two reasons.
+First, since the mobile application records location and time data from users' smartphones, verification of the fact that agents visited the location where they were supposed to perform tasks is trivial.
+Second, the cost of doing a task is significantly higher compared to online tasks because of additional travel and commute costs associated with moving to task locations.
+Intuitively, by expending low effort, agents incur a higher risk of not getting paid, and given the higher cost of doing tasks on mobile task markets, the expected payoff is significantly less.
+Thus, agents have limited incentive to submit low-quality results, leading to higher quality of work in a mobile task market.
+Our analysis of labor dynamics in mobile crowdsourcing markets reveals several opportunities for improving the design of such systems.
+We outline some techniques that can be used to improve agent performance.
+Providing Routes: We found that super agents optimize their efficiency by planning their routes efficiently, and chaining tasks to perform a sequence of tasks.
+In contrast, other agents are less likely to strategize as carefully and therefore have lower efficiency across the board.
+These observations suggest an opportunity for a mobile crowdsourcing platform to improve how it presents tasks to users.
+Rather than just listing each task separately, a mobile task market can automatically identify routes that involve chaining of tasks, and provide recommendations to agents about these routes.
+Providing such "action plans" has been shown to be useful to workers in online crowdsourcing systems , and can be utilized to improve agent performance in mobile task markets as well.
+Travel surcharges: One of the questions that a mobile agent faces is whether earnings from performing a task covers the aggregate travel costs of commuting to the task location.
+The analysis in this paper provides insights into how a mobile crowdsourcing system may be able to simplify this decision for an agent.
+Another difference that we find between the two task markets is when workers/agents are likely to use the market.
+Studies of online labor markets have found that the workforce peaks in early afternoon times .
+The reasons for this behavior vary, but often is due to the availability of high-speed internet access from workplace rather than home.
+The corresponding time-of-day usage pattern for MobileCrowd is shown in Figure 13.
+Our intuition is that presenting such options with greater transparency can perhaps influence agents to increase the range that they cover.
+For example, they may travel more if they see that traveling an additional 10 miles beyond their normal commute can be amortized over a larger incentive across a chain of tasks.
+The second option is for the system to encourage requesters to explicitly incorporate such travel costs in pricing tasks.
+A rough estimate of travel costs may be obtained by identifying typical travel distances for super agents in the geographic region where task is to be posted , and estimate typical agent travel costs.
+This can be provided to requesters as a hint to decide how to price their tasks to attract maximum interest from nearby super agents.
+Hints for task poster: In this work, we have shown that super agents play a dominant role in the operation of the system, and perhaps provide the best indicator of the steady state demand for tasks in a mobile crowdsourcing system.
+Thus, by tracking the number of super agents and their frequency of work, we can obtain a robust estimate of the demand for tasks in a geographic area.
+This information can be valuable to a task poster.
+If a new task is being posted at a location, a task poster could be presented with information about the number of super-agents who are "in range" of the task location as well as other tasks in the vicinity of the same super agents.
+Such geo-scoped supply-demand information can be useful for task posters to estimate how long a task may take to complete as well as to provide an idea of how to price a task competitively to attract sufficient interest from the super agents.
+While our analysis provides extensive insights into mobile task markets, it also opens up several interesting directions.
+One direction is modeling completion delay for tasks, based on super-agent and task availability in the geographic vicinity.
+Another direction is exploring the dynamics on the demand side of the market.
+What is the arrival rate of new tasks?
+Is there a stable flow?
+While some of these questions have been explored in the context of online markets, location provides a new dimension to explore behavior in mobile task markets.
+However, little is known about labor dynamics in micro-task markets that require physical mobility of agents.
+In this paper, we analyze user behavior on one of the largest and most popular mobile task markets.
+We analyzed efficiency of mobile agents in terms of how much distance they travel and time they spend for each dollar earned, and understand how a few agents  manage to perform much more efficiently than others.
+We looked at the behavior of these agents across metros/states with vastly different population spread and transportation modes, and across time to understand trends.
+In addition to analyzing agent behavior in a mobile task market, we also looked at how such markets differ from online crowdsourcing markets such as the Mechanical Turk that have been extensively analyzed over the last several years.
+We find significant differences in demographics, data quality, and other factors, reflecting the differences in the costs involved, and smartphone-using agent population.
+Finally, we draw lessons to improve the design of mobile task markets and improve efficiency of new agents.
+Our findings provide a valuable first look at spatio-temporal labor dynamics in mobile task markets.

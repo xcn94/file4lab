@@ -1,0 +1,321 @@
+Current multitouch frameworks require application developers to write recognition code for custom gestures; this code is split across multiple event-handling callbacks.
+Proton is a novel framework that addresses both of these problems.
+Using Proton, the application developer declaratively specifies each gesture as a regular expression over a stream of touch events.
+Proton statically analyzes the set of gestures to report conflicts, and it automatically creates gesture recognizers for the entire set.
+To simplify the creation of complex multitouch gestures, Proton introduces gesture tablature, a graphical notation that concisely describes the sequencing of multiple interleaved touch actions over time.
+Proton contributes a graphical editor for authoring tablatures and automatically compiles tablatures into regular expressions.
+We present the architecture and implementation of Proton, along with three proofof-concept applications.
+These applications demonstrate the expressiveness of the framework and show how Proton simplifies gesture definition and conflict resolution.
+Proton represents a gesture as a regular expression describing a sequence of touch events.
+Using Proton's gesture tablature, developers can design a multitouch gesture graphically by arranging touch sequences on horizontal tracks.
+Proton converts the tablature into a regular expression.
+When Proton matches the expression with the touch event stream, it invokes callbacks associated with the expression.
+Today, developers must write separate callbacks to handle each low-level touch event for each scene object.
+Implementing a gesture requires tracking the sequence of events that comprise the gesture across disjoint callbacks.
+Consider a gesture in which the user must simultaneously touch two scene objects to connect them as nodes in a graph.
+The developer must maintain the state of the gesture across callbacks for each object and communicate this state via messages or global variables.
+Such stack ripping  results in complicated and hard-to-read "callback soup."
+Breaking up gesture code makes it difficult to not only express a gesture, but also to understand and modify the gesture later.
+Consider two gestures, one for rotating and one for scaling objects in a 2D scene.
+Both gestures require the first touch to fall on an object to select it, while the motion of a second touch indicates the transformation.
+At the level of touch events, the two sequences are identical and the developer must write disambiguation logic to resolve this conflict within the respective callbacks.
+Yet, such gesture conflicts may not even be apparent until a user performs one of the gestures at runtime and the application responds with an unintended operation.
+In large applications that support many gestures, identifying and managing such gesture conflicts can be extremely difficult.
+These two sources of complexity - splitting gesture recognition code across callbacks and conflicts between similar gestures - make it especially difficult to maintain and extend multitouch applications.
+To help alleviate these issues, we present Proton, a new multitouch framework that allows developers to declaratively spec-
+Multitouch application developers frequently design and implement custom gestures from scratch.
+Like mouse-based GUI frameworks, current multitouch frameworks generate low-level touch events  and deliver them to widgets or objects in the scene.
+A multitouch gesture is a sequence of low-level events on scene objects such as touch1-down-on-object1, touch1-move, touch2-down-on-object2, ....
+Unlike mouse gestures which track the state of a single point of interaction, multitouch gestures often track many points of contact in parallel as they each appear, move and disappear.
+Writing robust recognition code for sets of multitouch gestures is challenging for two main reasons:
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Proton automatically manages the underlying state of the gesture; the developer writes one callback function that is invoked whenever the stream of input events matches the gesture's regular expression.
+To provide visual feedback over the course of a gesture, the developer can optionally define additional callbacks that are invoked whenever the input stream matches expression prefixes.
+Our approach significantly reduces splitting of the interaction code as developers do not have to manually manage state or write a callback for every touch event.
+Declaratively specifying gestures as regular expressions also allows Proton to statically analyze the gesture expressions to identify the conflicts between them.
+Instead of having to extensively test for such conflicts at runtime, our static analyzer tells the developer exactly which sets of gestures conflict with one another at compile time.
+The developer can then choose to write the appropriate disambiguation logic or modify the gestures to avoid conflicts.
+Complex regular expressions can be difficult to author, read, and maintain .
+In regular expressions that recognize multitouch events, the interleaving of multiple, simultaneous touch events in a single event stream exacerbates this complexity.
+To help developers build gesture expressions, Proton offers gesture tablature, a graphical notation for multitouch gestures .
+The tablature uses horizontal tracks to describe touch sequences of individual fingers.
+Using Proton's tablature editor, developers can author a gesture by spatially arranging touch tracks and graphically indicating when to execute callbacks.
+Proton automatically compiles the gesture tablature into the corresponding regular expression.
+Our implementation of Proton makes two simplifying assumptions that limit the types of gestures it supports.
+First, it does not consider touch trajectory in gesture declarations.
+We focus on gestures defined by the sequencing of multiple touch events and the objects hit by those touches.
+As in current multitouch frameworks, the developer may independently track the trajectory of a touch, but our system does not provide direct support.
+Second, Proton focuses on single users who perform one gesture at a time.
+However, each gesture can be complex, using multiple fingers and hands, and may include temporal breaks .
+We discuss an extension to multi-user scenarios, but have not yet implemented it.
+We demonstrate the expressivity of Proton with implementations of three proof-of-concept applications: a shape manipulation application, a sketching application and a unistroke text entry technique .
+Using these examples, we show that Proton significantly reduces splitting of gesture recognition code and that it allows developers to quickly identify and resolve conflicts between gestures.
+Proton increases maintainability and extensibility of multitouch code by simplifying the process for adding new gestures to an existing application.
+Since Newman's pioneering work on Reaction Handler , researchers have modeled user interactions using formalisms such as state machines , context-free grammars  and push-down automata .
+These formalisms are used as specification tools, e.g., for human factors analysis ; to describe interaction contexts ; and to synthesize working interface implementations .
+A recurring theme in early work is to split user interface implementation into two parts: the input language ; and the application semantics for those actions.
+The input language is often defined using state machines or grammars; the semantics are defined in a procedural language.
+Proton takes a conceptually similar approach: it uses regular expressions as the underlying formalism for declaratively specifying sequences of touch events that comprise a gesture.
+Callbacks to procedural code are associated with positions within the expression.
+Proton goes beyond the earlier formalisms by also providing a static analyzer to detect conflicts between gestures as well as a graphical notation to further simplify the creation of gestures.
+With the recent rise of multitouch cellphones and tablet computers, hardware manufacturers have created a variety of interaction frameworks  to facilitate application development.
+These frameworks inherit the event-based callback  structure of mouse-based GUI frameworks.
+While commercial frameworks usually support a few common interactions natively , implementing a new gesture requires processing low-level touch events.
+Opensource multitouch frameworks similarly require developers to implement gestures via low-level event-handling code .
+This diagram serves as a recipe for detecting simple gestures, but the developer must still process the touch events.
+Many frameworks are written for specific hardware devices.
+Echtler and Klinker  propose a layered architecture to improve multitouch software interoperability; their design also retains the event callback pattern.
+However, none of these multitouch frameworks give developers a direct and succinct way to describe a new gesture.
+Researchers have used formal grammars to describe multitouch gestures.
+CoGesT  describes conversational hand gestures using feature vectors that are formally defined by a context-free grammar.
+Gesture Coder  recognizes multitouch gestures via state machines, which are authored by demonstration.
+In contrast, Proton allows developers to author gestures symbolically using the equivalent regular expressions.
+In multitouch frameworks such as GDL  and Midas  developers declaratively describe gestures using rule-based languages based on spatial and temporal attributes .
+Because these rule-based frameworks are not based on an underlying formalism such as regular expressions, it is difficult to reason about gesture conflicts at compile time.
+The developer must rely on heavy runtime testing to find such conflicts.
+In contrast to all previous techniques, Proton provides static analysis to automatically detect conflicts at compile time.
+11: function touchesMoved 12: if touchCount == 2 and gestureState != f ailed then 13: gestureState  continue 14: /*compute rotation*/ 15: function touchesEnded 16: touchCount  touchCount - 1 17: if touchCount == 0 and gestureState != f ailed then 18: gestureState  ended 19: /*perform rotation cleanup*/
+Mediators apply resolution strategies to choose between the different interpretations either automatically or with user intervention.
+More recently Schwarz et al.
+The application's mediator picks the most probable interpretation based on a likelihood metric provided by the developer.
+Proton borrows this strategy of assigning scores to interpretations and applying the highest scoring interpretation.
+In addition, Proton statically analyzes the gesture set to detect when ambiguities, or conflicts, can occur between them.
+Such compile-time conflict detection can aid the developer in scoring the interpretations and in designing the gestures to reduce ambiguities.
+Counting touches and maintaining gesture state adds significant complexity to the recognition code, even for simple gestures.
+This state management complexity can make it especially difficult for new developers to decipher the recognition code.
+Suppose a new developer decides to relax the rotation gesture, so that the second touch does not have to occur on the object.
+The developer must first deduce that the gesture recognition code must be re-registered to the canvas containing the object in order to receive all of the touch events, including those outside the object.
+Next the developer must modify the touchesBegan function to check that the first touch hits the object, and set the gesture state to failed if it does not.
+While neither of these steps is difficult, the developer cannot make these changes without fully understanding how the different callback functions work together to recognize a single gesture.
+As the number of gestures grows, understanding how they all work together and managing all the possible gesture states becomes more and more difficult.
+We begin with a motivating example that demonstrates the complexity of implementing a custom gesture using Apple's iOS , which is structurally similar to many commercial multitouch frameworks.
+We later show how writing the same example in Proton is significantly simpler, making it easier to maintain and extend the interaction code.
+As the user interacts with a multitouch surface, iOS continuously generates a stream of low-level touch events corresponding to touch-down, touch-move and touch-up.
+To define a new gesture the developer must implement one callback for each of these events, touchesBegan, touchesMoved and touchesEnded, and register them with objects in the scene.
+For each touch event in the stream, iOS first applies hit-testing to compute the scene object under the touch point and then invokes that object's corresponding callback.
+It is the developer's responsibility to track the state of the gesture across the different callbacks.
+Consider a two-touch rotation gesture where both touches must lie on the object with the pseudocode on the following column.
+A touch event contains three key pieces of information: the touch action , the touch ID 
+As we explain in the implementation section, Proton works with the multitouch hardware and hit-testing code provided by the developer to create a stream of these touch event symbols.
+The developer can define a gesture as a regular expression over these touch event symbols.
+Figure 2 shows the regular expressions describing three shape manipulation operations: Translation: First touch down on a shape to select it .
+The touch then moves repeatedly .
+Finally, the touch lifts up to release the gesture .
+Rotation: First touch down on a shape followed by a second touch down on the shape or canvas .
+Then both touches move repeatedly .
+Finally, the touches lift up in either order .
+Scale: First touch down on a shape followed by a second touch down on the shape or canvas .
+Then both touches move repeatedly .
+Finally, the touches lift up in either order .
+Describing a gesture as a regular expression both simplifies and unifies the gesture recognition code.
+The second parameters in lines 2 and 3 create triggers at the 4th and 5th symbols of the expression.
+The application invokes the rotate callback each time the event stream matches the regular expression up to the trigger location.
+In this case the match occurs when the two touches are moving; the callback can provide on-screen feedback.
+The location for the final trigger  is implicitly set to the end of the gesture expression.
+To change a gesture's touch sequence the developer simply modifies the regular expression.
+For example, to require users to place the second touch on a shape, the developer need only change the regular expression so that the second touch down must occur on a shape rather than a shape or background.
+In iOS, making this change requires much deeper understanding of the state management in the gesture recognition code.
+When a gesture includes multiple fingers each with its own sequence of touch-down, touch-move and touch-up events, the developer may have to carefully interleave the parallel events in the regular expression.
+To facilitate authoring of such expressions, Proton introduces gesture tablature .
+This notation is inspired by musical notations such as guitar tablature and step sequencer matrices.
+Developers graphically indicate a touch event sequence using horizontal touch tracks.
+Within each track, a green node represents a touch-down event, a red node represents a touch-up event and a black line represents an arbitrary number of touch-move events.
+Vertical positions of nodes specify the ordering of events between touch tracks: event nodes to the left must occur before event nodes to the right, and when two or more event nodes are vertically aligned the corresponding events can occur in any order.
+We believe that this separation of concerns facilitates authoring as developers can first design the event sequence for each finger on a separate track and then consider how the fingers must interact with one another.
+Developers can also graphically specify trigger locations and callbacks.
+Proton converts the graphical notation into a regular expression, properly interleaving parallel touch events.
+Finally, Proton ensures that the resulting regular expressions are well formed.
+For example, Figure 3a shows the tablature for a two-touch rotation gesture where the first touch must hit some shape, the second touch can hit anywhere, and the touches can be released in any order.
+Proton converts the vertically aligned touch-up nodes into a disjunction of the two possible event s a a a s s sequences: .
+Thus, Proton saves the developer the work of writing out all possible touch-up orderings.
+We describe the algorithm for converting tablatures into regular expressions in the implementation section.
+Proton inserts touch-move events between touch-down and touch-up events when converting tablature into regular expressions.
+To indicate that the hit target must change during a move, the developer can insert explicit touch-move nodes.
+Consider a strikethrough gesture to delete shapes that starts with a touch-down on the background, then moves over a shape, before terminating on the background again.
+The corresponding tablature  includes a gray node with OT ype = s indicating that at least one move event must occur on a shape and a white node with OT ype = b, indicating that the touch may move onto the background before the final touch-up on the background.
+Developers can also express multiple recurring touches , by arranging multiple touch tracks on a single horizontal line .
+A local trigger arrow placed directly on a touch track associates a callback only with a symbol from that track .
+A global trigger arrow placed on its own track  in Figure 3a associates the callback with all aligned events .
+A final trigger is always invoked when the entire gesture matches.
+To increase expressivity our tablature notation borrows elements from regular expression notation.
+The developer can use parentheses to group touches, Kleene stars to specify repetitions and vertical bars to specify disjunctions.
+Figure 1 shows an example where the user can place one touch on a button and perform repeated actions with one or two additional touches.
+For example, when comparing the translation and rotation gestures , it returns the s s expression D1 M1 *, indicating that both gestures will match the input stream whenever the first touch lands on a shape and moves.
+When the second touch appears, the conflict is resolved as translation is no longer possible.
+Once the conflict has been identified the developer can either modify one of the gestures to eliminate the conflict or write disambiguation code that assigns a confidence score to each interpretation of the gesture as described in the next section.
+The Proton runtime system includes three main components .
+The stream generator converts raw input data from the hardware into a stream of touch events.
+The gesture matcher compares this stream to the set of gesture expressions defined by the developer and emits a set of candidate gestures that match the stream.
+The gesture picker then chooses amongst the matching gestures and executes any corresponding callback.
+Proton also includes two compile-time tools.
+The tablature conversion algorithm generates regular expressions from tablatures and the static analysis tool identifies gesture conflicts.
+Multitouch hardware provides a sequence of time-stamped touch points.
+Proton converts this sequence into a stream of touch event symbols .
+It groups touches based on proximity in space and time, and assigns the same TID for touch events that likely describe the path of a single finger.
+Proton also performs hit-testing to determine the OT ype for each touch.
+It is the developer's responsibility to specify the set of object types in the scene at compile-time and provide hit-testing code.
+When the user lifts up all touches, the stream generator flushes the stream to restart matching for subsequent gestures.
+Some gestures may require all touches to temporarily lift up .
+To enable such gestures, developers can specify a timeout parameter to delay the flush and wait for subsequent input.
+To minimize latency, Proton only uses timeouts if at least one gesture prefix is matching the current input stream at the time of the touch release.
+Gesture conflicts arise when two gestures begin with the same sequence of touch events.
+Current multitouch frameworks provide little support for identifying such conflicts and developers often rely on runtime testing.
+However, exhaustive runtime testing of all gestures in all application states can be prohibitively difficult.
+Adding or modifying a gesture requires retesting for conflicts.
+Proton's static analysis tool identifies conflicts between gesture expressions at compile time.
+The gesture matcher keeps track of the set of gestures that can match the input stream.
+Initially, when no touches are present, it considers all gestures to be possible.
+As it receives new input events, the matcher compares the current stream against the regular expression of each candidate gesture.
+Left: Proton generates a touch event stream from a raw sequence of touch points given by the hardware.
+The gesture matcher renumbers unique TID s produced by the stream generator to match the gesture expressions.
+Right: The gesture matcher then sequentially matches each symbol in the stream to the set of gesture expressions.
+Translation, rotation, and scale all match when only a single finger is active,  and , but once the touch is lifted only translation continues to match, .
+At each iteration the matcher sends the candidate set to the gesture picker.
+In a gesture regular expression, TID denotes the touch by the order in which it appears relative to the other touches in the gesture .
+In contrast, the TID s in the input event stream are globally unique.
+To properly match the input stream with gesture expressions, the matcher first renumbers TID s in the input stream, starting from one .
+However, simple renumbering cannot handle touch sequences within a Kleene a a a star group, e.g., *, because such groups use the same TID for multiple touches.
+Instead we create a priority queue of TID s and assign them in ascending order to touchdown symbols in the input stream.
+Subsequent touch-move and touch-up symbols receive the same TID as their associated touch-down.
+Whenever we encouter a touch-up we return its TID to the priority queue so it can be reused by subsequent touch-downs.
+The gesture matcher uses regular expression derivatives  to detect whether the input stream can match a gesture expression.
+The derivative of a regular expression R with respect to a symbol s is a new expression representing the remaining set of strings that would match R given s. For example, the derivative of abb with respect to symbol a is the regular expression bb since bb describes the set of strings that can complete the match given a.
+The derivative with respect to b is the empty set because a string starting with b can never match abb.
+The derivative of a with respect to a is a.
+The matcher begins by computing the derivative of each gesture expression with respect to the first touch event in the input stream.
+For each subsequent event, it computes new derivatives from the previous derivatives, with respect to the new input event.
+At any iteration, if a resulting derivative is the empty set, the gesture expression can no longer be matched and the corresponding gesture is removed from the candidate set .
+If the derivative is the empty string, the gesture expression fully matches the input stream and the gesture callback is forwarded to the gesture picker where it is considered for execution.
+If the frontmost symbol of a candidate expression is associated with a trigger, and the derivative with respect to the current input symbol is not the empty set, then the input stream matches the gesture prefix up to the trigger.
+Thus, the matcher also forwards the trigger callback to gesture picker.
+Finally, whenever the stream generator flushes the event stream, Proton reinitializes the set of possible gestures and matching begins anew.
+One Gesture at a Time Assumption: The gesture matcher relies on the assumption that all touch events in the stream belong to a single gesture.
+To handle multiple simultaneous gestures, the matcher would have to consider how to assign input events to gestures and this space of possible assignments grows exponentially in the number of gestures and input events.
+As a result of this assumption Proton does not allow a user to perform more than one gesture at a time .
+However, if the developer can group the touches , an instance of the gesture matcher could run on each group of touches to support simultaneous, multi-user interactions.
+Supporting one interaction at a time might not be a limitation in practice for single-user applications.
+Users only have a single locus of attention , which makes it difficult to perform multiple actions simultaneously.
+Moreover, many popular multitouch applications for mobile devices, and even large professional multitouch applications such as Eden , only support one interaction at a time.
+The gesture picker receives a set of candidate gestures and any associated callbacks.
+In applications with many gestures it is common for multiple gesture prefixes to match the event stream, forming a large candidate set.
+In such cases, additional information, beyond the sequence of touch events, is required to decide which gesture is most likely.
+In Proton, the developer can provide the additional information by writing a confidence calculator function for each gesture that computes a likelihood score between 0.0 and 1.0.
+In computing this score, confidence calculators can consider many attributes of the matching sequence of touch events.
+For example, a confidence calculator may analyze the timing between touch events or the trajectory across move events.
+Consider the conflicting rotation and scale gestures shown in Figure 2.
+The confidence calculator for scale might check if the touches are moving away from one another while the confidence calculator for rotation might check if one finger is circling the other.
+The calculator can defer callback execution by returning a score of zero.
+The gesture picker executes confidence calculators for all of the gestures in the candidate set and then invokes the associated callback for the gesture with the highest confidence score.
+We leave it to future work to build more sophisticated logic into the gesture picker for disambiguating amongst conflicting gestures.
+One common use of trigger callbacks is to provide visual feedback over the course of a gesture.
+However, as confidence calculators receive more information over time, the gesture with the highest confidence may change.
+To prevent errors due to premature commitment to the wrong gesture, developers should ensure that any effects of trigger callbacks on application state are reversible.
+Developers may choose to write trigger callbacks so that they do not affect global application state or they may create an undo function for each trigger callback to restore the state.
+Alternatively, Proton supports a parallel worlds approach.
+The developer provides a copy of all relevant state variables in the application.
+Proton executes each valid callback regardless of confidence score in a parallel version of the application but only displays the feedback corresponding to the gesture with the highest confidence score.
+When the input stream flushes, Proton commits the the application state corresponding to the gesture with the highest confidence score.
+Top: The intersection of NFAs for the expressions abbc and abd does not exist because the start state 11 cannot reach the end state 43.
+Bottom: Treating states 22 and 32 each as end states, converting the NFAs to regular expressions yields a and abb.
+The longest common prefix expression is the union of the two regular expressions.
+We define the regular expression that describes all such common prefixes as the longest common prefix expression.
+Our static analyzer computes the longest common prefix expression for any pair of gesture expressions.
+To compute the longest common prefix expression we first compute the intersection of two regular expressions.
+The intersection of two regular expressions is a third expression that matches all strings that are matched by both original expressions.
+A common way to compute the intersection is to first convert each regular expression into a non-deterministic finite automata  using Thompson's Algorithm  and then compute the intersection of the two NFAs.
+To construct the longest common prefix expression we mark all reachable states in the intersection NFA as accept states and then convert this NFA back into a regular expression.
+We compute the intersection of two NFAs  as follows.
+Given an NFA M with states m1 to mk and an NFA N with states n1 to nl , we construct the NFA P with the cross product of states mi nj for i =  and j = .
+We add an edge between mi nj and mi nj with transition symbol r if there exists an edge between mi and mi in M and an edge between nj and nj in N , both with the transition symbol r. Since we only care about states in P that are reachable from its start state m1 n1 , we only add edges to states reachable from the start state.
+In this case the intersection does not exist .
+Nevertheless we can compute the longest common prefix expression.
+We sequentially treat each state reachable from P 's start state m1 n1 as the end state, convert the NFA back into a regular expression, and take the disjunction of all resulting expressions .
+The NFA to regular expression conversion is detailed in Sipser .
+To convert a gesture tablature into a regular expression, we process the tablature from left to right.
+As we encounter a touch-down node, we assign the next available TID from the priority queue  to the entire touch track.
+To emit symbols we sweep from left to right and distinguish three cases.
+When none of the nodes are vertically aligned we output the corresponding touch symbol for each node followed by a repeating disjunction of move events for all active touch tracks .
+When touch-up nodes are vertically aligned we emit a disjunction of the possible touch-up orderings with interleaved move events .
+When touch-down nodes are vertically aligned we first compute the remainder of the expressions for the aligned touch tracks.
+We then emit a disjunction of all permutations of TID assignments to these aligned tracks .
+We output the regular expression symbols , |, or  as we encounter them in the tablature.
+If we encounter a global trigger we associate it with all symbols emitted at that step of the sweep.
+If we encounter a local trigger we instead associate it with only the symbols emitted for its track.
+Our first application allows users to manipulate and layout shapes in 2D .
+The user can translate, rotate, scale and reflect the shapes.
+To control the canvas the user holds a quasimode  button and applies two additional touches to adjust pan and zoom.
+To add a shape, the user touches and holds a shape icon in a shape catalog and indicates its destination with a second touch on the canvas.
+To delete a shape, the user holds a quasimode button and selects a shape with a second touch.
+To undo and redo actions, the user draws strokes in a command area below the shape catalog.
+The static analyzer also found that all shape manipulation gestures conflict with Translate when only one touch is down.
+We implemented a threshold confidence calculator that returns a zero confidence score for Translate if the first touch has not moved beyond some distance.
+Similarly, Rotate and Scale only return a non-zero confidence score once the second touches have moved beyond some distance threshold.
+After crossing the threshold, the confidence score is based on the touch trajectory.
+We created eight gesture tablatures, leaving Proton to generate the expressions and handle the recognition and management of the gesture set.
+We then implemented the appropriate gesture callbacks and confidence calculators.
+We did not need to count touches or track gesture state across event handlers.
+Many of our tablatures specify target object types for different touches in a gesture.
+For example, the Delete gesture requires the first touch to land on the delete button and the second touch to land on a shape.
+Proton enables such quasimodes without burdening the developer with maintaining application state.
+Target object types do not have to correspond to single objects: the Rotate, Scale and Reflect gestures allow the second touch to land on any object including the background.
+We also specified the order in which touches should lift up at the end of a gesture.
+While the Rotate and Scale gestures permit the user to release touches in any order, modal commands require that the first, mode-initiating touch lift up last.
+Finally, we specified repetitions within a gesture using Kleene stars.
+For example, the second touch in the Delete gesture is grouped with a Kleene star, which allows the expression to match any number of taps made by the second touch.
+Our second application replicates a subset of the gestures used in Autodesk's SketchBook application for the iPad .
+The user can draw using one touch, manipulate the canvas with two touches, and control additional commands with three touches.
+A three-touch tap loads a palette  for changing brush attributes and a three-touch swipe executes undo and redo commands, depending on the direction.
+In this application, the generated expressions for Load Palette and Swipe are particularly long because these three-touch gestures allow touches to release in any order.
+We created tablatures for these gestures by vertically aligning the touch-up nodes and Proton automatically generated expressions containing all possible sequences of touch-up events .
+Proton includes a library of predefined widgets such as sliders and buttons.
+We used this library to create the brush attribute palette.
+For example, to add color buttons into the palette, we created new instances of the button press widget, which consists of a button and corresponding button press gesture.
+We gave each button instance a unique name, e.g., redButton, and then assigned redButton as the OT ype for the touch events within the expression for the button press gesture.
+We also implemented a soft keyboard for text entry.
+The keyboard is a container where each key is a button subclassed from Proton's built-in button press widget.
+We associated each key with its own instances of the default button press gesture and callback.
+Thus, we created 26 different buttons and button press gestures, one for each lower-case letter.
+Adding a shift key for entering capital letters required creating a gesture for every shift key combination, adding 26 additional gestures.
+Proton's static analyzer reported that all six pairs of the shape manipulation gestures  conflicted with one another.
+Five of the conflicts involved prefix expressions only, while the sixth conflict, between Rotate and Scale, showed that those two gestures are identical.
+We wrote confidence calculators to resolve all six conflicts.
+Our third application re-implements EdgeWrite , a unistroke text entry technique where the user draws a stroke through corners of a square to generate a letter.
+For example, to generate the letter `b', the user starts with a touch down in the N W corner, moves the finger down to the SW corner, over to the SE corner, and finally back to the SW corner.
+Between each corner, the touch moves through the center area c .
+We inserted explicit touch-move nodes  with new OT ype s into the tablature to express that a touch must change target corner objects as it moves.
+The gesture tablature for the letter `b' and its corresponding regular expression are shown in Figure 9c, Right.
+Our EdgeWrite implementation includes 36 expressions, one for each letter and number.
+Our static analyzer found that 18 gestures conflict because they all start in the N W corner.
+Our analyzer found that none of the gestures that started in the N W corner immediately returned to the N W corner which suggests that it would be possible to add a new short N W -N W gesture for a frequently used command such as delete.
+Similarly the analyzer reported conflicts for strokes starting in the other corners.
+We did not have to resolve these conflicts because the callbacks execute only when the gestures are completed and none of the gestures are identical.
+However, such analysis could be useful when designing a new unistroke command to check that each gesture is unique.
+Proton currently supports only one gesture at a time for a single user.
+While this is sufficient for many types of multitouch applications, it precludes multi-user applications.
+One approach to support multiple users is to partition the input stream by user ID  or by spatial location.
+Proton could then run separate gesture matchers on each partition.
+Another approach is to allow a gesture to use just a subset of the touches, so a new gesture can begin on any touch-down event.
+The gesture matcher must then keep track of all valid complete and partial gestures and the developer must choose the best set of gestures matching the stream.
+The static analyzer would need to detect conflicts between simultaneous, overlapping gestures.
+It currently relies on gestures beginning on the same touch-down event.
+A revised algorithm would have to consider all pairs of touch-down postfix expressions between two gestures.
+Our research implementation of Proton is unoptimized and was built largely to validate that regular expressions can be used as a basis for declaratively specifying multitouch gestures.
+While we have not carried out formal experiments, application use and informal testing suggest that Proton can support interactive multitouch applications on current hardware.
+We ran the three applications on a 2.2 GHz Intel Core 2 Duo Macintosh computer.
+In the sketching application with eight gestures, Proton required about 17ms to initially match gestures when all the gestures in the application were candidates.
+As the matcher eliminated gestures from consideration, matching time dropped to 1-3ms for each new touch event.
+In EdgeWrite, initial matching time was 22ms for a set of 36 gestures.
+The main bottleneck in gesture matching is the calculation of regular expression derivatives, which are currently recalculated for every every new input symbol.
+Proton's declarative specification does not capture information about trajectory.
+While developers can compute trajectories in callback code, we plan to investigate methods for incorporating trajectory information directly into gesture expressions.
+For example, the xstroke system  describes a trajectory as a sequence of spatial locations and recognizes the sequence with a regular expression.
+However, like many current stroke recognizers  this technique can only be applied after the user has finished the stroke gesture.
+We plan to extend the Proton touch symbols to include simple directional information , computed from the last two positions of the touch, so the trajectory expressions can still be matched incrementally as the user performs the gesture.
+We have described the design and implementation of Proton, a new multitouch framework in which developers declaratively specify the sequence of touch events that comprise a gesture as a regular expression.
+To facilitate authoring, developers can create gestures using a graphical tablature notation.
+Proton automatically converts tablatures into regular expressions.
+Specifying gestures as regular expressions leads to two main benefits.
+First, Proton can automatically manage the underlying gesture state, which reduces code complexity for the developer.
+Second, Proton can statically analyze the gesture expressions to detect conflicts between them.
+Developers can then resolve ambiguities through conflict resolution code.
+Together these two advantages make it easier for developers to understand, maintain and extend multitouch applications.

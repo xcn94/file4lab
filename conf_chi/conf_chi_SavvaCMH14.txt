@@ -1,0 +1,265 @@
+We present TransPhoner: a system that generates keywords for a variety of scenarios including vocabulary learning, phonetic transliteration, and creative word plays.
+We select effective keywords by considering phonetic, orthographic and semantic word similarity, and word concept imageability.
+We show that keywords provided by TransPhoner improve learner performance in an online vocabulary learning study, with the improvement being more pronounced for harder words.
+Participants rated TransPhoner keywords as more helpful than a random keyword baseline, and almost as helpful as manually selected keywords.
+Comments also indicated higher engagement in the learning task, and more desire to continue learning.
+We demonstrate additional applications to tasks such as pure phonetic transliteration, generation of mnemonics for complex vocabulary, and topic-based transformation of song lyrics.
+Mnemonic keywords are a learning tool that can be applied to vocabulary learning and other tasks.
+For example, the keywords and images in Figure 1 can facilitate learning and recall of the English word ratatouille.
+We present TransPhoner: a cross-lingual system that given words in one language, suggests phonetically and semantically relevant keywords in the same or another language.
+Prior work has shown that keyword association can improve memorization and pronunciation of foreign vocabulary .
+However, to the best of our knowledge, there are no existing methods for generating such keywords automatically.
+To use mnemonic methods, teachers and learners expend considerable effort in manually generating mnemonic material.
+Our main contribution is a keyword generation system, with design principles grounded in results from cognitive psychology.
+To empirically evaluate the effectiveness of TransPhoner keywords we used them for the concrete application of foreign language vocabulary learning.
+In a human participant study, we found that TransPhoner keywords improve shortterm learning performance significantly, with the effect being stronger for harder words.
+Study participants rated TransPhoner keywords higher on a helpfulness scale compared to a baseline random keyword condition.
+Finally, we present additional applications of TransPhoner to illustrate the variety of scenarios where keyword generation can be beneficial.
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Recent NLP research has automatically re-spelled English words to create spellings that clarify pronunciation .
+The focus was on using phonetically unambiguous English syllables to correct for phonetic inconsistencies in English orthography .
+In contrast, we jointly consider phonetic similarity, imageability and semantics to find effective mnemonic keywords in any target language.
+Mapping the script of a word from one language to a conventional form in another while preserving pronunciation is the goal of machine transliteration systems--most commonly used for proper nouns .
+A recent survey is provided by Karimi et al.
+Transliteration approaches differ from our task in that they aim to retrieve typical, commonly accepted transliterations from one language to another.
+They do not aim to output strings of semantically meaningful words in the target language, nor are they concerned with memorability or learning of a source language term.
+Although TransPhoner keywords can be used for a variety of tasks, for clarity of exposition we focus on foreign language learning and use conventional terminology from linguistics.
+A foreign language is one in which a learner is not completely fluent.
+Native languages are the languages in which a learner has attained fluency, usually at an early age.
+Each language has at least one associated writing system, which we call a script, and a spoken language which obeys a set of phonological rules.
+We represent pronunciations using the International Phonetic Alphabet  notation .
+The IPA organizes and categorizes a comprehensive inventory of vowels and consonants exhibited in human speech and can be used as a languageagnostic transcription of phones: the basic sound units of speech.
+Each language uses a different subset of phones conceptualized as language-specific phonemes: the basic units of the phonology of that language that can distinguish meaning.
+Phonemes are combined to form pronunciations of words.
+A phoneme can be viewed as a set of phones considered equivalent under the phonetics of a particular language.
+In English these are so called allophones but in other languages such as Thai, they represent different phonemes and can be used for semantic distinctions.
+Analogously, a grapheme is the smallest semantically distinguishing unit in a written language.
+Psychologists have long known that mnemonics are a powerful learning strategy .
+In the specific scenario of vocabulary learning, mnemonic keywords are words presented in addition to the foreign word and its translation.
+Mnemonic keywords have been extensively studied and are an established learning strategy amongst educators .
+Fig 2 provides an example.
+The keyword "cook" is associated with the German for kitchen: "Kuche".
+Typically context is provided in the form of a sentence or image linking keyword with foreign word: "Imagine your kitchen and a cook in it".
+Keywords are selected to be phonetically similar to the foreign word and highly imageable.
+Imageability is defined as the ease with which a word gives rise to a sensory mental image .
+High imageability keywords make it easier to visualize interactions between the keyword, foreign word form and underlying concept.
+The pioneering work of Atkinson et al  showed the effectiveness of keywords for improving vocabulary learning and was followed by studies confirming recognition and recall improvements in a variety of conditions .
+However, as far as we are aware, our work is the first exploring computational methods for generating mnemonic keywords.
+We look at prior research on effective mnemonic keywords to lay out a set of design principles for a keyword generation system.
+At a high level, the mnemonic keywords should be memorable and have high reminding power for both the foreign word and the native translation.
+This requirement implies the following desirable properties for the generated keywords:
+The application of technology to language learning has a long history of prior work .
+We focus on the automated generation of keywords that can help to link a word form--either visual or auditory--with a mental image, an important prerequisite before learning can occur.
+Some CALL systems have addressed pronunciation training by using speech recognition to evaluate learners and assist them in correcting mistakes .
+Other systems have used virtual simulations of real-life contexts to facilitate learning .
+The TransPhoner system architecture: input words in a given foreign language are looked up and evaluated against words in a target native language using several similarity and quality measures.
+An alignment and search algorithm optimizes suggested keyword choice to give highly imageable, phonetically and semantically proximal keywords to be used as mnemonics for the input word.
+We also need to reason about word semantics, and to connect word concepts between languages.
+For the former, we use WordNet , a lexical ontology with senses  for English words.
+Many words have multiple senses--an example is "bank" which can refer to a financial institution or to a river bank.
+For the latter, we use the Universal WordNet  , which connects other languages to the English WordNet.
+UWN also provides a weighted score for the degree to which a given word reflects each candidate sense.
+From the senses of each word, we retrieve definitions for computing imageability scores and semantic similarity between words.
+Orthographic similarity is useful for languages with similar scripts, since associating the written word forms in two languages can be effective for learning.
+However, phonetic similarity is more important in general as it helps in remembering the pronunciation of a word, and in avoiding pitfalls due to differences of script-to-phonetic mappings between languages.
+For example, "ch" is pronounced /c/ in German, similar to the initial consonant in "hut", rather than English "chat".
+An imageability measure is critical for selecting memorable keywords that are easy to associate with the word concept being learned.
+Finally, semantic similarity to the target word concept is useful for facilitating the forming of associations between foreign words and their native language translations.
+There are several dimensions along which a system such as this can be adjusted to generate better results for particular tasks.
+However, the focus of our paper is to present results utilizing simple, sensible defaults.
+The architecture of our system is illustrated in Fig 3.
+Information for input words is retrieved by searching available dictionaries.
+Measures of word imageability, phonetic similarity, orthographic similarity and semantic similarity are then used to evaluate candidate keywords from the appropriate target language dictionary.
+The results are combined in a joint objective function and a search algorithm is used to optimize for the best candidate keyword.
+A simple way to measure similarity of written form is using orthographic distance.
+For words in the same script we use a simple edit distance  between their graphemes .
+The Levenshtein distance  counts the number of operations  that are required to transform one string into the other.
+To compute phonetic similarities between pronunciations of words in different languages we consider each word as a sequence of phones from that word's IPA transcription.
+Again, we use a Levenshtein distance, now with a weight matrix defining the cost of substituting one phone for another, to compute the phonetic distance between two words.
+We search for an alignment  such that the Levenshtein distance is minimized.
+Many phonetic similarity methods exist--a survey is provided by Kondrak .
+We use the phonetic similarity defined by the ALINE phonetic alignment system which has been shown to align cognates between languages .
+This scheme categorizes vowels and consonants in separate feature spaces where each phone is represented as a vector of values.
+Each feature dimension has an associated weight used in computing the overall distance between phones.
+Before applying a computational method to our problem, we need data sources for the orthography, definitions and pronunciations of words in all desired source and target languages.
+We retrieve this data from dictionaries .
+We use the IPA as a common representation for pronunciations to facilitate cross-language comparison.
+The IPA transcriptions were annotated with syllable separators  using a rule-based system for English1 and French, or induced directly during the rule-based transcription to IPA for German, Japanese and Mandarin.
+We handle matching of syllable breaks by adding a constant match score Csep = 20, and a mismatch cost Cskip = -10, as defined by ALINE.
+Unlike the other similarity components, methods for computing word imageability are largely unstudied.
+We describe a simple approach which aims to take into account word familiarity and easiness of acquisition as proxies for word imageability.
+Though not our focus here, an investigation and evaluation of approaches for computing imageability is an interesting avenue for future work.
+A large corpus of imageability ratings for words is not available.
+However, studies in cognitive psychology have shown that word imageability is highly correlated with age of acquisition , an estimate of the average age at which children acquire a word .
+We therefore use a corpus of AoA ratings for more than 50,000 English words by Kuperman et al.
+We then propagate imageability values to other languages using the inter-language mappings from UWN.
+We begin by estimating the imageability of English words in the Kuperman corpus of AoA values using a linear regression method.
+Additional word features for this regression come from the MRC Psycholinguistic Database  which contains linguistic and psycho-linguistic attributes of English words.
+Importantly, it contains imageability values for 4579 words derived from several previous corpora .
+We normalize this imageability to be between 0 and 1, and then train a linear regression model using AoA, familiarity, and part of speech feature values from the Kuperman corpus.
+We filter the BoW vector to include only nouns, verbs, adjectives and adverbs.
+Part of speech tagging is done using the Stanford POS tagger .
+The BoW vector for a word is then represented as a weighted sum of the BoW vectors for each sense of that word.
+We chose to use a simple approach for approximating semantic similarity--many alternatives exist from extensive work in Natural Language Processing .
+Similarity measures over the WordNet hierarchy, or more advanced methods such as Latent Semantic Analysis or word embeddings trained with neural networks are easy to incorporate.
+Since we do not constrain our system to single words on either input or output side, we consider sequences of words for our objective function.
+Words not covered by UWN are given an imageability value of 0, under the assumption that rare words will be unfamiliar to most people, and consequently are unlikely to be highly imageable.
+Figure 4 plots a histogram of the resulting imageability values.
+To efficiently search over candidate matches, we use dynamic programming with either a phone-based trie or a characterbased trie .
+Tries are useful because we search over word sequences.
+For single word outputs, iterating over all words in a dictionary would suffice.
+We take all words in the target language and create a phonebased trie.
+Potential phone matches are taken from the position in the trie.
+The cost of the match is the phonetic distance between the phones.
+This allows for re-using the computed Levenshtein distance between words with common prefixes.
+Whenever a word is matched, we loop back to the root of the trie, adding a syllable break between words.
+We also add the cost for selecting the matched word, incorporating nonphonetic similarity costs.
+At each stage, we use a beam of N-best choices to ensure that we do not prune choices which may not be the closest phonetic match but have high scoring imageability or semantic similarity to the foreign word.
+This also allows us to generate N-best keyword lists from which a user can choose.
+We hypothesized that presenting TransPhoner keywords to people while they learn vocabulary improves learning performance by increasing new word retention.
+Ideally, this improvement would match or exceed the one imparted by manually chosen mnemonic keywords.
+To test this hypothesis, we carried out a vocabulary learning study.
+We used the evaluation set of 36 German words and manually chosen keywords by Ellis et al.
+In addition, we randomly sampled from the 25000 most frequent English words to create a random keyword control condition.
+We thus have four conditions for keywords: none, random, manual and TransPhoner.
+As an example, for the German word "Friseur" , the random keyword was "opal", the manually chosen keyword by Ellis et al.
+Table 2 gives some example results of top keyword sequences suggested by TransPhoner when given the input words in the leftmost column.
+Output keywords are given in all five languages for which we have dictionary data.
+Keyword output is achieved at near-interactive rates, usually on the order of a second per source-target language pair, largely determined by the size of the target language dictionary.
+To evaluate the quality of keywords generated by TransPhoner we compared against manually selected keywords in the concrete application context of foreign language vocabulary learning.
+Prior work by Ellis et al.
+Our experimental goal was to show that we can generate equally effective keywords in this scenario with a direct evaluation metric: recall of learned words.
+We recruited participants from the Amazon Mechanical Turk workplace.
+Participants were required to not have any exposure to German and to be fluent in English.
+Participants were compensated with $1.70 for the study and told a $0.10 bonus is available for average scores higher than 70%.
+To account for workers who did not earnestly attempt the task, we filtered any participants with average scores lower than 25%.
+This leaves 19 participants each for none and manual conditions, and 18 each for random and TransPhoner conditions.
+They first took a short demographic survey and read instructions introducing the task.
+In keyword conditions, participants were instructed to do their best to "imagine a visual scene connecting the given keyword with the English meaning, and the sound of the German word".
+The study proceeded in three phases: learning, recognition and generation.
+First, participants were shown a block of 12 word pairs and asked to memorize the association.
+Keywords were shown in the center .
+Words were pronounced twice, two and seven seconds after being shown.
+When the participant was ready, they proceeded by clicking a next button.
+The screen was blanked for one second, and the next word was shown.
+Order of presentation was randomized between participants.
+Next, participants had to input the English meaning of the same 12 German words  in a recognition phase.
+The word was again pronounced twice at the same intervals.
+Participants had a total of 10 seconds for input, after which the screen was blanked for one second and the next word was shown.
+Finally, participants were asked to give the German word for each English translation in the generation phase, spelling the German words as best as they could.
+After one stage of learning-recognition-generation, the procedure was repeated with two more blocks of 12 words for a total of 36 words.
+Participants were instructed that the first stage was for training while the other two would be scored.
+Fig 6 plots participant score improvement per word between the none and TransPhoner conditions.
+TransPhoner keywords significantly improve learning, with the effect being more pronounced for harder words.
+In general, verbs are harder to learn, a result agreeing with prior work .
+The experiment was a mixed between- and within-subjects factorial design with the keyword condition {none, random, manual, TransPhoner}, participant {1...74}, word {1...36} and task {recognition, recall} as factors.
+All participants provided a recognition and generation response for each of 36 words for a total of 5328 responses.
+The dependent measure was the recall score computed by comparing participant responses with the correct translation.
+We allowed for imperfect spellings by using the Levenshtein distance between participant response and the correct word, dividing by maximum possible distance and subtracting from 1 to create a normalized score between 0 and 1.
+Scores above 0.5--corresponding to at least half of the characters matching--were given partial credit equal to the score, while lower values were considered incorrect.
+Common synonyms such as "pants" and "trousers" were also considered correct.
+At the conclusion of the task, we also asked participants in the keyword conditions to judge the keywords for helpfulness in learning foreign vocabulary on a 5-point Likert scale, as well as to provide optional comments on the task.
+The mean keyword helpfulness ratings  were lowest for random, followed by TransPhoner and manual.
+All pairwise keyword rating differences were significant under Wilcoxon rank-sum tests with Bonferroni-Holm correction .
+Random keywords were generally disliked--an observation reflected in comments by study participants.
+The better performing manual and TransPhoner conditions had polarized ratings .
+This polarization is not unexpected since some participants can have low affinity for keyword-based vocabulary learning, an observation also reflected in participant comments.
+Table 3 also reports the normalized similarity scores between keyword and target word for all 36 German words used in the study.
+Unsurprisingly, randomly selected keywords had the lowest score along all dimensions.
+TransPhoner keywords had the highest overall  and phonetic  similarities, while manual keywords had higher semantic  similarity and imageability .
+We did not find a significant correlation between either semantic similarity or imageability and the learner scores.
+Further investigation of the effect of different forms of similarity between keyword and target word on learner perfor-
+We noted that with English as a target language, the phonetic similarity dimension tends to strongly constrain word choice.
+In contrast, in target languages with higher phonetic-to-semantic multiplicity, such as Mandarin and Japanese, jointly optimizing phonetic similarity along with semantic similarity and imageability becomes easier.
+We standardized all continuous numeric data by subtracting the mean and dividing by the standard deviation.
+Standard ANOVA does not account for per-word and per-participant variation leading to increased risk of type II errors.
+We therefore used mixed effects models which support both fixed effects and random effects , and which are commonly used in psycholinguistics .
+A good introduction for the HCI community is provided by recent work in machine translation post-editing .
+Following this work, we also report significance results using likelihoodratio  tests--a measure equal to twice the difference between the log-likelihood of the model and the null hypothesis.
+We performed follow-up pairwise Welch's t-tests with BonferroniHolm correction between all keyword conditions.
+The mean score differences were all significant at p < 0.001, except manual-TransPhoner at p < 0.01, and random-manual .
+All keyword conditions performed better than no keywords, including random likely due to participants being primed to use a mnemonic strategy.
+The absence of a significant difference between manual and random keywords seems surprising.
+However, we note that we used the manual condition keywords in a different way than Ellis et al., since the original work prompted participants with complete sentences containing the keywords .
+Furthermore, the random condition likely resulted in participants reverting to a strategy of coming up with their own keyword.
+This hypothesis is supported by comments from random condition participants who complained about the quality of the keywords and stated that they came up with their own keywords.
+Though comments at the conclusion of the study were optional, more than half of our participants provided them.
+Comments from manual and TransPhoner condition participants were overwhelmingly positive indicating that they thoroughly enjoyed the task, and would like to continue taking similar experiments.
+Some examples include: "Very interesting way for learning a new language", "keywords really helped", "I have always wanted to learn German but this HIT has really opened up that it might be really hard but it could be done by me".
+One of the negative comments mentioned the potential interference effect of keywords with target word meaning: "I remembered them far better than I remembered the meaning of the word for some reason".
+Despite improving performance over no keywords, the random keyword condition garnered largely negative comments: "I didn't think the keyword helped in most cases - better off trying to make the sound fit with the english word", "I actually felt like the keywords threw me off a bit", "I do better when I make my own connections."
+I like to make up my own keywords.
+For someone who didn't do that already, it might help".
+The latter comments indicate that some participants in the random condition compensated by creating their own keywords.
+A similar comment even occurred in the none condition: "This was very difficult even using word association", reflecting that participants may use keywords even when not prompted to do so.
+Our results are consistent with prior studies in keyword-based vocabulary learning.
+Short-term recognition and generation are improved by TransPhoner keywords, with the effect being larger for recognition.
+Though detailed evaluation of keyword-based learning is beyond our scope, and covered by much prior work, these results indicate that automatically generated keywords can significantly facilitate vocabulary learning, with performance matching or exceeding manual keywords.
+We note that our experiment only tested short-term effects.
+However, a retention study over a period of 10 years has shown that the positive effect of keywords carries over into long-term retention .
+Providing images for the generated keywords may facilitate the formation of a mental image.
+Though we do not empirically evaluate this hypothesis, we can easily retrieve relevant images for keywords from the web.
+TransPhoner currently uses the Google Image API to demonstrate this functionality .
+By matching rare complex words against shorter, more frequent keywords in the same language, we can create mnemonic keyword phrases for learning the complicated words.
+This is similar in spirit to the re-spelling work of Hauer et al.
+Table 4 gives examples for words taken from a list of vocabulary covered by the Scholastic Aptitude Test  exam, commonly taken by high school students in the United States.
+When learning foreign word pronunciations, transliterations formed with the phonetically closest keywords in the target language can be effective as pronunciation guides.
+In fact, such keyword transliterations are designed manually and marketed as pronunciation learning guide books .
+Table 5 shows some example phrases found in this series of books, the transliterations provided by the authors, and corresponding transliterations generated by TransPhoner.
+In general, TransPhoner transliterations are at least as close to the input language pronunciation as the manually designed phrases.
+Most importantly, TransPhoner generates these transliteration suggestions in seconds, whereas the effort in authoring them from scratch is considerable.
+Such systems would also help us deal with word pronunciations which are context-sensitive.
+For example, the Japanese "" for person can be pronounced as /hi.to/, /di/ or /ni/ depending on the context of the character.
+We have also not investigated how to transfer the prosody and pitch contours of utterances from one language to another.
+These attributes are particularly important for tonal languages such as Mandarin.
+Another avenue for future work is generation of longer phrases and incorporation of language models to form grammatically valid sentences.
+An interesting empirical question is whether keyword sequences which are also valid sentences are better for learning.
+Richer stimuli such as context sentences connecting keyword and foreign word, related images, and animations could be integrated with such a system to further facilitate learning.
+Finally, methods for tuning the generation of keywords for different tasks and types of users would be valuable to explore.
+For instance, we may tune keywords for younger learners by restricting them to more basic and imageable words, through an age of acquisition threshold.
+TransPhoner can be used to automatically suggest topic-based homophonic transformations of word sequences.
+An application of this is in creating novel, phonetically similar interpretations of song lyrics-usually for comedic effect-known as soramimi or mondegreen.
+An example is in Table 6.
+We use all WordNet hyponyms under a given topic as candidate replacement words and for each phrase we compute phonetic similarity between original words and all candidates, offering the top 5 closest matches as suggestions.
+We empirically saw that TransPhoner keywords improve short-term vocabulary learning, a result in agreement with existing research.
+Why are keywords helpful for learning?
+One hypothesis advocated by prior work is that keywords make learning more fun and engaging.
+Likewise, memorization of complex terminology for academic topics is intimidating to many students.
+Though rote memorization is effective for learning, it is unfortunately also monotonous and discouraging, especially given the unfamiliar phonetics and orthography of a new language.
+Keywords and visual imagery can make the process more enjoyable, especially for younger learners.
+As such, keywords are a tool to surmount the initial learning hump and accelerate learning by facilitating associations at a point when the learner lacks knowledge necessary to form them independently.
+Keywords provide a learning scaffold that can engage learners and can also inspire them to come up with their own mnemonics.
+The comments from our study indicate that participants enjoyed learning when keywords were carefully selected, and want to continue learning with keywords.
+Several participants explicitly requested to be informed when more similar learning tasks are available.
+In contrast, participants disliked random keywords and indicated their unhappiness with the task.
+Since the difference between these two conditions was the choice of keywords, we see that well chosen keywords can strongly engage and motivate learners, and that badly chosen keywords can have the opposite effect.
+Furthermore, the keyword mnemonic can easily be applied to other kinds of information such as country capitals or elements of the periodic table.
+We hope our results will inspire further work on methods for mnemonic-based teaching and learning.
+Beyond increasing learner performance, integration of keyword-based techniques in learning tools may benefit teachers by allowing for easier design of effective teaching materials.
+Finally, psycholinguistics researchers studying mnemonic keyword learning strategies stand to benefit from a system that can generate keywords with different phonetic and semantic properties.
+We have barely scratched the surface of the multi-faceted domain of mnemonic keywords.
+There is great potential for follow-up work on incorporating keywords in HCI systems to aid creative writing tasks, to provide on-the-spot pronunciation guides for tourists, and to assist people in learning a variety of material.
+Much research has shown that keywords are effective learning aids.
+However, application to actual learners and classrooms has been restricted.
+Teaching materials with keywords are scarce--the LinkWords system being a notable exception.10 Creating such material requires considerable time and effort.
+Furthermore, each student responds differently to particular keywords, so success is largely contingent on tailoring them to the student's learning affinities.
+Therefore, a system for suggesting candidate mnemonic keywords can be invaluable for making keyword learning practically feasible and broadly accessible.
+Used in conjunction with other learning strategies, such a system can have tremendous positive impact.
+We thank Gabor Angeli, Katherine Breeden, Matt Fisher and Daniel Ritchie for their help.
+The first author was supported by a Stanford Graduate Fellowship.
+The images in Figure 1 were released to the public domain by www.openclipart.com users: nicubunu, massimo, chrisdesign, palomaironique, chudq and stevelambert.
+The ratatouille image is by Flickr user Marcus Guimaraes.
+Arnold, N., and Ducate, L. Present and future promises of CALL: From theory and research to new directions in language teaching.
+Computer Assisted Language Instruction Consortium, 2011.
+Atkinson, R. C., and Raugh, M. R. An application of the mnemonic keyword method to the acquisition of a Russian vocabulary.
+Baayen, R., Davidson, D., and Bates, D. Mixed-effects modeling with crossed random effects for subjects and items.
+Beaton, A., Gruneberg, M., and Ellis, N. Retention of foreign vocabulary learned using the keyword method: A ten-year follow-up.
+Bird, H., Franklin, S., and Howard, D. Age of acquisition and imageability ratings for a large set of words, including verbs and function words.
+Chen, S. F. Conditional and joint models for grapheme-to-phoneme conversion.
+We have presented TransPhoner, a cross-lingual system for generating mnemonic keywords.
+We evaluated TransPhoner keywords with a web-based vocabulary learning study and found that they lead to improved recall, with the effect being more prominent for harder words.
+Investigating the efficacy of TransPhoner keywords for specific learner demographics, and measuring the degree to which recall improvements lead to longer term retention are both interesting avenues for further research.
+We also demonstrated how TransPhoner keywords are useful in a variety of other scenarios: as mnemonics for aiding learning complex vocabulary, as pronunciation guides for tourists and traveling professionals, and as suggestions for inspiring creative word plays.
+The potential impact of mnemonic keyword systems is broad.

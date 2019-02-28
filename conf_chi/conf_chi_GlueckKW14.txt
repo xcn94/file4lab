@@ -1,0 +1,289 @@
+Figure 1: The Splash framework enables real-time navigation for client-server visualization systems by progressively loading data.
+Splash streamlines the process of creating and automates retrieving these level-of-detail versions for both data curators and visualization developers.
+We introduce Splash, a framework reducing development overhead for both data curators and visualization developers of client-server visualization systems.
+Splash streamlines the process of creating a multiple level-of-detail version of the data and facilitates progressive data download, thereby enabling real-time, on-demand navigation with existing visualization toolkits.
+As a result, system responsiveness is increased and the user experience is improved.
+We demonstrate the benefit of progressive loading for user interaction on slower networks.
+Additionally, case study evaluations of Splash with real-world data curators suggest that Splash supports iterative refinement of visualizations and promotes the use of exploratory data analysis.
+In client-server visualization systems, data is stored on remote servers and then transmitted on-demand to client applications.
+This architecture provides flexible, scalable access to data across a variety of platforms and devices.
+However, supporting real-time visual exploration remains a complex undertaking, especially as the size of a dataset grows.
+For example, if the volume of data is too large to display coherently on the screen at one time, a developer must allocate additional development resources toward implementing methods of data reduction, the creation of a coarser-grain level-of-detail , and most importantly navigation, such as zooming and panning.
+If data is reduced carelessly or if visual exploration of the data is omitted due to the added development overhead, the opportunity to find errors, inconsistencies, or anomalies is lost.
+Even powerful automated methods of analysis, such as statistical measures and tests, or machine learning-based models, can only reveal a partial perspective on a dataset.
+A visual verification step that allows results to be explored, inspected, and navigated is desirable and beneficial .
+User interaction in client-server systems typically occurs as a stepped transaction: user input invokes a network request for additional data, which must be fulfilled before an update can be displayed.
+Subject to network conditions, such as latency and throughput, these network requests become a dominant factor hindering a smooth user experience.
+If a user must wait for the system to respond, the result is a bottleneck to interaction.
+Latency has long been known to negatively impact user performance ; as little as 10ms of latency has been found to be noticeable when interacting with touch screens .
+Copyrights for components of this work owned by others than the author must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Publication rights licensed to ACM.
+Session: Designing and Understanding Visualizations Navigation operations such as resizing the view, zooming, scrolling, or panning all require downloading additional data to the client.
+Common strategies, such as a priori client-side caching, benefit smaller datasets, but do not scale well as the size of data increases.
+Facilitating real-time navigation with vast server-stored datasets is non-trivial: it generally requires  that the client system can randomly access any portion of the dataset, and  that the server and client systems work in tandem to filter, aggregate, or resample the data on-the-fly to render a visualization in real-time.
+Visual patterns and features seem to automatically jump out at the human eye; this is precisely why data visualization lies at the core of exploratory data analysis, an approach that foregoes a priori assumptions of the data model and allows patterns to emerge through visual exploration .
+Not only does visual exploration serve to debug and validate the results of automated methods but also, more importantly, it supports opportunistic discovery.
+We believe real-time navigation is critical to visual exploration, as it facilitates an uninterrupted interaction dialog with the data, and encourages diverse and flexible questions to be asked and answered.
+As Cleveland put it: "To regularly miss surprises by failing to probe thoroughly with visualization tools is terribly inefficient because the cost of intensive data analysis is typically very small compared with the cost of data collection."
+This is accomplished through two key modifications to the traditional client-server model.
+First, on the server-side, Splash streamlines the specification of a LOD hierarchy and the precomputation of a multi-scale version of the dataset.
+Second, on the client-side, Splash manages fetching these LODs from the server by automatically selecting an appropriate target LOD to display and then progressively downloading increasing resolutions until this target is reached.
+Thus, real-time, on-demand navigation is achieved by ensuring the highest resolution data can be rendered at interactive framerates and by minimizing the duration of the first network request associated with an interaction.
+We start by demonstrating the user performance benefits of enabling real-time navigation for visual search tasks common in exploratory data analysis.
+Building on these positive results, we discuss considerations informing the design of the Splash framework, detail the developer experience, and describe the architecture of the framework.
+Next, we report on deployment case studies evaluating the process of selecting a useful LOD hierarchy and aggregate measures.
+Finally, future directions are discussed.
+In a visualization, navigation offers users freedom and flexibility to control how data is displayed ad hoc.
+Prompt resolution of interaction transactions is critical to preventing bottlenecks - but how fast is fast enough?
+We frame our discussion along two dimensions:  flow between inputs, using Spence's terms continuous and stepped  and  system responsiveness, using Seow's terms instantaneous and immediate .
+Continuous interaction characterizes inputs which can be mapped to a continuous function, such as click-and-drag panning, while stepped interactions are discrete operations, such as clicking a zoom-in button.
+According to Seow, instantaneous responses are those that occur within 100 to 200ms after input, while immediate responses are between 500 and 1000ms.
+Thus, navigation through direct manipulation should be continuous and instantaneous - what we dub real-time.
+Splash maintains real-time navigation by automatically determining the optimal LOD and progressively downloading additional data, thus mediating the density and download size of plotted data points.
+Splash has benefited from a study of existing interactive visualization toolkits, real-time interaction with multi-scale data, and progressive downloading of visual information, which we summarize here.
+Interaction has grown in prevalence with the emergence of generalized visualization toolkits, such as the InfoVis Toolkit  and Prefuse , which simplified implementation for visualization developers.
+Pad  introduced the zooming user interface, where multi-scale environments can be explored through panning and zooming navigation.
+Pad++  utilized image-based LOD pyramids and degraded image representations to mediate visual clutter and improve responsiveness; ZVTM  extended these principles to interactive visualizations.
+More recently, the D3 toolkit  incorporated out-of-the-box behaviors for panning and zooming navigation for web-based visualizations.
+While all of these toolkits simplify the transformation of arbitrary data into visual representations, the onus remains on the visualization developer to  define, generate, and manage a multi-scale version of the dataset, and  select, load, and cache specific LODs for display.
+Splash modifies process  above by introducing the data curator role, a domain expert who explicitly defines a multi-scale data model.
+This model-based LOD pyramid ensures that the important attributes defined by the data curator remain visually salient.
+Splash then generates and manages the resulting multi-scale dataset.
+Next, all parts of process  are automatically handled by Splash, ensuring real-time interaction is maintained.
+The visualization developer need only map data from Splash to the format expected by the visualization toolkit.
+Thus, Splash is designed to be used in tandem with existing visualization toolkits.
+Custom visualization systems have addressed improving system responsiveness.
+The Control Project demonstrated responsiveness of direct-query visualization systems could be improved by monitoring rendering time and dynamically reducing visualization complexity to increase frame rates .
+ATLAS ensured real-time interaction by initiating distributed computation of data aggregates prior to being requested by the visualization, by anticipating user intentions .
+In contrast, Cloudvista employed a randomized batch-scheduler to generate aggregates for data ranges related to the current data view .
+In both cases, on-the-fly aggregation of data must be scheduled in advance of a client-side request to maintain real-time interaction, due to the inherent scheduling latency of distributed computation.
+Thus, all of these systems are limited by requiring the adoption of custom data storage, computation, and visualization systems.
+The Splash framework supports bindings to be written quickly for existing data servers.
+Real-time navigation is achieved through the storage of pre-computed data aggregates on commodity hardware.
+Progressively-downloading data enables real-time interaction by sequentially loading LODs of increasing resolution: a coarse LOD is quickly downloaded and displayed first while the fine LOD is continuously downloading, providing pleasingly smooth, on-demand interaction .
+Aside from improvements in smoothness, we believed progressive downloading would improve performance of certain exploratory data analysis tasks when network throughput is lower.
+Intuitively, the scale for potential improvement depends largely on the utility of the coarse LOD to a given task.
+We also considered that progressive downloading incurs an additional data download cost over non-progressive download.
+To understand whether users would find this an advantage or disadvantage, we designed a study to contrast user performance between progressive and non-progressive data loading methods under differing network throughput conditions and varying degrees of coarse LOD utility.
+Displaying a low fidelity representation prior to loading a high fidelity version has long been utilized to ensure responsive interaction .
+It is commonly found in bitmap interlacing algorithms, such as Adam7 in the PNG format, and in geospatial tools, including the popular map website Google Maps.
+In addition to the obvious user experience benefits, this technique has been shown to support quicker identification of images  and enable faster video scrubbing .
+Informed decision-making can be supported by sacrificing precision for speed through progressively-refined partial query results .
+Pre-computed aggregates have also been used to facilitate real-time visual analytics for text .
+Progressive loading clearly has broad applications; however, there is a lack of generalized support for information visualization tools.
+Using Splash adds progressive loading to existing interactive visualizations.
+Computing LODs for arbitrary datasets in unknown domains was a challenge in the development of Splash.
+Unlike down-sampling images, creating lower fidelity aggregates of arbitrary data is highly task and domain specific .
+The present work does not seek to contribute novel aggregation methods; for further reading please refer to general concepts  and data structure specific guidelines .
+Instead, we design our framework such that the data model, LOD hierarchy, and aggregate measures are fully customizable by the data curator, thereby supporting both arbitrary data types and aggregation methods.
+This ensures that the useful aggregate can be selected given the type of data, user task, and data domain.
+The Splash framework is designed to work with existing visualization workflows.
+In the next section, we investigate the benefits and disadvantages of progressive downloading to user performance in data visualization tasks.
+Prior user studies have investigated visual comparisons across non-navigable data views, such as multiple timeseries plots  and animated charts .
+Visual search while navigating has been studied as a streaming video scrubbing task , but not, so far as we are aware, for data visualization.
+We draw inspiration from these studies and propose three visual search tasks for navigation: coarse feature, global feature, and fine feature .
+In each task, the participant scrolls the data visualization to center the target feature within the viewport.
+To generate the coarse LOD, we use an aggregate consisting of the mean and maximum/minimum, visualized as a line and a shaded range, respectively.
+When paired with each of these three tasks, this aggregate provides varying degrees of assistance, ranging from low, when the coarse LOD provides no help regarding the target, to high utility, when the target can be already found merely by inspecting the coarse LOD.
+Session: Designing and Understanding Visualizations Coarse feature: The coarse feature target is only identifiable when it appears in the viewport, but remains salient in the coarse LOD .
+In our study, we chose the maximum value in the dataset .
+This task simulates high utility, where visual confirmation of target presence can be made merely by inspecting the coarse LOD.
+Global feature: The direction to the global feature target is immediately apparent based on overall trends of the data .
+In our study, this feature appears as an overall shift in the mean .
+This task simulates moderate utility, where the trends of the dataset inherently support user orientation and recovery from overshoots when scrolling quickly.
+Thus, lower latency primarily aids the user, rather than the coarse LOD.
+Fine feature: The fine feature target can only be found once the finer LOD is displayed in the viewport .
+In our study, this feature appears as a small disc superposed only on the finer LOD .
+This task simulates low utility because the coarse LOD delays the display of the target.
+Since the task emulates careful searching of details, we posit external validity.
+CHI 2014, One of a CHInd, Toronto, ON, Canada Loading method and network throughput were crossed, and target feature ordering was counter-balanced, resulting in 4 unique conditions per target feature.
+In each trial, target position was a randomly generated position 1/4 to 3/4 through the dataset.
+For each target feature, trials were divided into 6 blocks, each with 3 repetitions of each of the 4 conditions, yielding 12 trials per block, 72 trials per target feature, and 216 total trials.
+We recorded task completion time as the duration between the start of the first scroll operation to the end of the last scroll operation, thus factoring-out preparation and acquisition time.
+Results are shown in Figure 3.
+A repeated measures ANOVA with a Greenhouse-Geisser correction determined that differences in mean navigation time were statistically significant between all factors:  loading method   network throughput   target feature  No effect was found between blocks, indicating absence of learning effects.
+Post hoc tests using Bonferroni correction revealed a significant difference in completion time between fine feature and both coarse and global feature tasks.
+These results support our first hypotheses: coarse and global features were found more quickly  in the mobile throughput condition with progressive loading .
+Progressive loading improves user performance on mobile networks to a level comparable to broadband when the aggregate is sufficiently useful for the task.
+We were unable to find support for our second hypothesis: although participants took slightly longer to find the fine features in the mobile throughput condition with progressive loading , this difference was not statistically significant .
+This suggests that even when utility is low, progressive loading does not significantly hinder user performance.
+In contrast, performance in the broadband throughput condition indicated negligible differences between progressive and non-progressive loading across conditions.
+Thus, not only does progressive loading provide users with a smooth real-time navigation experience, it also shows clear benefits to user performance with minimal drawbacks.
+Twelve volunteer participants  with mean age 26  were recruited from the community, and paid $20 for a 60-minute session.
+Mean reported computer usage was 35 hours/week; none worked as a data analyst.
+Participants performed the study in a private study room using a desktop computer configuration  running Windows 7 , with a 24-inch LCD monitor displaying a resolution of 1920x1200 pixels.
+Participants were seated 20 inches away from the monitor.
+A horizontal scrolling interface, with a scrollbar at the bottom, simulated an interactive time-series visualization.
+Download speed was simulated: 1.5Mbps for mobile and 25Mbps for broadband, both with a fixed latency of 200ms.
+Data were generated using a random-walk function, similar to , with dynamically authored target features .
+The size of the dataset was fixed at six-times the viewport width to ensure scrolling would be required.
+When designing Splash, our goal was a framework that would be flexible and easily integrated into existing visualization workflows.
+Consequently, a logical separation of client and server developer roles is reflected in the architecture.
+Splash provides support for two distinct developer roles: the data curator, who manages the data on the server, and the visualization developer, who creates the visualization for the end user, the data analyst .
+The Splash framework consists of three modules.
+First, on the server-side, the data curator uses the Splash Aggregator to blueprint a multi-scale version of the dataset and define the aggregate measures used to generate LODs.
+Running this utility pre-computes and stores the multi-scale version of the dataset on the data server, along with the blueprint metadata .
+Second, the data curator implements the Splash Data Interface, a simple API used on the client-side to query the metadata and multi-scale data LODs .
+While this component must be instantiated by the visualization developer, no configuration is necessary.
+Last, on the client-side, the Splash Cache is used by the visualization developer to route requests to the data server .
+When initialized, the Splash Cache fetches the metadata from the data server and automatically configures the transport of data between the client and server.
+It seamlessly manages progressive downloading and caching of LODs.
+The visualization developer simply routes data requests through Splash; existing visualization tools require little to no modification as a result.
+Abstract interfaces between client and server components of Splash enable support of a variety of data server technologies and visualization toolkits.
+Using Splash, many visualizations can be created for a single pre-computed multiscale version of a dataset or a single visualization can mix data from multiple data sources.
+We now describe each of these steps in greater detail.
+The data curator starts by authoring blueprint metadata .
+First, the dataset is uniquely identified and the interval of the navigable data dimension is defined.
+For example, consider data from an environment sensor, sampled every minute.
+Time is the only dimension.
+The interval of timestamps to be processed is provided by start_time and end_time:
+Next, the curator defines the mapping from an existing data sample to a datum representation.
+Suppose the data source provides a sample as an array, data.
+The timestamp of the sample is stored as the position ; multiple values can be linked to a position.
+At this stage any element of data can be modified, such as converting from strings to timestamps using strptime and mktime.
+A LOD hierarchy defines the size of the discrete bins to be used for aggregation.
+In our example, the sensor data is sampled every minute and is aggregated into hourly and daily LODs, with relative sizes defined in milliseconds.
+Additional variables can be configured to ensure proper alignment to the start of hours and days.
+Session: Designing and Understanding Visualizations The current LOD abstraction places two limitations on the richness of the LODs that can be expressed.
+First, the LODs must be a strict hierarchy: child LODs must evenly subdivide their parent LOD.
+Second, parent LODs at the same depth must have the same number of children LODs.
+Thus, semantic hierarchies, such as ontologies cannot generally be used as LOD hierarchies, since they often exhibit irregular structure.
+However, wide ranges of data are supported by our abstraction, from time-series to gridded geo data.
+Finally, data values are mapped to aggregation functions.
+The functions meanTmp, stdTmp, maxHum, and minLgt return the mean, standard deviation, maximum, and minimum, respectively, of a specific value in a list of datum objects.
+In this way, different aggregation functions can be defined for each value of interest, and more than one aggregate can be calculated for each:
+The Splash Data Interface is instantiated with a URL to the data server; a new Splash Cache is created using this Splash Data Interface.
+The Splash Cache automatically calls init and uses the DataSetFormat to dynamically create bindings for the data dimensions, LOD hierarchy, datum format, and aggregate measures .
+Thus, the visualization developer need not configure any dataset specific details to use Splash.
+They only need to know the names of the aggregate measures they wish to visualize.
+Whenever the viewport of the visualization is moved or resized, the updateData method is called .
+The Splash Cache, in turn, first checks its dynamic data cache, then calls fetch for missing data.
+Each time the visualization is redrawn, the client application calls the getData method, which returns all available data points in the Splash Cache, and then renders the visualization.
+When additional data is retrieved, the client application is notified by a dataLoaded callback.
+These data points are always returned as a collection of DataAggregate objects, which may need to be remapped to be consumed by the visualization toolkit.
+In many cases, existing client visualizations can integrate Splash by simply requesting data from the Splash Cache instead of directly querying their present data server.
+The Splash Aggregator utility can be run locally or in the Cloud .
+First, the curator-authored metadata described above is stored on the data server.
+Second, raw data are streamed and converted to datum representations, grouped into LOD bins, and then passed to the aggregation functions specified above.
+The results are then stored on the data server.
+In this way, a pre-computed multi-scale version of the dataset is generated.
+The Splash Aggregator utility can be re-run at any time to include additional aggregate measures or to process newly added data.
+Splash also manages the selection of an appropriate target LOD to display, via the getBestLod method.
+This calculation takes into account both the size of the data viewport, in pixels, and the resolution of the display, in dots per inch .
+Splash uses a device independent metric, samples per inch , to ensure that the same IntervalRequest will be displayed identically for the same SPI setting and visualization dimensions on a variety of devices, regardless of display size or resolution.
+This target LOD is determined by traversing the LOD hierarchy from finest to coarsest LOD and comparing the interval of one LOD  and the next coarsest LOD , weighted by the number of subdivisions:
+To support the client-side Splash Cache, the data curator need only implement the Splash Data Interface, which consists of two API calls .
+First, init retrieves the dataset metadata from the data server and returns a DataSetFormat object.
+Second, fetch takes an IntervalRequest, which encapsulates a query interval along the data dimension and a target LOD, and returns a collection of DataAggregate objects to the Splash Cache.
+Each DataAggregate contains values of all measures  for a sub-interval of the data dimension.
+If this density is greater than the currently displayed density, L1 is returned.
+By default, Splash uses a two-stage progressive download: given a target LOD, the next coarsest LOD is fetched first.
+A configuration parameter allows the visualization developer to modify the number of coarser LODs fetched prior to the target LOD.
+Here, we present a simplified, but working, example of a client application written in JavaScript, which highlights the use of Splash .
+The drawing routines of the visualization toolkit are represented as a single method call, visToolkit.render.
+For example, this function would iterate over the contents of data, the collection of DataAggregate objects, and draw a point for each value.
+CHI 2014, One of a CHInd, Toronto, ON, Canada Despite these limitations, Splash is able to accommodate a wide variety of data visualization applications, from timeseries to geographic data.
+Splash can be used with standard 1D visualizations  and with standard 2D visualizations .
+For example, visualizations of financial data, weather charts, gridded census data, and fixed nodeedge diagrams are all supported.
+Potential aggregate measures include classic summary statistics, such as the mean, standard deviation, and inter-quartile range, and more complex algorithms, like nearest neighbor clustering.
+The average interaction latency achieved by Splash is affected by two factors, the SPI and the LOD compression ratio of the multi-scale version of the dataset.
+The LOD compression ratio is the average number of samples aggregated at each level of the LOD hierarchy.
+For example, if bins of 6 samples are used to aggregate each LOD, the compression ratio would be 6.
+The lower the compression ratio, the more often LOD transitions occur when zooming.
+The SPI parameter is used to tune the density of samples displayed in the visualization.
+As the SPI increases, more data is downloaded.
+We have found that for desktop environments, an SPI of 20 to 40 and a compression ratio between 4 and 8 yields visually pleasing transitions, while still ensuring real-time interaction across a range of SPI settings.
+The impact of LOD compression ratio and SPI on interaction latency is contrasted between progressive and nonprogressive loading methods for mobile 3G and broadband network conditions .
+While interaction latency on mobile 3G benefits the most , broadband also shows improvement .
+Given device characteristics and network conditions, it may be desirable for the visualization developer to decrease the SPI or increase the number of progressively loaded LODs to maintain real-time interaction.
+Presently, Splash supports both densely and sparsely sampled discrete and continuous data; categorical, numeric, and string data values; and one- and two-dimensional query intervals along navigable dimension of the data.
+Splash does not support data visualizations where elements of the visualization are dynamic, for example, a node-edge graph visualization where nodes can be repositioned.
+Elements of visualizations must have fixed positions along the navigable dimension of the dataset.
+We conducted a study to evaluate the data curator experience .
+In particular, we focused on the exercise of data model abstraction and aggregation, engaging data curators to consider which attributes of their data were important for likely analysis tasks.
+Three researchers were recruited for participatory case studies using their own research data.
+The researchers were from the domains of computer systems and bioinformatics research.
+Since each had a varying degree of programming experience, researchers played the role of data curators, and we the role of visualization developers.
+To this end, we provided each researcher with a multi-scale visualization tool, navigable by panning and zooming, with visibility toggling for each aggregate measure plotted.
+We did not coach or offer advice in the data model abstraction and aggregation task.
+The study was conducted over three sessions.
+Before the first session, we asked participants to select a dataset they had previously analyzed.
+We started with a semi-structured interview to probe their typical workflow and analysis tools.
+The capabilities of Splash were demonstrated using their dataset.
+We asked the researchers to describe aggregate measures that would enable them to gain insights into their data in an exploratory analysis task.
+In the second session, we engaged the researcher in a pair-programming activity: implementing the LOD hierarchy and aggregate measures, based on measures from the first session, for the Splash Aggregator.
+We then ran the utility to generate the pre-computed multi-scale version of their data and presented the final visualization.
+In a final open-ended interview, we asked them to describe their experience, indicate difficulties encountered, and reflect on the overall utility of Splash to create interactive analysis tools.
+Since his analyses primarily focus on comparing distributions of corrected errors, his aggregate measures included the mean, standard deviation, median, min, and max.
+Additionally, the researcher wanted to gain insight into error overflows.
+The memory error logging system has a fixedsize register, capping the count at 216.
+He employed conditional aggregate measures to track the number of error overflows and filter error counts to exclude overflows.
+Reflecting on the Splash Aggregator the researcher stated, "the process seems fairly straightforward."
+The researcher was pleased with the final visualization: general trends were quickly apparent, and he noted, "relative differences between error types are immediately clear" .
+He was surprised at the large difference between the unfiltered and filtered means; commenting that " could indicate  hardware errors as opposed to transient  errors.
+This is easily distinguishable from the visualization."
+This insight would not have been apparent using his current analysis methods.
+Additionally, the visualization highlighted several time periods with abnormalities.
+The researcher was also able to confirm trends and features he had discovered in his prior analyses.
+Overall, he was excited that Splash would enable more extensive hypothesis testing in the second step of his current workflow.
+He was very pleased with the responsiveness and freedom of navigation provided by the interactive visualization, commenting "it's great that I can quickly zoom into the details to investigate interesting trends."
+He said such an analysis in his current workflow is currently "more trouble than it's worth", but with Splash he felt compelled to "look closer."
+The first participant is a researcher of computer systems.
+He chose to analyze a dataset of memory error reports extracted from BlueGene supercomputer logs.
+The logs include the timestamp and number of corrected errors that occurred, categorized by the correction algorithm used: single symbol , double symbol , and chipkill errors .
+He reported his typical analysis is conducted in three steps.
+First, shell scripts and command line tools, such as grep, sed, sort, and awk, are used to pre-process the data.
+Second, the cleansed data is loaded into Matlab, R, or customized data structures in C and Python to compute statistical measures and tests, such as CDF plots and autocorrelation analyses.
+Finally, Matlab, R, or gnuplot is used to generate static visualizations for publication.
+Time-oriented visualizations are seldom used due to the overhead of manually reframing data plots in their current tools.
+However, the researcher noted that such visualizations could be useful in isolating abnormalities and discerning overall trends.
+The second participant is a genetics researcher of the human genome.
+He chose a dataset that consisted of negativelog transformed p-values for several thousand single nucleotide polymorphisms .
+Locations of SNPs are scattered along a chromosome; in this case a dimension of 250 million locations.
+Strong p-value scores indicate which SNPs play the role of eQTLs in the human ileum.
+Session: Designing and Understanding Visualizations His current analysis workflow consists of generating stationary scatterplots, called Manhattan plots, using Excel and visually searching for locations where clusters of strong p-values occur.
+This process is very time consuming because isolating the SNPs involved at specific locations requires manually reframing the plot to view details and then cross referencing to find the associated SNP marker names.
+We prepared an interactive bar chart, analogous to the Manhattan plot.
+Local maxima and clusters of strong pvalues were more important to his analysis than the distribution of p-values.
+The aggregate measures he chose to implement included the median, the max, and an additional label of the name of the maximum SNP in a range .
+After exploring the data with this final visualization, the researcher commented that "the max remains by far the most useful ...
+It helped me answer my questions about areas of concentrated strong p-values along the chromosome contrasted against `deserts.'"
+He also noted, "the interactivity is fantastic... the ability to dynamically zoom in and out ... is absolutely necessary."
+This participant had less familiarity programming in Python than the first participant, but commented that working with the aggregates available through NumPy was "super simple".
+He said that "adding new aggregate ... is straightforward if you have reasonable programming skills", but might be challenging to those in his field with little or no programming experience.
+Overall, he commented "the type of visualization your software provides is a necessary first step to eye-balling your data" prior to engaging more complex analyses of asymptotic or periodicity.
+Splash made this first step analysis far more accessible.
+The third participant is a visualization developer working in bioinformatics with plant cellular genome data.
+The data he chose to analyze is a gene sequence of ~360 thousand bases  from Arabidopsis Thaliana.
+It is the entire sequence of chromosome M. Current tools he uses to visualize genomic regions, such as the UCSC Genome Browser, are quite complex.
+Many data plots are available and while multi-scale, the interaction remains stepped and it is difficult to add custom visualizations.
+Our participant was interested in developing a "fun" visualization "to try out something different."
+Since the physical properties of DNA are important, he wanted to develop an interactive visualization that would help visually identify regions along the chromosome where higher frequencies of certain bases occur.
+He explained, "promoter regions are typically more A-T rich" .
+While this is rarely a primary research question, this visualization could be used to provide additional context for other data explorations, such as transcription factor binding site information and intron splice sites.
+The researcher implemented an algorithm to aggregate the normalized frequencies of each base along the chromosome.
+Reflecting on the pair-programming exercise, the researcher commented that "t he effort to implement  was relatively minor; but, it requires knowledge of programming."
+He suggested a UI to facilitate the Splash Aggregator configuration steps would make it more accessible to a wider range of researchers.
+As a visualization developer he appreciated the reusable nature of the precomputed LOD data: "that kind of flexibility seems quite well worth ."
+Overall, he was very positive about the "playfulness" of the real-time interaction that Splash enabled.
+Overall, participants agreed that preparing their data for use with Splash was intuitive and provided a much richer experience compared to their existing analysis tools.
+The addition of real-time interactivity enabled them to freely explore the data at multiple LODs.
+Of the three participants, the Case Study 1 participant was the most intrepid in utilizing non-standard measures, which we suspect relates to his familiarity with divide-and-conquer style analyses, as evidenced by the first step of his analysis workflow.
+Most difficulties encountered were due to uncertainty when deciding on a LOD hierarchy.
+This was less of an issue in Case Study 1, where the time-oriented dataset mapped to meaningful time ranges, but for both genomic datasets , the researchers felt that defining the LOD hierarchy was arbitrary.
+They preferred that it be automatically generated.
+Based on these initial results, we believe that Splash can be easily integrated into existing early-stage analysis workflows, either introducing exploratory visual analysis to domains where it is not currently used or enhancing stationary plots with real-time navigation.
+We have introduced Splash, a framework that enables scientists to dive-in and interactively explore their data using real-time navigation through progressive downloading in multi-scale client-server visualizations.
+We provide empirical evidence to support the use of progressive downloading for visualizations.
+The results of our first study suggest that progressive loading makes data available more quickly.
+This immediate display of data could help mitigate common issues in multi-scale spaces, such as desert fog .
+Our second study suggests Splash is easily integrated into existing analysis workflows, making exploratory data analysis more accessible to researchers.
+Splash is not without its limitations.
+We intend to add support for more complex LOD hierarchies, including semantic and ontological hierarchies.
+LOD-dependent aggregate measures would enable semantic zooming .
+We are also investigating real-time responsiveness tuning, where LOD selection and SPI account for network conditions.
+The lack of support for features such as real-time interactivity, continuous feedback, multi-scale representations, and partial queries, among others, have been identified as continuing barriers to the wider adoption of existing scientific and information visualization tools and toolkits .
+Supporting real-time interaction with visualizations of larger data, allowing any user to answer the simple yet valuable question, "What does my data look like" is paramount to facilitating the broader use of visualization tools.
+We hope that Splash will promote the use of exploratory data analysis at early stages of data analysis by mitigating many of these barriers, placing more powerful visualization tools directly into the hands of researchers and domain experts.

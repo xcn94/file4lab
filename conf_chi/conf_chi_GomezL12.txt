@@ -1,0 +1,91 @@
+This paper describes a framework called TOME for building and extending such models with minimal human involvement.
+The framework prepares graphical storyboards of task executions that yield task completion-time predictions using the KLM  when loaded by the open-source application CogTool .
+TOME is aimed at modeling quick , interactive tasks in graphical user interfaces, e.g., querying and marking places of interest with Google Maps.
+Unlike previous approaches, TOME uses the crowd wisdom of end users expressed in interaction histories to model task executions.
+With this, we explore performance modeling to guide development of a prototype interactive brain-circuit map.
+The contributions of this work include an early implementation of TOME and a case study with a brain-circuit visualization that demonstrates the framework's prediction accuracy for task completion times and usefulness for evaluating new interaction designs.
+We show that performance predictions for two circuit query tasks average within 10% of expert performance, and we extend one TOME-generated model to evaluate a proposed feature that speeds up one task by 16%.
+We present TOME, a novel framework that helps developers quantitatively evaluate user interfaces and design iterations by using histories from crowds of end users.
+TOME collects user-interaction histories via an interface instrumentation library as end users complete tasks; these histories are compiled using the Keystroke-Level Model  into task completion-time predictions using CogTool.
+With many histories, TOME can model prevailing strategies for tasks without needing an HCI specialist to describe users' interaction steps.
+An unimplemented design change can be evaluated by perturbing a TOME task model in CogTool to reflect the change, giving a new performance prediction.
+We found that predictions for quick  query tasks in an instrumented brain-map interface averaged within 10% of measured expert times.
+Finally, we modified a TOME model to predict closely the speed-up yielded by a proposed interaction before implementing it.
+Models of human performance with a tool can be used to guide design choices.
+Our work uses the KLM, which predicts the time an expert user takes to execute necessary keyboard and mouse input and also cognitive operations .
+Here, an `expert user' is an application end user who knows the steps necessary to complete a task and can do them as quickly as possible.
+A prediction should be close to a lower bound on how long it takes to execute the critical interaction path for completing a task.
+Quantitative user studies can help interface developers evaluate new tool designs, but are often difficult to plan and carry out.
+Analyzing usage data in each design iteration is often prohibitively expensive.
+An alternate approach is to construct a predictive model of the tool's utility for a task  and evaluate interface changes by running the model.
+TOME provides an interface instrumentation library based on Java's Swing toolkit that automatically produces interaction histories as end users of applications complete tasks.
+Library widgets like buttons are meant to be instantiated in place of respective Swing components.
+A basic logging API can be used to capture other events and build logging widgets.
+Interaction histories are generated when end users complete tasks with the instrumented UI.
+Histories are aggregated by a program into canonical interaction storyboards for each task; CogTool then produces time predictions from these storyboards.
+The dotted arrows show actions a UI designer might take having retrieved the performance prediction from CogTool.
+End users can toggle logging on or off by editing a configuration file.
+Toggling the configuration does not affect regular application functionality, allowing end users to opt out of data collection easily.
+Histories are encoded as sequences of widget-triggered interaction events and corresponding screenshots and keyboard or mouse input.
+In essence, each history gathers the information needed to build a graphical storyboard of the input events that cause GUI state changes throughout the task.
+Other subtle data is collected; for instance, the on-screen spatial bounds of widgets used are reported to model mouse-targeting times by Fitts' Law .
+The ability to edit these storyboards in CogTool makes our approach more powerful than simply gathering average times from history timestamps; we can compare current UI designs against proposed changes by copying TOME storyboards and perturbing them in the WYSIWYG editor to reflect incremental design changes.
+This utilizes both CogTool's rapid prototyping ability and TOME's ability to gather baseline models for how end users currently complete tasks.
+We describe an example design revision in the section titled "Evaluating New UI Features".
+A unique aspect of this work is using many histories to produce a single time prediction for a task.
+The idea is that for certain types of tasks, the crowd wisdom for how to complete the task can be extracted from a set of real end-user histories.
+In our implementation, when a history aggregation program is run, histories are grouped by labels that end users provide after finishing tasks.
+Within a group, histories that share the same interaction sequence are counted, and the most frequent sequence is treated as the canonical one for the task.
+This approach filters out noisy task executions  or unpopular strategies without having to interpret the semantics of histories.
+Furthermore, unlike applying the KLM manually, no modeler must know and express how to complete tasks a priori.
+Automating evaluation methods is an important challenge for interactive tools .
+We build on previous projects aimed at making KLM more accessible as an evaluation method.
+Unlike CRITIQUE, TOME considers histories and task strategies from real end users and tolerates noisy interactions.
+TOME uses CogTool for editing the storyboards it builds; it minimizes the work needed to evaluate design changes with CogTool alone.
+Other previous work explored interaction histories for usability evaluation , but to the best of our knowledge multiple end-user histories have not been leveraged for easier KLM modeling.
+Though TOME histories are not used by the instrumented applications, history-based features have been developed in tools like Tableau  and VisTrails  to support end users in creating data visualizations or rendering dataflows.
+To establish the accuracy of TOME's predictions, we instrumented this interactive diagram to collect task histories, and then compared the KLM predictions with measured task completion times.
+Furthermore, we modified one model in CogTool to predict the performance improvement given by a proposed feature.
+Each participant completed each task 25 times during a session of about an hour.
+The first five runs in each task tested the subject on all different brain parts so as to increase familiarity with the tool and task.
+The remaining 20 runs of each task were repeated with the same query in order to estimate the average expert completion time  to compare to KLM.
+Of the 160 total expert runs collected, 5 times were discarded from this mean due to users stopping or encountering technical problems in these trials.
+Runs 1 through 10 for each task were training data  for TOME to construct the canonical storyboard.
+To collect test histories, eight participants were recruited as application end users and completed two types of tasks with the brain-diagram tool, as described below.
+All were undergraduate or graduate students in computer science.
+The participants were split into two groups  that completed the task types with different brain part queries.
+Using two groups with different instances of data gives more model predictions to compare, and therefore more confidence in generalizing that these task types can be predicted with the KLM.
+With the informed consent of each participant, we recorded participant videos and screen capture for posterior analysis.
+Participants were trained with the brain node-link diagram for 10-15 minutes and asked to complete the following tasks as quickly and accurately as possible: T1: `Nearest neighbor' neural projections.
+Given the name of a specific brain part p, select the two nearest parts on the map that share a projection  with p. T2: Map adjustment.
+Given the names of two specific brain parts p1 and p2 and a target part t, click and drag both p1 and p2 on top of t. In both tasks, participants were required to interpret the diagram and complete several motor activities using the keyboard and mouse.
+After gathering histories and building TOME storyboards, we extended one of these models to evaluate a new feature before implementing it.
+We used a model created for the T1 task to evaluate an interaction called radius select that makes T1 faster.
+With radius select, a user can select all brain parts within a circular area of interest by choosing a central brain part and a radius on the map; this interaction can thus solve T1 quickly, without individually selecting nearby nodes.
+This amounted to adding one transition triggered by a new mouse action to the previously constructed storyboard.
+We simulated radius select in CogTool to produce a time prediction for experts.
+Figure 3 shows results for prediction accuracy for the tasks described previously.
+The worst error was just under 14%, on group B's T2 task.
+Reviewing the video for this instance showed that one participant repeatedly deviated from the most popular strategy that TOME automatically storyboarded; this participant's significantly slower task executions raised the mean expert time.
+Performance times over repeated trials became more consistent with experience.
+For both groups A and B, the standard deviation of all training set times  was at least 50% higher than in expert trials  for each task.
+We extended the T1-A storyboard to include the radius select interaction.
+The prediction for the T1-A task using this feature was 5.7 seconds, 18% faster than the original prediction .
+We have described work toward a novel architecture for modeling human task performance from multiple interaction histories.
+Unlike previous methods, our system does not require an HCI expert to predict and model the steps taken by crowds of end users to complete tasks with an interface.
+Limitations of this approach include those of the KLM and that end users must label their task histories.
+Modeling higher-level cognitive processes with minimal human expertise remains an important challenge.
+Still, our results are encouraging: for quick diagram-query tasks, we demonstrated that TOME generates predictions within the 20% error claimed by KLM  and that these models can be used to evaluate iterative designs.
+We were able to predict task times with reasonable accuracy for two diagram-query tasks.
+For the radius select interaction we considered, the predicted speed-up was compelling enough to implement.
+For the tasks studied, we also confirmed that participants became more consistent in completion time over the course of trials.
+This validates the choice of tasks in the study.
+Tasks where completion times do not become more consistent or appear to converge over many trials are unlikely to be predicted well with the KLM.
+We evaluated only a small number of end users and tasks in a lab setting.
+An extensive, longitudinal study of end users completing tasks in situ would be more ecologically valid than having participants repeat trials in hour-long sessions.
+The main limitation with TOME itself is that only certain kinds of tasks can be modeled with the KLM.
+Some tasks, like freely exploring a visualization, usually do not have predictable interaction steps that make sense to model with the KLM.
+Additionally, tasks that can be modeled must be executed in a TOME-instrumented interface.
+Instrumenting an interface and editing storyboards in CogTool requires time and learning.
+Automating TOME further could make it easier to use in live settings.
+An open problem is automatically classifying inter-

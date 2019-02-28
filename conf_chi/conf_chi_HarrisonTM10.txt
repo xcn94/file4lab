@@ -1,0 +1,305 @@
+However, there is one surface that has been previous overlooked as an input canvas, and one that happens to always travel with us: our skin.
+Appropriating the human body as an input device is appealing not only because we have roughly two square meters of external surface area, but also because much of it is easily accessible by our hands .
+Furthermore, proprioception - our sense of how our body is configured in three-dimensional space - allows us to accurately interact with our bodies in an eyes-free manner.
+For example, we can readily flick each of our fingers, touch the tip of our nose, and clap our hands together without visual assistance.
+Few external input devices can claim this accurate, eyes-free input characteristic and provide such a large interaction area.
+In this paper, we present our work on Skinput - a method that allows the body to be appropriated for finger input using a novel, non-invasive, wearable bio-acoustic sensor.
+We present Skinput, a technology that appropriates the human body for acoustic transmission, allowing the skin to be used as an input surface.
+In particular, we resolve the location of finger taps on the arm and hand by analyzing mechanical vibrations that propagate through the body.
+We collect these signals using a novel array of sensors worn as an armband.
+This approach provides an always available, naturally portable, and on-body finger input system.
+We assess the capabilities, accuracy and limitations of our technique through a two-part, twenty-participant user study.
+To further illustrate the utility of our approach, we conclude with several proof-of-concept applications we developed.
+Devices with significant computational power and capabilities can now be easily carried on our bodies.
+However, their small size typically leads to limited interaction space  and consequently diminishes their usability and functionality.
+Since we cannot simply make buttons and screens larger without losing the primary benefit of small size, we consider alternative approaches that enhance interactions with small mobile systems.
+One option is to opportunistically appropriate surface area from the environment for interactive purposes.
+For example,  describes a technique that allows a small mobile device to turn tables on which it rests into a gestural finger input canvas.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+There has been less work relating to the intersection of finger input and biological signals.
+At present, however, this approach typically requires expensive amplification systems and the application of conductive gel for effective signal acquisition, which would limit the acceptability of this approach for most users.
+The input technology most related to our own is that of Amento et al.
+However, this work was never formally evaluated, as is constrained to finger motions in one hand.
+The Hambone system  employs a similar setup, and through an HMM, yields classification accuracies around 90% for four gestures .
+Performance of false positive rejection remains untested in both systems at present.
+Moreover, both techniques required the placement of sensors near the area of interaction , increasing the degree of invasiveness and visibility.
+Finally, bone conduction microphones and headphones - now common consumer technologies - represent an additional bio-sensing technology that is relevant to the present work.
+These leverage the fact that sound frequencies relevant to human speech propagate well through bone.
+Bone conduction microphones are typically worn near the ear, where they can sense vibrations propagating from the mouth and larynx during speech.
+Bone conduction headphones send sound through the bones of the skull and jaw directly to the inner ear, bypassing transmission of sound through the air and outer ear, leaving an unobstructed path for environmental sounds.
+The primary goal of Skinput is to provide an alwaysavailable mobile input system - that is, an input system that does not require a user to carry or pick up a device.
+A number of alternative approaches have been proposed that operate in this space.
+These, however, are computationally expensive and error prone in mobile scenarios .
+Other approaches have taken the form of wearable computing.
+This typically involves a physical input device built in a form considered to be part of one's clothing.
+For example, glove-based input systems  allow users to retain most of their natural hand movements, but are cumbersome, uncomfortable, and disruptive to tactile sensation.
+Post and Orth  present a "smart fabric" system that embeds sensors and conductors into fabric, but taking this approach to always-available input necessitates embedding technology in all clothing, which would be prohibitively complex and expensive.
+The SixthSense project  proposes a mobile, alwaysavailable input/output capability by combining projected information with a color-marker-based vision tracking system.
+This approach is feasible, but suffers from serious occlusion and accuracy limitations.
+For example, determining whether, e.g., a finger has tapped a button, or is merely hovering above it, is extraordinarily difficult.
+In the present work, we briefly explore the combination of on-body sensing with on-body projection.
+Skinput leverages the natural acoustic conduction properties of the human body to provide an input system, and is thus related to previous work in the use of biological signals for computer input.
+These features are generally subconsciouslydriven and cannot be controlled with sufficient precision for direct input.
+Our approach is also inspired by systems that leverage acoustic transmission through  input surfaces.
+Both of these systems use acoustic time-of-flight for localization, which we explored, but found to be insufficiently robust on the human body, leading to the fingerprinting approach described in this paper.
+To expand the range of sensing modalities for alwaysavailable input systems, we introduce Skinput, a novel input technique that allows the skin to be used as a finger input surface.
+In our prototype system, we choose to focus on the arm .
+This is an attractive area to appropriate as it provides considerable surface area for interaction, including a contiguous and flat area for projection .
+To capture this acoustic information, we developed a wearable armband that is non-invasive and easily removable .
+In this section, we discuss the mechanical phenomena that enables Skinput, with a specific focus on the mechanical properties of the arm.
+Then we will describe the Skinput sensor and the processing techniques we use to segment, analyze, and classify bio-acoustic signals.
+When a finger taps the skin, several distinct forms of acoustic energy are produced.
+Some energy is radiated into the air as sound waves; this energy is not captured by the Skinput system.
+Among the acoustic energy transmitted through the arm, the most readily visible are transverse waves, created by the displacement of the skin from a finger impact .
+When shot with a high-speed camera, these appear as ripples, which propagate outward from the point of contact .
+The amplitude of these ripples is correlated to both the tapping force and to the volume and compliance of soft tissues under the impact area.
+In general, tapping on soft regions of the arm creates higher amplitude transverse waves than tapping on boney areas , which have negligible compliance.
+In addition to the energy that propagates on the surface of the arm, some energy is transmitted inward, toward the skeleton .
+These longitudinal  waves travel through the soft tissues of the arm, exciting the bone, which is much less deformable then the soft tissue but can respond to mechanical excitation by rotating and translating as a rigid body.
+This excitation vibrates soft tissues surrounding the entire length of the bone, resulting in new longitudinal waves that propagate outward to the skin.
+We highlight these two separate forms of conduction - transverse waves moving directly along the arm surface, and longitudinal waves moving into and out of the bone through soft tissues - because these mechanisms carry energy at different frequencies and over different distances.
+Roughly speaking, higher frequencies propagate more readily through bone than through soft tissue, and bone conduction carries energy over larger distances than soft tissue conduction.
+While we do not explicitly model the specific mechanisms of conduction, or depend on these mechanisms for our analysis, we do believe the success of our technique depends on the complex acoustic patterns that result from mixtures of these modalities.
+Similarly, we also believe that joints play an important role in making tapped locations acoustically distinct.
+Bones are held together by ligaments, and joints often include additional biological structures such as fluid cavities.
+This makes joints behave as acoustic filters.
+In some cases, these may simply dampen acoustics; in other cases, these will selectively attenuate specific frequencies, creating locationspecific acoustic signatures.
+To capture the rich variety of acoustic information described in the previous section, we evaluated many sensing technologies, including bone conduction microphones, conventional microphones coupled with stethoscopes , piezo contact microphones , and accelerometers.
+However, these transducers were engineered for very different applications than measuring acoustics transmitted through the human body.
+As such, we found them to be lacking in several significant ways.
+Foremost, most mechanical sensors are engineered to provide relatively flat response curves over the range of frequencies that is relevant to our signal.
+This is a desirable property for most applications where a faithful representation of an input signal - uncolored by the properties of the transducer - is desired.
+However, because only a specific set of frequencies is conducted through the arm in response to tap input, a flat response curve leads to the capture of irrelevant frequencies and thus to a high signal-to-noise ratio.
+While bone conduction microphones might seem a suitable choice for Skinput, these devices are typically engineered for capturing human voice, and filter out energy below the range of human speech .
+Thus most sensors in this category were not especially sensitive to lower-frequency signals , which we found in our empirical pilot studies to be vital in characterizing finger taps.
+To overcome these challenges, we moved away from a single sensing element with a flat response curve, to an array of highly tuned vibration sensors.
+Specifically, we employ small, cantilevered piezo films .
+By adding small weights to the end of the cantilever, we are able to alter the resonant frequency, allowing the sensing element to be responsive to a unique, narrow, low-frequency band of the acoustic spec-
+Adding more mass lowers the range of excitation to which a sensor responds; we weighted each element such that it aligned with particular frequencies that pilot studies showed to be useful in characterizing bio-acoustic input.
+Figure 4 shows the response curve for one of our sensors, tuned to a resonant frequency of 78Hz.
+The curve shows a ~14dB drop-off 20Hz away from the resonant frequency.
+Additionally, the cantilevered sensors were naturally insensitive to forces parallel to the skin .
+Thus, the skin stretch induced by many routine movements  tends to be attenuated.
+However, the sensors are highly responsive to motion perpendicular to the skin plane - perfect for capturing transverse surface waves  and longitudinal waves emanating from interior structures .
+Finally, our sensor design is relatively inexpensive and can be manufactured in a very small form factor , rendering it suitable for inclusion in future mobile devices .
+In our prototype system, we employ a Mackie Onyx 1200F audio interface to digitally capture data from the ten sensors .
+This was connected via Firewire to a conventional desktop computer, where a thin client written in C interfaced with the device using the Audio Stream Input/Output  protocol.
+Each channel was sampled at 5.5kHz, a sampling rate that would be considered too low for speech or environmental audio, but was able to represent the relevant spectrum of frequencies transmitted through the arm.
+This reduced sample rate  makes our technique readily portable to embedded processors.
+For example, the ATmega168 processor employed by the Arduino platform can sample analog readings at 77kHz with no loss of precision, and could therefore provide the full sampling power required for Skinput .
+Data was then sent from our thin client over a local socket to our primary application, written in Java.
+This program performed three key functions.
+First, it provided a live visualization of the data from our ten sensors, which was useful in identifying acoustic features .
+Second, it segmented inputs from the data stream into independent instances .
+Third, it classified these input instances.
+The audio stream was segmented into individual taps using an absolute exponential average of all ten channels .
+When an intensity threshold was exceeded , the program recorded the timestamp as a potential start of a tap.
+If the intensity did not fall below a second, independent "closing" threshold  between 100ms and 700ms after the onset crossing , the event was discarded.
+Our final prototype, shown in Figures 1 and 5, features two arrays of five sensing elements, incorporated into an armband form factor.
+The decision to have two sensor packages was motivated by our focus on the arm for input.
+In particular, when placed on the upper arm , we hoped to collect acoustic information from the fleshy bicep area in addition to the firmer area on the underside of the arm, with better acoustic coupling to the Humerus, the main bone that runs from shoulder to elbow.
+When the sensor was placed below the elbow, on the forearm, one package was located near the Radius, the bone that runs from the lateral side of the elbow to the thumb side of the wrist, and the other near the Ulna, which runs parallel to this on the medial side of the arm closest to the body.
+Each location thus provided slightly different acoustic coverage and information, helpful in disambiguating input location.
+Based on pilot data collection, we selected a different set of resonant frequencies for each sensor package .
+We tuned the upper sensor package to be more sensitive to lower frequency signals, as these were more prevalent in fleshier areas.
+Conversely, we tuned the lower sensor array to be sensitive to higher frequencies, in order to better capture signals transmitted though  bones.
+These are fed into the trained SVM for classification.
+We use an event model in our software - once an input is classified, an event associated with that location is instantiated.
+Any interactive features bound to that event are fired.
+As can be seen in our video, we readily achieve interactive speeds.
+EXPERIMENT Participants Figure 6: Ten channels of acoustic data generated by three finger taps on the forearm, followed by three taps on the wrist.
+The exponential average of the channels is shown in red.
+Segmented input windows are highlighted in green.
+Note how different sensing elements are actuated by the two locations.
+To evaluate the performance of our system, we recruited 13 participants  from the Greater Seattle area.
+These participants represented a diverse cross-section of potential ages and body types.
+Although simple, this heuristic proved to be highly robust, mainly due to the extreme noise suppression provided by our sensing approach.
+After an input has been segmented, the waveforms are analyzed.
+Signals simply diminished in intensity overtime.
+Thus, features are computed over the entire input window and do not capture any temporal dynamics.
+We employ a brute force machine learning approach, computing 186 features in total, many of which are derived combinatorially.
+For gross information, we include the average amplitude, standard deviation and total  energy of the waveforms in each channel .
+From these, we calculate all average amplitude ratios between channel pairs .
+We also include an average of these ratios .
+We calculate a 256-point FFT for all ten channels, although only the lower ten values are used , yielding 100 features.
+These are normalized by the highest-amplitude FFT value found on any channel.
+We also include the center of mass of the power spectrum within the same 0Hz to 193Hz range for each channel, a rough estimation of the fundamental frequency of the signal displacing each sensor .
+Subsequent feature selection established the all-pairs amplitude ratios and certain bands of the FFT to be the most predictive features.
+These 186 features are passed to a Support Vector Machine  classifier.
+A full description of SVMs is beyond the scope of this paper .
+Our software uses the implementation provided in the Weka machine learning toolkit .
+It should be noted, however, that other, more sophisticated classification techniques and features could be employed.
+Thus, the results presented in this paper should be considered a baseline.
+Before the SVM can classify input instances, it must first be trained to the user and the sensor position.
+This stage requires the collection of several examples for each input location of interest.
+When using Skinput to recognize live input, the same 186 acoustic features are computed on-the-
+We selected three input groupings from the multitude of possible location combinations to test.
+We believe that these groupings, illustrated in Figure 7, are of particular interest with respect to interface design, and at the same time, push the limits of our sensing capability.
+From these three groupings, we derived five different experimental conditions, described below.
+One set of gestures we tested had participants tapping on the tips of each of their five fingers .
+The fingers offer interesting affordances that make them compelling to appropriate for input.
+Foremost, they provide clearly discrete interaction points, which are even already well-named .
+In addition to five finger tips, there are 14 knuckles , which, taken together, could offer 19 readily identifiable input locations on the fingers alone.
+Second, we have exceptional finger-tofinger dexterity, as demonstrated when we count by tapping on our fingers.
+Finally, the fingers are linearly ordered, which is potentially useful for interfaces like number entry, magnitude control , and menu selection.
+At the same time, fingers are among the most uniform appendages on the body, with all but the thumb sharing a similar skeletal and muscular structure.
+This drastically reduces acoustic variation and makes differentiating among them difficult.
+Additionally, acoustic information must cross as many as five  joints to reach the forearm, which further dampens signals.
+For this experimental condition, we thus decided to place the sensor arrays on the forearm, just below the elbow.
+Despite these difficulties, pilot experiments showed measureable acoustic differences among fingers, which we theorize is primarily related to finger length and thickness, interactions with the complex structure of the wrist bones, and variations in the acoustic transmission properties of the muscles extending from the fingers to the forearm.
+We employed a within-subjects design, with each participant performing tasks in each of the five conditions in randomized order: five fingers with sensors below elbow; five points on the whole arm with the sensors above the elbow; the same points with sensors below the elbow, both sighted and blind; and ten marked points on the forearm with the sensors above the elbow.
+Participants were seated in a conventional office chair, in front of a desktop computer that presented stimuli.
+For conditions with sensors below the elbow, we placed the armband ~3cm away from the elbow, with one sensor package near the radius and the other near the ulna.
+For conditions with the sensors above the elbow, we placed the armband ~7cm above the elbow, such that one sensor package rested on the biceps.
+Right-handed participants had the armband placed on the left arm, which allowed them to use their dominant hand for finger input.
+For the one left-handed participant, we flipped the setup, which had no apparent effect on the operation of the system.
+Tightness of the armband was adjusted to be firm, but comfortable.
+While performing tasks, participants could place their elbow on the desk, tucked against their body, or on the chair's adjustable armrest; most chose the latter.
+First, they are distinct and named parts of the body .
+This allowed participants to accurately tap these locations without training or markings.
+Additionally, these locations proved to be acoustically distinct during piloting, with the large spatial spread of input points offering further variation.
+We used these locations in three different conditions.
+One condition placed the sensor above the elbow, while another placed it below.
+This was incorporated into the experiment to measure the accuracy loss across this significant articulation point .
+Additionally, participants repeated the lower placement condition in an eyes-free context: participants were told to close their eyes and face forward, both for training and testing.
+This condition was included to gauge how well users could target on-body input locations in an eyes-free context .
+In an effort to assess the upper bound of our approach's sensing resolution, our fifth and final experimental condition used ten locations on just the forearm .
+Not only was this a very high density of input locations , but it also relied on an input surface  with a high degree of physical uniformity .
+We expected that these factors would make acoustic sensing difficult.
+Moreover, this location was compelling due to its large and flat surface area, as well as its immediate accessibility, both visually and for finger input.
+Simultaneously, this makes for an ideal projection surface for dynamic interfaces.
+To maximize the surface area for input, we placed the sensor above the elbow, leaving the entire forearm free.
+Rather than naming the input locations, as was done in the previously described conditions, we employed small, colored stickers to mark input targets.
+This was both to reduce confusion  and to increase input consistency.
+As mentioned previously, we believe the forearm is ideal for projected interface elements; the stickers served as low-tech placeholders for projected buttons.
+For each condition, the experimenter walked through the input locations to be tested and demonstrated finger taps on each.
+Participants practiced duplicating these motions for approximately one minute with each gesture set.
+It also allowed us to convey the appropriate tap force to participants, who often initially tapped unnecessarily hard.
+To train the system, participants were instructed to comfortably tap each location ten times, with a finger of their choosing.
+This constituted one training round.
+In total, three rounds of training data were collected per input location set .
+An exception to this procedure was in the case of the ten forearm locations, where only two rounds were collected to save time .
+Total training time for each experimental condition was approximately three minutes.
+We used the training data to build an SVM classifier.
+The order of stimuli was randomized, with each location appearing ten times in total.
+We provided feedback so that participants could see where the system was making errors .
+In this section, we report on the classification accuracies for the test phases in the five different conditions.
+Overall, classification rates were high, with an average accuracy across conditions of 87.6%.
+Additionally, we present preliminary results exploring the correlation between classification accuracy and factors such as BMI, age, and sex.
+We believe that additional training data, which better covers the increased input variability, would remove much of this deficit.
+We would also caution designers developing eyes-free, on-body interfaces to carefully consider the locations participants can tap accurately.
+Despite multiple joint crossings and ~40cm of separation between the input targets and sensors, classification accuracy remained high for the five-finger condition, averaging 87.7%  across participants.
+Segmentation, as in other conditions, was essentially perfect.
+Inspection of the confusion matrices showed no systematic errors in the classification, with errors tending to be evenly distributed over the other digits.
+When classification was incorrect, the system believed the input to be an adjacent finger 60.5% of the time; only marginally above prior probability .
+This suggests there are only limited acoustic continuities between the fingers.
+The only potential exception to this was in the case of the pinky, where the ring finger constituted 63.3% percent of the misclassifications.
+Classification accuracy for the ten-location forearm condition stood at 81.5% , a surprisingly strong result for an input set we devised to push our system's sensing limit .
+Following the experiment, we considered different ways to improve accuracy by collapsing the ten locations into larger input groupings.
+The goal of this exercise was to explore the tradeoff between classification accuracy and number of input locations on the forearm, which represents a particularly valuable input surface for application designers.
+We grouped targets into sets based on what we believed to be logical spatial groupings .
+In addition to exploring classification accuracies for layouts that we considered to be intuitive, we also performed an exhaustive search  over all possible groupings.
+For most location counts, this search confirmed that our intuitive groupings were optimal; however, this search revealed one plausible, although irregular, layout with high accuracy at six input locations .
+Unlike in the five-fingers condition, there appeared to be shared acoustic traits that led to a higher likelihood of confusion with adjacent targets than distant ones.
+This effect was more prominent laterally than longitudinally.
+Figure 9 illustrates this with lateral groupings consistently outperforming similarly arranged, longitudinal groupings .
+This is unsurprising given the morphology of the arm, with a high degree of bilateral symmetry along the long axis.
+Participants performed three conditions with the whole-arm location configuration.
+This is not surprising, as this condition placed the sensors closer to the input targets than the other conditions.
+This is almost certainly related to the acoustic loss at the elbow joint and the additional 10cm of distance between the sensor and input targets.
+Figure 8 shows these results.
+The eyes-free input condition yielded lower accuracies than other conditions, averaging 85.0% .
+This represents a 10.5% drop from its visionassisted, but otherwise identical counterpart condition.
+It was apparent from watching participants complete this condition that targeting precision was reduced.
+In sighted conditions, participants appeared to be able to tap locations with perhaps a 2cm radius of error.
+To assess how these variations affected our sensing accuracy, we calculated each participant's body mass index  from self-reported weight and height.
+Data and observations from the experiment suggest that high BMI is correlated with decreased accuracies.
+The participants with the three highest BMIs  produced the three lowest average accuracies.
+Figure 10 illustrates this significant disparity here participants are separated into two groups, those with BMI greater and less than the US national median, age and sex adjusted  .
+Other factors such as age and sex, which may be correlated to BMI in specific populations, might also exhibit a correlation with classification accuracy.
+For example, in our participant pool, males yielded higher classification accuracies than females, but we expect that this is an artifact of BMI correlation in our sample, and probably not an effect of sex directly.
+In the jogging trials, the system had four false-positive input events  over six minutes of continuous jogging.
+True-positive accuracy, as with walking, was 100%.
+Considering that jogging is perhaps the hardest input filtering and segmentation test, we view this result as extremely positive.
+Classification accuracy, however, decreased to 83.3% and 60.0% for the male and female participants respectively .
+Although the noise generated from the jogging almost certainly degraded the signal , we believe the chief cause for this decrease was the quality of the training data.
+Participants only provided ten examples for each of three tested input locations.
+Furthermore, the training examples were collected while participants were jogging.
+Thus, the resulting training data was not only highly variable, but also sparse - neither of which is conducive to accurate machine learning classification.
+We believe that more rigorous collection of training data could yield even stronger results.
+We conducted a series of smaller, targeted experiments to explore the feasibility of our approach for other applications.
+In the first additional experiment, which tested performance of the system while users walked and jogged, we recruited one male  and one female  for a single-purpose experiment.
+For the rest of the experiments, we recruited seven new participants  from within our institution.
+In all cases, the sensor armband was placed just below the elbow.
+Similar to the previous experiment, each additional experiment consisted of a training phase, where participants provided between 10 and 20 examples for each input type, and a testing phase, in which participants were prompted to provide a particular input .
+As before, input order was randomized; segmentation and classification were performed in real-time.
+In the experiments discussed thus far, we considered only bimanual gestures, where the sensor-free arm, and in particular the fingers, are used to provide input.
+However, there are a range of gestures that can be performed with just the fingers of one hand.
+This was the focus of , although this work did not evaluate classification accuracy.
+We conducted three independent tests to explore onehanded gestures.
+The first had participants tap their index, middle, ring and pinky fingers against their thumb  ten times each.
+Our system was able to identify the four input types with an overall accuracy of 89.6% .
+We ran an identical experiment using flicks instead of taps .
+This motivated us to run a third and independent experiment that combined taps and flicks into a single gesture set.
+Participants re-trained the system, and completed an independent testing round.
+As discussed previously, acoustically-driven input techniques are often sensitive to environmental noise.
+In regard to bio-acoustic sensing, with sensors coupled to the body, noise created during other motions is particularly troublesome, and walking and jogging represent perhaps the most common types of whole-body motion.
+This experiment explored the accuracy of our system in these scenarios.
+Each participant trained and tested the system while walking and jogging on a treadmill.
+Three input locations were used to evaluate accuracy: arm, wrist, and palm.
+Additionally, the rate of false positives  and true positives  was captured.
+The testing phase took roughly three minutes to complete .
+The male walked at 2.3 mph and jogged at 4.3 mph; the female at 1.9 and 3.1 mph, respectively.
+In both walking trials, the system never produced a falsepositive input.
+Meanwhile, true positive accuracy was 100%.
+This result is comparable to the aforementioned tenlocation forearm experiment , lending credence to the possibility of having ten or more functions on the hand alone.
+Furthermore, proprioception of our fingers on a single hand is quite accurate, suggesting a mechanism for high-accuracy, eyes-free input.
+A pragmatic concern regarding the appropriation of fingertips for input was that other routine tasks would generate false positives.
+For example, typing on a keyboard strikes the finger tips in a very similar manner to the finger-tipinput we proposed previously.
+Thus, we set out to explore whether finger-to-finger input sounded sufficiently distinct such that other actions could be disregarded.
+As an initial assessment, we asked participants to tap their index finger 20 times with a finger on their other hand, and 20 times on the surface of a table in front of them.
+This data was used to train our classifier.
+This training phase was followed by a testing phase, which yielded a participantwide average accuracy of 94.3% .
+During piloting, it became apparent that our system had some ability to identify the type of material on which the user was operating.
+This capability was never considered when designing the system, so superior acoustic features may exist.
+Even as accuracy stands now, there are several interesting applications that could take advantage of this functionality, including workstations or devices composed of different interactive surfaces, or recognition of different objects grasped in the environment.
+We conceived and built several prototype interfaces that demonstrate our ability to appropriate the human body, in this case the arm, and use it as an interactive surface.
+These interfaces can be seen in Figure 11, as well as in the accompanying video.
+While the bio-acoustic input modality is not strictly tethered to a particular output modality, we believe the sensor form factors we explored could be readily coupled with visual output provided by an integrated pico-projector.
+There are two nice properties of wearing such a projection device on the arm that permit us to sidestep many calibration issues.
+First, the arm is a relatively rigid structure - the projector, when attached appropriately, will naturally track with the arm .
+Second, since we have fine-grained control of the arm, making minute adjustments to align the projected image with the arm is trivial .
+To illustrate the utility of coupling projection and finger input on the body , we developed three proof-of-concept projected interfaces built on top of our system's live input classification.
+In the first interface, we project a series of buttons onto the forearm, on which a user can finger tap to navigate a hierarchical menu .
+Users can "tap" surfaces with their fingers in several distinct ways.
+For example, one can use the tip of their finger  or the pad  of their finger.
+The former tends to be quite boney, while the latter more fleshy.
+It is also possible to use the knuckles .
+To evaluate our approach's ability to distinguish these input types, we had participants tap on a table situated in front of them in three ways : finger tip, finger pad, and major knuckle.
+A classifier trained on this data yielded an average accuracy of 89.5%  during the testing period.
+This ability has several potential uses.
+Perhaps the most notable is the ability for interactive touch surfaces to distinguish different types of finger contacts .
+One example interaction could be that "double-knocking" on an item opens it, while a "pad-tap" activates an options menu.
+Tapping on the selected item activates it.
+In a third interface, we project a numeric keypad on a user's palm and allow them to tap on the palm to, e.g., dial a phone number .
+To emphasize the output flexibility of approach, we also coupled our bio-acoustic input to audio output.
+In this case, the user taps on preset locations on their forearm and hand to navigate and interact with an audio interface.
+In this paper, we have presented our approach to appropriating the human body as an input surface.
+We have described a novel, wearable bio-acoustic sensing array that we built into an armband in order to detect and localize finger taps on the forearm and hand.
+Results from our experiments have shown that our system performs very well for a series of gestures, even when the body is in motion.
+Additionally, we have presented initial results demonstrating other potential uses of our approach, which we hope to further explore in future work.
+These include single-handed gestures, taps with different parts of the finger, and differentiating between materials and objects.
+We conclude with descriptions of several prototype applications that demonstrate the rich design space we believe Skinput enables.
+We gratefully acknowledge Equipoise Technologies, American International Enterprises and Measurement Specialties for supplying sensors.
+We also thank LOUD Technologies for graciously providing a Mackie Onyx 1200F.
+Finally, we are in indebted to John Lewis and Johnny Lee for their thoughts and pico projectors.
+Ahmad, F., and Musilek, P. A Keystroke and Pointer Control Input Interface for Wearable Computers.
+Amento, B., Hill, W., and Terveen, L. The Sound of One Hand: A Wrist-mounted Bio-acoustic Fingertip Gesture Interface.
+Vision-based Interpretation of Hand Gestures for Remote Control of a Computer Mouse.
+A Tutorial on Support Vector Machines for Pattern Recognition.
+Clinical Guidelines on the Identification, Evaluation, and Treatment of Overweight and Obesity in Adults.
+National Heart, Lung and Blood Institute.
+Deyle, T., Palinko, S., Poole, E.S., and Starner, T. Hambone: A Bio-Acoustic Gesture Interface.
+Erol, A., Bebis, G., Nicolescu, M., Boyle, R.D., and Twombly, X. Vision-based hand pose estimation: A review.
+Computer Vision and Image Understanding.
+Wolpaw, J.R. and Pfurtscheller, G. Conversion of EEG activity into cursor movement by a brain-computer interface .

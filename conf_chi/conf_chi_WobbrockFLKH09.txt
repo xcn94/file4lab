@@ -1,0 +1,222 @@
+We present a novel method of dynamic C-D gain adaptation that improves target acquisition for users with motor impairments.
+Our method, called the Angle Mouse, adjusts the mouse C-D gain based on the deviation of angles sampled during movement.
+When angular deviation is low, the gain is kept high.
+When angular deviation is high, the gain is dropped, making the target bigger in motor-space.
+A key feature of the Angle Mouse is that, unlike most pointing facilitation techniques, it is target-agnostic, requiring no knowledge of target locations or dimensions.
+This means that the problem of distractor targets is avoided because adaptation is based solely on the user's behavior.
+In a study of 16 people, 8 of which had motor impairments, we found that the Angle Mouse improved motor-impaired pointing throughput by 10.3% over the Windows default mouse and 11.0% over sticky icons.
+For able-bodied users, there was no significant difference among the three techniques, as Angle Mouse throughput was within 1.2% of the default.
+Thus, the Angle Mouse improved pointing performance for users with motor impairments while remaining unobtrusive for able-bodied users.
+Therefore, small improvements in pointing speed or accuracy may culminate in large overall efficiency gains when using graphical user interfaces .
+One may reasonably wonder why we do not see more pointing facilitation techniques in practice.
+The answer may be that most techniques are inherently target-aware , meaning they require the mouse cursor to know about, and respond to, the locations and dimensions of on-screen targets.
+Target-aware techniques may even require the ability to alter the targets themselves, for example, by enlarging them  or bringing them closer to the mouse cursor .
+In contrast, few techniques are target-agnostic, meaning that the mouse cursor can remain ignorant of all on-screen targets, and targets themselves are not directly manipulated.
+Conventional pointer acceleration  is by far the most common target-agnostic technique, one found in all modern commercial systems.
+Other target-agnostic techniques are much more specialized, such as for multiple monitors  or for use with eye-pointing .
+In general, target-agnostic techniques represent a tiny minority of pointing facilitation techniques.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+However, at least two challenges threaten the success of target-aware techniques.
+The first is pragmatic: at any given time, possibly myriad targets exist on the screen, and all must be made known to the mouse cursor.
+Whenever a window is closed, a menu opened, or an application launched, the set of on-screen targets changes, and the cursor must be made aware of this.
+The second problem is more fundamental: at any given time, a user means to acquire one target, but N - 1 "distractor" targets exist, representing obstacles .
+This problem becomes pathological in dense target layouts.
+Consider, for example, a document full of text.
+What, exactly, is the set of targets?
+Or take a calendar program, where clicking anywhere on unscheduled space allows one to create a new appointment, making all timeslots potential targets and therefore distractors.
+Targetagnostic techniques do not suffer from either of these problems, but they are limited as a result of being blind to the very targets they seek to acquire.
+Although successful pointing facilitation techniques benefit any computer user, these techniques may be most beneficial to users who have difficulty pointing with the mouse.
+Such users may include people with motor impairments , young children , or elderly users .
+Apart from the exceptions noted in our review of related work, few research efforts have attempted to invent pointing facilitation techniques for people in these groups.
+In the case of users with motor impairments, such techniques may be particularly beneficial.
+Specialized assistive technologies may be used by people with severe disabilities, but many people with limited use of their hands still prefer mice, trackballs, and touchpads .
+In fact, some studies show that under 60% of people who indicate a need for adaptations actually use them .
+But mouse pointing presents numerous difficulties for people with motor control problems .
+Thus, it is important to improve the effectiveness of ordinary commodity devices for individuals with motor impairments .
+In light of these considerations, we present the Angle Mouse , a target-agnostic pointing facilitation technique that improves target acquisition performance for people with motor impairments.
+The Angle Mouse observes the "spread of angles" created during a pointing movement.
+When this spread is narrow , the control-display  gain is maintained.
+When the spread widens , as often occurs when a user makes submovement corrections , the gain is dropped , effectively making the target larger in motor-space .1 Conveniently, because this scheme relies only on cursor behavior, the Angle Mouse avoids the problem of distractor targets and is equally suited for pointing to any pixel as any other.
+We wanted to see if the Angle Mouse could improve the pointing performance of motor-impaired computer users without hampering the performance of able-bodied users.
+In a formal pointing experiment based on ISO 9241-9 , we found that this was the case.
+Motor-impaired performance with the Angle Mouse improved throughput by 10.3% compared to the Windows default mouse and 11.0% compared to sticky icons , while able-bodied throughput was not significantly different among the three techniques.
+For able-bodied users, the Angle Mouse was within 1.4% of the throughput of the default mouse on average, indicating little effect of our technique.
+This indicates that the Angle Mouse is a potentially viable realworld technology that may benefit some users while remaining unobtrusive for others.
+Numerous pointing facilitation techniques have been studied, many of which are mentioned in this paper's introduction.
+Due to space limitations, all of these cannot be discussed; readers are directed to prior surveys .
+Aside from pointer acceleration  and manual gain control , most facilitation techniques that manipulate C-D gain are target-aware.
+These include sticky icons , also formalized as semantic pointing , and gravity wells , which can be used to increase gain when moving into targets and reduce gain when moving away .
+Others have performed gain adaptation only along one axis of movement to reduce the problem of distractor targets .
+Studies of these techniques  show that subtle gain changes are more acceptable to users and can still provide a performance benefit.
+A few research projects have studied pointing facilitation techniques for people with motor impairments.
+Some examine physical force-feedback using haptic devices , finding these aid motor-impaired performance.
+Wobbrock and Gajos  investigated motor-impaired goal crossing as an alternative to pointing, finding crossing was better for motor-impaired users.
+The Angle Mouse relies on a queue of sampled angles that are taken during movement.
+In our implementation, upon the arrival of each mouse point, we test whether it is at least D pixels from the previously sampled mouse point.
+If so, we find the angle between the two points and store it as i in our queue of n angles.
+We found D = 8 pixels and n = 16 angles worked well in practice.
+The most basic Angle Mouse design uses a scheme that adjusts the C-D gain based on unweighted angular deviation .
+Angular deviation reflects the spread of angles and is defined with Eq.
+The mouse configuration on Windows XP/Vista uses an abstraction for the gain setting, where integers 1 to 20 can be set that correspond to positions on the mouse control panel slider.
+The Windows default slider value is 10.
+For our experiment, we chose  to be  on this scale.
+The mappings of these slider values to actual C-D gain values will be discussed in our experiment below.
+Although our definition and use of angular deviation is novel, a similar notion was raised by Hwang et al.
+Neither concept was used in the creation of a new pointing facilitation technique.
+During testing and development, we found that the unweighted treatment of angles left something to be desired.
+Every new angle "mattered" the same as every old angle, and this meant that restoring coherence after high deviation was met with some lag.
+The angle queue could be shortened to reduce this lag, but then fewer angles were "remembered," which resulted in insufficient gain reduction during the final phase of target acquisition.
+To address this problem, we explored the use of weighted angle queues, which allowed emphasis to be placed on more recent angles while retaining the original queue length.
+7-10 compute weighted versions of angular deviation  and angular mean  to replace Eqs.
+For readability, we omit the usual summation bounds i = 1 to n:
+Thus, w not only affects the gain G according to Eq.
+10, but it also affects the weights wi.
+The rationale is that during coherent movement , newer angles are representative and the gain can be kept high during long traversals; but during divergent corrective movements , to keep the gain low, older deviate movements must still "matter," and newer angles should matter less in proportion--thus, a constant or quasi-constant weighting function is best.
+We can achieve this result by parameterizing a Gaussian weighting function so that it is peaked during long traversals but nearly flat during corrective movements.
+Conveniently, a Gaussian distribution g yielding weight wi is made sharper or flatter according to its standard deviation .2 Reducing g results in more peaked curves.
+4 and 5 and applies weights.
+Using weighted angles, we can place more emphasis on recent angles with the rationale that they are more indicative of what the user is trying to do than older angles.
+We explored various weighting functions, a few of which are shown in Figure 6.
+We tested these in pilot studies with able-bodied and motor-impaired participants.
+The best results were with the Gaussian, linear, and constant functions.
+Interestingly, however, these functions performed best during different phases of target acquisition.
+For example, Gaussian weights were best while traveling to a target, but constant weights were best when making finalstage corrections.
+This led us to dynamic weighting.
+For  we use  as the range of Gaussian standard deviations.
+Figure 7 shows this range of curves, from peaked to almost flat.
+Thus, in dynamic weighting, a greater spread of angles during movement lowers gain and  equalizes the amount each angle contributes to the spread calculation.
+A lesser spread of angles increases gain, and places more emphasis on newer angles and more quickly ignores older ones.
+Our testbed administered pointing trials and recorded mouse cursor activity with millisecond precision.
+The mouse device was a Logitech Click!
+As mentioned above, Windows XP/Vista platforms expose an integer from 1-20 to set the C-D gain; 10 is the default.
+However, this integer is not the C-D gain itself.
+Although some on-line documentation3 discusses pointer ballistics in Windows, it does not contain sufficient information to establish the slider-to-gain mapping.
+We therefore carefully measured the mapping for our experiment directly .
+For convenience, however, our subsequent discussion will refer to Window's 1-20 abstraction.
+Sixteen participants took part in the study, 8 of whom had motor impairments .
+Each group comprised 5 females and 3 males.
+All participants indicated they were daily computer users and users of mice.
+One participant, P6, had severe cerebral palsy and was too impaired to readily acquire targets in our study.
+Because the Windows default operates at a slider value of 10 , we set the slider value of sticky icons to also be 10 outside targets and 3  inside targets, a similar ratio to prior work .
+To ensure the Angle Mouse was operating in the same range, we set its  slider values to be ; see Eq.
+This range's extremes are rarely reached, so  was the effective slider value range.
+Thus, at its slowest, the Angle Mouse was about equal to sticky icons inside a target, and at its fastest, it was about equal to the default and sticky icons cursors outside targets.
+We disabled pointer acceleration  for this study, as prior studies have done , to avoid confounding multiple sources of gain change.
+The utilized slider range was about 3-10 , and quantization was not an issue.
+Participants were presented with a randomized series of target rings  with different amplitudes  and target widths .
+Each ring had 23 targets, the first three of which were practice unbeknownst to the participant, who was told to acquire targets at a pace that would miss about 1 per ring , which is suitable for the application of Fitts' law .
+Participants were not told which mouse type they were using.
+All AxW conditions were run with each mouse type before a new mouse type was loaded.
+Of course, participants were encouraged to manipulate the mouse in their natural fashion .
+The study was a 3x3x2 within-subjects design for the motor-impaired group and a 3x3x3 within-subjects design for the able-bodied group.
+It comprised the following factors and levels: * Mouse Type {Angle Mouse, default, sticky icons} * Amplitude  {448, 576, 704 pixels} * Width  {8, 16, 32 pixels} To save time, W = 8 was not administered to participants with motor impairments.
+The Fitts' index of difficulty range was therefore 3.91-5.49 for motor-impaired participants and 3.91-6.48 for able-bodied participants.
+With 3 mouse types in 6 AxW conditions and 20 test trials per condition, motorimpaired participants each performed 360 trials, or 2880 for 8 people.
+In all, the study had 7200 test trials.
+The primary independent variable was Mouse Type.
+The main effects of amplitude  and width  were predictable and uninteresting.
+Participants with and without motor impairments were analyzed separately, as the effects of motor impairments were not the focus of this study.
+Continuous measures were analyzed with repeated measures ANOVA, while event-count measures were analyzed with nonparametric Friedman tests.
+Average error rates are shown in Table 2.
+Pairwise comparisons indicate that the Angle Mouse made fewer errors per condition than the default mouse =4.00, p<.05.
+For able-bodied users, Mouse Type did not exert a significant effect on errors =0.44, ns, and no pairwise comparisons were significant.
+Although movement times and error rates are useful, they conflate task differences with any performance differences that may exist.
+Fitts' law  provides a measure of throughput that combines speed and accuracy in a single measure independent of task parameters, removing task variability to isolate performance differences.
+We followed the latest academic recommendations in applying Fitts' law , including the use of effective index of difficulty , amplitude , and width ; removal of outliers but not errors; and calculating throughput as , not as the inverse of the regression slope .
+The fit of the corrected Fitts' law models for motor-impaired performance was r=0.77.
+Throughput is influenced by the spread of hits as We = 4.133xSD.
+The SD for our two-dimensional task is the bivariate deviation from the normalized centroid point for each AxW condition .
+We recognize that larger spreads may be caused by features of the interaction technique, not just by user performance.
+For example, in preventing the cursor from easily moving to the target center, sticky icons may have higher endpoint deviation because endpoints tend to fall at target edges.
+That said, our trials are normalized by approach angle, so there is no reason that a tight clustering of endpoints cannot occur at the target's edge using the sticky icons technique.
+Average movement times for each Mouse Type are shown in Table 2.
+The Angle Mouse was fastest for short and medium trials, while sticky icons was fastest for the longest trials.
+The Angle Mouse and sticky icons were about equal for medium-sized targets, but Angle Mouse was fastest for large targets.
+Sticky icons were slower for short and medium trials, but fastest for long trials.
+Throughput averages are shown in Table 2.
+Mouse Type had a significant effect on throughput for participants with motor impairments .
+No interactions were significant, but Mouse TypexW was marginal -- sticky icons had higher throughput than the default mouse for medium targets, but vice versa for large targets.
+The Angle Mouse was highest for both.
+For able-bodied users, Mouse Type did not have a significant effect on throughput .
+The Angle Mouse and default mouse performed within about 1.2%, while sticky icons was about 7% worse.
+The Angle Mouse performed best for the middle amplitude, but all three mice performed similarly for the longest amplitude.
+Also, all three mice performed similarly for small and medium targets, but sticky icons was worse for the largest ones.
+This is probably because other targets in the ring were larger also, becoming distractors, or because large sticky targets were easy to enter, but therefore hard to exit.
+Sticky icons was significantly less than the other two .
+The default mouse and sticky icons had 0.36 overshoots per trial, while the Angle Mouse had 0.42.
+No pairwise comparisons were significant.
+Our testbed logged C-D gain over the course of each movement.
+In the case of the default mouse, the gain slider value remained constant at 10.
+This is also the case for sticky icons, unless the cursor was within a target, in which case the slider value dropped to 3.
+For participants with motor impairments using sticky icons, the average gain slider value was 8.99, and at the moment of clicking, it was 3.06.
+For the Angle Mouse, it was 9.59, and at the moment of clicking, it was 7.52.
+Thus, the same general gain values were being used by these techniques, but in response to different things.
+For able-bodied participants using sticky icons, the average gain slider value was 9.09, and 3.04 when clicking.
+Figure 12 shows the angular deviation and slider gain setting for the trial by P7 from Figure 11.
+These graphs, created automatically by our testbed, give an intuition about how the Angle Mouse is working .
+As the weighted angular deviation  increases, the gain  proportionally decreases.
+Sticky icons had the least at 1.01, followed by the Angle Mouse at 1.27, and the default mouse at 1.39.
+Sticky icons had significantly less than the other two .
+Mouse Type also had a significant effect on target overshoots per trial =8.09, p<.02, with sticky icons having the least at 0.44, the Angle Mouse coming next at 0.51, and the default mouse having the most at 0.53.
+Again, sticky icons had significantly less than the other two .
+To identify potential causes of performance differences, MacKenzie et al.
+These measures capture what happens during the course of a movement and have been previously used for people with motor impairments .
+For convenience, they are briefly described here.
+A count of how often the task axis from the start point to target center is crossed.
+A count of path direction changes parallel to the task axis.
+A count path direction changes perpendicular to the task axis.
+A continuous measure of "wiggliness" indicating the extent to which the path lies on a straight line parallel to the task axis .
+A continuous measure of how much the path deviates from the task axis .
+A continuous signed measure of how much the path deviates from the task axis, where equal deviations to either side of the axis cancel .
+For another view into the target acquisition process, we examined submovement profiles, plots of velocity and acceleration over time .
+Submovement analyses have been useful in distinguishing the pointing performance of elderly and young people , in discovering differences among devices , and in formulating explanatory theories of movement .
+Sticky icons had the least at 6.20, the Angle Mouse was next at 6.71, and the default mouse had the most at 6.96.
+All three pairwise comparisons were significant .
+Again, sticky icons had the least at 3.44, the default mouse was next at 3.64, and the Angle Mouse had the most at 3.68.
+Sticky icons was significantly less than the other two .
+Submovement profiles also give us peak velocity.
+For users with motor impairments, there was a significant effect of Mouse Type on peak velocity .
+The Angle Mouse had the greatest peak velocity at 3.20 px/ms, sticky icons was next at 2.91 px/ms, and the default mouse least at 2.61 px/ms.
+All three pairwise comparisons were significantly different .
+By contrast, Mouse Type did not cause a significant difference in peak velocity among able-bodied participants .
+Acceleration is proportional to exerted force, which is proportional to motor noise, a cause of endpoint deviation .
+For motor-impaired users, Mouse Type caused significant differences in peak acceleration , with the Angle Mouse being highest at 0.20 px/ms2, sticky icons being next at 0.19 px/ms2, and the default mouse being least at 0.16 px/ms2.
+All three pairwise comparisons were significantly different .
+As with peak velocity, Mouse Type did not cause a significant difference in peak acceleration for able-bodied participants .
+Interestingly, for both participant groups, TAC and MDC showed the only significant effects of Mouse Type.
+For both groups, these two measures favor the Angle Mouse and sticky icons over the default mouse.
+On average, although count measures did not favor the default mouse, the continuous measures did but were not significantly different among the different mouse types.
+These outcomes are considered further in the discussion.
+For participants with motor impairments, the Angle Mouse had higher throughput than the default mouse and sticky icons.
+Movement times and error rates were similar for the Angle Mouse and sticky icons, and higher for the default mouse.
+But the default mouse and Angle Mouse produced less endpoint deviation than sticky icons, which resulted in sticky icons having lower throughput.
+This is partly due to the difficulty of getting into the center of sticky icon targets.
+But when the gain is dropped for the Angle Mouse during the final stages of acquisition, a similar effect is achieved: the target is made bigger in motor-space.
+The Angle Mouse exhibited benefits besides throughput.
+Its peak velocity and peak acceleration were both higher than those of the default mouse and sticky icons.
+Despite this, the Angle Mouse was not significantly less accurate than sticky icons, and was significantly more accurate than the default mouse.
+Also, the Angle Mouse had significantly fewer target entries and submovements than the default mouse, indicating an easier time of getting inside the target, which, after all, is the point of the Angle Mouse design.
+Note that higher peak velocity and peak acceleration do not often produce lower acquisition times; indeed, they can do just the opposite due to greater motor noise, more endpoint deviation, and the need for more submovement corrections.
+Interestingly, neither errors, nor peak velocity, nor peak acceleration were significantly different among able-bodied participants, nor did able-bodied participants show any significant differences in throughput, lending support to these areas as sources of benefit.
+One deterrent to sticky icons performing better was distractor targets--a major problem with target-aware techniques.
+While we could have chosen to enable stickiness only on the active target, this would have been excessively artificial, since the problem of distractor targets is precisely the drawback of sticky icons and a key advantage of the Angle Mouse.
+Distractors did not seem to matter for sticky icons except when the targets were large , which reduced the space between neighbors.
+We note that the sticky icons technique requires a user to hit a target to obtain its benefits.
+Although a sticky icon may be reached at greater speeds, if it is missed, this benefit becomes a detrimental overshoot.
+This is not the case with the Angle Mouse, where the benefits begin whenever and wherever the user moves in a corrective fashion.
+Users do not have to first successfully hit the target.
+This study focused on people with motor impairments.
+Future studies could examine whether the Angle Mouse improves pointing for children  or elderly users , who are both known to exhibit mousing difficulties.
+Although our Angle Mouse has great promise, the space of its parameters is vast and has yet to be fully explored.
+Also, the effects of pointer acceleration  should be investigated now that the Angle Mouse has been studied in isolation.
+Due to the prevalence of commodity input devices in the hands of people with motor impairments, it is necessary to improve device performance in fundamental computer tasks.
+Although numerous pointing facilitation techniques have been invented, most are impractical for real-world use because they must be target-aware.
+As a target-agnostic technique, the Angle Mouse dynamically adjusts C-D gain based only on the behavior of the user, making it practical for deployment in current desktop systems.
+The Angle Mouse shows higher throughput than the Windows default mouse and sticky icons, making everyday computer use more efficient for a wide range of users.
+Acknowledgements The authors thank Daniel Avrahami, Ravin Balakrishnan, Gery Casiez, Ken Hinckley, Kurt L. Johnson, Curt Johnson, Maria T. Kelley, Johnny Lee, and Daniel Vogel.
+This work was supported by Microsoft Research, Intel Research, and the National Science Foundation under grants IIS-0811063 and IIS-0812590.
+Any opinions, findings, conclusions, or recommendations expressed in this work are those of the authors and do not necessarily reflect those of any supporter.
+The first author dedicates this paper to ultrasound innovator Peter M. Pawluskiewicz, whose engineer's mind adjoined a poet's heart.
+Unlike many target-aware pointing facilitation techniques, the Angle Mouse could be deployed with ease.
+A small software program running in the background could observe cursor movement and alter the system's gain accordingly.
+The program could write log files and keep a record of gain changes for later analysis of real-world pointing data.

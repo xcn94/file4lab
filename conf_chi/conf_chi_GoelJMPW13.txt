@@ -1,0 +1,120 @@
+The challenge of mobile text entry is exacerbated as mobile devices are used in a number of situations and with a number of hand postures.
+We introduce ContextType, an adaptive text entry system that leverages information about a user's hand posture  to improve mobile touch screen text entry.
+ContextType switches between various keyboard models based on hand posture inference while typing.
+ContextType combines the user's posture-specific touch pattern information with a language model to classify the user's touch events as pressed keys.
+To create our models, we collected usage patterns from 16 participants in each of the four postures.
+In a subsequent study with the same 16 participants comparing ContextType to a control condition, ContextType reduced total text entry error rate by 20.6%.
+Research has shown that mobile device hand postures can significantly affect finger and thumb pointing performance , but such information has not been used for improving text entry, which requires numerous rapid, accurate strikes and is a relatively high-intensity, if familiar, task.
+In this paper, we present ContextType, a system that infers users' hand postures to improve text entry on mobile touch screen devices.
+ContextType supports typing with four hand postures: two thumbs, just the left thumb, just the right thumb, and either index finger.
+ContextType switches between underlying touch-models based on inference about how the user is holding the device while typing, without changing the visual layout of the keyboard.
+ContextType leverages our previous work on GripSense , which infers hand posture as left thumb, right thumb, or index finger without any additional sensors.
+ContextType also detects two-thumbed hand postures without adding any external sensors to the device.
+Once posture is inferred, ContextType combines a user's posture-specific touchpattern information with a language model to classify the user's touch event as a pressed key, ultimately making text entry more accurate.
+To design and build ContextType, we first collected touch screen typing data from 16 participants in all four handpostures.
+Based on this data we built touch-based key-press classification models, one for each hand posture, personalized for each participant.
+The final ContextType prototype is a composite of these personalized touch models and a 5-gram language model.
+These models will be discussed in more detail below.
+We evaluated the final ContextType system, with and without the language model, in a study with the same 16 participants.
+The control keyboard, to which ContextType was compared, also used personalized keyboards for each participant, but did not take hand posture into account.
+Our findings show that ContextType decreases total text entry error rate by 20.6%.
+We also found that inclusion of a language model does not have a significant improvement over the control condition.
+In comparison to traditional desktop keyboards, text entry on touchscreen mobile devices is more challenging.
+These devices are as small as the palm of a hand and are used in a number of dynamic environments.
+These factors can lead to situational impairments , which can pose significant challenges to effective interaction because our current mobile devices do not have much awareness of our environments, and thus cannot adapt to them.
+Mobile devices may be used in a number of different hand postures.
+Azenkot and Zhai  found that majority of users at least "sometimes" used their phones with either the thumb of their dominant hand, their dominant index finger, or both thumbs.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+This contribution comes in two parts:  ContextType itself, which detects a user's hand posture in real time and selects a personalized, posture-specific keyboard model; and  empirical evidence for the benefit of adding hand posture information to a personalized keyboard.
+Figure 1 shows a sample of the variance in touch behavior for a participant.
+In the case of single thumbs, it is clear that the user tended to bias towards the side of the thumb because of its limited reach.
+ContextType combines three types of information to classify users' touch events as key presses.
+It is informed by data about a user's hand posture, by a user's touch pattern, and also by letter probabilities from a language model.
+The algorithm develops different models for different postures.
+The inference of the hand posture uses techniques from GripSense , which can infer the left thumb, right thumb, or either index finger.
+ContextType extends this functionality by also inferring two-thumbed postures.
+The functionality to detect a two-thumbed posture uses tap sizes and time elapsed between taps.
+GripSense differentiates between left and right thumb usage by observing tap sizes.
+Tap sizes increase as the user touches the far side of the screen, i.e., when operated with the left thumb, the areas touched on the right side of the screen will be bigger than those on the left side and vice versa.
+ContextType observes this phenomenon and applies it to two thumbs, inferring a two-handed two-thumb posture if the tap sizes in the center of the screen are 25% larger than those on either side.
+Another heuristic that is combined with tap sizes is the relative difference in time elapsed between taps on either side of the screen.
+When using one hand to operate the phone, it takes longer to go from one side of the screen to the other.
+Hence, if a tap on one side of the screen is followed by another tap on the opposite side, the time difference will be larger than the average time difference because the thumb/finger needs to travel farther.
+In contrast, when operated with two thumbs, the time difference between taps on opposite sides of the screen will be significantly less.
+Hence, the system inferred two-thumbed interaction if the difference in time interval between taps on opposite sides and the mean time interval between taps was greater than 30%.
+The implementation details for the detection of other hand postures can be found in our prior work on GripSense .
+Our offline analysis showed that ContextType was able to detect hand posture with an average accuracy of 89.7% and the decision was made within 4.9 taps, on average.
+We implemented a 5-gram letter model following the work of .
+We trained the model on the Brown corpus , consisting of American English from a variety of sources.
+We employ the Modified Kneser-Ney method for probability smoothening, which has been successfully used by Chen et al.
+The validity and effectiveness of the language model was confirmed in a small study , similar in apparatus and design to the ContextType evaluation described in next section.
+In this study, the participants were only required to complete 40 phrases in any one of their preferred hand postures.
+This study compared a static, non-adaptive keyboard to a language model-powered keyboard.
+ContextType combines touch and language models by calculating probabilities for each key.
+The most likely intended key, ki*, is given by: !!
+ContextType personalizes the underlying keyboard layout by modifying the motor-space location of the keys according to the user's typing behavior .
+ContextType employs a constant, diagonal covariance structure by computing a bivariate Gaussian distribution  for each key and centers each key at the centroids of predicted keypresses that are personalized for each user.
+When ContextType was running, the keyboard was personalized by leveraging touch data collected for each user and each of his or her hand postures.
+In the Control condition, the touch data was not partitioned for each hand posture.
+Hence, the control condition, though not adaptive to hand posture, had a personalized keyboard.
+Presentation of conditions was counterbalanced.
+With 40 phrases in each condition, participants entered 2x2x40 = 160 phrases each.
+The main measures were speed, calculated as words per minute , and total error rate .
+Total error rate is decomposed into corrected and uncorrected error rates.
+Corrected errors are the errors that are subsequently corrected by the user before moving on to the next phrase.
+Uncorrected errors are those that are left in the transcribed phrase at the end of each trial.
+Also, the participants were asked to rate which of the conditions they preferred and why.
+The participants were not aware which condition was the current one to prevent bias.
+For WPM, we present results from a mixed-effects model analysis of variance.
+For error rates, we used the nonparametric Aligned Rank Transform procedure .
+We used a nonparametric analysis for error rates because error rates skew towards zero and violate normality.
+All pairwise comparisons were protected against Type I error using Holm's sequential Bonferroni procedure.
+We built a custom data collection application for the Android OS  using a Samsung Galaxy Nexus phone.
+The interface was designed in a way to capture the user's natural typing pattern.
+Thus, it did not inform users of their mistakes and the correct letter was always displayed for each key press.
+The interface also allowed a swipe from right-to-left to remove the last character typed.
+Participants were instructed to swipe when they felt that they had made an error.
+Noisy data was removed by filtering out taps that landed outside the Euclidean bounds of the intended key or its immediate neighbors.
+Once comfortable with the interface, the participants were asked to enter 30 phrases in each of the 4 hand postures.
+The order of postures was counterbalanced.
+Short phrases of English text from MacKenzie and Soukoreff's phrase set were used .
+Apart from these phrases, every fifth phrase was a randomly selected pangram from a list of 35 pangrams to ensure sufficient representation of all letters of English alphabet.
+We sought to see whether the knowledge of a user's hand posture could be used to improve text entry performance.
+In addition, we also wanted to investigate the effect of the language model on the overall performance of ContextType.
+The same 16 participants who participated in the data collection phase were used for a second session, lasting approximately 1 hour, to evaluate ContextType.
+Participants used a similar interface to the one used during the data collection phase.
+This time, the entered text contained the actual key classification and visual keystroke feedback .
+The session began with an introduction to the modified interface and explanation of the task.
+For each condition, participants completed 40 phrases.
+The application instructed the user to change hand posture after every five phrases.
+In the bottom-left corner of the text area, the current phrase number and current expected hand posture were displayed.
+The hand postures were counterbalanced and selected randomly .
+This was expected because participants generally preferred some posture to another.
+Post hoc pairwise comparisons showed that all postures were significantly different and that two thumbs were fastest, followed by right thumb, index finger, and left thumb.
+Left thumb's lower performance was expected because it was the non-dominant thumb for all participants.
+There was no significant ContextTypexPosture interaction.
+Corrected error rates are subsumed in typing speed because correcting errors slows users down.
+Considering there was no detectable effect of ContextType on speed, we analyzed corrected error rates to investigate ContextType's performance further.
+Our posture detection system does not require any calibration; hence posture-specific keyboard touch-models can be refined over continued usage without any user intervention.
+Although different language model implementations could produce significant improvements, and our language model did improve performance over a static keyboard, our language model did not result in an improvement in performance over a keyboard using personalized touch models.
+It seems that the language model's benefit is largely negated in the presence of a personalized touch model.
+We also evaluated ContextType's effect on total error rate, which is the sum of corrected and uncorrected error rates.
+Compared to the control condition, total error rates decreased by 20.6% .
+In contrast to corrected error rate, the Language Model did not significantly affect total error rate.
+However, no post hoc pairwise comparisons were significant.
+This result was expected because left thumb was the non-dominant thumb for all 16 participants.
+The performance with two thumbs was also found to be significantly less accurate than that of the index finger .
+Considering two thumbs had significantly higher WPM than the index finger, it suggests a speed and accuracy trade-off between the two postures.
+We asked participants which of the two interfaces they preferred.
+Nine out of 16 participants chose ContextType.
+The remaining 7 participants did not perceive any performance difference.
+P7 said, " was awesome!
+I did not have to look at the keyboard and the `P' key felt much closer and accessible with my left hand".
+ContextType detects a user's hand posture  and combines posture-specific touch pattern information with a language model to inform an adaptive keyboard.
+We conducted a study to collect usage patterns from 16 participants in each of the four postures.
+In an evaluation with the same 16 participants, ContextType reduced total error rate by 20.6%.
+Hence, ContextType shows that making our mobile devices more aware of their users can improve both those devices and the experience of the users who use them.
+ContextType decreased corrected error rate significantly, but no significant effect on WPM was observed.
+Corrected error rate is generally correlated with WPM, which suggests that with more data, ContextType's improvement in typing speed might be detectable.
+Also, the decreased accuracy of ContextType for detecting posture  might not be an impediment to its performance.
+Anecdotally, we analyzed results for one participant and found that ContextType primarily confused her index finger and right thumb.

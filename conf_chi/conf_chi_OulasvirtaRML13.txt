@@ -1,0 +1,306 @@
+In so-called configural movements, the goal is to produce a shape or pattern in movement.
+This can be contrasted to aimed movements, wherein only the end point of movement counts.
+Examples would be drawing on a surface with multiple fingers, gesturing in the air to conduct a virtual orchestra, and dancing with motion sensors.
+In these examples, a user's ability to produce desired shapes reliably is more important than where in the space the movement ends.
+Our method takes as input motion data with any number of movement features .
+It calculates throughput from mutual information of two or more deliberately repeated movement sequences.
+Our definition of mutual information captures the intuition that a skilled actor can produce complex  movements and reenact them precisely at will.
+Figure 1 illustrates complexity and reproducibility with the example of drawing a shape.
+For instance, linear motions with constant velocity, no matter how accurately repeated, are predictable and thus of low throughput.
+Analyzing precision in repeated efforts allows us to distinguish the controlled from uncontrolled aspects of movement.
+A newborn, for example, while able to produce complex-looking movements, does not have the capacity to reproduce them.
+The metric is useful in HCI, because high throughputs potentially make more information available to an external observer such as a user interface--there are more "messages" the user could have sent by moving the body.
+We present a novel metric for information capacity of fullbody movements.
+It accommodates HCI scenarios involving continuous movement of multiple limbs.
+Throughput is calculated as mutual information in repeated motor sequences.
+It is affected by the complexity of movements and the precision with which an actor reproduces them.
+Computation requires decorrelating co-dependencies of movement features  and temporal alignment of sequences.
+HCI researchers can use the metric as an analysis tool when designing and studying user interfaces.
+A fundamental problem for human-computer interaction  is to identify user interfaces that effectively map human movement to virtual movement.
+To assess joint human-computer performance, the "tempting but naive" solution is to examine average speed and accuracy in a task .
+This approach, however, overlooks the fact that data from easy and from difficult motor acts are incommensurable.
+Information theory has contributed to the measurement of user performance in HCI by providing a metric that collapses data on speed and accuracy into a single metric: throughput  .
+Throughput is often measured as statistical variability in aimed movements wherein the user brings an end-effector  on top of a spatially expanded target.
+Information capacity denotes the rate at which the user could have sent messages, given her speed and accuracy for given target properties.
+Selecting targets with the mouse, for instance, yields throughputs of 3.7-4.9 bps .
+Although the metric has been contested, no better alternatives exist for comparing performance across tasks, conditions, and devices.
+This paper extends the measurement of throughput from aimed movement to full-body movement--that is, multiple contributing limbs in continuous movement that does not need to be aimed at targets prescribed by an experimenter.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The concept of information capacity here follows the Gaussian channel interpretation of Paul Fitts  but applies it to mutual information I in movement sequence x and its repetition y. I denotes the reduction in bits in entropy of x when y is known.
+Since our I excludes most of the uncontrolled movements and inaccuracies due to the actor's inability to repeat the movement precisely, it provides a measure of the controlled information in x and y. Computation is done in five steps : In Step I: Motion Capture, an actor is asked to carry out a movement and repeat it as precisely as possible.
+The motion of movement features is sampled.
+This procedure allows users to find natural ways to move--the only demand is that the same movement be repeated.
+In contrast, we believe that in some studies of aimed movements, constraining trajectories to end at experimenter-defined targets lowers throughputs.
+In Step II: Complexity Estimation, an autoregressive model is fitted to each movement feature.
+We take the residuals as an indicator of its complexity, or its "surprisingness."
+In Step III: Dimension Reduction, latent variable models are fitted to the residuals of x and y, reducing the co-dependencies among features.
+Non-linear dimension reduction is preferred in multi-feature motion data in order to avoid overestimation of throughput.
+In a violinist's movement, for example, it decreases correlation between the elbow and the wrist.
+In Step IV: Temporal Alignment, the best alignment of frames between x and y is identified.
+Temporal alignment is necessary in multi-feature data because the corresponding movement features of x and y may be differentially out of sync.
+In Step V: Mutual Information, I is calculated by taking the frame-by-frame correlations of the model of x and y after dimension reduction.
+Throughput is now estimated as I per second.
+To assess the potential of the method for research and design in HCI, we report on three proof-of-concept studies.
+Study I studies information in a ballerina's performance, and Study II analyzes trajectories in aimed movement.
+Study III examines human factors in the bimanual gesturing scenario of the movie Minority Report.
+We conclude by discussing limitations and use in HCI.
+Because of space limitation, we refer the reader to existing reviews  and provide only the basics here.
+For discrete aimed movements, throughput TP is given by TP = ID / MT  where MT is movement time and ID the index of difficulty.
+A variant generalizes a constant TP over a range of D and W conditions .
+When MT obeys Fitts' law, MT = a + b ID, throughput is calculated as the slope of Fitts' model: TP = 1 / b.
+For example, trying to reach the target too rapidly results in lower accuracy, but TP remains in a constant range.
+A variant takes changes in performance objective into account by scaling W according to observed inaccuracies: The effective width is defined via the distribution of offsets from target center We = 4.133  .
+Extensions of Fitts' law models to continuous aimed movements  covered only path width and length originally but were later extended to curvature .
+However, to our understanding, these models have no interpretation in information theory.
+Our metric shares with Fitts-TP the Gaussian channel interpretation of movement as a limited transmission channel : "information capacity is limited only by the amount of statistical variability, or noise, that is characteristic of repeated efforts to produce the same response" .
+In our metric, changes in direction and velocity during movement determine complexity.
+As with the idea of We, variability in trajectories among the repeated efforts affects the total complexity of the repeated performance x and y.
+Our metric is also sensitive to changes in performance objectives .
+The errors   and  are assumed to be zero mean Gaussian variates.
+Since the two sequences are supposed to be instances of the same movement pattern, they will typically be correlated.
+We denote the Pearson correlation coefficient of  and  by   .
+The innovations for different time frames t  t are assumed to be independent of each other.
+To estimate complexity, second-order autoregressive  t denote  and y where x obtained by plug the predictions  models are fitted to movements x  and y .
+Re  t         ging in least squares estimates  0,  1,  2, and 0, 1, 2, residuals t expose the "innovativeness" of the trajectory.
+A pair of movement sequences is recorded in controlled conditions wherein an actor is asked to carry out a sequence  and repeat it as precisely as possible .
+When performing y, the actor starts in the same initial position and posture.
+The repetition should take  as long as the original sequence.
+Multiple sequence pairs can be recorded, and throughput averaged over pairwise comparisons, but the unit of analysis is always a pair, and we focus here on that case.
+The administration of repetitions and the metric itself are agnostic of movement constraints: Trajectories in aimed movements can be analyzed, as we show in Study III.
+However, sometimes imposing constraints may lead to underestimation or overestimation of capacity, as in the case of sliding movements on a physical surface.
+The collected data on x represent a movement sequence with a single movement feature or a set of them moving in time in a 2D or 3D coordinate system.
+Let x = x-1,..., xn denote a sequence where xt gives the value of the measured feature at time t. Similarly, we denote by y = y-1,..., yn the repeated sequence of the same length.
+The multi-feature case is a vector of such sequences .
+In handling of p-dimensional sequences, p > 1, where each time frame xt is composed of p measured movement fea tures, xt =  t ,..., x t , it would be invalid simply to add up the information throughput of all of the features.
+For us to calculate the "genuine" capacity of the leg, any correlation in the  movement of the knee and the calf must first be   removed.
+We therefore perform dimension reduction.
+Our preferred solution is Gaussian Process Latent Variable Modeling  administered separately on the residuals of x and y. GP-LVM models have been used to model human movement, such as walking .
+In our experience, GP-LVM provides more effective dimension reduction than does Principal Component Analysis , which is limited to linear relationships.
+Using GP-LVM typically reduced TPs by a factor of 2-4 when compared to PCA.
+However, GP-LVM is  slow to compute.
+We have learned that, most of the time, dimension reduction with PCA preserves the order of TPs and can be used if absolute throughput values are unimportant.
+For computation, we utilize Fast GP-LVM  to transform the two sequences and obtain two new time series, r and r.
+Each frame in the new sequences represents a latent variable corresponding to a frame in the original sequence.
+Figure 4 shows a projection of a GP-LVM model with three latent dimensions.
+For this step, the residuals of sequences are normalized such that each feature has mean zero and unit variance.
+Scaleinvariance is essential for the comparison of fine-grained and gross movements.
+As we discuss in the next section, the number of latent variables  in PCA/GP-LVM should be decided case by case by keeping reconstruction error at an acceptable level.
+In our studies, we have used RSME  as an indicator of reprojection error and used .05 as our criterion for an acceptable level.
+We start the sequence from x-1 instead of x1 for notational convenience: the first two entries guarantee that an autoregressive model with a lookback  of two steps can be fitted to exactly n data points .
+A problem in predicting one motion sequence from another is possible temporal misalignment of the sequences and their features.
+Single-feature sequences can be aligned manually, but this is impossible with a large number of features.
+Even in carefully repeated movements, some features are more out of sync than others .
+Hence, in prediction of the tth frame of x, the most useful frame of sequence y may be not the tth frame but the th one,   0.
+Therefore, we must temporally align frames in x with frames in y.
+Our solution is to align sequence pairs with Canonical Time Warping , a state-of- the-art technique for aligning sequences that describe human behavior .
+CTW uses the more traditional Dynamic Time Warping  as an initial solution but improves it by adopting features from Canonical Correlation Analysis.
+The result is a pairwise alignment of x and y, ix,y, such that each frame in x is matched to the most likely frame in y.
+To achieve this, CTW duplicates some of the frames in each sequence so as to "slow down" a sequence at suitable points.
+When measuring throughput, we skip duplicated frames in sequence x in order to avoid unnecessarily magnifying their impact.
+Hence, if frame t is duplicated in sequence x such that in the aligned sequence frames t and t + 1 are identical, we skip the th frame  when computing throughput.
+It is important to note also that in Step II we compute the residuals of both sequences from the unaligned sequences where there are no duplicate frames.
+Figure 5 shows an example in which two ballet sequences  have been aligned.
+The statistical variation of the mutual information estimate obtained by plugging the empirical correlation coefficient into Eq.
+The above method applies to unidimensional sequences.
+After the dimension reduction step, each movement sequence is represented as a sequence of  feature vectors.
+In Step V, we handle each feature independently as described above and sum the obtained mutual information estimates to obtain the total throughput estimate Itot.
+We can then calculate TP in a multivariate sequence x conditioned on sequence y as Itot per second:
+Computation takes, on average, about 2.5 seconds to run for two 111-feature ballet sequences of 1,100 frames, and about 7.5 s for another two dances approx.
+With regard to the number of movement features, computation time scales linearly.
+However, times are longer with dimension reduction.
+While PCA adds only a few seconds, GP-LVM takes hours to days for such data.
+Below, we run Sequence 7 some of our analyses with PCA.
+The caveat is that the absolute TPs values will be overestimated.
+Figure 6  shows the result: component counts 6-9 are the first to reach the acceptable level.
+For component count 9, TP is around 160.
+Because the ideal number of latent dimensions in Step III varies from one dataset to another , we recommend choosing a model that reaches a tolerable level of reprojection error with the lowest number of components.
+An undesirable consequence of temporal alignment in Step IV is that we lose information about the temporal accuracy of the repetition.
+This is a drawback for activities wherein synchrony and timing are essential.
+To assess the impact of CTW, we compared TPs with and without it.
+In the Ballet data , we observed some increases in GP when CTW was performed.
+In the case of overly fast rapid caging of the hand , however, CTW brought a sevenfold increase.
+We recommend analyzing TPs both with and without CTW when synchrony and timing are critical.
+Most studies of aimed movements have employed measurement instruments in which the level of noise is low.
+Noise is inevitable in motion capture data, however .
+Ideally, the metric would tolerate a level of noise that does not obscure controlled aspects of movement.
+To understand the effect of noise, we added white noise with zero mean and variance to each feature to a dance from the Ballet data .
+Dimension reduction was done with PCA.
+Figure 6  shows that even a small amount of additive white Gaussian noise--standard deviation of about 6 x 104 times the residual variance of each component--can halve the TP.
+In the movement of the dancer's toe, this corresponds to ~0.5 mm deviations.
+The result that increasing noise decreases TP and ultimately levels it is also a good sanity check: large noise makes the movements ridiculously complex, but because the two noise sequences are uncorrelated, the capacity decreases to zero.
+Because of the sensitivity of the metric, we recommend smoothing data whenever noise may be a problem.
+We prefer cubic spline interpolation and Butterworth filtering, which are commonly used in analysis of motion data .
+In our experience, this solution avoids rough smoothing that would decrease TPs.
+For a feasibility test, we checked whether very simple movements produce low TPs as they should.
+The following data  were collected via a PhaseSpace system with 12 Impulse cameras at 120 fps: * * * Standing still  Balancing on one foot  Rapid caging of the palm 
+In addition to optical markers for the full body, markers were placed on all fingers and both sides of the wrists.
+One of the co-authors served as the participant.
+We used CTW and GP-LVM with six latent dimensions.
+As expected, balancing and standing produced virtually zero TPs, both TPs < 0.25 bps.
+As the person is standing still, residuals in complexity estimation are negligible.
+In balancing on one foot, swaying produces more complex movements in Step II, but because swaying is poorly matched from one sequence to another, even with CTW, TPs are negligible.
+This is not to say that balancing would not be motorically difficult, for it is .
+And fitness games such as Nintendo Wii Fit Balance Board measure variation during balancing for score calculation.
+However, for an external observer such as an interface, it carries no information after observation of the initial pose.
+However, rapid, repeating caging of the palm--a motorically trivial movement for an adult-- yielded a very high TP = 287.7 bps with GP.
+One drawback of the second-order autoregressive model is its short "memory": a human observer can easily detect repeats in a movement, but the model considers each repetition as surprising as the first instance.
+However, when CTW was removed, TP fell by a factor of 6.7, to 43 bps.
+The actor's high TP was achieved at the expense of accuracy in timing.
+The efficacy of dimension reduction is dependent on the number of components.
+Again, in studies of aimed movements, dimension reduction has not been an issue.
+In our case, an ideal metric decorrelates mutual information among movement features and achieves a tolerable level of error in modeling of the data with minimum components.
+To chart the effect of component number, we manipulated the number of components in a GP-LVM model.
+As data we chose a segment from the dance Adagio  in Study I.
+We charted RSME as an indicator of reprojection error and used .05 as our criterion for an acceptable level.
+TPs for the dances are listed in Table 1.
+The table shows a range of 208 to 584 bps with GP.
+The worst-performing dance involved slow movement and stopping movement in static postures.
+The best-performing dance, by contrast, featured fast movements, circlings, and jumps.
+Obviously, estimating TP from a single sequence yields a gross overestimation and the raw number per se is not informative.
+For instance, if the ballerina were to achieve 100 bps, she would move the 37 markers such that she sends one message out of 2100 alternative  messages per second!
+Achieving such rates in HCI would be impossible since the other implied dances would be required of the dancer.
+The metric can, however, be used for closer analysis of factors contributing to performance.
+To understand the accuracy of timing and synchrony, we compared TPs with and without CTW .
+Without CTW, the TPs are considerably reduced for some dances, but not for all.
+In contrast, the dance with the highest TP had almost no reduction when CTW was skipped.
+Figure 7 shows a matched sampling  of the dance and its repetition.
+Furthermore, to understand which limbs are the best candidates for con21-33 trolling an interface, we estimated 12-15 limbs' contribution to the capacity.
+We averaged raw TPs per movement feature across the dances.
+As the adjacent figure shows, the two hands and 17-18 the right foot had the largest throughputs, all above 12 bps.
+Markers for the torso, head, and distal parts of the feet had far lower values.
+This analysis reveals a laterality effect  and that torso and leg movements may be less well-rehearsed and important aspects of the teacher's dancing.
+An interface designer could use such information when mapping human movements to virtual controls.
+Tombe pas de bourree, Italian fouette, pique turn, jete en tournant Adagio  Petit jete  Petit jete  Adagio  Grand jete 
+Computer vision and other sensors have enabled the mapping of almost any movement feature of a user's body to virtual movement; but how can we measure such performance and learn about it for design?
+In principle, a researcher could set up movement targets in a laboratory and chart the capacity of a user's limbs in aimed movements, one at a time and in combinations.
+This would be timeconsuming, however, and would not capture information in trajectories or of the individual limbs.
+Study I is a proof of concept demonstrating the suitability of our metric for analyzing very complex full-body performance.
+We study a skilled and highly overlearned multilimb performance, ballet, as an analogue of the "highly overlearned" tapping movements in Fitts' studies .
+We calculate throughput in a ballerina's movement to understand the metric in a situation wherein all movement features of the body are skillfully controlled for longer periods of time.
+We disregard the question of how actually to map physical movement to virtual movement in a real application and focus on how much information there is in theory.
+We recorded the performance of a teacher of classic and romantic ballet with several years of experience .
+Out of her vast repertoire, she was asked to select dances that would be fast, be complex and engage as many limbs as possible.
+The repetitions were to be as precise as possible, both temporally and spatially.
+These movements could be repeated as many times as desired until she was satisfied with the quality of the repetition.
+To assist her in qualitycontrol, she was given the opportunity to see her performance from the recording device.
+Six sequences were eventually chosen .
+The recordings were performed in a motion capture lab using Vicon with 12 F40 cameras at 120 fps.
+For each frame, the data contain p = 111 features, corresponding to the 3Dcoordinates of 37 markers.
+For calculation of TP, we used PCA for all sequences with 90% of variance explained.
+As expected, the added weight had a decreasing effect .
+The fits of our Fitts' law models were R2 = 0.90 and R2 = 0.93 for the two conditions, respectively .
+Our analysis reveals an interesting crossover when the novel TP metric is used.
+We compared trajectories from the conditions ID = 2.6 and ID = 6.1 between the 0 kg and 4 kg conditions and considered the complete movement trajectories from the each trial.
+We averaged the TPs obtained from pairwise comparisons.
+Dimension reduction and smoothing were unnecessary in this case.
+Study II examines capacity in aimed movements in a cyclical selection task carried out with a mouse on a desktop PC .
+We chose to replicate a well-studied variant of the Fitts paradigm in order to compare our metric to the Fittsian metric.
+Although here not intending to "express information" when moving towards a target, the user spends most of the total time on the way.
+Our metric complements the Fittsian metric by showing that variability in trajectories is not always reducible to the Fittsian TP.
+We predicted that our metric would show higher TPs in conditions wherein the approach trajectories can be kept close to each other.
+So with all else equal, decreasing W should increase TP.
+The shape of the curvature upon turning toward the next target should affect TP as well.
+A "spiky" turn would be surprising for the autoregressive model.
+To hamper such behaviors selectively, we added a condition with 4 kg wrist weight .
+The trajectories and TPs in each condition are presented in Figure 9.
+Although MTs are higher in the high-ID condition, the trajectories are more closely "packed," which increases TP.
+We observed that, with the added weight, the subject rotated his hand carefully in the high-ID condition before starting to move it toward the target.
+This is manifested in the closely aligned trajectories in Figure 9.
+Thereby the user compensated for the slower average movement velocity.
+In contrast, accurate premovement aiming was not necessary in the low-ID condition, since the targets were larger, and we saw more scattered trajectories and a reduction in TP.
+We conclude that the two TP metrics can be used technically in the same experiment.
+We also conclude that a higher Fitts-TP in aimed movements does not imply a higher TP obtained from our metric.
+One of the authors carried out the experiment by using custom-made software that presented nine target circles on the monitor and recorded mouse clicks and movements at 96 Hz.
+Each trial consisted of clicking through the circle three times.
+After removal of the first tap of each trial, this yielded 26 clicks per trial.
+The D and W values were randomized from a range of 2.6  ID  6.1, but the encumbrance condition  was administered in only two ID conditions: ID = 2.6 and ID = 6.1, both with three repeats.
+The subject was instructed to complete the task as quickly and accurately as possible.
+Plenty of practice was provided, both with and without the weight.
+The experiment was started only when performance with the weight had stabilized.
+As a feasibility study we investigate the now-famous in-air gesturing scene in the movie Minority Report .
+The case is intriguing, because such interfaces are touted without regard for the fact that bimanual continuous control suffers from interference effects .
+As the critical condition we study the hand position's effect.
+Inspired by the movie, we assume a user gesturing with both hands raised to a space of 120 of the field of view.
+With this manipulation, we study whether user performance significantly changes if the hands are switched or operate at different distances from each other.
+We hypothesized that the surprising benefit of the wrist weight in the high-ID condition should disappear if the user is forced to make quicker movements.
+Rushing in the rotation-plus-aiming stage would result in less well-aligned trajectories.
+To test this hypothesis, the same subject carried out the task in a condition wherein MT was kept at a constant 1,000 ms with a metronome.
+The subject practiced performance before the experiment proper.
+Only one ID condition  was necessary for testing this hypothesis.
+After extensive practice, three trials were carried out per weight condition.
+The data were analyzed as previously.
+As Figure 10 shows, the trajectories in the 0 kg condition  are much more closely aligned in space.
+With the increased tempo, it was indeed harder to perform accurate aiming in the premovement phase, which manifested itself in increased variability in trajectories.
+In the experiment, the subject signs his name in the air with one hand and simultaneously makes another continuous movement, of the same duration, with the other hand .
+In our attempt to emulate the determination and skill of Captain John Anderton , our subject practiced the two movements, both in isolation and together, for three days before the experiment began.
+In the study, we divided the space in front of the standing subject into four segments, and asked him to perform the two movements in all combinations of segments such that the left hand is on the left side of the right hand.
+The dominant and the nondominant hand both performed the signature and the clef.
+In all, 12 trials were recorded, each with enough repetitions that the subject was satisfied with the precision of the repetition we included in our data.
+In a surprise test afterward, we asked the subject to change the clef to another gesture of similar complexity .
+One author, a healthy male in his twenties, volunteered for the task.
+We used the PhaseSpace system with 12 Impulse cameras at 120 fps and a full-body tracking suit with additional markers on the fingers and wrists.
+For simplicity, we restrict the analysis to the two index fingers.
+Since we were interested in a comparison within the study, PCA was used for dimension reduction.
+Capacity is calculated as the average of the three best TPs achieved within a condition.
+The problem of designing interfaces with full-body control is that the number of possible movements is too enormous to study empirically.
+One alternative would be to sample the space of possible movements aggressively  and average TPs.
+Another is to impose constraints in order to expose human factors relevant to interface design.
+Our solution is to divide the interaction space into movement conditions and ask a user to produce an overlearned motor act, such as signing one's name, in each condition.
+The overlearned motor act is a surrogate for the complex movements that a user could produce with practice.
+The idea in such manipulations is that learned motor programs retain some invariance when transferred from a familiar context to another .
+For example, one can sign one's name with the teeth or behind one's back.
+The effects of constraints such as position, rotation, or scale on TP show how robust the user's movements are to the conditions imposed by the interface.
+A usable interface sees uniformly high TPs across all commonly occurring conditions.
+The adjacent figure shows as examples the best and the worst performances .
+First, not surprisingly, throughputs  were 1 bps higher for the dominant hand, with 217.8 bps vs. 199.7 bps for the dominant and the non-dominant hand, respectively.
+Second, the user could express genuine information with two-hand interaction: Throughput was 182.7 bps with dominant hand removed, 217.8 bps with non-dominant hand removed, and 322.1 bps with both hands.
+Thus, bimanual gesturing genuinely increased TP from that of single-handed gesturing.
+Third, changing the G-clef gesture to the previously unpracticed movement hampered bimanual capacity: the average throughput decreased by about 100 bps, from 322.1 to 220.5 bps.
+This TP is not far from the subject's singlehand performance.
+Fourth, the most surprising observation was that making the movements such that the hands are close to each other lowered TP.
+As shown by average TPs  in the three best repetitions per condition, the actor's performance was at its best with one segment  between the left and right hands:
+The metric is based on estimation of mutual information in repeated motor sequences.
+It should not be confused with the intrinsic difficulty of performing the movement nor with the motor system's capacity.
+In fact, neuromechanically simple mechanisms can produce high TPs, and some complex feats, such as balancing, have zero TP.
+Rather, the metric is best understood as an index of the information available to an external observer, as defined by the complexity and reproducibility of observed movements.
+The new metric however, lacks one important feature of Fitts-TP: interpolation.
+Fitts-TP is relatively robust to changes in the target's W or D. This is possible because it accounts for discrete aimed movements that are produced by a simple agonist-antagonist neuromechanical pattern .
+With more complex motor control, interpolation cannot be expected, because even slight changes in movement may involve entirely different control patterns.
+The metric makes almost no assumption about the data, which makes it suitable for a wide range of uses.
+On the other hand, because of its generality, the absolute TP values are high when compared to the familiar range seen in aimed movements.
+This high range is expected, because the metric is based on high-frequency multivariate sampling of continuous movement but also because the model has no model of the performer, or the environment, as a prior.
+Even if the absolute values are high, however, we have shown that the metric responds as expected to conditions such as noise.
+To address the issue of high absolute values and improve the model, the most important goal for future work is to combine the now-separate steps of complexity estimation, temporal alignment, and dimension reduction in a single GP model.
+Further improvement can be achieved if complexity estimation is informed with a skeletal model of dimensions and movement ranges of bones and joints.
+A theory of bimanual distraction suggests that the distraction in the condition with the hands close to each other  is due to perceptual distraction: seeing both hands moving distracts from their control .
+When the hands are further apart , there is less distraction.
+When the hands are very far apart , control is again more difficult, perhaps for biomechanical reasons.
+We have presented a novel metric for the information capacity of full-body movements.
+The new metric extends Fitts-TP metric by considering * * the shape of continous trajectory as the source of information instead of target width and distance and the accuracy of the reproduced movement as the source of noise instead of end-point variation.
+The metric can inform efforts in HCI where the expressiveness of continuous control is important.
+We foresee three use cases for the metric: 1.
+Evaluation and comparison: The metric can be used to study the motor capacity allowed by novel interface designs and to compare alternative solutions.
+Both tasks involve collecting movement data that span the space of possible movements.
+Because most movement spaces are too large to be exhausted empirically, complex overlearned patterns such as signatures  can be used to represent performance that users could attain with practice.
+Comparative studies should target obtaining a large number of comparable complex movements produced with each user interface.
+The known extensions of Fitts' law from discrete to continuous movements are predictive models of MT  and do not carry an interpretation in information theory.
+Moreover, they are incapable of dealing with multi-feature arbitrary trajectories in 3D space.
+Our metric allows researchers to examine any scenario wherein users' motion can be represented as a sequence of vectors of movement features, from mouse movements to full-body motion.
+Naturally occurring movement can be analyzed, with the pre-
+The metric can also be used to analyze the contributions of different limbs in users' continuous full-body movements  and to expose performanceaffecting factors .
+Temporal alignment  can be dropped for estimation of the accuracy of timing and synchrony.
+The metric can also expose patterns in trajectories of aimed movements .
+Exploration: Because the metric allows studying throughput independent of a intermediary device or target conditions, it can be used to explore potentials for user interfaces.
+For example, if there are multiple ideas on how a game could be controlled, they can be compared through asking users to produce the same movement sequences within each condition.
+Unlike with Fitts-TP, calculation of the novel metric is computationally intensive, particularly if GP-LVM is used.
+Intensity is unavoidable, because the metric must account for multiple movement features moving over time.
+Moreover, it must addess three issues inherent to throughput calculation in multi-feature data: estimating the complexity of a trajectory, decorrelating interrelated features, and aligning sequences in time.
+Future work can explore efficient simplifications to this pipeline.
+To help practitioners apply the metric, we provide a Web service.
+After sending movement data, the user chooses parameters for the five steps in the computation.
+The output contains an overall TP, a breakdown by movement feature, and the optio of analyzing different time segments.
+We provide a converter from angular representation  to the coordinate system .
+This work has been funded by the Academy of Finland , the Max Planck Center for Visual Computing and Communication , EIT ICT Labs, and the Emil Aaltonen Foundation.
+We thank Rod Murray-Smith, Heiko Drewes, John Williamson, Per Ola Kristensson, Antti Honkela, Miikka Miettinen, David MacKay, and Scott Klemmer for helpful comments.
+Also, we are indebted to Frank E. Pollick, Walter Boot, Christian Theobalt, and Carsten Stoll for sharing equipment and data, and to Naree Vachananda for the beautiful ballet.
+Code, data, and the service are available through our project page.

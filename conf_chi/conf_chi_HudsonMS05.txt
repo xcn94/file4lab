@@ -1,0 +1,268 @@
+A central goal of the subArctic user interface toolkit has been to extend the role of the toolkit from simply a library of interactive components to an enabler for extension into new interactive forms.
+It does this in part by seeking to make it not only very easy to use its existing library, but also quite easy to create new interactors, and to support this creation even when the new interactors operate in unusual ways.
+A central part of achieving this goal has been the extension capabilities of its input model.
+The subArctic user interface toolkit has extensibility as one of its central goals.
+It seeks not only to supply a powerful library of reusable interactive objects, but also make it easy to create new, unusual, and highly customized interactions tailored to the needs of particular interfaces or task domains.
+A central part of this extensibility is the input model used by the toolkit.
+The subArctic input model provides standard reusable components that implement many typical input handling patterns for the programmer, allows inputs to be handled in very flexible ways, and allows the details of how inputs are handled to be modified to meet custom needs.
+This paper will consider the structure and operation of the subArctic input handling mechanism.
+It will demonstrate the flexibility of the system through a series of examples, illustrating techniques that it enables - many of which would be very difficult to implement in most toolkits.
+Over the past 20 years, GUI toolkits have emerged as a significant success story in the area of tools for interface implementation.
+They have provided the highly reusable infrastructure that most of today's interfaces are built with, and provide a foundation for higher-level tools that allow high quality interfaces to be created rapidly enough to enable iterative development.
+However, most toolkits have been built around the notion that they provide a relatively fixed library of interactors , and nearly all interfaces will be constructed with this library.
+So while it is very easy to reuse library interactors and modify them with simple sets of parameters, it is often quite difficult to create new interactors beyond the library.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Shadow-drag container interaction As a simple illustration of one capability enabled by the toolkit input model, Figure 1 shows the use of the shadow_drag_container interactor class.
+This object adds new input and feedback capabilities to any set of interactors placed inside of it.
+In particular, it allows that set of interactors to be dragged by the user, providing a drop shadow effect, which gives the appearance of picking up and then setting down the objects.
+Further, it does this for any interactor  without requiring any modification to the interactor itself.
+Further as we will see in later sections, because of subArctic's extensibility support mechanisms, this general capability is remarkably easy to implement.
+In the next section, we describe the key features of subArctic's input architecture, including dispatch policies,
+We then discuss a range of examples that illustrate some of the capabilities enabled by the architecture.
+We conclude with lessons learned over the years we have used this input system.
+This section describes the key components of subArctic's input handling system.
+We begin with a brief overview of event handling.
+We then describe input policies, which make high level decisions about where different kinds of events should be routed, and dispatch agents, which perform input translation and embody input protocols for handling groups of related interactions.
+We then describe the picking infrastructure used by the system, and finally show how all these parts fit together.
+Overall, this conceptual structure for handling input - modeling input as records of significant actions , delivering these events to appropriate interactor objects, using these events to drive changes in interactive state, and translating low level events into more meaningful concepts - is used by essentially all modern toolkits.
+The subArctic input system  fits within this conceptual structure.
+It differs from most other systems, however, in the extent and power of its specialized infrastructure supporting this overall process.
+To support its goal of making it easy to create new interactor classes, the subArctic system attempts to move as much of the work of handling input as possible out of interactor objects, and "up" into the reusable toolkit infrastructure, while still allowing those capabilities to be modified.
+In particular, it provides a well developed infrastructure for determining which object will receive different kinds of events in flexible ways, for tracking of interactive state in support of many common interactions , and for translation of events in common, higher level, interactive concepts .
+At the most general level, the process of input handling is one of delivering inputs to appropriate objects in the interactor tree - the collection of interactors that implements the interface.
+Like almost all modern interactive systems, subArctic uses an event model of input.
+Under this model, inputs are represented by a series of event records  each of which records the relevant facts and context associated with some significant action of interest to the system .
+Each event is delivered by the toolkit to one or more interactors within the interactor tree .
+To process  an event of interest to it, each interactor needs to interpret the event in terms of what it is , and its current state .
+In doing this, each interactor can be seen as translating a low-level event expressed in terms of actions on a device  into something with a higher level meaning .
+Both the maintenance of state and some parts of the translation to higher level terms performed by the interactor are conveniently handled by code that  implements a finite state controller .
+For example, the finite state machine illustrated in Figure 2 is convenient for processing a drag interaction that consists of a locator button press event, followed by zero or more locator move events, and then a locator button release event.
+At each transition in this state machine an interactor would typically perform actions.
+For example, on the press transition it might change its appearance to indicate it had been "picked up", on the move transition it might change its screen position, and on the release transition it might return to its normal appearance and invoke some action.
+A central part of the subArctic input system is its infrastructure for deciding where events will be delivered, a process we call event dispatch.
+There are two primary ways that common interfaces determine where an event goes.
+Many events are dispatched positionally - that is, they are sent to interactors found beneath the cursor on the display.
+This is typically appropriate for locator button presses, for example.
+Other events are typically focused on a particular object independent of where the cursor is.
+This is typically appropriate for keyboard input, which should be delivered to the current text focus object independent of where the cursor goes.
+Positional and focus-based event dispatch represent two policies for delivering events.
+Most prior toolkits have a fixed and immutable set of such policies built into them - in many cases driven strictly by a fixed set of event types, with keyboard events being delivered in a focus-based fashion and most other events delivered positionally .
+One of the key insights in the design of the precursor Artkit input system was that flexibility in selecting input policies was useful.
+As a simple example, consider locator movement events.
+As a part of a painting interaction, or to invoke a rollover highlight, these should clearly be delivered in a positional fashion.
+On the other hand as a part of a dragging operation, if these events were delivered positionally and the cursor moved quickly, it might go outside the object being dragged and the remaining inputs would be misdirected.
+A second insight was that, although most current interaction makes use of positional or focus-based event dispatch, other policies are also useful.
+For example, traditional modal dialog boxes could be easily implemented using special positional and focus policies that deliver events normally to the interactor subtree representing the dialog box, but filter out input intended for the main interface.
+As another example, when implementing a full screen crosshair cursor object it is necessary to deliver locator move events to the cursor object , but not consume or otherwise disturb them, because they must still get to the actual interface.
+This leads to special monitor-focus and monitor-positional policies that provide  this behavior.
+Once the notion of a policy for making input dispatch decisions is made explicit, it becomes clear that there could be many such policies.
+To provide for this, the input system implements an extensible set of dispatch policy objects.
+Like other parts of the system, the active set of policy objects can be changed dynamically  and can be changed independently  simply by installing a new dispatch policy object.
+To deliver dragging input, a dispatch agent would call the drag_start method on the first transition in the state machine shown in Figure 2, drag_feedback on each middle transition, and drag_end on the final transition.
+The parameters passed to each of these methods would include information useful to the interactor making use of this input, such as the absolute and relative position from the start of the drag.
+Overall each input protocol represents a common input pattern  that one would expect to be used in multiple places, and each dispatch agent provides a reusable implementation of that pattern.
+Arranging to get input delivered to a particular interactor happens in different ways for different input policies.
+For positional policies the interactor need do nothing special.
+As long as it remains enabled, agents under the positional policy will deliver input to it whenever it is picked .
+For focus-based agents, the interactor must register with the dispatch agent managing that particular type of input.
+Interactors may request to be the sole focus of a particular type of input, or may request to be included in a focus set for that input.
+An interactor may lose the input focus as a result of another interactor's request, in which case it is notified via a method call within the relevant input protocol.
+For example, when a text editing interactor is clicked, it asks to become the  text focus by invoking:
+Each dispatch policy object attempts to deliver input using one of its dispatch agents.
+Each agent handles a certain type of input, such as text editing input, dragging of several forms, or pressing, clicking, or double-clicking.
+In order to make the implementation of new interactor objects easier, dispatch agent objects are responsible for implementing a number of the first level state maintenance and translation activities that in other systems are done in the interactors themselves.
+For example, a simple drag agent would implement the finite state controller shown in Figure 2.
+It would listen for press, move, and release events and use these to track its state.
+It would also communicate with interactors wishing to receive dragging input.
+Dispatch agents communicate with interactor objects using a series of method calls making up an input protocol.
+This in turn causes an end_text_entry message to be delivered to the previous text focus , allowing it to update its appearance accordingly  and a start_text_entry message to be delivered to the new focus also allowing it to update its appearance .
+When keyboard input is received, it is processed by the text dispatch agent, which translates keys with special meaning 
+For example, delete and backspace are translated into a call to delete_char.
+Note that because the input is delivered to interactors in a form related to what it is used for  rather than how it is produced , interactor objects are typically not directly dependent on the low-level form of input driving them.
+For example, it would be a simple matter to produce a new text agent that got its input in some other way .
+So long as the same input protocol is employed, interactors using it need not be updated to allow introduction of a new input source.
+This allows use of alternate devices and new input methods without giving up use of  the existing interactor library.
+In addition, the layer of translation provided by dispatch agents allows the toolkit to perform some of the work that would normally be done by the interactor, for example interpreting special keys.
+Since this work is done in a reusable fashion inside the toolkit infrastructure, it does not have to be re-implemented each time a new interactor class is created.
+Similarly, this provides a central place for providing other new services that can be reused.
+For example, the text agent allows a character filter object to be supplied that affects which characters are passed on, and/or the translation into special actions.
+Standard filters are provided for things like numbers-only, translation to all upper or all lower case, and removal of white space.
+By providing new filter objects, further customization can occur, while still allowing any and all interactor classes that use text input to benefit from this work .
+To handle picking more flexibly, the subArctic system creates an explicit list  to represent the picking sequence, and delegates the details of how to fill in this list to the interactor objects themselves.
+Picking is performed by a top-down recursive traversal of the interactor tree which normally accumulates picked items as the recursion returns, thus picking occurs by default in the normal bottom up order.
+Specifically, each interactor implements a pick method which takes an x,y screen position  and a pick_collector list.
+A default implementation of this method is provided by the toolkit in a base class for all interactors, and so does not require additional work for interactor programming in simple cases.
+This implementation first recursively traverses each child object in reverse drawing order - passing a reference to the same pick collector and adjusting the x,y position to be in the child's coordinate system - then determines locally if it should itself be considered to be picked.
+By default this is done by testing its own enabled status, and if enabled further testing with its own picked_by method .
+If picked_by returns true, the object is considered to be picked, and it adds itself to the end of the pick_collector list .
+Note that if a container objects overrides the default drawing order for its children, draws only some of its children, or otherwise has special needs with respect to picking, this can be properly reflected by overriding its pick method correspondingly.
+This flexibility is important since a fixed picking order would, for example, preclude the proper operation of container interactors with pickable components drawn both on top of its children and underneath them.
+Further, explicitly representing the pick sequence as a data structure allows several other interesting effects to be supported.
+For example, the shadow drag container illustrated in Figure 1, provides dragging behavior for the group of objects placed inside it, regardless what kind of interactors they are.
+To implement this properly, the container needs to consider itself picked if and only if one of its child objects is picked.
+To dispatch input positionally, it is necessary to know what input sensitive objects lay under the current cursor position.
+The process of finding such objects is traditionally called picking.
+There may be a series of objects which should be considered "under" a given position.
+For example, it is often the case that an interactor as well as its parent container, and the container's parent container, etc.
+To deal with this situation, the process of picking produces an ordered series of objects, which are candidates to receive input.
+Normally, the first  object in this series of picked objects is the one that has been drawn last .
+This would typically be a leaf node in the interactor tree.
+In recognition of this, some toolkits use what amounts to a bottom up traversal of the interactor tree starting at the last drawn interactor whose bounding box overlaps the cursor position.
+However, such a rigid policy precludes several interesting manipulations of picking, which we will describe below.
+Note that positional policies traverse their agent lists multiple times: once for each object on the pick list associated with the current event, until an object consumes the event .
+Focus agents do not use the pick list.
+This overall structure has the advantage of being highly extensible or pluggable.
+If either an overall policy or the details of a particular kind of input need to be customized or extended, it is a simple matter of placing or replacing an appropriate object in one of the lists.
+Importantly, no changes to the toolkit infrastructure are needed - the toolkit still simply passes the event through the policy list.
+This means that fairly arbitrary changes to the way input is handled can be done with a minimum of difficulty, and with a little care, in a way that allows all the existing interactors to operate normally .
+To accomplish this, the container's pick method creates a local  pick collector which it passes to the child objects in the normal order.
+If this pick collector returns with one or more picked interactors on the list, the container adds itself to the original pick collector, followed by all the interactors on the local pick collector .
+While this example is somewhat out of the ordinary, we think it illustrates an important point; It shows an interaction that is unusual and was not anticipated when the input system was originally designed, but is quite useful.
+Because of the flexibility of the system it can be accommodated in a robust fashion , with relative ease  method was implemented in less than 30 lines of code.
+The capability to do this easily in both small and large ways is fundamental to the goal of escaping the stifling effects of fixed widget libraries.
+How do all of these different architectural components work together?
+As illustrated in Figure 3, each incoming event is passed to the current series of dispatch policies in a simple priority order with the highest priority policies  getting the first opportunity to dispatch an event.
+Each dispatch policy object attempts to deliver this event using one of its dispatch agents.
+All the standard dispatch policy objects supplied with the system to date also use a simple priority order across dispatch agents.
+As a result, a given event will be passed to successive input dispatch policies, each of which will give it to a succession of dispatch agents controlled by that policy until the event is delivered to an interactor object, and the object responds that it has acted on the event and consumed it.
+As indicated above, subArctic's input system simplifies the creation of interactors, and enables various applicationindependent effects and architectural extensions to be created.
+This section describes some specific things that subArctic makes possible.
+While several of these examples are interaction techniques that were research contributions published elsewhere , we focus here on the input handling infrastructure issues that enabled them to be created.
+As described above, dragging is a feature that subArctic easily supports.
+In particular, dragging is a focus-based operation, and different specialized dispatch agents support the semantics of operations such as resizing an interactor by dragging its corner and moving an interactor.
+In addition to the kind of basic functionality described previously, subArctic's drag dispatch agents provide the following services: Conventional Dragging: The toolkit provides standard dispatch agents to support dragging for the purpose of moving an object, as well as dragging to support resizing, and a generic form of dragging which can be used for other purposes.
+Although the dispatch agents for move-dragging and grow-dragging are very similar, they each compute specialized parameters suited to their particular task .
+In particular, an interactor receiving this type of input needs only copy the parameters to either its position, or size, in order to implement these common actions.
+Finite State Controller for In/Out Dragging Constrained Motion: Each of the conventional dragging dispatch agents allows an interactor to install a drag filter that limits motion to a region defined by the filter.
+Standard filters are provided for keeping a moved object within its parent, within an arbitrary rectangle, or along a defined line.
+Like the text translation filters described earlier, this capability allows a richer set of interactions to be supported without necessarily requiring changes to the interactors that use this form of input In/out dragging: In/out dragging is provided for interactors, such as a button or check box, which are only interested in knowing when the drag enters and exits their extent .
+While this dispatch agent responds to the same set of events as other drags, it interprets them with a slightly different finite state controller as illustrated in Figure 4.
+Semantic snap-dragging: Semantic snap-dragging, described in , is a form of dragging in which selected targets act as gravity wells  for the object being dragged.
+When a dragged object nears a target  that passes appropriate semantic tests , it snaps to that target rather than following the exact path of the user's mouse.
+Snapping occurs by considering active feature points within snapping distance of a target.
+Each snap_draggable object advertises a set of feature points.
+Each active feature point is eligible to snap to a snap target object .
+Snap target objects include a geometric test to determine if a point is considered close enough to the target to snap to it.
+For each geometrically possible snap, semantic tests are also performed to determine if the snap is semantically acceptable.
+The closest candidate snap that passes semantic tests  is performed.
+Another common interface capability is the selection of objects, and the maintenance of a currently selected set of objects.
+Interaction patterns for selecting a set of objects  have been established across a range of applications, so in subArctic, this capability is supported by a specialized dispatch agent .
+This agent manages a currently selected set based on the conventional interaction sequences.
+It delivers input at the level of notifications to interactors that they have entered or left the currently selected set.
+This represents another example where a common pattern of interaction can be "moved up" into the toolkit.
+To take advantage of this capability, new interactor classes need only declare that they are selectable and implement the select and unselect methods .
+The selected-set dispatch agent takes care of the rest of the details, and makes the resulting currently selected object set available to the application with a simple API.
+As mentioned above, the subArctic input system makes it very easy to create non-rectangular  interactors, including Toolglasses and Magic Lenses  .
+These seethrough interactors sit "above" an interface, and may change the look and behavior of things seen through them , and may allow interaction with either themselves, or the interactors they affect, or both.
+For example, in Figure 5, the user has clicked on the pulldown menu through the lens, causing it to appear.
+For example, in Figure 5, the user can move the lens by dragging its title bar, and change the background pattern it displays behind the normal scene by clicking on one of the pattern icons at the right.
+Creating a lens requires the ability to systematically modify output , and to intercept some  input.
+The latter problem is solved by using subArctic's picking infrastructure to indicate which areas, inside a lens' bounding box, are interactive and which are not.
+Lenses that filter their drawing  can be implemented by modifying the pick list to exclude filtered interactors, so they will not receive input, as needed.
+For example, "holding down" a scroll bar arrow could cause repeated motion of the thumb.
+This interaction can be implemented in a fashion analogous to dwell, with a positional dispatch agent tracking tick, press, and move events, which are translated into higher level press and press-held inputs.
+The primary aim of the subArctic input architecture is to support the kind of rich and varied new interactions, briefly touched on above, in a way that supports reuse, and makes new custom interactor types easy to create.
+However, the flexibility of the system also makes it possible to make more radical modifications, such as making global changes in the way inputs are handled.
+The subArctic toolkit includes specialized support for handling animation in a robust and flexible way.
+While animation may seem to be strictly a matter of output, it is driven by the passage of time.
+Because the passage of time is an "action of interest" that needs to be handled in the same frameworks as other "actions of interest" such as user manipulation of input devices, it is convenient to model the passage of time as a series of tick events delivered with other inputs.
+However, simply delivering tick events provides only very basic help in creating animated objects.
+Like other forms of input, the subArctic input system goes much further than this by providing a richer and higher-level abstraction which reflects more of the way the input is used.
+Rather than simply delivering timed ticks, the animation dispatch agent uses the richer abstraction of animation steps, which are scheduled, sequenced and paced along trajectories established by the programmer.
+As described in  these abstractions make it easy to apply sophisticated effects such as slow-in/slow-out motion, anticipation and followthrough, and squash and stretch.
+Again, the structure of the toolkit input architecture makes these kinds of higher-level input abstractions easy to use for new interactors, and allows the effort of creating rich abstractions to be readily reused.
+Early in the deployment of the subArctic system we were contacted by a researcher wishing to create an interface to their experimental generic hyperlinking system.
+This system worked by using an external association table that maintained relationships between an arbitrary internal identifier  and external content, which was to be associated with the corresponding object.
+The researcher wished to create a system in which every interactor object could potentially have content associated with it, and have that content accessible when the user held down the control key.
+In particular, when the control key was held down and any object was then clicked on, the hyperlinking system was to be consulted to see if there was an association between that object and some previously linked content.
+If so, the content would be brought up in a new window.
+If not, the click would be processed normally.
+In a toolkit with a conventional input model, this kind of capability requires a radical change.
+Every single interactor that handles locator button presses would need to be modified to add this new hyperlinking capability.
+Even in cases where source for the full library is available, this is a daunting task, and even if this task is undertaken, this capability would be broken whenever a new interactor class was created by someone else.
+On the other hand, making this kind of change is very easy within the subArctic framework.
+One need only add a new positional dispatch agent that intercepts press events, and install it before the standard "press" agent.
+This new agent checks if the control key is held down, if it is, it passes the hashcode of the interactor it would normally be positionally dispatching to  to the hyperlink system.
+If the hyperlink system finds an associated link and acts on it, it consumes the press input.
+If the control key was not held down, or there was no association found for the object, then the event is not consumed and passes through the system normally.
+Dwell and Trill are two common features that can be easily supported with the subArctic input system.
+An interactor supporting dwell reacts when the mouse hovers over it for a designated amount of time.
+An example is an interactor that supports tooltips.
+Rather than implementing a one-time solution in the interactor itself, tooltips are supported by a positional dispatch agent that listens for tick events and keeps track of the length of time the mouse has been over any interactors that implement the dwelling protocol.
+These interactors are informed when an appropriate dwell time has elapsed, and again when the user moves away.
+Because of the flexibility of the subArctic input system, this otherwise radical change, which affects the action of many different interactors in the standard library, can be accomplished very easily  without modifying any of the existing interactor library.
+Further, this change will work with any new interactor types added later.
+The subArctic toolkit was first widely released in 1996.
+It has been downloaded tens of thousands of times, and has been used for teaching user interface software courses at several universities.
+Through our own experience, and those of our users, we have seen subArctic's input infrastructure used to create a wide variety of interaction techniques and tools, just a few of which have been described here.
+These experiences have largely been positive.
+However, as a part of this experience we have also learned several lessons about how future systems might improve the architecture by small additions or changes.
+There are two ways to record information about input in subArctic.
+The simplest approach can be used to record input events, that is, the stream of input produced by the user.
+This agent simply delivers all the events to a recorder object, but otherwise does not consume or modify them.
+A more interesting capability enabled by the system is the ability to record basic information about what inputs were used for.
+This is done by recording the input protocol and particular method within that protocol used to deliver each input, along with the object it is delivered to.
+This capability has been used, for example, to build a tool for automatically generating Keystroke-Level Models from interface demonstration sessions .
+Here the exposed semantics of the input was used to successfully place the mental  operators required for these models in a way that would not have been possible from the event log alone.
+One possible alternative is to support an "area pick" of which a point is a special case.
+While this raises potential new issues , it would also increase the power of the input system.
+For example, this would allow subArctic to more easily support the creation of an area cursor that makes it easy to hit a target with low dexterity motions .
+SubArctic's policies and agents are kept in a simple, ordered list, which represents their relative priorities for receiving event.
+While the priority of a policy or agent can be changed dynamically by changing its location in that list, other, more complex ways of selecting a dispatch policy are not supported.
+For example, a privacy-sensitive policy priority system might skip the monitor policy entirely if the user's privacy preferences are set very high and the input contains text.
+The existence of input protocols, and access to information about when they are used, makes it possible to reason about the way different interactors use input, and to act on that knowledge.
+For example, it is possible to enable keyboardbased navigation to any interactor, and to create keyboard commands to control different aspects of an interactor by mapping them to different methods in an interactor's input protocol.
+This approach was used, for example, to reimplement a slightly simplified version of Mercator, an X Windows system that renders interfaces in audio for the blind , in subArctic.
+In addition to changing the output modality of an interface, Mercator  supports keyboard-based navigation, and removes any dependencies on visually-based or locator-based navigation.
+Currently, to request focus from a focus-based dispatch agent an interactor communicates directly with the agent.
+Once an interactor has the focus, there is no way to interpose between it and the relevant focus dispatch agent.
+We believe it would be a slight improvement to route all requests for input focus up through the interactor tree, rather than having interactors communicate directly with the agents.
+A container could then selectively consume some input, while passing the rest on.
+For example, a special container could consume and handle keystrokes corresponding to commands while allowing plain text through to a child text entry interactor.
+This would make it very easy to change the way commands are handled by simply replacing the parent container.
+Extending to hierarchical events would allow for better infrastructure to encode commands and other semantic information .
+This, in turn, could enable structured support for undo and recognition.
+One particular application of hierarchical events is input coming from a recognizer.
+SubArctic can handle simple forms of recognition-based input without modification.
+It is possible to create a dispatch agent that accepts, for example strokes from a pen serving as the locator device, sends them to, for example a gesture a recognizer, and then dispatches the results to interested objects.
+However, far more flexibility is gained by storing hierarchical information , and allowing recognized inputs to be redispatched as events through the same mechanisms as device oriented events.
+Several prior or contemporary toolkits have used input systems with aims related to those of the subArctic system.
+For example, the standard Java GUI toolkit, Swing, provides a very flexible input model based on the concept of listeners.
+Objects interested in receiving notification of various actions of interest  may register as a listener with the object that manages that action and/or provides notification for it.
+When the action of interest occurs, all objects that have registered as listeners receive a specifically typed method call whose parameters provide details associated with that notification.
+In the terms used by the subArctic system this can be seen as quite similar to use of single message input protocols dispatched through focus-based dispatch agents.
+Further, this mechanism is quite amenable to use in areas beyond input handling, and so a single mechanism helps support several aspects of interface construction.
+On the other hand the Swing listener-based approach, while very general, provides substantially less specialized support for input handling.
+For example, it does not provide flexible mechanisms for picking or positional event dispatch.
+Input handling capabilities similar to the subArctic model could be built within the Swing framework.
+However, they are not directly provided by the toolkit, hence would require substantial effort to implement, would not work with the current interactor library, and likely would not be amenable to reuse.
+A number of systems, starting with the classic Smalltalk MVC model, have also used approaches which pull some or all of the input handling mechanisms out of interactors into separate objects - what we might call an input factoring approach.
+Systems taking some version of this approach include the Interviews Unidraw framework with its tools and manipulators objects , the action modules of the Whizz toolkit , the behavior bricks of Ubit , and the interaction graphs found in the recent Magglite system .
+Input factoring has been undertaken in a number of ways, for a number of different purposes.
+Among systems taking an input factoring approach, perhaps the most conceptually related is the Garnet/Amulet model .
+This model was developed based on very similar goals to ours, notably a desire to ease the creation of new interactive objects by automating common input patterns within the toolkit, rather than requiring them to be implemented within interactive components.
+Interestingly, these systems took an approach to achieving this aim that is almost the opposite of the subArctic approach.
+Simple hierarchical events are not sufficient to encode all of the information important to users when recognition is occurring.
+A further necessary expansion is to add support for ambiguity .
+This can allow an interface to display competing alternatives to users, who may then select or reject them .
+Interactors should be able to receive input before or after ambiguity is resolved, and be notified if an ambiguous event is accepted or rejected by the user.
+Along these lines, a binary model of event consumption is not entirely sufficient.
+In subArctic, an interactor may consume an event , or reject it .
+An expanded model might have several levels of consumption.
+One key addition is the ability to display information related to an event without consuming it.
+For example, an interface element may wish to display tentative feedback from an ambiguous event, but likely would not consume it until it was accepted or confirmed.
+When we added support for recognition to subArctic, we found ourselves in a situation where input was coming not only from hardware but also from recognition software.
+Recognizers often benefit from knowing what happens to the input they create .
+Also, an interface may be able to generate constraints on valid input that could be passed back to recognizers to help guide their choice between ambiguous alternatives.
+To make use of this controller in support of a particular interactive pattern, one provides a set of controlling parameters that change which inputs invoke which transition, how feedback is handled, and many other aspects of the interaction.
+The advantage of this approach is that it is very easy for the programmer to use.
+Rather than having to understand and select from a large library of input protocols, the programmer can create many relatively common interaction patterns very simply with a few parameters.
+However, this approach relies heavily on the design of the few general controllers.
+While these have been cleverly designed to cover many interactive situations, in later versions of the model, more than 30 different parameters are needed to accomplish this .
+Further, the flexibility and extensibility of the system is inevitably bounded by these controllers which cannot be readily extended or replaced to meet the unique needs of particular interfaces.
+We have presented subArctic's input handling infrastructure.
+SubArctic's architecture separates the job of selecting input targets , and extracting semantically-relevant information from raw input , from that of providing feedback and application functionality .
+This separation of concerns makes it possible to encapsulate interactors in containers that add functionality ; modify input before it arrives at an interface ; and create advanced interactions such as lenses and other non-rectangular interactors.
+In addition to its powerful architectural features, subArctic includes a comprehensive and sophisticated library of dispatch policies and dispatch agents.
+This library includes reusable support for common interaction patterns such as text entry, a variety of forms of dragging , monitoring input, animation, and more.
+Overall the subArctic input architecture makes it easy to expand interaction beyond a fixed widget set by supporting custom input technique - it allows new interactions to be explored without giving up the use a well developed library of conventional interactors.

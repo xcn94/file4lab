@@ -1,0 +1,122 @@
+We study strategies for scalable multi-label annotation, or for efficiently acquiring multiple labels from humans for a collection of items.
+We propose an algorithm that exploits correlation, hierarchy, and sparsity of the label distribution.
+A case study of labeling 200 objects using 20,000 images demonstrates the effectiveness of our approach.
+The algorithm results in up to 6x reduction in human computation time compared to the na ive method of querying a human annotator for the presence of every object in every image.
+Consider building an AI system which is able to navigate a user's photo album and automatically find all pictures which contain a cat but not a dog, pictures which show both a table and a chair, or pictures which have a boat, sky, and sheep.
+Building such a system requires first collecting a training set of images with known annotations: each of the images in the training set needs to be labeled with the presence or absence of a dog, cat, table, and all other objects of interest.
+In another domain, consider building a system which automatically recommends songs to users based on their preferences.
+Creating this requires collecting a large training set of songs handannotated by humans with many musical attributes.
+A key component of building both of these systems is doing multilabel annotation, or acquiring multiple labels from humans for a collection of items.
+A key challenge for multi-label annotation is scalability.
+Suppose there are N inputs which need to be annotated with the presence or absence of K labels.
+A na ive approach would query humans for each combination of input and label, requiring N x K queries.
+However, in real life applications N and K can be very large and the cost of this exhaustive approach quickly becomes prohibitive.
+Copyrights for components of this work owned by others than the author must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Publication rights licensed to ACM.
+The number of queries required in this case is 1,000,000 images x 100,000 objects, which costs $10 million even in the optimistic setting of perfect workers who label at a cost of 10 cents per 1,000 annotations.
+In this paper we study strategies for scaling up multi-label annotation, i.e.
+This technique is important in multiple domains, such as labeling actions in videos , news article topics , functional classes of genes , musical attributes or emotions in songs , semantic classes of scenes , product categories customers are likely to buy , and categories of web pages .
+While the problem of acquiring one label has been well studied , to our knowledge the challenge of largescale multi-label annotation has not been addressed before.
+We exploit three key observations for labels in real world applications .
+Subsets of labels are often highly correlated.
+Objects such as a computer keyboard, mouse and monitor frequently co-occur with each other in images.
+Topics such as economy and finance often co-occur in news articles.
+Similarly, some labels tend to all be absent at the same time.
+For example, all objects that require electricity are usually absent in pictures taken outdoors.
+This suggests that we could potentially "fill in" the values of multiple labels by grouping them into only one query for humans.
+Instead of checking if dog, cat, rabbit etc.
+If the answer is no, then this implies a no for all categories in the group.
+The above example of grouping dog, cat, rabbit etc.
+This brings up our second key observation: humans organize semantic concepts into hierarchies and are able to efficiently categorize at higher semantic levels , e.g.
+This leads to substantial cost savings.
+The values of labels for each item tend to sparse, i.e.
+This enables a rapid elimination of many objects, filling no for many labels very quickly.
+With a high degree of sparsity, an efficient algorithm can have a cost which grows logarithmically with the number of objects instead of linearly.
+In this paper we propose algorithmic strategies that exploit the above intuitions.
+The key is to select a sequence of queries for humans such that we achieve the same labeling results with only a fraction of the cost of the na ive approach.
+The main challenges include how to measure cost and utility, how to construct good queries, and how to order them.
+We present a theoretical analysis and a practical algorithm.
+We then perform a case study using our approach on a task of labeling 200 objects in 20,000 images, a total of 4 million labels.
+We describe our system setup in detail and discuss various design heuristics, including how to frame cost effective queries posted to humans.
+Experiments demonstrate that our approach is much more scalable than the na ive approach.
+Acquiring labels as a crowdsourcing task has been extensively studied.
+The key challenge is making efficient use of resources to achieve quality results.
+A growing body of work has studied how to estimate worker quality , how to combine results from multiple noisy annotators , how to model the trade-off between quality and cost , how to merge machine and human intelligence , as well as how to select the next best item to label .
+However, they only focus on the single-label case.
+Multi-label annotation has been practiced in many crowd-powered systems.
+For example, PlateMate  tags all foods in each photo for nutrition estimation.
+VizWiz  labels the presence of objects in images to help blind users.
+These systems, however, do not address the scalability issue of a large number of labels.
+Our framework of optimizing the sequence of queries to fill in values relates to general strategies using iterative steps  to limit the search space.
+For example, Branson et al.
+Our work also draws on research on multi-label classification in crowdsourcing .
+We exploit a given label hierarchy to rapidly eliminate labels, whereas previous work has no access to a hierarchy and cannot issue high level queries outside the label set.
+Instead, this previous work achieves speed-ups by modeling label co-occurrences.
+Our algorithm dynamically selects the next query to efficiently determine the presence or absence of every object in every image.
+Green denotes a positive annotation and red denotes a negative annotation.
+This toy example illustrates a sample progression of the algorithm for one label  on a set of images.
+Here each label represents the presence or absence of an object and takes a value of yes or no.
+We assume that all labels are binary since any multi-valued label can be represented as a set of mutually exclusive binary labels.
+Our meta algorithm  poses a sequence of queries to humans.
+Each query allows us to fill in values for some labels.
+We stop when all values are filled.
+A few sample iterations of the algorithm are shown in Figure 2.
+This is clearly not scalable as the cost is O for N items and K labels.
+Moreover, we can exploit the fact that the meta algorithm allows dynamic selection of the next query based on the current available information.
+A good query should fill in as many values as possible and is easy for humans to answer.
+In other words, we would like to pick a question with the most utility in filling in the values per unit of cost.
+We now make the two notions precise.
+We measure the utility of a query as the expected number of new values filled in over a distribution of items to be labeled.
+Consider an image with k missing labels.
+Let y  {-1, 0, +1}k represent the values of those k labels after using query Q, where -1 means "no," 0 means "unknown" and 1 means "yes."
+Thus the l1 norm y 1 is the number of newly acquired labels.
+In practice the utility can be estimated using a "training" set, i.e.
+Let s be the number of objects of interest which are "animals," and consider the high-level query "is there an animal present."
+Let n- be the number of training images with no animals.
+On the other images there are no new labels since it is still unknown which of the s animals   = sn- /n.
+Thus, the estimated utility is U This utlity may be high in practice for well-designed queries.
+In contrast, consider a low-level query such as "is there a cat present."
+The utility would always be 1, since on every image it reveals one new label: +1 if there is a cat, -1 otherwise.
+Correlation and sparsity of large label sets leads to high utility of certain queries.
+For example, when annotating a diverse set of internet images for the presences of couches, desks, sofas, and chairs, designing queries with good utility 
+High sparsity means potentially more high utility queries because for most inputs most queries will have a no answer .
+We measure the cost C  of a query Q as the expected human time it takes to obtain a reliable answer for one item.
+First, we can empirically measure the average amount of time a human takes to answer a query on a small training set.
+Next, we might need to consult multiple humans to be confident in the answer.
+Here we take the majority voting approach and assume a Bernoulli process for querying multiple workers.
+Again on a small training set we can estimate that the average worker gives a correct answer with probability p > 0.5.
+Given i=n+1 i an acceptable accuracy threshold 1 - , we can find the number of votes needed to reach the threshold, which allows us to calculate C  as a product of the number of workers needed and the average time a worker takes to give an answer.
+To be more scalable than the na ive method, it is crucial to find high-utility queries that are also low cost.
+This is where the hierarchical structure of the label space helps.
+In Algorithm 1, the query is selected by maximiz /C .
+We used this interface to query humans using Amazon Mechanical Turk.
+We used an early pilot of this algorithm to obtain ground truth annotations on this data, with stringent quality control but potentially suboptimal cost.
+This allows us to evaluate our algorithm in a controlled setting through simulation.
+We estimate key simulation parameters  through real AMT experiments with a sample of 100 images per category, each image labeled 3 workers.
+Query utility is estimated by the algorithm on the fly using the training set .
+In simulation we enforce a minimum worker accuracy of 75% after filtering of spammers.
+Before our algorithm can automatically perform query selection, we need to provide a pool of candidate queries.
+We can leverage general knowledge bases such as WordNet, or specialized ones such as the product taxonomy from eBay.
+These databases can provide high-level concepts or attributes as candidate queries.
+As discussed above, there are two key components of good queries: high utility and low cost.
+To be low cost, the query should be easy for the average human to answer using just salient information in the input.
+For example, queries such as "are there school supplies?
+Generally, queries should avoid requiring the user to do additional inference beyond the provided input.
+Query construction may involve significant effort, but it is a one-time, fixed investment: the label set for a particular application is relatively static, whereas the items to label can be dynamic and infinitely many.
+The cost saved in labeling many items can easily outweigh the fixed, upfront cost of query construction.
+Moreover, our method is designed to minimize the effort of query construction as it automatically selects the most effective queries.
+We apply this algorithm to the task of labeling images with the presence or absence of many object categories.
+We use 20, 000 images from ImageNet  and Flickr and annotate them with 200 object categories from accordion to zebra.
+We manually create a hierarchy of these objects which contains 56 internal queries, using high-level categories such as "animals with hooves," "electronics that play sound" or "liquid containers."
+We created a user interface shown in Figure 3 for efficient binary labeling of images.
+Some examples of highest-utility queries at the first iteration of our algorithm are shown in Table 1.
+We compare our algorithm to the baseline approach that queries a human for every object in every image .
+We use 3 metrics:  accuracy, or the total percentage of correct labels,  F1-score, or the harmonic mean of precision and recall on labels from all categories, and  reduction of human annotation time of our algorithm compared to the baseline.
+Error bars are the result of 5 simulations.
+Threshold is the acceptable level of accuracy; it determines the number of workers needed for each query.
+Our algorithm obtains up to 6x savings compared to the na ive approach while maintaining superior accuracy.
+Our algorithm works well in cases where the natural distribution of labels satisfies our assumptions, i.e.
+If, on the other hand, the distribution of labels is dense and independent, there is little for our algorithm to exploit.
+In real world scenarios, though, and as validated by our experiments, exploiting the label distribution can yield significant savings.

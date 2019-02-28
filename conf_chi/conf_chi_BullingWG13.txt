@@ -1,0 +1,92 @@
+In this work we present EyeContext, a system to infer highlevel contextual cues from human visual behaviour.
+We conducted a user study to record eye movements of four participants over a full day of their daily life, totalling 42.5 hours of eye movement data.
+Participants were asked to self-annotate four non-mutually exclusive cues: social , cognitive , physical , and spatial .
+We evaluate a proofof-concept EyeContext system that combines encoding of eye movements into strings and a spectrum string kernel support vector machine  classifier.
+Our results demonstrate the large information content available in long-term human visual behaviour and opens up new venues for research on eye-based behavioural monitoring and life logging.
+The EyeContext system infers contextual cues about different aspects of what we do, by analysing eye movement patterns over time : social , cognitive , physical , and spatial .
+Practically everything we do in our lives involves our eyes, and the way we move our eyes is linked to our goals and tasks.
+This makes the eyes a particularly rich source of information: one that, as we will show in this work, can provide basic cues on very different aspects of what we do, at any point in time.
+Figure 1 illustrates our idea: to provide a system that is able to produce diverse inferences, about social, cognitive, physical and spatial aspects, all from eye movement as single source of information.
+First, we introduce the EyeContext system for cue inference from eye movement.
+The cues are binary descriptors of daily life situations at any given time.
+In our proof-of-concept system, the cues describe whether or not we: socially interact; concentrate on a mental task; engage in physical activity; are inside or outside.
+At the core of our system, we introduce a novel method for inferring such cues from eye movement.
+We encode eye movement as string of symbols that represent movements in different directions.
+Patterns of successive movements thus become represented by words of different lengths, which we use as basis for our binary classification problems.
+The underlying hypothesis is that we find different patterns for when we interact or not; are inside or outside; etc.
+We use a string kernel support vector machine  for classification, inspired by their original use in bioinformatics for efficient large-scale protein sequence classification .
+Our second contribution is an evaluation of the system for which we collected eye movements of four participants over a typical daily life from morning to evening.
+Participants self-annotated the four cues of interest as our ground truth reference.
+Using person-dependent training, we assessed the recognition performance for each of our cues.
+The results validate the EyeContext system but moreover provide evidence that eye movement holds contextual information about very diverse aspects of our daily life.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+For classification using a spectrum string kernel SVM, saccades are first detected in the vertical and horizontal EOG signal.
+Saccades are encoded into characters and combined into a string of eye movements.
+The resulting string is split up into non-overlapping words of fixed length s , each labelled using majority voting.
+The system processes these signals offline, detects and encodes saccades, models saccadic behaviour using machine learning, and generates continuous context labels using this model as its output.
+The system removes noise from the recorded eye movement signals using a median filter as well as baseline drift using a wavelet packets approach.
+The system then detects and removes blinks using the Continuous Wavelet Transform - Blink Detection algorithm and saccades using the Continuous Wavelet Transform - Saccade Detection  algorithm .
+Briefly, CWT-SD detects saccades by thresholding on the continuous 1-D wavelet coefficient vector computed from the processed eye movement signals.
+Detected saccades are encoded into eye movements using an alphabet A of eight distinct characters based on the saccades' direction.
+For example, a saccade to the left is encoded as "L" while a saccade to the diagonal right is encoded as "B".
+These characters are merged into a single string that represents the sequence of consecutive eye movements for each participant.
+For classification, EyeContext splits this string into words Si of fixed length s using majority voting for words that cover several ground truth labels .
+These words are used as input to a spectrum string kernel SVM classifier.
+We designed a user study to answer the fundamental question of whether analysing human visual behaviour can be used to automatically recognise four high-level contextual cues.
+The example cues that we explore in this work are: 1.
+Social cues: Social  interactions with another person versus no interaction.
+Physical cues: Physically active, such as walking, versus resting, such as standing or sitting.
+Spatial cues: Being inside or outside, e.g.
+The set of all k-mers is also called the k-spectrum of a string with each k-mer representing one dimension of the feature space .
+The two main parameters of a spectrum string kernel are the word length s, i.e.
+We used EOG to be able to record continuously for more than 12 hours.
+For EOG data recording we used a Mobi system by Twente Medical Systems International.
+The Mobi was worn by the participants and transmitted data sampled at 2 kHz over Bluetooth to a laptop carried in a shoulder bag.
+EOG signals were picked up using five Ag/AgCl wet electrodes.
+Pairs of electrodes were attached to the outer edge of the left and right eye, above the right eyebrow and below the right eye, and an additional reference electrode was placed on the forehead.
+Ground truth annotation was performed using a custom software running on an Android smartphone .
+We asked them to self-annotate such non-mutually exclusive transitions as accurately as possible, while still retaining their daily routine.
+In an initial physical meeting in the lab participants were introduced to the recording system and shown how to attach the electrodes and start the recording.
+Participants were instructed to start the recording at home in the morning and stop it in the evening.
+These results show that while the system has similar performance in correctly recognising actual activity, cognitive and spatial cue instances, it has a harder time in spotting all activity instances.
+Figure 4 also indicates tendencies of particular participants to perform consistently worse than others.
+Table 2 confirms this finding.
+On closer inspection of the raw EOG data, it turned out that the signal quality for P3 was much worse compared to the other participants and saccades could not be robustly detected.
+Dry skin or poor electrode placement are the most likely culprits.
+All parameters of the signal processing and saccade detection algorithms were fixed to values common to all participants.
+We considered four individual binary classification problems, one for each contextual cue.
+As class distributions were considerably skewed , similar to , we used a discrete HMM model to oversample the smaller class until both classes were of the same size.
+The predictions returned by the string kernel SVM were compared to the annotated ground truth using a person-dependent evaluation scheme: the dataset for each participant was split using 70% for training and 30% for testing.
+Classification was only performed on the test set.
+During classification the values of k and s were optimised with respect to recognition accuracy.
+This evaluation was run five times  and the following performance measures averaged.
+Precision was calP TP culated as T PT+ F P , recall  as T P +F N , and FP false positive rate  as F P +T N , where T P , F P , T N and F N represent true positive, false positive, true negative and false negative counts, respectively.
+Our EyeContext system demonstrates a novel way in which eye movements can be embraced for human-computer interaction.
+At the human-computer interface, eye movements were previously studied mostly for explicit control or specific diagnostics.
+Recent related work demonstrated automated recognition of particular activities, such as reading and writing, from eye movements .
+The current work differs fundamentally, as it demonstrates the feasibility of inferring contextual cues that are not limited to particular activities but broadly descriptive of our situation at any point in time.
+Previous works on eye-based activity recognition used a computationally complex feature-based recognition approach.
+In contrast, the proof-of-concept system described in this work focuses on eye movement patterns that are first encoded and then classified using a string spectrum kernel method.
+This approach is computationally simple - as it does not require to extract a large number of low-level eye movement features - and it also implements the assumption that high-level contextual cues are characterised by differences in repetitive visual behaviours.
+It will be interesting to see how this approach compares to other methods geared to processing large amounts of sequences of symbols, such as networks of motifs .
+Limited recording time and bulky equipment still prevent current video-based eye trackers from being used for long-term recordings in daily life.
+We thus opted to use EOG, which is light-weight and can be implemented as a low-power wearable system.
+It is important to note that neither the eye movement encoding and recognition approach, nor EyeContext in general are limited to the specific measurement technique used in this work.
+We were able to record a dataset of more than 42.5 hours of eye movement data .
+The dataset comprises nearly 24 hours of concentrated work , 39 hours were spent inside , 14.5 hours of social interactions , as well as 9.3 hours of physically active periods .
+Figure 4 plots the recognition performance for each contextual cue and participant, as well as the means over all participants.
+The best mean result is for recognising social interactions for which the system performed well for all participants .
+As any dataset, the one we presented here has limitations in terms of the number of days and participants that we recorded.
+Although larger variability is always desirable, it has to be stressed that there was a high degree of variability of activities within each class.
+For example, every instance of a conversation recorded by a user will have varied considerably, as it occurs in different daily life situations.
+The class distributions within the dataset were considerably skewed  for three of the four contextual cues .
+The contextual cues investigated in this work are only exemplary but potentially useful for a number of applications.
+For example, logging one's life in digital form has a long held fascination and research has shown that recordings in everyday life can support memory, sharing, and behaviour analysis .
+While capture technology is well explored , automatic annotation and filtering of long-term life logging data is still a significant challenge.
+Recognition of when a person is physically active or indoor/outdoor is promising for filtering because it is less narrow than annotation of specific activities and useful for breaking down the search space.
+Recognition of social cues may allow caregivers to automatically measure how socially active elderly or people with autism spectrum disorders are.
+Information on cognitive load may provide valuable insights into cognitive abilities relevant for medical or behaviour monitoring.
+EyeContext, however, is not restricted to these cues or the specific experimental settings investigated here but can be extended to other cues and everyday situations by using additional binary classifiers.
+In this work we described EyeContext, a system that infers high-level contextual cues about different aspects of our daily life by analysing visual behaviour over time.
+Based on a proof-of-concept implementation and four long-term eye movement datasets we showed that we could robustly recognise four example binary cues.
+While previous work demonstrated the rich information content available in low-level eye movement characteristics, these results show that additional and equally valuable information is contained in the general eye movement patterns that we perform throughout a day.

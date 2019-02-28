@@ -1,0 +1,103 @@
+We investigate the use of two concurrent input channels to perform a pointing task.
+The first channel is the traditional mouse input device whereas the second one is the gaze position.
+The rake cursor interaction technique combines a grid of cursors controlled by the mouse and the selection of the active cursor by the gaze.
+A controlled experiment shows that rake cursor pointing drastically outperforms mouse-only pointing and also significantly outperforms the state of the art of pointing techniques mixing gaze and mouse input.
+A theory explaining the improvement is proposed: the global difficulty of a task is split between those two channels, and the sub-tasks could partly be performed concurrently.
+Pointing is a fundamental task in graphical user interfaces .
+Many interaction techniques have been proposed to reduce pointing time.
+This paper explores a new approach: using two concurrent input channels to perform a pointing task.
+The first channel is the regular mouse.
+The mouse movements move the cursor in a standard manner.
+The only modification is that the standard cursor is replaced by a grid of cursors, all moving together.
+The second input channel is the gaze.
+The eye movements do not move the cursors, they have no motor effect.
+The gaze position is only used to select which cursor is active, i.e.
+Figure 1 illustrates this principle with a hexagonal  grid of cursors, the active one being the closest to the gaze position , the others being semi-transparent.
+We call this technique rake cursor.
+Rake cursor can be seen as a merge of several previously proposed interaction techniques.
+Gaze position to select object in GUIs has been proposed and evaluated for a while .
+However, using the gaze to interact is still under investigation  and not very much widespread, perhaps because most interaction techniques use the gaze as a motor input which is unnatural as noted by Zhai et al.
+The MAGIC interaction technique they proposed to circumvent this problem has a limitation that could explain that rake cursor performs better: the mouse and gaze input are sequential and the cursor jumps near the target but at a position difficult to predict for the user.
+Using a grid of cursors has been recently investigated with the Ninja Cursors technique .
+The problem that impairs this technique is the possible ambiguity occurring when multiple cursors hover over different potential targets at the same time.
+Instead of requiring a suplemental interaction to resolve this ambiguity, as Ninja Cursors does, rake cursor prevents it by using a suplemental input channel which states explicitly at any time which cursor is the active one.
+After describing the rake cursor technique and its implementation, we describe a controlled experiment that compares our technique to normal pointing and to the state of the art of gaze-enhanced pointing.
+We then propose a theory to explain the observed benefit of the rake cursor technique.
+Finally, we discuss potential extensions of this technique.
+This is the author's version of the work.
+It is posted here by permission of ACM for your personal use.
+The definitive version was published in Proceedings of the 2009 conference on Human factors in computing systems .
+The normal interaction implies to traverse the whole screen while holding the mouse button depressed, which is a tedious task.
+With the rake cursor, the cursor grabbing the folder is active when the user starts the drag .
+Since the goal is the trash, it becomes naturally the gaze focus, which makes the closest cursor active .
+Since the cursor was already at that location the change does not introduce visual discontinuity and thus does not perturb the eye.
+The movement remaining to complete the task is easy: its amplitude is bounded by the distance between the cursors .
+Algorithm 1 Rake cursor - handling events Variables starting with p are 2D positions on the screen.
+The active cursor can change only when a mouse motion event occurs.
+Thus, when the user does not move the mouse, the display is totally stable.
+Given the system cursor position, we compute the possible positions for the cursor on a hex grid.
+Those rake positions are used each time a mouse movement is detected as illustrated by Algorithm 1: * the position of the gaze is monitored and recorded in order to be used by the mouse movement handler; * the motion of the mouse is also monitored, it triggers the recording of the current cursor position, and then schedules an immediate redisplay; * when redisplaying, a semi-transparent cursor is drawn at each rake position, and the position closest to the last known gaze position is recorded ; * finally, if the current system cursor position is not the best, it is wrapped to this position .
+Two implementation details should be noticed.
+First, after each redisplay the gaze position is updated to the computed best position.
+We do this to reduce the impact of a lack of gaze tracking: the cursor is not trapped in the neighborhood of the last known gaze position if it is not updated.
+This enables a graceful degradation of the technique.
+The rake cursor can be used directly on any GUI.
+It only requires to have a gaze tracker.
+This requirement may seem high given the cost of current eye tracking solutions, but the tracking our technique needs does not have to be very precise.
+Since the gaze is not used to point but to select the active cursor, the requirement on the precision of the tracking is low: it only needs to disambiguate between cursors that are DR  pixels distant from each others.
+This precision is much less than the one expected for standard eye trackers.
+A pure software tracking using a webcam could thus be sufficient for the rake cursor technique.
+Rake cursor would be of particular interest for disabled people with limited movement capacity.
+It reduces the amplitude of movements, thus limiting the effort needed.
+In contrast to other eye tracking based input techniques, it does not use the gaze as a motor channel, and thus it does not stress the user.
+Another good property of the rake cursor is that the cursor is literally anywhere at anytime.
+The little  trouble of loosing the cursor is totally suppressed by the rake cursor technique: the cursor can not be loosed because it is where you look.
+More seriously, extending the rake to multiple displays would generalize the Multi-Monitor Mouse technique .
+This requires an eye trackers spanning the displays or multiple eye trackers but also solves other issues such as drag-and-drop spanning displays .
+To test the rake cursor idea, we ran a controlled experiment.
+Since we just wanted to show that the idea is worth exploring, we choose to use the well established, minimalist, a la Fitts, 1D protocol.
+In such a setup where there is only one target, there is no possible ambiguity for the Ninja Cursors technique, so it would at least be as good as the rake cursor technique.
+Comparing the two techniques would require a more elaborated setup  stressing the techniques with distractor targets.
+Sixteen unpaid adult volunteers, 5 female and 11 male, served in the experiment.
+We had to discard one of the them because the gaze tracker could not produce accurate gaze position for him .
+The experiment was conducted using a custom software and a Tobii ET-17 eye tracker .
+Participants had to perform successive 1D discrete pointing tasks.
+They had to move the cursor, represented by a one pixel thick vertical black line, to the start position marked by a gray rectangle on the left of the screen, rest there for 0.5 s, start moving to the target --a blue rectangle-- as soon as it appeared on the right, and click it .
+After each block, their error rates were displayed and they were encouraged to conform to a nominal 4% error rate by speeding up or slowing down.
+The effects of the technique were explored by analyzing four dependent variables: error rate , reaction time , movement time , and total time .
+Repeated measures analyses of variance were performed on these four variables.
+We analyzed the effects of the three factors  in a within-participant full-factorial design.
+The control  condition used a mouse without acceleration.
+The magic  condition used a 1D implementation of the MAGIC technique: on a mouse motion, if the cursor is farther than 120 pixels from the gaze, it is wrapped to the gaze with a 120 pixels undershoot .
+The rake  condition used a 1D rake i.e.
+A pseudo-random series of 80 trials , balanced to minimize order effects, was build.
+This series was split into 2 blocks of 40 trials to allow a pause in the middle of the series.
+Those two blocks were repeated for each technique condition, making each participant perform 240 trials.
+This is not usual for pointing experiments.
+Further investigation shows that the RT are pair-wise significantly different , although less significantly for C and M. The rake condition gives the slowest reaction time .
+A plausible explanation is that the multiple cursors of the rake adds a cognitive load: the selection of the active cursor is not fully parallelized with the pointing.
+As for MT , the interaction between D and the condition is significant.
+A Student's t test shows that T T is significantly different for each pair of conditions with R being the fastest technique, M the second fastest, both outperforming C .
+We presented the rake cursor input technique, aimed at facilitating pointing in GUIs by using two concurrent input channels: the mouse motion to move a grid of cursors; and the gaze position to select the active cursor.
+We explained the details of the technique and provide a working implementation for the Mac OS X system.
+We have shown that the rake cursor technique outperforms the MAGIC technique while also not overloading the visual channel with a motor control.
+We have proposed an explanation for this improvement: the rake cursor technique allows to use the motor and visual channels concurrently.
+We expect that rake cursor will be valuable for any user but especially people having limited movement capacity.
+Rake cursor can also solve problem arising in multi-display setups.
+In the future, we would like to compare the rake cursor technique to other techniques such as Ninja Cursors in a more realistic setup that could test the validity of our proposed interpretation.
+We also would like to study the impact of the form of the grid.
+We know that DR impacts the performance: when it becomes larger than the screen, the rake cursor degenerates to the normal cursor.
+On the other hand, DR = 1 pixel would mean that the pointing is done only by sole the gaze channel.
+Since both limit case are not efficient, an optimum DR value must exists somewhere in between.
+The determination of this optimum, and more generally the impact of the form of the rake on its efficiency will be some of the next question we will investigate.
+In this section we propose a theory that could explain the gain observed in the experiment.
+With the rake cursor technique, this expression of the difficulty is not relevant: the distance to the target depends upon the active cursor.
+If we consider that the user gaze is on the target, the active cursor is the one closest to the target.
+The distance to the target is then bounded by the distance between the cursors of the rake .
+The other sub-task is a selection performed by the gaze.
+Such a task is known to follow Hick's law : the time to choose between n equally probable options is proportional to log2 .
+ID can be interpreted as bits of information to transmit to the system.
+The same bits have to be transmitted by our rake cursor technique so we have IDM + IDS = ID.
+The movement time and the selection time  could be overlapped if the movement and selection sub-tasks could be performed concurrently.
+In the experiment, the longer reaction time for rake cursor means that the overlap is not complete: the selection task retards the pointing.
+But the total time shows that the bandwidth between the user and the system is overall a bit better than with MAGIC.

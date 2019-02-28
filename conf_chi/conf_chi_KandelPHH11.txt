@@ -1,0 +1,349 @@
+Though data analysis tools continue to improve, analysts still expend an inordinate amount of time and effort manipulating data and assessing data quality issues.
+Such "data wrangling" regularly involves reformatting data values or layout, correcting erroneous or missing values, and integrating multiple data sources.
+These transforms are often difficult to specify and difficult to reuse across analysis tasks, teams, and tools.
+In response, we introduce Wrangler, an interactive system for creating data transformations.
+Wrangler combines direct manipulation of visualized data with automatic inference of relevant transforms, enabling analysts to iteratively explore the space of applicable operations and preview their effects.
+Wrangler leverages semantic data types  to aid validation and type conversion.
+Interactive histories support review, refinement, and annotation of transformation scripts.
+User study results show that Wrangler significantly reduces specification time and promotes the use of robust, auditable transforms instead of manual editing.
+Such "data wrangling" often requires writing idiosyncratic scripts in programming languages such as Python and Perl, or extensive manual editing using interactive tools such as Microsoft Excel.
+Moreover, this hurdle discourages many people from working with data in the first place.
+Sadly, when it comes to the practice of data analysis, "the tedium is the message."
+Part of the problem is that reformatting and validating data requires transforms that can be difficult to specify and evaluate.
+For instance, analysts often split data into meaningful records and attributes--or validate fields such as dates and addresses--using complex regular expressions that are error-prone and tedious to interpret .
+Converting coded values, such as mapping FIPS codes to U.S. state names, requires integrating data from one or more external tables.
+The effects of transforms that aggregate data or rearrange data layout can be particularly hard to conceptualize ahead of time.
+As data sets grow in size and complexity, discovering data quality issues may be as difficult as correcting them.
+Of course, transforming and cleaning a data set is only one step in the larger data lifecycle.
+Data updates and evolving schemas often necessitate the reuse and revision of transformations.
+Multiple analysts might use transformed data and wish to review or refine the transformations that were previously applied; the importance of capturing data provenance is magnified when data and scripts are shared.
+As a result, we contend that the proper output of data wrangling is not just transformed data, but an editable and auditable description of the data transformations applied.
+This paper presents the design of Wrangler, a system for interactive data transformation.
+We designed Wrangler to help analysts author expressive transformations while simplifying specification and minimizing manual repetition.
+To do so, Wrangler couples a mixed-initiative user interface with an underlying declarative transformation language.
+With Wrangler, analysts specify transformations by building up a sequence of basic transforms.
+As users select data, Wrangler suggests applicable transforms based on the current context of interaction.
+Programming-by-demonstration techniques help analysts specify complex criteria such as regular expressions.
+To ensure relevance, Wrangler enumerates and rank-orders possible transforms using a model that incorporates user input with the frequency, diversity, and specification difficulty of applicable transform types.
+Despite significant advances in technologies for data management and analysis, it remains time-consuming to inspect a data set and mold it to a form that allows meaningful analysis to begin.
+Analysts must regularly restructure data to make it palatable to databases, statistics packages, and visualization tools.
+To improve data quality, analysts must also identify and address issues such as misspellings, missing data, unresolved duplicates, and outliers.
+Our own informal interviews with data analysts have found that these types of transforms constitute the most tedious component of their analytic process.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The left panel contains  a history of transforms, a transform Fillsuggested row 7 by copyingbased values below ically transforms onfrom the current selection.
+Bold text within the transform descriptions indicate parameters that can be clicked and 14 2008 2928.3 revised.
+The right panel contains an interactive data table; above each column is a data quality meter.
+As analysts transform data, their steps are recorded in a script 20 2006 to facilitate reuse and provide documentation of data prove21 re2007 nance.
+Wrangler's interactive history viewer supports view, refinement, and annotation of these scripts.
+Wran22 2008 gler's high-level language supports a variety of runtime plat23 forms: Wrangler scripts can be run in a web browser using Reported crime in JavaScript or translated into MapReduce or Python code.
+24 Arkansas Wrangler applies a number of these techniques: it infers reg25 We also present a controlled user study comparing Wranular expressions from example selections  and supports gler and Excel across a set of data wrangling tasks.
+Wrangler uses semantic roles akin that Wrangler significantly reduces specification time and to Topes  and provides natural language descriptions of promotes the use of robust transforms rather than manual transforms .
+However, Wrangler differs in important editing.
+Wrangler is one piece of a larger effort to address ways.
+PBD data tools support text extraction or data integrabottlenecks in the data lifecycle by integrating insights and tion, but lack operations such as reshaping, aggregation, and methods from the HCI and database communities.
+Prior tools  also do not generate scripts to document provenance.
+Users of SWYN  build regular ex5073.3 pressions by providing example text selections and can evaluate their effect in visual 4827 previews.
+Potluck  applies simultaneous text editing  to merge data sources.
+Karma 4741.6  infers text extractors and transformations for web data 4502.6 from examples entered in a table.
+Vegemite  applies PBD to integrate web data, automates the use of web ser4087.3 vices, and generates shareable scripts.
+Other interfaces  apply PBD to data integration via copy and paste actions.
+The database and machine learning communities have contributed a number of algorithmic techniques for aiding data cleaning and integration.
+These techniques include methods for detecting erroneous values , information extraction , entity resolution , type inference , and schema matching .
+In the Wrangler interface we seek to surface such techniques in an accessible manner.
+A number of commercial and research systems provide graphical interfaces leveraging the above methods.
+Many of these tools provide interfaces for schema matching or entity resolution .
+Toped++  is an interface for creating Topes, objects that validate and transform data.
+Topes support transformations such as text formatting and lookups, but provide little support for filtering, reshaping, or aggregation.
+Bellman  helps users understand the structure and quality of a database, but does not enable transformations.
+Most closely related to Wrangler is prior work on interactive data cleaning.
+Potter's Wheel  provides a transformation language for data formatting and outlier detection.
+Wrangler extends the Potter's Wheel language with key differences discussed later.
+Ajax  also provides an interface to specify transforms, with advanced facilities for entity resolution.
+Neither tool provides much support for direct manipulation: interaction is largely restricted to menu-based commands or entering programming statements.
+Google Refine   leverages Freebase to enable entity resolution and discrepancy detection.
+It provides summarization and filtering support through faceted histograms.
+Though users can specify some commands graphically, others must be written in a command language.
+Moreover, the system assumes that input data arrives in a proper tabular format, limiting the forms of data to which it can be applied.
+Wrangler builds on this prior work to contribute novel techniques for specifying data transforms.
+Wrangler provides an inference engine that generates and rank-orders suggested transforms in response to direct manipulation of a data table.
+Analysts can navigate the space of transforms by directly selecting data, indicating a desired transform via menus, or by modifying a related transform; each of these actions leads Wrangler to further refine the set of suggestions.
+To help analysts understand the effects of an operation before they commit to it, Wrangler's natural language transform descriptions are augmented by novel transform previews that visualize transform results.
+In concert, these techniques help analysts iteratively hone in on a desired transformation.
+Consider an example wrangling task, using housing crime data from the U.S. Bureau of Justice Statistics.
+The data were downloaded as a CSV  file, but are not immediately usable by other tools: the data contains empty lines, U.S. states are organized in disjoint matrices, and the state names are embedded in other text.
+We describe how an analyst can use Wrangler to transform the data into more usable formats .
+The analyst begins by pasting the text of the file into an input box; alternatively, she could upload the file.
+To the left of the table is a panel containing an interactive history, a transform menu, and a transform editor.
+The history already contains three transforms, as Wrangler inferred that the data was in CSV format and so split the text into rows on newline characters, split the rows into columns on commas, and promoted the first row to be the table header.
+Note that the analyst could undo any transform by clicking the red undo button , or could modify transform parameters in place.
+In this case, she has no need.
+The analyst then begins wrangling the file into a usable form.
+The analyst could specify transforms explicitly by selecting a transform type from the menu and then assigning values to parameters; however, she instead opts to use direct manipulation along with Wrangler's suggestion engine.
+The first suggestion is to delete just the selected row.
+The analyst can navigate the suggestions using the keyboard up and down arrows or by mousing over the description in the editor pane.
+As she navigates the suggestions, Wrangler previews the effects of the transforms in the data table.
+The analyst mouses over the suggestion to delete all empty rows in the table and clicks the green add button to execute the transform.
+The system then adds the deletion operation to the history view.
+The analyst would like to compare data across states, so she now needs to extract the state names and add them to each row of the data.
+She selects the text `Alaska' in row 6 of the "Year" column.
+Wrangler initially interprets this as selecting text at positions 18-24.
+The analyst selects text in an unwanted row 22 2007 Arkansas 3945.5 and selects a delete within the "Rows" menu.
+Red highlight23 2008 Arkansas 3843.7 Cut from Year between positions 0, operation 8 Reported crime in 24be deleted.
+Looking at the "Year" column, the analyst notices a red bar in the data quality meter indicating inconsistent data types.
+Wrangler has inferred that the column primarily contains numbers, and so has flagged non-numeric values as potential errors.
+She decides to remove the rows containing the text `Reported'.
+She selects the text `Reported' in row 0.
+Wrangler suggests split, extract, and cut transforms, but no delete operations.
+In response, the analyst selects the Delete command from the Rows menu in the transform editor.
+This action reorders the suggestions so that delete commands have higher ranking.
+At this point the analyst has wrangled the data into a proper relational format, sufficient for export to database and visualization tools.
+But now suppose she would like to create a cross-tabulation of crime rates by state and year for subsequent graphing in Excel.
+The unfold operation creates new columns for each unique value found in the "Year" column, and reorganizes the "Property_crime_rate" values by placing each in the appropriate cell in the resulting matrix.
+The analyst's process results in a transformation script written in a declarative transformation language.
+The script provides an auditable description of the transformation enabling later inspection, reuse, and modification.
+The analyst can also annotate these transformations with her rationale.
+The result of a data wrangling session is a declarative data cleaning script, shown here as generated JavaScript code.
+However, after considering different mappings and evaluating their implications, we were .push.above unable to devise an intuitive and unambiguous mapping between simple gestures and the full expressiveness of the language.
+A given interaction could imply multiple transforms and multiple interactions might imply the same transform.
+Although this many-to-many relationship between the language and interaction might complicate our interface, we found the relationship to be relatively sparse in practice: the number of likely transforms for a given gesture is small.
+As a result, we adopted a mixed-initiative approach ; instead of mapping an interaction to a single transform, we surface likely transforms as an ordered list of suggestions.
+We then focused on rapid means for users to navigate--prune, refine, and evaluate--these suggestions to find a desired transform.
+Wrangler is a browser-based web application, written in JavaScript.
+In the next section we describe the Wrangler trans-
+Underlying the Wrangler interface is a declarative data transformation language.
+Both prior work  and empirical data guided the language design.
+As our starting point we used the Potter's Wheel transformation language  .
+Informed by a corpus of data sets gathered from varied sources , we then extended the language with additional operators for common data cleaning tasks.
+These include features such as positional operators, aggregation, semantic roles, and complex reshaping operators .
+We also introduced conditional mapping operators .
+Language statements manipulate data tables with numbered rows and named columns of data.
+Wrangler treats raw text as a "degenerate" table containing one row and one column.
+The language consists of eight classes of transforms, described below.
+Map transforms map one input data row to zero, one, or multiple output rows.
+Delete transforms  accept predicates determining which rows to remove.
+One-to-one transforms include extracting, cutting, and splitting values into multiple columns; reformatting; simple arithmetic; and value updates.
+One-to-many transforms include operations for splitting data into multiple rows, such as splitting a text file on newlines or unnesting arrays and sets.
+Lookups and joins incorporate data from external tables.
+Wrangler includes extensible lookup tables to support common types of transformations, such as mapping zip codes to state names for aggregation across states.
+Currently Wrangler supports two types of joins: equi-joins and approximate joins using string edit distance.
+These joins are useful for lookups and for correcting typos for known data types.
+Reshape transforms manipulate table structure and schema.
+Wrangler provides two reshaping operators: fold and unfold.
+Fold collapses multiple columns to two or more columns containing key-value sets, while an unfold creates new column headers from data values; see  for an extended discussion.
+Reshaping enables higher-order data restructuring and is common in tools such as R and Excel Pivot Tables.
+Positional transforms include fill and lag operations.
+Fill operations generate values based on neighboring values in a row or column and so depend on the sort order of the table.
+For example, an analyst might fill empty cells with preceding non-empty values.
+The lag operator shifts the values of a column up or down by a specified number of rows.
+The language also includes functions for sorting, aggregation , and key generation .
+Finally, the language contains schema transforms to set column names, specify column data types, and assign semantic roles.
+To aid data validation and transformation, Wrangler supports standard data types  and higher-level semantic roles .
+Data types comprise standard primitives and associated parsing functions.
+Semantic roles consist of additional functions for parsing and formatting values, plus zero or more transformation functions that map between related roles.
+As an example, consider a semantic role defining a zip code.
+The zip code role can check that a zip code parses correctly  and that it is a valid zip code .
+The zip code role can also register mapping functions, e.g., to return the containing state or a central lat-lon coordinate.
+Wrangler leverages types and roles for parsing, validation, and transform suggestion.
+The Wrangler semantic role system is extensible, but currently supports a limited set of common roles such as geographic locations, government codes, currencies, and dates.
+The Wrangler language design co-evolved with the interface described in subsequent sections.
+We sought a consistent mapping between the transforms shown in the interface and statements in the language.
+Disconnects between the two might cause confusion , particularly when analysts try to interpret code-generated scripts.
+As a result, we chose to introduce redundancy in the language by adding operators for high-level actions that are commonly needed but have unintuitive lower-level realizations .
+The result is a clear one-to-one mapping between transforms presented in the interface and statements in output scripts.
+Prior work  proves that our basic set of transforms is sufficient to handle all one-to-one and one-tomany transforms.
+Through both our own practice and discussions with analysts, we believe our extended language is sufficient to handle a large variety of data wrangling tasks.
+The goal of the Wrangler interface is to enable analysts to author expressive transformations with minimal difficulty and tedium.
+To this aim, our interface combines direct manipulation, automatic suggestion, menu-based transform selection, and manual editing of transform parameters.
+This synthesis of techniques enables analysts to navigate the space of transforms using the means they find most convenient.
+Both novices and experts can find it difficult to specify transform parameters such as regular expressions.
+While direct manipulation selections can help, inference is required to suggest transforms without programming.
+To reduce this gulf of execution , Wrangler uses an inference engine that suggests data transformations based on user input, data type or semantic role, and a number of empirically-derived heuristics.
+These suggestions are intended to facilitate the discovery and application of more complicated transforms.
+However, suggested transforms  may be difficult to understand.
+To reduce this gulf of evaluation , Wrangler provides natural language descriptions and visual transform previews.
+The Wrangler interface supports six basic interactions within the data table.
+Users can select rows, select columns, click bars in the data quality meter, select text within a cell, edit data values within the table , and assign column names, data types or semantic roles.
+Users can also choose transforms from the menu or refine suggestions by editing transform descriptions as described below.
+In this case, a new window size parameter is displayed for the moving average.
+As a user interacts with data, Wrangler generates a list of suggested transforms.
+In some cases the set of possible suggestions is large , but we wish to show only a relevant handful to avoid overload.
+Instead of enumerating the entire suggestion space, users can prune and reorder the space in three ways.
+First, users can provide more examples to disambiguate input to the inference engine.
+Providing examples is especially effective for text selections needed for splitting, extraction, and reformatting; two or three wellchosen examples typically suffice.
+Second, users can filter the space of transforms by selecting an operator from the transform menu.
+Third, users can edit a transform by altering the parameters of a transform to a desired state.
+Wrangler does not immediately execute a selected suggestion.
+Instead, Wrangler makes it the current working transform.
+The user can edit this transform directly; as a user edits parameters, the suggestion space updates to reflect these edits.
+Also, a user can instead interact with the table to generate new suggestions that use the working transform as context.
+Wrangler uses visual previews to enable users to quickly evaluate the effect of a transform.
+For most transforms, Wrangler displays these previews in the source data, and not as a separate visualization .
+In-place previews provide a visual economy that serves a number of goals.
+First, displaying two versions of a table inherently forces both versions to be small, which is particularly frustrating when the differences are sparse.
+Second, presenting in-place modifications draws user attention to the effect of the transformation in its original context, without requiring a shift in focus across multiple tables.
+As we discuss next, in-place previews better afford direct manipulation for users to revise the current transform.
+Wrangler maps transforms to at least one of five preview classes: selection, deletion, update, column and table.
+In defining these mappings, we attempted to convey a transform's effect with minimum displacement of the original data.
+This stability allows users to continue interacting with the original data, e.g., to provide new selection examples.
+We show a sideby-side display of versions when previewing fold and unfold transforms.
+These table previews use color highlights to match input data to their new locations in the output table.
+Some transforms map to multiple classes; e.g., extract transforms use both selection and column previews.
+When possible, previews also indicate where the user can modify the transform through either direct manipulation or description refinement.
+Highlighting selected text or cells works well for certain transformations.
+To aid apprehension of suggested transforms, Wrangler generates short natural language descriptions of the transform type and parameters.
+Enumerable variables  are mapped to drop-down menus while free-form text parameters are mapped to text editors with autocomplete.
+We designed these descriptions to be concise; default parameters that are not critical to understanding may be omitted.
+For example, the unless between parameter for split operations indicates regions of text to ignore while splitting.
+In most cases, this parameter is left undefined and including it would bloat the description.
+To edit hidden parameters, users can click the expansion arrow to the left of the description, revealing an editor with entries for all possible parameters.
+We also sought to make parameters within descriptions readable by non-experts.
+For instance, we translate regular expressions into natural language via pattern substitution  to `number'.
+This translation can make some descriptions less concise but increases readability.
+When multiple types satisfy this criteria, Wrangler assigns the more specific one .
+Wrangler infers semantic roles analogously.
+An icon in the column header indicates the semantic role of the column, or the underlying data type if no role has been assigned.
+Clicking the icon reveals a menu with which users can manually assign a type or role.
+Above each column is a data quality meter: a divided bar chart that indicates the proportion of values in the column that verify completely.
+Values that parse successfully are indicated in green; values that match the type but do not match the role  are shown in yellow; those that do not match the type  are shown in red; and missing data are shown in gray.
+Clicking a bar generates suggested transforms for that category.
+For instance, clicking the missing values bar will suggest transforms to fill in missing values or delete those rows.
+Clicking the fails role bar will suggest transforms such as a similarity join on misspelled country names.
+For reshape transforms, Wrangler highlights the input data in the same color as the corresponding output in the secondary table.
+The consistent use of colors allows users to associate clauses in a description with their effects in the table.
+As successive transforms are applied, Wrangler adds their descriptions to an interactive transformation history viewer.
+Users can edit individual transform descriptions and selectively enable and disable prior transforms.
+Upon changes, Wrangler runs the edited script and updates the data table.
+Toggling or editing a transform may result in downstream errors; Wrangler highlights broken transforms in red and provides an error message to aid debugging.
+Wrangler scripts also support lightweight text annotations.
+Analysts can use annotations to document their rationale for a particular transform and may help future users better understand data provenance.
+To annotate a transform, users can click the edit icon next to the desired transform and write their annotation in the resulting text editor.
+Users can view an annotation by mousing over the same edit icon.
+These annotations appear as comments in code-generated scripts.
+Users can export both generated scripts and transformed data; clicking the Export button in the transform history invokes export options.
+Analysts can later run saved or exported scripts on new data sources, modifying the script as needed.
+We now present the design of the Wrangler inference engine, which is responsible for generating a ranked list of suggested transforms.
+Inputs to the engine consist of user interactions; the current working transform; data descriptions such as column data types, semantic roles, and summary statistics; and a corpus of historical usage statistics.
+Transform suggestion proceeds in three phases: inferring transform parameters from user interactions, generating candidate transforms from inferred parameters, and finally ranking the results.
+To generate and rank transforms, Wrangler's inference engine relies on a corpus of usage statistics.
+The corpus consists of frequency counts of transform descriptors and initiating interactions.
+We built our initial corpus by wrangling our collection of gathered data sets.
+The corpus updates over time as more analysts use Wrangler.
+For any given transform, we are unlikely to find an exact match in the corpus.
+For instance, an analyst may perform a fold operation over a combination of columns and rows that does not appear in the corpus.
+In order to get useful transform frequencies, we define a relaxed matching routine: two transforms are considered equivalent in our corpus if  they have an identical transform type  and  they have equivalent parameters as defined below.
+Wrangler transforms accept four basic types of parameters: row, column or text selections and enumerables.
+We treat two row selections as equivalent if they both  contain filtering conditions  or  match all rows in a table.
+Column selections are equivalent if they refer to columns with the same data type or semantic role.
+We based this rule on the observation that transforms that operate on identical data types are more likely to be similar.
+Text selections are equivalent if both  are indexbased selections or  contain regular expressions.
+It is often difficult to discover data quality issues and therefore difficult to address them by constructing the appropriate transform.
+Wrangler aids discovery of data quality issues through the use of data types and semantic roles.
+As users transform data, Wrangler attempts to infer the data type and semantic role for each column.
+We chose these equivalency classes based on exploratory analysis of our corpus and they seem to work well in practice.
+As our corpus of transforms grows with more use, we plan to explore more principled approaches  to refine our matching routines.
+In response to user interaction, Wrangler attempts to infer three types of transform parameters: row, column, or text selections.
+For each type we enumerate possible parameter values, resulting in a collection of inferred parameter sets.
+We infer a parameter's values independent of the other parameters.
+For example, we infer regular expressions for text selection based solely on the selected text, a process otherwise independent of which rows or columns are selected.
+We infer row selections based on row indices and predicate matching.
+We list predicates of the form "row is empty" and "column  selectedvalue", then emit the selections that match the rows and text currently selected in the interface.
+For column selections we simply return the columns that users have interacted with.
+Emitted text selections are either simple index ranges  or inferred regular expressions.
+To generate regular expressions, we tokenize the text within a cell and extract both the selected text and any surrounding text within a 5 token window.
+We annotate tokens with one or more labels of the form number, word, uppercase word, lowercase word, or whitespace.
+Next we emit all possible combinations of before, within, and after sequences that match all current text selection examples in the interface.
+It is then straightforward to translate matching label sequences into regular expressions.
+For clarity, the figure only includes two neighboring tokens.
+For each token, we generate a set of matching labels.
+Patterns that do not uniquely match the selected text are filtered .
+Ensuring that transforms of the same type are adjacent helps users compare varying parameterizations more easily.
+First, we consider explicit interactions: if a user chooses a transform from the menu or selects a current working transform, we assign higher rank to transforms of that type.
+Second, we consider specification difficulty.
+We have observed that row and text selection predicates are harder to specify than other parameters.
+We thus label row and text selections as hard and all others as easy.
+We then sort transform types according to the count of hard parameters they can accept.
+Third, we rank transform types based on their corpus frequency, conditioned on their initiating user interaction .
+In the case of text selection, we also consider the length of the selected text.
+If a user selects three or fewer characters, split transforms are ranked above extract transforms; the opposite is true for longer selections.
+We then sort transforms within type.
+We first sort transforms by frequency of equivalent transforms in the corpus.
+Second, we sort transforms in ascending order using a simple measure of transform complexity.
+Our goal is to preferentially rank simpler transforms because users can evaluate their descriptions more quickly.
+We define transform complexity as the sum of complexity scores for each parameter.
+The complexity of a row selection predicate is the number of clauses it contains .
+The complexity of a regular expression is defined to be the number of tokens  in its description.
+All other parameters are given complexity scores of zero.
+Finally, we attempt to surface diverse transform types in the final suggestion list.
+We filter the transforms so that no type accounts for more than 1/3 of the suggestions, unless the transform type matches the working transform or the filter results in fewer suggestions than can appear in the interface.
+After inferring parameter sets, Wrangler generates a list of transform suggestions.
+For each parameter set, we loop over each transform type in the language, emitting the types that can accept all parameters in the set.
+For example, a split transform can accept a parameter set containing a text selection, but an unfold transform can not.
+Wrangler instantiates each emitted transform with parameters from the parameter set.
+To determine values for missing parameters, we query the corpus for the top-k  parameterizations that cooccur most frequently with the provided parameter set.
+During this process we do not infer complex criteria such as row predicates or regular expressions; we do infer enumerable parameters, index-based row selections, and column inputs.
+We then filter the suggestion set to remove "degenerate"  transforms that would have no effect on the data.
+As an initial evaluation of Wrangler, we conducted a comparative user study with Microsoft Excel.
+Subjects performed three common data cleaning tasks: value extraction, missing value imputation, and table reshaping.
+Our goal was to compare task completion times and observe data cleaning strategies.
+We chose Excel because it is the most popular data manipulation tool and provides an ecologically valid baseline for comparison: all subjects use it regularly and half selfreport as experts.
+Excel also supports our chosen tasks.
+Neither Potter's Wheel   nor Google Refine   support the full set.
+In contrast, Excel includes specific tools for each task  in addition to manual editing.
+We recruited 12 participants, all professional analysts or graduate students who regularly work with data.
+Subjects rated their prior experience with Excel on a 10-point scale ; the median score was 5.
+Participants had never used the Wrangler interface.
+We first presented a 10 minute Wrangler tutorial describing how to create, edit, and execute transforms.
+We then asked subjects to complete three tasks  using both Wrangler and Excel.
+We randomized the presentation of tasks and tools across subjects.
+In each task, we asked subjects to transform a data set into a new format, presented to them as a picture of the final data table.
+In this task, we asked users to extract the number of bedrooms and housing price from housing listings on craigslist.
+The original data set contained one cell for each listing, with all the information in a text string.
+The target data set consisted of two columns: one for the number of bedrooms and one for the housing price.
+Task 2: Fill Missing Values.
+We gave users data containing year-by-year agricultural data for three countries.
+Some of the values in the data set were blank.
+The target data set contained the same data with all missing values replaced with the closest non-empty value from a previous year.1 Task 3: Reshape Table Structure.
+Users started with three columns of housing data: year, month, and price.
+The target data set contained the same data formatted as a cross-tab: the data contained one row for each year, with the 12 months as column headers and housing prices as cell values.
+For Wrangler tasks, we did not respond to user inquiries.
+We permitted a maximum of 10 minutes per task.
+Each data set had at most 30 rows and 4 columns; complete manual manipulation in Excel was easily attainable within the time limits.
+Afterwards, each user completed a post-study questionnaire.
+We performed a repeated-measures ANOVA of completion times with task, tool, and Excel novice/expert2 as independent factors; we log-transformed responses to better approximate a normal distribution.
+We found a significant interaction effect of task and expertise  driven by improved performance by experts  in the reshaping task .
+No other interactions were significant.
+Users completed the cleaning tasks significantly more quickly with Wrangler than with Excel, and this speed-up benefitted novice and expert Excel users alike.
+Moreover, the user study tasks involved small data sets amenable to manual manipulation.
+As data set size grows, we expect the benefits of Wrangler to come into even sharper relief.
+Of course, larger data sets might complicate the process of assessing transform effects and so may benefit from additional validation and visualization techniques.
+When working with Wrangler, users applied different navigation strategies for different tasks.
+These strategies were largely consistent across users.
+For text selection, users frequently provided multiple examples.
+For other operations, users performed an initial selection and then previewed each suggestion.
+One subject noted, "I just look at the picture."
+Users with a programming background spent time reading transform descriptions, whereas the other users relied almost entirely on the previews.
+When users did not find a transform among the initial suggestions, they most often filtered the suggestions by selecting a transform type from the menu.
+If only imperfect matches were found, users then selected the nearest transform and edited its parameters.
+In other words, users turned to manual parameterization only as a last resort.
+Our post-study questionnaire asked users to rate automated suggestions, visual previews, and direct editing of transforms on a scale from 1  to 5 .
+Users' preference for suggestions and previews over direct editing provides evidence that these novel user interface features have merit.
+Users' navigation strategies worked well when they understood the nature of the desired transform, even if they did not know how to specify it.
+However, we found that users of both tools experienced difficulty when they lacked a conceptual model of the transform.
+For instance, Task 3 exhibited an uneven distribution of completion times; 7 of the 10 fastest times and 3 of the 4 slowest times were in Wrangler.
+Wrangler does not provide the recourse of manual editing, hence users who got stuck fared slightly better in Excel.
+However, those familiar with pivot operations in Excel uniformly performed the task more quickly with Wrangler.
+We also observed one recurring pitfall: a few users got stuck in a "cul-de-sac" of suggestion space by incorrectly filtering .
+When this happened, some users kept searching and refining only these filtered transforms.
+By design, Wrangler does not afford users the same flexibility to layout data as in Excel; since users cannot perform arbitrary editing in Wrangler, the recourse is less obvious when they get stuck.
+This pitfall was most common in Task 3, where a user might mistakenly filter all but fold operations when an unfold operation was needed.
+One solution may be to suggest non-matching transforms related to the selected transform type, in effect treating filtering criteria as guidelines rather than strict rules.
+This paper introduced Wrangler, an interface and underlying language for data transformation.
+The system provides a mixed-initiative interface that maps user interactions to suggested data transforms and presents natural language descriptions and visual transform previews to help assess each suggestion.
+With this set of techniques, we find that users can rapidly navigate to a desired transform.
+Our user study demonstrates that novice Wrangler users can perform data cleaning tasks significantly faster than in Excel, an effect shared across both novice and expert Excel users.
+We found that users are comfortable switching navigation strategies in Wrangler to suit a specific task, but can sometimes get stuck--in either tool--if they are unfamiliar with the available transforms.
+Future work should help users form data cleaning strategies, perhaps through improved tutorials.
+Looking forward, Wrangler addresses only a subset of the hurdles faced by data analysts.
+As data processing has become more sophisticated, there has been little progress on improving the tedious parts of the pipeline: data entry, data formatting, data cleaning, etc.
+The result is that people with highly specialized skills  spend more time in tedious "wrangling" tasks than they do in exercising their specialty, while less technical audiences such as journalists are unnecessarily shut out.
+We believe that more research integrating methods from HCI, visualization, databases, and statistics can play a vital role in making data more accessible and informative.

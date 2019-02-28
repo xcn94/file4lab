@@ -1,0 +1,256 @@
+Figure 1 Rock & Rails augments traditional direct-manipulation gestures  with independently recognized handpostures used to restrict manipulations conducted with the other hand .
+This allows for fluid selection of degrees of freedom and thus rapid, high-precision manipulation of on-screen content.
+Direct touch manipulations enable the user to interact with the on-screen content in a direct and easy manner closely mimicking the spatial manipulations in the physical world.
+However, they also suffer from well-known issues of precision, occlusion and an inability to isolate different degrees of freedom in spatial manipulations.
+We present a set of interactions, called Rock & Rails, that augment existing direct touch manipulations with shape-based gestures, thus providing on-demand gain control, occlusion avoidance, and separation of constraints in 2D manipulation tasks.
+Using shape gestures in combination with directmanipulations allows us to do this without ambiguity in detection and without resorting to manipulation handles, which break the direct manipulation paradigm.
+Our set of interactions were evaluated by 8 expert graphic designers and were found to be easy to learn and master, as well as effective in accomplishing a precise graphical layout task.
+The advantages of such direct-touch interactions are twofold: they have the potential to increase the speed of complex manipulations by eliminating the need to perform the operations sequentially, and they resemble real object manipulations in the physical world which makes them both intuitive  and easily interpreted .
+Despite these benefits, there are numerous tasks  where simultaneous control of multiple degrees of freedom can be detrimental.
+Such tasks usually require high precision and the ability to isolate the degrees of freedom  for each manipulation.
+For example, when precisely aligning an image, the user might want to adjust only the rotation of the object, but not its position or scale.
+Furthermore, they might want to have a fine control of the movement gain, to allow them to precisely position an object.
+Enabling such fine explicit control in multi-touch interfaces is challenging, particularly if trying to preserve the direct manipulation paradigm  and thus not resorting to on-screen handles  or introducing specific movement or velocity thresholds to constrain the interactions .
+To address this, we developed a set of interaction techniques, called Rock & Rails , which maintain the direct-touch input paradigm, but enable users to make fluid, high-DOF manipulations, while simultaneously providing easy in-situ mechanisms to increase precision, specify manipulation constraints, and avoid occlusions.
+Our toolset provides mechanisms to rapidly isolate orientation, position, and scale operations using system-recognized hand postures, while simultaneously enabling traditional, simple direct touch manipulations.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The guiding principle of Rock & Rails is similar to that described by Guiard - that the non-dominant hand be used as a reference frame for the actions of the dominant hand .
+In our interactions, the hand pose of the non-dominant hand sets the manipulation constraints, and the fingers of the dominant hand perform direct, constrained manipulations with the content.
+Further, we exploit the physical principle of leverage, affording quick hand adjustments to increase the precision of manipulations.
+In this paper, we describe Rock & Rails interactions and present evidence of their utility in enabling expert use in a graphical layout tasks.
+First, we review related work, with an emphasis on precise interaction using touch and multitouch.
+Second, we discuss the hand shapes which enable our interactions, and present the Rock & Rails interaction techniques in detail.
+Third, we describe the results of an expert user evaluation conducted among designers at a major software vender, which showed strong advantages and preferences for our interactions in the graphical layout task compared to current multi-touch input and the mouse-based methods they currently employ.
+Finally, we discuss design recommendations and conclusions of the present work.
+The litany of advantages demonstrated by direct manipulation makes it attractive as the basis for the design of user interfaces for direct, multi-touch input.
+Before this can be adopted more broadly, however, fundamental disadvantages with the technique must be addressed.
+Perhaps the most critical is that direct manipulation supports rapid coarse adjustments, but fine manipulations are difficult.
+We attribute the difficulty to three factors.
+The first is the fixed control/display  gain that direct manipulation necessitates.
+The second is the occlusion of the content created by direct touch.
+The third is the interdependence of multiple unit affine transformations.
+Overlaying rotation, translation, and scale allows for rapid coarse manipulation, but makes it more difficult to adjust any one in isolation.
+Rock & Rails addresses all three of these issues.
+It includes an expanded mechanism for achieving variable C/D gain while maintaining direct manipulation which builds on previous techniques.
+It provides a method of quickly offsetting manipulations from their target, reducing occlusion.
+Finally, it includes several fluid mechanisms for achieving independence of rotation, translation, and scaling transforms.
+This work builds upon three distinct areas of previous research.
+The first is a body of work which has demonstrated methods and the utility of maintaining a direct-touch and manipulation paradigm when interacting with digital content.
+The second is made up of other techniques which attempt to achieve independence of transforms while maintaining a direct-manipulation metaphor.
+The last is the use of posture differences to differentiate input modes.
+We review each in turn.
+Controlling a graphical user interface using touch input offers several advantages over mouse input.
+For example, gestural commands physically chunk command and operands into a single action , and gestures can also be committed to physical muscle memory which can help users focus on their task .
+Several projects have demonstrated that multi-touch interaction is best supported through a direct manipulation mapping.
+It has been demonstrated that bimanual interaction is better supported by direct than by indirect input, since bimanual coordination and parallelism are both improved .
+Furthermore, Tan found that direct manipulation is superior to indirect in promoting spatial memory , while Morris et al.
+Finally, in a pair of results found that direct manipulation was the only universally discoverable gesture , and that it was also the only gesture that users could observe and identify without any information about the system state .
+Previous attempts have been made to provide fluid mechanisms for transform independence with direct manipulation .
+These can be broadly characterized as implicit and explicit mechanisms.
+Explicit mechanisms place the burden on the user to perform some action that is consciously different from a regular manipulation in order to enter a mode to achieve independence.
+In the realm of the traditional mouse-based user interface, a common explicit mechanism is a set of manipulation handles, thus differentiating mode by the location of the mouse pointer at the time the user presses the button.
+Another common mechanism is to mode the mouse manipulation using key presses on a keyboard, such as requiring utilization of modifier keys to select a transform type.
+In multi-touch toolkits, manipulation handles have also been demonstrated .
+Popular toolkits commonly differentiate between modes based on the number of contacts.
+Manipulating with a single finger can provide translation only, or translation and rotation simultaneously .
+In most instances, manipulating with two or more fingers simultaneously rotates, translates, and scales, though in some instances rotation is omitted entirely .
+Implicit mechanisms attempt to infer the users intention through differentiation of the input/mode mapping by some non-explicit means.
+The RNT technique, for example, allows the user to simultaneously translate and rotate an object by dragging it with a single finger.
+The magnitude of rotation is proportional to the distance of the finger from the centre of the object, intending to map to naive physics.
+A consequence of this mapping is that drags initiated at the precise geometric centre of the object apply only translation.
+To ensure this can be easily achieved, implementations may exaggerate the size of this central area .
+In contrast, the DiamondSpin technique imposes the constraint that objects be oriented towards the nearest outer edge of the display.
+To achieve this, they are rotated automatically as the object is moved .
+A logical extreme of this technique is that employed by the iPhone toolkit, where objects remain aligned to the bottom of the display.
+Solutions that mix explicit and implicit actions are described by Nacenta et al.
+They propose two approaches that permit the user to limit the number of simultaneously engaged transformations by either filtering the movements of small magnitude or by classifying the overall users input into a likely subset of manipulation gestures.
+Both of those approaches require the user to change the nature of the overall interaction, e.g., in order to be able to perform even the smallest amount of scaling with Magnitude Filtering technique, they user needs to first perform a rather exaggerated stretching motion to enable that transformation.
+Although explicit mechanisms provide easier control of mode, they typically require additional control surfaces, such as a keyboard or dedicated UI.
+In contrast, implicit mechanisms eliminate this need, but trade-off for less reliable detection of user intent or reduced expressiveness.
+Rock & Rails seeks to leverage the advantages of both approaches: allowing the user to unambiguously and explicitly specify mode, without the need for additional control surfaces.
+To accomplish this, Rock & Rails utilizes mappings based on actions of the non-dominant hand.
+In effect, the posture and position of the non-dominant hand is a mode selector for the dominant hand.
+There are three general schools of thought as regards touch input with various contact shapes.
+The first, and most common approach, is to ignore the contact shape and to treat all contacts equally, recognized typically as points of contact.
+Hardware limitations sometimes make this a necessity, but oftentimes this is simply a result of the shape information being ignored by the software platform .
+Gestural techniques which act solely on points of contact have been presented, such as BumpTop , as well as multi-point manipulation, such as work demonstrated by Igarashi et al.
+At the other extreme is the notion that no shape, fingertip or otherwise, should be treated specially, and instead all input is allowed to pass unfiltered.
+SmartSkin  demonstrated the use of hand contours to "drive" objects.
+ShapeTouch explored the idea that contacts area and motion fields can be used to infer virtual contact forces to enable interactions with virtual object in a physical manner; e.g., a "large" contact provides a bigger force and moves objects faster than using a "small" contact .
+These approaches should not be confused with others which use shapes for visualization purposes alone, but continue to perform interactions based on touch points alone .
+Somewhere between these two extremes lies a large group of projects which distinguish between various shapes through a recognition step.
+Off of the surface of a device, Charade defined a large set of hand postures and movements which mapped onto system functions .
+In the area of surface computing, an early example of this is the RoomPlanner interface , which assigned specific functions to specific hand shapes, e.g., using a karate chop shape to reveal hidden content.
+A simpler use of shape is the SimPress technique , which assigns two states to a touch  based on the area of contact, allowing the user to press-down on the surface to transition between states.
+In such systems, shapes other than fingertips do not tend to perform manipulations, but can be used to provide a different kind of input .
+Rock & Rails occupies this same middle ground by making a distinction between fingertips and other shapes and using this distinction to enable novel interactions.
+In so doing, Rock & Rails provides solutions to problems of C/D gain, occlusion, and transform interdependence by providing an explicit method to allow the user to select modes meant to address each of these problems.
+Furthermore, it enables fluid interaction, allowing users to quickly engage and disengage these modes.
+Utilizing the non-dominant hand to mode the actions of the dominant is a common technique.
+In mouse UI, this typically is accomplished by pressing keys on the keyboard while manipulating with the mouse.
+Mac OS X relies on the use of a function key to differentiate clicking actions; Microsoft Windows differentiates file drag actions based on held modifier keys; and Adobe Illustrator utilizes an elaborate set of modifiers, such as specifying manipulations of the canvas while holding the space bar.
+The domain of gestural user interfaces also contains examples of using non-dominant hand to select the interaction mode.
+For example, several pen + touch projects each have different methods of moding pen input with the dominant hand via multi-touch posture performed by the nondominant hand .
+In Rock & Rails, we use the shapes of the non-dominant hand to constrain manipulations performed by the dominant hand.
+A contribution of Rock & Rails is that symbolic moding gestures are mapped onto postures which are intended to extend the direct manipulation metaphor.
+Furthermore, we strictly adhere to the interaction recipe where different shapes specify the mode and fingertips perform manipulations, to reduce the ambiguity and activation errors among users.
+This also ensures that Rock & Rails can live alongside the language of standard direct manipulation, without adding any on-screen affordances or reducing the expressiveness of the language.
+Rock & Rails interactions depend on detecting the vocabulary of three basic shapes: Rock, Rail, and Curved Rail .
+Rock is a hand shape that the user makes by placing a closed fist on the table; Rail is a flat upright hand pose similar to a "karate chop" , and Curved Rail is a slightly curved pose, somewhere between a rock and a rail.
+Direct-touch systems increase occlusion, as was long ago noted by Potter et al.
+Several solutions have been proposed, most of which optimize for selection.
+However, these techniques fail to provide a mechanism for reduced occlusion for manipulations, since they require reassigning on-screen movement from manipulations to a second phase of their respective selection techniques.
+The Rock & Rails approach for alleviating occlusions is to allow the user to quickly define a proxy object, which acts as a kind of voodoo doll for the original object , such that manipulations performed on the proxy are applied to both the proxy and its linked object.
+Proxies are created by making a Rock gesture outside of an on-screen object, and linked by simultaneously holding a proxy and touching on-screen objects.
+They can be relocated convenience without affecting linked content by dragging them with a Rock.
+Proxies are also transient, in that they can be quickly created and deleted, without affecting any of the linked objects.
+In our implementation, proxies are visualized as simple semi-transparent blue rectangles and they can be removed via an associated on-screen button.
+Figure 3 illustrates the basic use of proxies.
+Proxies can also be set to a many-to-many relationship to linked objects, so that any one object can be joined to more than one proxy, and each proxy can be joined to multiple objects.
+The effect of this is that proxies can act as a sort of ad hoc grouping mechanism.
+In our prototype, these hand shapes were recognized simply by examining the eccentricity and the size of the ellipse detected by the Microsoft Surface: a rounded shape detected as Rock, thin long shape as Rail, and in-between shape for Curved Rail.
+While simple, this eccentricity-based detection works reliably in our prototype; however, more elaborate solutions might be necessary if greater robustness is desired.
+In the following sections we describe how each of these basic shapes can be combined with fingertip input to allow for novel interactions, summarized in Table 1.
+The many-to-many relationship between proxies and objects varies from traditional groups in three ways.
+First, a proxy object is a de facto icon for each group, making each group visually apparent to the user, and serving as a target for direct manipulation.
+Second, proxy links can overlap, unlike groups and sub-groups which traditionally follow a tree structure.
+Third, objects can be quickly and easily manipulated without affecting other objects linked to the same proxy simply by manipulating the object rather than the proxy, thus not requiring the user to group and ungroup to choose the scope of their manipulations.
+Figure 4 illustrates many of the elements of these differences.
+To adjust C/D gain, the user can change the direction of movement, reducing the contribution of motion to the distance between Rock and finger.
+While complex in theory, the visual feedback loop ensures an apparent linkage between user action and the resulting increase in precision.
+In a basic manipulations , when rotating an object about a pivot point, C/D gain is proportional to the distance of the manipulating hand from the pivot.
+Thus, finer control can be achieved by moving the manipulating hand farther from the pivot.
+Commercial devices have demonstrated the extension of this notion to other manipulations.
+In the Apple iOS, for example, C/D gain of the manipulator of a slider is proportional to the distance of that manipulator to the slider.
+To achieve finergrained adjustment, the user slides their finger away from the track of the control.
+Traditional unconstrained direct manipulation systems are unable to leverage this principle, however, because the movement of the manipulator away from the centre of rotation is mapped to a scale and rotation operation.
+Rock & Rails extends this idea to allow the user to vary the C/D gain of all manipulation transformations once they have been isolated using one of the Rock & Rails hand gestures.
+As we describe each manipulation individually below, we also explain how one can finely adjust the C/D gain during the interaction.
+Non-uniform scale is achieved by placing a Rail gesture within an object, and sliding a manipulation fingertip perpendicular to the palm of the hand.
+Given a bounding box of an on-screen object, the Rail gesture placed on top of the object will be associated with the closest edge of the bounding box .
+This allows the user to quickly isolate the scaling dimension to manipulate.
+Furthermore, C/D gain is adjusted by moving the finger parallel to the track of the Rail.
+Isolated rotation  is achieved using the Curved Rail gesture.
+The user places a curved-rail gesture on an object, and an additional manipulating fingertip rotates the object around its centroid.
+C/D gain is adjusted by moving the finger closer to or farther away from the centre of the object Figure 7 illustrates.
+As we have discussed, input contacts classified as fingertips operate as manipulators of on-screen content.
+Hand postures sensed by the device , in contrast, are identified and used to apply constraints to those manipulations.
+These shapes were selected by roughly matching physical properties to their perceived effect to a users understanding of naive-physics, as advocated by Jacob et al.
+We now review how these shapes are used to constrain various manipulations.
+We achieved isolation of 2D translation by simply eliminating the RNT effects of one-finger translation , i.e., when using Rock & Rails, objects are not allowed to rotate when moved in 2D using only a single finger contact.
+While we did not intentionally provide a means to adjust the C/D gain of 2D translations, one of the participants in our user study discovered a method for achieving this, as we will later describe.
+The user may wish to further constrain the objects movement and translate in one dimension only.
+1D-constrained translation is accomplished by placing a Rail gesture on the screen next to the object of interest.
+The Rail gesture then invokes a helper object, called a ruler, which is used to constrain the manipulations .
+The concept of the ruler has been directly adapted from the architecture drafting tables, which often feature large movable rulers .
+They differ from traditional guides found in graphics packages in that they can be quickly placed at arbitrary orientations and locations.
+In our prototype, rulers are created on-demand via a Rail gesture and they can be placed at arbitrary positions and orientations.
+An additional use for the ruler is to enable the user to rapidly and easily align multiple objects against it.
+This is achieved by instantiating a ruler on one objects bounds, and then translating other objects towards the ruler.
+Once they collide, objects will not translate across a ruler, and will rotate as they are pushed against the ruler so that they align with it.
+This use of bimanual input and ruler, illustrated in Figure 11, is similar to the alignment stick .
+If an object is selected , the ruler placed proximal in both position and orientation to an objects bounds is snapped to that boundary.
+Similarly to the proxy object invoked with a Rock gesture, rulers are visualized as long semi-transparent blue rectangles that extend beyond the screens boundaries.
+Rulers can also be easily removed with an associated on-screen button.
+In order to allow users to align objects with the same ruler repeatedly, we allow users to pin them to the canvas by tapping them.
+Once pinned, a ruler can be active or inactive.
+An active pinned ruler acts as a regular transient ruler, serving as a barrier to translation, and serving as a guide for rotation.
+Alternatively, when the user lifts their hand from the ruler and it becomes inactive, it has no effects on the moving objects as seen in Figure 12.
+The Rock & Rails techniques are able to achieve the goals of reduced occlusion, variable C/D gain, and manipulation constraint / transform independence with the introduction of three simple spatially-recognized postures: Rock, Rail, and Curved Rail.
+To gauge their effectiveness, we invited eight real-world designers to evaluate them within a prototype image layout application developed for Microsoft Surface.
+Given the simplicity of the implementation of our recognizer, it was fully expected that issues in usability would be encountered by the participants.
+The primary goal of the evaluation was to collect information on usefulness, rather than the usability of the features, and to gain overall feedback about the use of a touch system equipped with Rock & Rails vs. traditional, mouse-based methods to perform more layout tasks.
+We also recorded each participant session in order to observe interesting behaviours which might suggest future feature sets or capabilities.
+The questionnaire was composed of Likert-scale questions designed to collect the experts response to the usefulness of the system.
+In order to help separate usefulness from usability, usability questions were also asked, but not reported.
+The questionnaire also included open-ended questions which focused on the usefulness of the various functions of the Rock & Rails system.
+Participants were asked to consider the alternative of using traditional methods for completing this task using a mouse and keyboard and their preferred graphics software.
+We implemented Rock & Rails as an application running on a Microsoft Surface multi-touch table using the Microsoft Surface SDK 1.1, running under WPF.
+We relied on the contact processing capabilities of Microsoft Surface to disambiguate between fingertips and hand shapes, and classified each of the required three shapes using the aforementioned contact ellipse eccentricity method.
+Eight participants began the review.
+One participant was unable to complete the review for personal reasons.
+Of the remaining 7, 6 were male, 1 female, and all were professional designers.
+All were highly experienced with graphical layout using various software applications.
+The designers were all employees of the same software company.
+Participants were not specifically compensated for their participation in the experiment.
+Participants were given an introduction to Rock & Rails, and the experimenter gave a demonstration of its use.
+When participants understood the various functions, they were then presented with an image of a completed book cover, and told their task would be to reproduce it given an array of the graphical elements laid out on the table.
+The elements were arranged in a row at the top of the screen, and were each rotated and resized such that all would require each of the unit affine transforms to be applied in order to complete the task.
+An image of the application before and after the completion of the task is shown in Figure 13.
+Reported results are of a 7-point Likert scale, with 1 labelled "strongly disagree" and 7 labelled "strongly agree".
+Overall, participants responded that the Rock & Rails system would be useful to them in performing a layout task on a multi-touch device, as compared with traditional methods.
+Five participants rated their agreement with the statement "The system you used today was helpful in comple ting the task" as 5/7, the remaining two 6/7.
+To the question "I would want a system like this in a real product", two participants rated 5/7, one 6/7, and the remaining four 7/7.
+Free form comments reinforce the utility of the technique: "I dig it and would really like to see this evolve and make its way into design-related applications".
+One commented that the system would be useful for multi-touch tables in general, aside from graphics applications: "some people can't stand having things be just a few degrees off, so this really piqued my curiosity".
+Participants were asked specifically to rate the usefulness of Rock & Rails isolation of each of the transforms.
+It was again pointed out to them that all operations are possible using traditional methods.
+There was significant agreement that the ability to do so using direct manipulation was valued, as shown in Table 2.
+A participant noted: "As a designer I really liked the rails, or how I saw them, as TSquares.
+I preferred that over moving a guide with a mouse.
+I really enjoyed manipulating the content with my hands, I seems like I just feel it more."
+Participants each noted the utility of the proxies as a desirable feature.
+When asked to note differences from traditional methods that they preferred in Rock & Rails, 5/7 noted the use of proxy objects as a desirable innovation.
+One participant noted that they would prefer the inclusion of proxies even for mouse-based systems, as a method of rapid creation of ad hoc overlapping groups.
+Although all participants were made aware of the use of leverage to increase precision of their tasks, few participants made use of it.
+Only 4/7 surveys include mention of this feature.
+We attribute this failure mostly to inexperience with the concept and hypothesize that more extended use would lead to more extensive use of this feature.
+One participant who made extensive use of proxies noted that they indicate their linked objects only when touched .
+To compensate, she performed a non-proportional resize on each proxy object before linking it, rendering them visibly distinctive.
+Further, participants were observed replacing proxies repeatedly.
+We realized this occurred because the proxies were changing size and shape as manipulations were applied, often becoming too small or narrow to be useful.
+We also observed that many participants would arrange several inactive ruler objects on the screen, creating layout guides.
+Finally, it was also interesting to note that participants tended to use a subset of gestures which spanned the needed degrees of freedom and precision.
+For example, the participant who disagreed that isolated rotation using the Rock was useful , chose instead to rotate using traditional manipulations and correct using the remaining Rock & Rails techniques.
+In addition to explicit feedback, we noted several interesting behaviours.
+One such behaviour was the use of a combination of proxies and rulers: the participant would link multiple objects to a proxy, and then align them with one another by pushing the group over a ruler.
+This was especially noteworthy because it contradicts the normal behaviour of groups in traditional mouse-based systems.
+This behaviour is illustrated in Figure 14.
+Participants requested several features not included in our prototype.
+Many of these are features that would likely be included in an application implementing the Rock & Rails technique, such as undo and a fixed grid.
+Two types of requests in particular were noteworthy.
+Three participants requested a mechanism to numerically specify transforms "just to be sure" that a specific value were reached.
+Participants also noted the lack of a zoom function in Rock & Rails - both who observed this attributed this desire to verify the precision of their actions.
+Like other functions noted above, we anticipate an application utilizing Rock & Rails might include these capabilities.
+In these two cases, however, we believe that better feedback to show users the precise numeric values may alleviate much of the need.
+Another interesting behaviour developed out of a missing element of our system - there is no intended mechanism to adjust the C/D gain for 2D translations.
+We had presumed that users would perform two consecutive 1D manipulations to complete this.
+Instead, one user developed the innovative approach of linking two proxies to an object, and manipulating it with both proxies simultaneously.
+By holding one of the proxies still, the user effectively halved the gain of the manipulation applied by moving the other proxy.
+This is illustrated in Figure 15.
+The results of the study demonstrate the utility of the feature set of Rock & Rails, and point to its advantages over traditional mechanisms.
+Particular feedback from designers points towards the perception that this set of gestures extends the direct-touch input paradigm, despite the offset of the proxy object.
+It is also clear from observed behaviours that the designers were able to extend the functionality of the system, suggesting the cohesiveness of the set of operations.
+As for improvements, the specific method of achieving 2D gain control illustrated in Figure 15 was clearly overly elaborate, and a mechanism to achieve 2D gain control through simpler means is a clear candidate for future work.
+The requested features we note above have a common theme of overcoming a lack of feedback.
+Maintaining a UI-free screen when not touching was a design goal; however, a clear area for future work is an exploration of feedback mechanisms to better support these operations.
+Finally, we attribute the tendency of participants to perform subsets of available operations to our experimental task.
+Because it always began with objects requiring all unit transforms applied, whichever transformation was applied first needed not be isolated, since any spill-over from a more coarse gesture would be corrected at the same time as the user undid the initial setting.
+A focus for future work will be further design of the proxy objects.
+Observed user behaviours suggest the need for a mechanism to render each visibly distinctive, as well as to allow repeated manipulation without changing the shape of the proxy object itself.
+Further work is also required to find the correct balance of the transient nature of the proxies and rulers.
+A primary goal of this project was that no on-screen UI be necessary to complete the set of operations.
+None the less, these two objects themselves represent an addition of UI elements.
+While we and many of our participants viewed these as residual gestures rather than as objects unto themselves, it remains a rich area for future exploration.
+Also worthy of consideration is the combination of these residuals into compound residual gestures.
+Learnability and feedback are also ripe for future exploration.
+While our gesture set was iteratively designed and intended to mimic direct manipulations and naive physics, we make no claim that users would quickly learn this language without help.
+Work in the area of gesture teaching would serve as a useful starting point for this work .
+Further, providing feedback mechanisms before, during, and after each operation will ultimately be a necessary.
+While the Rock & Rails technique showed promise in isolation, a clear avenue for future work is its integration into a larger system.
+Observation of its use in contexts where the primary task is not alignment, but rather where alignment is only an occasional task might be particularly interesting.
+We also plan to explore the abstraction of the modes achieved in our gestures, to explore alternative gestures, or the use of physical objects to create them.
+The directions we have discussed here would best be implemented through user-centric iterative design, and would also benefit from further comparisons with traditional tools.
+Methods such as coordination measures could be used to evaluate the efficacy of the gesture language .
+The distinction between shapes and fingertips is a success also in that the language could be immediately applied to any direct-manipulation-based system, without conflicting with existing gestures.
+One key benefit of Rock & Rails is that while each of the interactions is rather simple on their own, it is easily possible to combine them into more complex combinations.
+This has already yielded many unexpected solutions in our user evaluations, for example, when a several objects are aligned simultaneously with a ruler simply by dragging them all together via a common proxy.
+It is this ability of easy composition, which makes our rather simple vocabulary of interactions powerful and useful in accomplishing a real world task.
+Finally, it is worth noting that while we claim that Rock & Rails does not require on-screen elements, the proxy and ruler objects are represented graphically.
+The distinction we draw is that these objects are residuals of user actions, rather than on-screen elements created by the designer.
+While a fine line, we suspect a designer implementing a visual language for Rock & Rails would be well served to represent these elements in that way.
+Based on the success the expert review, we recommend continuing to explore the use of shape gestures to build the set of traditional direct manipulation gestures.
+While we did not explore usability of our system, the particular set of gestures we selected was quickly learned by the participants in our study, and thus forms a reasonable basis for future work.
+We also recommend the use of shape gestures to create a distinct break from direct manipulation and constraints on those manipulations, as it does seem to afford easy, flexible use without the need for extensive on-screen elements.
+An element of Rock & Rails not highlighted earlier is that rulers and proxies can be moved by placing the appropriate hand shape  over them and sliding, and such movement does not affect any adjacent or linked objects - this is the final element in a rule which seems to make Rock & Rails successful: fingertips manipulate, shapes constrain.
+Any movement of a shape on the surface of the device will not affect underlying content in any way, unless objects are directly linked to it.

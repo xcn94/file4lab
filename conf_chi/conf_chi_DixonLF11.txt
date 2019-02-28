@@ -1,0 +1,340 @@
+The rigidity and fragmentation of GUI toolkits are fundamentally limiting the progress and impact of interaction research.
+Pixel-based methods offer unique potential for addressing these challenges independent of the implementation of any particular interface or toolkit.
+This work builds upon Prefab, which enables the modification of existing interfaces.
+We present new methods for hierarchical models of complex widgets, real-time interpretation of interface content, and real-time interpretation of content and hierarchy throughout an entire interface.
+We validate our new methods through implementations of four applications: stencil-based tutorials, ephemeral adaptation, interface translation, and end-user interface customization.
+We demonstrate these enhancements in complex existing applications created from different user interface toolkits running on different operating systems.
+Fragmentation results from the fact that people generally use many different applications built with a variety of toolkits.
+Each is implemented differently, so it is difficult to consistently add new functionality.
+Researchers are often limited to demonstrating new ideas in small testbeds, and practitioners often find it difficult to adopt and deploy ideas from the literature.
+These challenges limit the progress and impact of interaction research .
+Because all GUIs ultimately consist of pixels, researchers have proposed methods for enhancing existing interfaces based only upon pixel-level interpretation.
+Pixel methods were initially proposed to support research in interface agents and programming by example .
+More recent research examines broader opportunities for pixel-based methods: ScreenCrayons supports annotation of documents and visual information in any application , Sikuli applies computer vision to interface scripting and testing , Hurst et al.
+The capabilities of these and other pixel-based systems are inherently defined and limited by a system's ability to meaningfully interpret raw interface pixels.
+This paper advances state-of-the-art systems by presenting the first pixel-based methods for real-time interpretation of interface content and hierarchy.
+Specifically, we build upon Prefab's pixel-based models of widget layout and appearance .
+We first introduce the use of hierarchy to characterize complex widgets.
+We then introduce content regions and show how they enable efficient recovery of widget content.
+Finally, we show how these insights can be combined to recover a hierarchical interpretation of an entire interface.
+We validate our novel methods in a set of applications that demonstrate new capabilities enabled by interpretation of content and hierarchy, and we discuss future research opportunities suggested by this work.
+Figure 1 illustrates several applications enabled by our new pixel-based methods.
+A pixel-based implementation of Kelleher and Pausch's Stencils-based tutorials  uses interface hierarchy to robustly reference specific widgets .
+Our implementation of Findlater et al.
+Nearly every modern graphical user interface  is implemented using some form of GUI toolkit.
+Toolkits provide libraries of widgets and associated frameworks that reduce the time, effort, and amount of code needed to implement an interface.
+Although these toolkits have enabled many successes of the past forty years of human-computer interaction research and practice , the current state of toolkits has become stifling .
+Specifically, researchers and practitioners are limited by the rigidity and fragmentation of existing toolkits.
+Rigidity makes it difficult or impossible for an application developer to modify a toolkit's core behaviors.
+Similarly, application rigidity generally precludes modification and customization of existing interfaces .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+We present a GUI translator that works solely from an interface's pixels.
+Our translator identifies, interprets, and translates textual content while maintaining the same look and feel as the original application.
+Here is a portion of a Google Chrome Options dialog running in Microsoft Windows 7, translated from English into French.
+Likely targets appear as normal, but unlikely targets are initially missing and slowly fade in.
+This is a screenshot from our implementation of the technique in the context of a Skype settings dialog box running on Mac OS X.
+Our methods enable end-user customization of everyday interfaces.
+We implemented a technique that allows end-users to aggregate commonly used widgets of a tab control into a "favorites" tab.
+This is shown here in the context of the Skype settings dialog.
+Clicking on stars  adds the corresponding widgets to the "favorites" tab .
+Figure 1: We introduce new pixel-based methods to reverse engineer interface content and hierarchy in real time.
+These methods enable a new range of advanced behaviors that are agnostic of an application's underlying implementation.
+All of these enhancements are implemented in the Prefab system and are discussed in greater detail later in this paper and in our associated video.
+Finally, adding customization to an existing interface illustrates support for managing occlusion and rendering new content using our pixel-based models.
+The contributions of this work to pixel-based methods are: * Methods for hierarchical models of complex widgets.
+These improve model implementation, example-based prototype creation, and runtime widget detection.
+These enable efficient runtime recovery and interpretation of widget content.
+This is challenging because examples include content that should not be part of a prototype.
+This enables DOM-like interpretations of interfaces independent of their implementation.
+These demonstrate our core methods and also illustrate opportunities to leverage our methods in addressing other challenges, such as robustly referencing widgets, re-rendering interfaces from pixel-based models, and managing interface occlusion.
+Our work is informed by GUI toolkit research .
+For example, Hudson and Smith propose toolkit support for separating interface style from content, drawing an analogy to painting the same text with different fonts .
+Hudson and Tanaka develop toolkit methods for painting stylized widgets, including an eight-part border defined by fixed corners and variable edges .
+Our reverse engineering strategy turns such methods for painting interfaces on their heads: an eight-part model can be used to characterize many widget borders regardless of whether they were painted using Hudson and Tanaka's method.
+This paper is based on similar insights regarding tree-based interface layout and common approaches to painting variable content within widgets.
+We thus leverage knowledge of toolkit methods but remain independent of any particular toolkit.
+Extensive research has examined interface customization.
+Most is limited to the web, where the Document Object Model  provides a structured representation of an interface.
+ChickenFoot  and CoScripter  are classic examples, and systems like Highlight extend these ideas to task-centric re-authoring for mobile devices .
+Systems like Clip, Connect, Clone , d.mix , and Vegemite  demonstrate promising end-user mash-up methods.
+For non-web interfaces, structure analogous to the DOM is provided the accessibility API.
+Compared to pixel-based methods, accessibility APIs are advantageous because they can access information that is not visible, such as items contained in a closed drop-down menu.
+On the other hand, accessibility APIs require additional implementation effort to correctly expose hooks into an interface's underlying state.
+Toolkits generally attempt to provide default implementations, but many widgets are missing from the accessibility API because of application failures to implement necessary hooks.
+The severity of this problem is magnified by the fact that it can be corrected only by an application's original developer .
+Pixel methods have the critical advantage that they do not require cooperation from the original application.
+The application exposes its pixels as normal, and anybody can then use those pixels as a basis for additional functionality.
+For example, Hurst et al.
+Our current work focuses on pixel-based methods, presenting advances toward a DOM-like representation obtained entirely from pixels without cooperation of an underlying application.
+Deeper exploration of additional hybrid techniques is an important opportunity for future work.
+The most relevant prior work is therefore that examining pixel-based interface interpretation.
+Classic work by Zettlemoyer et al.
+Their methods require code-based descriptions of individual widgets, and Zettlemoyer et al.
+Our methods use examples to describe widget appearance, making it possible to scale to address the fragmentation of current interfaces.
+Perhaps more importantly, continued development of Zettlemoyer et al.
+In an interactive context, Olsen et al.
+None of these existing pixel-based methods are capable of real-time interpretation of content and hierarchy, and so none are capable of the demonstrations presented in this paper.
+Figure 3: This Prefab prototype for Microsoft Windows 7 Steel buttons is an example of an eight-part model.
+Four features define the corners, each edge is defined by a region, and constraints require the parts form a rectangle.
+This prototype recognizes all Microsoft Windows 7 Steel buttons, independent of their interior content.
+Prefab is the first system to combine pixel-based methods with input and output redirection, allowing it to modify an interface independent of that interface's implementation.
+This requires interpreting images of an interface many times per second, which Prefab accomplishes using four major types of components: models, prototypes, parts , and constraints.
+Models consist of abstract parts and concrete constraints on those parts.
+A typical model might include several constraints requiring that parts are adjacent.
+The parts are abstract, so a model does not describe any particular widget or set of widgets.
+Instead, a model describes a pattern for composing parts to create a widget.
+Parts can be either features or regions.
+A feature stores an exact patch of pixels .
+A region stores a procedural description of an area .
+Because the same parts can be arranged in multiple ways, they alone do not describe any particular widget or set of widgets.
+Prototypes parameterize a model with concrete parts, thus characterizing both the arrangement and the appearance of those parts.
+A prototype therefore describes a particular widget or set of widgets .
+Figure 3 presents an example eight-part prototype that parameterizes an abstract model of an eight-part border with parts corresponding to a Microsoft Windows 7 Steel button.
+It recognizes all Microsoft Windows 7 Steel buttons, independent of their interior content.
+Prototypes that assign different pixels to its parts can recognize different styles of buttons or different widgets that paint a border.
+Prefab is implemented as a library of prototypes with methods for applying those prototypes to identify widgets.
+Specifically, Prefab locates all features in a pass over an image and then tests the regions and constraints of potential prototypes.
+Creating a prototype by manually specifying the parts of a model is possible, but tedious and error-prone.
+Prefab helps by fitting prototypes from examples.
+We have found that the most appropriate prototype for a widget is typically the one which requires the fewest pixels to explain its appearance.
+The intuition behind this approach is similar to the minimum description length principle, a formalization of Occam's Razor in machine learning .
+Prefab uses a branch-and-bound search to determine what assignment of parts to a model best explains an example.
+For example, the prototype in Figure 3 is learned from a single example of a Microsoft Windows 7 Steel button.
+This ability to quickly create new prototypes is important to Prefab's potential for scaling to address GUI toolkit fragmentation.
+This section addresses key challenges facing Prefab and other pixel-based systems.
+We first address the complexity of widgets with multiple components by introducing hierarchical models.
+We then address the difficulty of modeling unpredictable content by leveraging knowledge of containment in content regions.
+Finally, we combine and extend these ideas to enable efficient interpretation of the content and hierarchy of an entire interface.
+The eight-part model in Figure 3 was the most complex model explored in Prefab's initial development.
+Although Prefab's original methods can characterize many widgets, significant challenges arise when considering more complex models needed to represent widgets consisting of multiple components.
+Figure 4 illustrates this by comparing the modeling of a slider with that of a scrollbar.
+Figure 4a shows a five-part model of a slider, consisting of a feature for the thumb, features for the trough endpoints, and regions for the variable-length trough.
+This model effectively characterizes many sliders.
+Although a scrollbar might seem to have a similar layout, Figure 4b shows that scrollbars vary the size of their thumb to illustrate what portion of the scrollable area is currently within view.
+A single feature is therefore insufficient for characterizing the scrollbar thumb, so we replace the feature with eight parts describing a thumb of varying size.
+If we want our model to represent the buttons at either end of the scrollbar, we also need to replace the end features with eight parts.
+It is difficult to correctly implement, and its many parameters create a high branching factor that makes it computationally expensive to fit prototypes from examples.
+The effort to implement and optimize complex models can be justified when they characterize a wide variety of widgets, but this model still does not characterize some common scrollbars.
+For example, Figure 4d shows a scrollbar from Mac OS X's Cocoa toolkit painted with both scroll buttons together.
+The solution to these modeling challenges comes from the insight that complex widgets are typically defined by a hierarchy of simpler widgets.
+We introduce hierarchical models of widget layout, as illustrated with a scrollbar model in Figure 4e.
+This extends Prefab's original notion of delegating regions to procedural code  by allowing delegation to another model.
+Portions of a hierarchy can be re-used in implementing multiple models.
+A model can account for portions of the hierarchy appearing in different arrangements or being optionally absent.
+The hierarchy can also be used when fitting prototypes from examples, with annotations of simpler components  constraining a search of the overall hierarchy.
+At runtime, hierarchical prototypes are identified by locating simpler components and then testing constraints and regions in the hierarchy.
+Figure 5: This prototype for Microsoft Windows 7 Steel buttons is an example of a nine-part model.
+Our nine-part model is identical to the eight-part model in Figure 3 except for the addition of an interior content region.
+This prototype's content region has been parameterized as a single repeating column.
+At runtime, content within a button is obtained by differencing the repeating column against the pixels inside the button's content area.
+Prefab's pixel-based methods are built on the insight that the pixels of a widget are procedurally defined.
+This is critical to Prefab's real-time performance, as it allows exact feature matching as a basis for prototype detection.
+But some interface content varies dramatically and cannot easily be identified through exact matching.
+For example, modern toolkits often employ sub-pixel rendering and anti-aliasing techniques in text rendering.
+This improves readability, but also modifies text's pixel-level appearance in unpredictable ways.
+The same characters can be rendered as many different combinations of pixels.
+Prefab's original methods therefore could not address the recovery of widget content .
+We address this challenge by building upon several insights.
+First, toolkits construct interfaces as trees.
+Second, content appears at the leaves of a tree .
+Every piece of content is therefore contained within a parent.
+Third, the parents of these leaf nodes paint simple backgrounds .
+This is critical to interface usability, as a person must be able to easily see the content painted over that background.
+Instead of directly modeling unpredictable content, we introduce content regions that model the much simpler background of a parent and efficiently identify content using runtime differencing.
+Figure 5 illustrates a nine-part model of a border with an interior content region .
+The model's constraints require that the content region describe every pixel not accounted for by the corner features or the edge regions.
+In this case, a prototype of the Microsoft Windows 7 Steel Button parameterizes the content region with a single repeating column.
+At runtime, content is obtained by differencing the repeating column against pixels inside the button's content area.
+Figure 5 illustrates this differencing with red pixels in an example button.
+A character recognition algorithm is then applied to recover the text "Close".
+Figure 6: These are both valid nine-part prototypes for a single example of a Microsoft Windows Vista Steel button.
+Prefab thus prefers the nine-part prototype shown in Figure 5, which costs only 246 pixels and is also more general.
+Note that Figure 5's prototype also identifies the correct content.
+Recall that Prefab supports the use of examples to create prototypes.
+Parts are assigned by a search minimizing the number of pixels needed to describe those examples in a manner consistent with the model.
+Like other regions, content regions are modeled as procedural methods for pixel generation .
+Prefab's original methods cannot be applied to content regions because each example contains unpredictable content.
+A simple part cannot characterize this content, and so the search fails to fit a good prototype that generalizes from the example.
+We address this problem by defining the cost of a potential prototype as the sum of two components: model cost and content cost.
+As before, the model cost is the number of pixels used to define the parts of a prototype.
+The content cost is the number of pixels in an example that do not match the prototype specified by a content region.
+The intuition behind this approach is that minimizing the sum requires the search to both describe the background and identify the foreground.
+Because we lack a meaningful method for generating that unpredictable foreground, we pay full cost for the pixels it occupies.
+Note that this is a generalization of Prefab's original method, as content cost is always zero in models without content regions.
+As an example, Figure 5's prototype sets the width and height of each corner feature to three, top and bottom edge depths to one, and left and right edge depths to two.
+The content region is a repeating column of pixels.
+The text results in a content cost of 189 , yielding a total cost of 246 pixels.
+In contrast, Figure 6 shows two other prototypes the search might consider for the same example.
+The first has the same corners and edges but attempts to fit a single color to the background of the content region.
+This improves its model cost to 43, but the poor match results in a content cost of 1142 and a total cost of 1175 pixels.
+The second example has the correct content region with the corner and edge configuration from Figure 3 .
+Specifically, notice its left and right edges are 1 pixel wide.
+This results in a model cost of 55 , but the content cost is increased to 215 by two 13-pixel columns at either end of the content region.
+Its total cost is 270 pixels.
+These and other prototypes are rejected, with the search ultimately selecting the configuration from Figure 5 as the best fit.
+Note that the content region in Figure 5 has actually resulted in a better characterization of the prototype's other parts.
+Without a content region, there is no reason for Prefab to determine that the left and right edges of this example are two pixels wide .
+The inclusion of a content region has in this case lead Prefab to produce a prototype that describes every pixel in the example.
+Our validating applications present implications of this more complete interpretation.
+Our current implementation uses a post-order traversal.
+We generate a composite background image when traversing down the tree, then test and mark pixels when traversing back up the tree.
+Widgets only test pixels within their content regions that were not marked by children.
+Identified content is interpreted and added as a child of the widget that detected it.
+The resulting tree includes all detected widgets arranged by their containment.
+Additional organization can be added by considering that siblings in this visual tree may suggest an additional component in a logical tree.
+For example, several pieces of text might be grouped together and then related to an adjacent checkbox.
+Prior research has developed methods for semantic grouping of widgets .
+Given our focus on pixel-based detection of the visual tree, we perform logical grouping using a set of heuristics.
+The intuition behind our methods for individual widgets can be extended to support pixel-based interpretation of content and hierarchy in an entire interface.
+Instead of considering content only in terms of text within a button, the necessary insight is that every widget is content relative to its parent.
+Our challenge is to recover the content and hierarchy of the entire interface while retaining Prefab's performance.
+We implement this in four steps, as illustrated in Figure 7.
+We first apply Prefab's library of prototypes to locate widgets.
+This uses feature-based detection to identify a set of widget occurrences.
+We then organize the detected occurrences into a tree.
+The root is the image itself .
+The tree is constructed using constraints provided by each occurrence's model.
+These typically enforce spatial containment within a content region of the occurrence.
+The primary exception is for widgets that float above an interface .
+Tagging prototypes of these widgets allows our tree construction algorithm to link them directly to the root.
+This organizes occurrences that were detected using our feature-based methods, but we still need to apply our differencing method to locate unpredictable content from content regions.
+This paper presents new methods for real-time pixel-based interpretation of widget content and hierarchy.
+Because this is a new capability, there is no reasonable comparison to other approaches for obtaining the same effect.
+We instead validate and provide insight into our work through a set of demonstrations.
+We select these with the goal of illustrating a range of complexity in applying our methods.
+All of our applications are implemented in Microsoft's C# running on Microsoft Windows 7 and using redirection provided by Prefab.
+We use remote desktop software to demonstrate enhancements running on Mac OS X interfaces.
+Prefab thus continues to run on the Microsoft Windows 7 machine, adding its enhancements based entirely on the pixels delivered through the remote desktop connection.
+We apply enhancements to a variety of well-known applications to highlight that our methods are independent of the underlying implementation.
+Kelleher and Pausch's Stencils-based tutorials provide help directly within applications using translucent stencils with holes to direct a person's attention to the correct interface component .
+Such an enhancement is difficult to broadly deploy because of the rigidity and fragmentation of existing applications and toolkits.
+It is beyond the capabilities of previous pixel-based systems because authoring such a tutorial requires support for referencing specific interface elements.
+For example, there may be several buttons of identical appearance within an interface, but only one of them is the appropriate next action.
+Figure 1 and our associated video show our Prefab implementation of Stencils-based tutorials.
+The tutorial instructs a person on how to download resume design templates in Microsoft Word 2010.
+Our video highlights the real-time responsiveness enabled by our new methods.
+Stencils-based tutorials are a straightforward application of widget hierarchy.
+Knowledge of the full hierarchy allows us to reference widgets using simple path descriptors on the tree.
+We implemented this demonstration by building prototypes to identify the majority of widgets in Microsoft Office 2010.
+For example, we used nine-part models to characterize many of the containers and buttons.
+We also used one-part models to identify less structured content .
+These one-part models are typically easy to construct .
+We converted Prefab's hierarchical interpretations into an XML format, allowing the use of XPath descriptors to reference widgets within the hierarchy.
+Tutorials are thus authored as a list of XPath descriptors paired with textual instructions for each step.
+Additional capabilities could be developed, and we have not yet explored the best approach to an authoring tool, but this demonstration highlights our use of the pixel-based hierarchy to reference specific widgets.
+Figure 8: Findlater et al.
+This image shows Findlater et al.
+Upon moving between tabs, likely targets in each tab are initially visible.
+Unlikely targets then fade in over time.
+This enhancement uses a nine-part prototype of the tab pane and various prototypes for each of the interior widgets.
+We use our XPath descriptors to tally the frequency of interaction with each widget and use a simple model of likely targets .
+We render the gradual onset animation using the content region from the tab's nine-part model.
+Specifically, we render tab background  as an overlay at the location of each unlikely widget.
+We then gradually fade this overlay from opaque to transparent.
+This creates the illusion that the widget is gradually fading into view.
+Note this technique requires identifying all of the content throughout the interface in order to appropriately animate its onset, a capability not supported by prior pixel-based methods.
+Ephemeral Adaptation helps draw visual attention to likely targets in an interface.
+Specifically, likely targets appear as normal within an interface, but unlikely targets are initially missing and then slowly fade in.
+Despite the promise of this technique, it has been difficult to evaluate in realistic use or to widely deploy in everyday software.
+A pixel-based implementation is beyond prior systems for two reasons.
+As before, it requires the ability to reference specific widgets .
+In addition, this application requires the ability to remove unlikely targets from the interface and then render their gradual onset.
+In addition to pixel-based identification of interface content, our methods can help enable real-time interpretation of interface content.
+To demonstrate this, we implemented a pixel-based enhancement that automatically translates the language of an interface and then presents the translated content in the same look and feel as the original interface.
+Because of the rigidity and fragmentation of current tools, interfaces usually must be translated by their original developer .
+Our methods allow anybody to translate an interface and could thus form a basis for community-driven translation .
+To the best of our knowledge, ours is the first method for real-time translation of interfaces independent of their underlying implementations.
+Although translation is not the same as complete localization, it is an important step.
+Figure 1 and our associated video show our translation enhancement applied to a Google Chrome Options dialog running on Microsoft Windows 7.
+The left image illustrates a portion of the original dialog in English.
+The right image shows that same portion of the dialog with the text translated into French.
+Our associated video also includes a Spanish translation of the same dialog.
+Our associated video shows this enhancement running in real-time.
+This requires identification and interpretation of content occur quickly enough to handle the appearance and movement of content within a scroll pane.
+There are several potential approaches to interpreting screen-rendered text .
+Our current implementation uses an ad hoc template matching method, leaving integration of more advanced methods as an opportunity for future work.
+Importantly, our methods separate the identification of text from interpretation of that text.
+The interpretation of a region of pixels can thus be cached to eliminate potentially expensive re-interpretation of those same pixels .
+In our video, each piece of text is interpreted only the first time it appears.
+We then translate it using a machine translation service.
+As the text moves within the scroll pane, our content detection recovers the same pixels and retrieves the text from cache.
+To maintain the application look and feel, we paint the translation into the original interface.
+This is implemented by using each widget's content region to render an overlay masking its content .
+The translated text is then rendered within the bounds of the original content region.
+For example, Figure 9 shows a button before its translated text is rendered.
+Because English text is typically shorter than translated text, we adjust the font size of the translated text to fit in the available region.
+Our next demonstration explores a more sophisticated modification of the interface to accommodate new content.
+For example, tab controls use occlusion to limit attention to related subsets of complex interfaces.
+Existing pixel-based methods are strictly limited to interpreting visible portions of an interface.
+The need to observe an interface is inherent to pixel-based methods, but we can use our knowledge of interface hierarchy to help manage common forms of occlusion.
+Figure 1 and our associated video present a demonstration of this in the context of interface customization.
+Instead of automatically adapting an interface according to widgets that are likely to be used, this example allows people to manually flag widgets as "favorites" for quick access.
+Figure 1 shows this applied to the same Skype dialog box from our Ephemeral Adaptation example.
+A small star is added to each widget in the interface.
+Clicking this star adds the widget to a "favorites" tab we added to the interface.
+Viewing that tab presents all starred widgets and allows interaction with each of them.
+As with all of our demonstrations, this is implemented using pixel-based interpretation with input and output redirection.
+The management of occlusion is inherent to this example.
+We enhance the hierarchy to store the most recently observed version of each tab .
+We annotate these nodes in the hierarchy as stale to capture the fact they are occluded.
+Figure 10 depicts a simplified snapshot of the interpreted hierarchy with occluded nodes.
+If a "favorite" widget is currently occluded in the source window, it is painted using its stale version from the hierarchy.
+When a person moves to interact with a widget, synthetic input events are generated to bring that tab of the source window into view .
+Synthetic events could also be generated to regularly poll stale portions of the hierarchy, but this was not needed in our demonstration.
+This example also demonstrates the use of our pixel-based methods to add new elements to the interface.
+Nine-part models of the window, the tab button container, and the tab pane are used to create a larger version of the window,
+Our pixel-based interpretation of interface hierarchy also provides a framework for modeling some common forms of occlusion in interfaces.
+Figure 1 and our associated video show the added tab button and the extended window.
+We view this as an initial peek into opportunities to fundamentally transform the rigidity and fragmentation of existing interfaces.
+This paper advances state-of-the-art pixel-based systems by presenting the first methods for real-time interpretation of interface content and hierarchy.
+We now briefly discuss some important aspects of our pixel-based interpretation and identify some opportunities for future work.
+For the sake of clarity, this paper presents the simplest description of our pixel-based methods for interpreting interface content and hierarchy.
+A variety of optimizations could improve performance.
+For example, the entire interpretation process can be implemented using lightweight incremental evaluation to compute exactly the sub-tree of the hierarchy that could possibly have changed between successive frames .
+Many stages in the process can allow a multi-core approach .
+Given these and other potential optimizations, we generally do not expect performance to be problematic in most applications.
+Our implementation currently computes frame differences to efficiently detect features and uses parallelization when interpreting content.
+We currently re-compute the entire hierarchy whenever Prefab identifies new features.
+Our associated video shows multiple demonstrations that interpret content and hierarchy in real interfaces of existing applications with computations between frames typically under 100msec.
+We believe this is sufficient for the applications we explore.
+The preparation of our demonstrations highlighted another advantage of our approach to interpreting interface content and hierarchy.
+If our methods are applied to an interface that contains widgets that are not already in Prefab's prototype library, the parents of those currently unknown widgets identify their pixels as content.
+We used this fact to quickly extract the examples used to create prototypes for our demonstrations, and we believe it could provide a basis for an improved prototype authoring tool.
+Our translation demonstration currently uses an ad hoc approach to text interpretation .
+Off-the-shelf OCR technologies are generally ineffective because of the extreme low resolution of typical interface text.
+We previously noted the availability of recognition methods for screen-rendered text , but these are not optimized for Prefab's scenario.
+A deeper investigation of robust text interpretation methods is an opportunity for future work.
+We have noted the existence of prior work examining logical grouping of interface elements .
+It is unclear whether these methods are compatible with the real-time requirements of pixel-based interpretation.
+Based on the hierarchies we have encountered in our work, there are typically a small number of siblings in any given node .
+Our current implementation uses simple heuristics to perform logical grouping.
+For example, checkboxes are matched to their corresponding content using a threshold on the proximity of the nearest text.
+Future work can explore more advanced approaches to creating logical groupings by matching elements of an interface.
+Errors in an automated process could be also corrected by storing annotations that record the need for a specialized grouping .
+This paper focuses on core methods for interpreting content and hierarchy together with demonstrations of their value in example applications.
+There is a significant opportunity for future work that more thoroughly characterizes these and other pixel-based methods.
+Such work might examine the variety of widgets encountered in applications in the field, how well pixel-based methods can characterize those widgets, how many types of models and parts are necessary, and which of those models and parts are most broadly effective.
+Our pixel-based methods are the first to rival the accessibility API in terms of completeness, so comparisons between our methods and the accessibility API may be appropriate.
+Such a comparison should preferably go beyond simple frequency of failure to also probe the nature of failure .
+As in Hurst et al.
+The contributions of this paper are a necessary step toward future characterizations of pixel-based methods, and our current validations are appropriate for this ongoing work.
+Our interface customization demonstration dynamically re-renders a dialog box at a different size to create room for the "favorites" tab.
+This is possible because the nine-part prototype that detects the dialog box describes all of the pixels needed to generate it.
+To the best of our knowledge, we are the first to demonstrate pixel-based methods to create new widgets matching an existing interface.
+But not all Prefab prototypes necessarily have this property.
+The ability to seamlessly add new widgets to the interfaces of existing applications would dramatically extend pixel-based methods, and further examination of pixel-based methods is an additional opportunity for future work.
+Our customization demonstration illustrates one approach to managing occlusion .
+Tab controls are perhaps the simplest case and this method may not immediately generalize to other forms of occlusion.
+Occlusion within a scrollpane also presents different challenges.
+We have shown that interface content and hierarchy provide a useful framework for reasoning about occlusion, and future work could examine more advanced methods building upon these initial insights.
+This paper advances pixel-based systems by contributing new methods for hierarchical models of complex widgets, new methods for real-time interpretation of interface content, and new methods for real-time interpretation of the content and hierarchy of an entire interface.
+We validated our pixel-based methods in implementations of four applications: Stencils-based tutorials, Ephemeral Adaptation, interface translation, and the addition of customization support to an existing interface.
+Working only from pixels, we demonstrated these enhancements in complex existing applications created in different user interface toolkits running on different operating systems.
+We thank Dan Grossman, Rick LeFaivre, Scott Saponas, and Dan Weld for discussions related to this work.
+This work was supported in part by a gift from Intel, by the UW CoE Osberg Fellowship, by the UW CSE Microsoft Endowed Fellowship, and by a fellowship from the Seattle Chapter of the ARCS Foundation.
+Baudisch, P., Tan, D.S., Collomb, M., Robbins, D., Hinckley, K., Agrawala, M., Zhao, S. and Ramos, G. Phosphor: Explaining Transitions in the User Interface using Afterglow Effects.
+Automation and Customization of Rendered Web Pages.
+GUI Testing User Computer Vision.
+Clip, Connect, Clone: Combining Applications Elements to Build Custom Interfaces for Information Access.
+MORE for Less: Model Recovery from Visual Interfaces for Multi-Device Application Design.
+Programming by a Sample: Rapidly Creating Web Applications with d.Mix.

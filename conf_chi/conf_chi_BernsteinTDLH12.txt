@@ -1,0 +1,311 @@
+Web search engines now offer more than ranked results.
+Queries on topics like weather, definitions, and movies may return inline results called answers that can resolve a searcher's information need without any additional interaction.
+Despite the usefulness of answers, they are limited to popular needs because each answer type is manually authored.
+To extend the reach of answers to thousands of new information needs, we introduce Tail Answers: a large collection of direct answers that are unpopular individually, but together address a large proportion of search traffic.
+These answers cover long-tail needs such as the average body temperature for a dog, substitutes for molasses, and the keyboard shortcut for a right-click.
+We introduce a combination of search log mining and paid crowdsourcing techniques to create Tail Answers.
+A user study with 361 participants suggests that Tail Answers significantly improved users' subjective ratings of search quality and their ability to solve needs without clicking through to a result.
+Our findings suggest that search engines can be extended to directly respond to a large new class of queries.
+For common needs, answers demonstrate the value of customizing the interface to deliver information rather than documents.
+Unfortunately, answers are only available for a small percentage of common needs .
+Few manually curated answers exist, and those that do focus on popular query types like weather.
+In contrast, most searchers' information needs are unpopular: half of all queries are unique , and users rarely see most answers .
+It has not been feasible for search engines to create answers to cover the long tail of less popular information needs: search engines must author the content, test which queries to trigger on, find a data source to feed the answer, and keep the answer up-to-date as the web changes .
+As a result, searchers only receive relevant direct answers when they have extremely common information needs.
+We extend search engine answers to a broad new class of queries in the long tail.
+By doing so, we show that search engines can aggregate user knowledge to improve not just result rankings, but the entire search user experience.
+We introduce Tail Answers, automatically generated search engine answers that support a large set of less common information needs.
+These information needs include the normal body temperature for a dog , substitutes for molasses, the currency in Ireland, and many more .
+Each of these needs may occur thousands of times per year, but are too far in the tail of query traffic to be worth assigning programmers, designers, testers, and product management staff to create and maintain answers.
+To push answer content down into the long tail , our insight is to aggregate the knowledge of thousands of everyday web users.
+While search engines have long connected people to documents, they are now beginning to also connect people directly to information.
+The results page is no longer just a plain list of page titles and snippets.
+For popular topics such as weather, movies, and definitions, search engines may add custom interfaces with direct results .
+These direct results, known as answers , allow searchers to satisfy their information need without clicking through to a web page.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The entire process can be effectively automated.
+Following a survey of related work, we describe how we use log analysis and crowdsourcing to generate Tail Answers for information needs that search engines would not normally be able to address directly.
+We then present the results of an evaluation of Tail Answers that shows they significantly improved the subjective search experience, compensating for poor results and reducing perceived effort.
+We conclude by detailing extensions of these techniques for authoring smart snippets, integrating automatic questionanswering systems, and creating new classes of answers.
+Our work suggests that search engines can use aggregate search patterns and crowdsourcing to improve the search experience far beyond simply better result ranking.
+Successful answers will thus cannibalize clicks from the rest of the search results, and searchers will repeat queries to trigger an answer once they learn of it .
+Even when no answer exists, searchers often use queries for repeated navigation, for example searching for chi 2012 whenever they want to find the CHI papers deadline .
+Search result snippets can also sometimes address information needs directly ; the snippet for a page, for example, may contain the answer in the text.
+Some long-tail information needs can be addressed with automatic information extraction.
+Many question-answering systems are designed to address information needs with short phrases such as using search result n-grams to identify answers .
+A second approach is open-domain information extraction, for example TextRunner .
+These approaches work best when facts are repeated across multiple web pages.
+Finally, systems can employ curated knowledge bases such as YAGO  and match on them to answer some queries.
+However, automated approaches can make mistakes that are obvious to humans.
+Question-answering systems have also recruited crowds to deliver results: for example, Aardvark  and Quora  use members to answer questions.
+Rather than find domain experts, Tail Answers recruits crowd members with only basic knowledge of web search and the search context.
+Search engine answers and result snippets can have a powerful influence on the web search user experience.
+Nearly half of the abandoned queries in a Google sample displayed a snippet that might have made any additional clicks unnecessary .
+Steps that are implemented via data mining are indicated in blue, and those implemented via crowdsourcing are indicated in orange.
+ChaCha  also uses paid, on-demand staff or crowds for question answering, but they do not vet or edit the results and do not create reusable information artifacts.
+Our crowdsourcing algorithm depends on several quality control techniques from the literature.
+We build on the idea of gold standard tasks : questions that the requester has labeled with ground truth.
+To cheaply and robustly control for quality, we create ground truth tasks for which the worker's answer must include at least one phrase from an inclusion list and none from an exclusion list.
+This inclusion/exclusion technique extends gold standard questions beyond exact matching  to open-ended writing or extraction tasks.
+Then, once the raw text is extracted, we use crowdsourcing approaches inspired by iterative text refinement  and proofreading  to improve the answer quality.
+Crowd planning algorithms could later be used to create high-level summaries for complex topics .
+Search engines have also used crowds for relevance judgments; our work is the first to use crowd work to expand the search user experience.
+Tail Answers improves on related work by creating the first set of direct responses for a broad set of uncommon queries.
+We contribute new query log mining and crowdsourcing quality control techniques to create Tail Answers in an automated fashion.
+We provide the first controlled, empirical evidence that these answers improve the user experience, often as much as search result quality.
+Although answers for popular queries are currently manually authored, Tail Answers have an automated process to identify information needs that are appropriate for an answer and to author a direct result that addresses the need.
+In this work, we represent an information need as a set of queries with a similar intent.
+For example, the queries dog temperature, dog fever, and average temp dog thermometer represent the information need in Figure 1.
+In addition, we assume that Tail Answers can be associated with a web page that contains the answer .
+To create a Tail Answer, then, our system needs to: 1.
+Identify pages that are answer candidates, 2.
+Filter candidates that answers cannot address, and 3.
+Extract the Tail Answer content.
+To accomplish these goals, we extract knowledge about answers from the activities of thousands of web users.
+To identify information needs, we use large-scale log analysis of web browsing patterns.
+To filter the needs, we augment log analysis with paid crowdsourcing.
+To extract answer content, we use paid crowdsourcing.
+Figure 3 represents this process visually.
+We now describe each step in detail, highlighting the technical challenges we solved to improve answer quality.
+In this section, we describe how we create Tail Answers to extend search engine answers to tens of thousands of new information needs.
+Tail Answers are special results inserted inline in the search interface, as shown in Figure 1.
+The Tail Answer contains edited text from a webpage where other searchers found the solution to the same information need.
+Above the answer text is a concise title to aid skimming, and below it is a link to the source web page for attribution and further exploration.
+Each Tail Answer is targeted at one particular information need, although it may trigger for many different queries.
+We begin by identifying information needs, which we call answer candidates.
+An answer candidate is a set of queries associated with a URL from a search result page .
+A key idea is to identify browsing patterns that suggest searchers are finding a compact solution to an information need.
+We use query log analysis to populate our set of answer candidates.
+To do so, for each search session in our browser logs, we extract a search trail : a browsing path beginning with a search query and terminating with a session timeout of thirty minutes.
+We then group all search trails on the first clicked URL from the result page.
+From these answer candidates, we must identify those that are intended for fact-finding  and will produce good answers.
+Some answer candidates have information needs that are too complex to answer; others have underspecified queries where the information need may not be clear.
+We developed three filters to find promising answer candidates.
+In our search trails, the step immediately after a query is a click on a result web page.
+If a high percentage of trails end after that click , the destination probability will be high.
+If most trails instead include actions that return to the result page or browse to other URLs, the destination probability will be low.
+In other words, the destination probability for a URL is the observed probability that a click to the URL from the search result page is the last action in the search trail.
+Web pages with high destination probability are strong candidates for Tail Answers.
+We filter out any answer candidates that have destination probability of less than 0.3 or fewer than three search trails in our dataset.
+The 30% cutoff was tuned empirically to balance the number of possible answers  with the number of pages with unanswerable content .
+Table 1 lists five web pages with high destination probabilities.
+For example, one contains instructions for how to bake a potato.
+Our first filter uses the search trails to identify web pages where people quickly end their search sessions.
+We assume that after a query, people typically end up at web pages containing information that addresses their need.
+If users stop browsing after they reach a page, that page likely solves the need.
+If users continue browsing or searching, on the other hand, the page may not succinctly satisfy their need.
+For example, queries such as new york times are often navigational : searchers click on www.nytimes.com in the results, then often keep browsing and click on a link to read an article.
+Other information needs, like buying a new car, are complex and persist across multiple sessions , so searchers will typically keep browsing and returning to the search page.
+But, for web pages like the CHI call for papers, searchers will issue a query , click through to the page, find what they are looking for, and end their search session.
+We formalize the idea of trail-ending web pages with a measurement we call destination probability.
+Destination probability identifies pages where searchers appear to be finding immediate answers for their information needs.
+However, it can be very hard to infer the fact-finding intent from queries that are only two or three words long.
+For example, an answer for the query dissolvable stitches would be valuable if the searcher wanted to learn how long the stitches take to dissolve, but would not if they want to learn the stitches' history.
+To avoid this problem, we make use of the minority of searchers who write queries using question words.
+Question-word queries are useful because they tend to be expressed in natural language, are longer than typical queries, and are more explicit .
+These properties make the information need relatively easy to understand.
+Use of question words also tends to indicate fact-finding intent.
+We assume that question-word queries often overlap significantly with the unspecified information needs from the other queries, for example that where is 732 area code and 732 area code have similar needs.
+When this is not the case, we rely on paid crowd members later to disambiguate the most common information need from the set of all queries.
+We filter the answer candidates to remove any that had fewer than 1% of their clicks from question queries.
+The question words we currently look for are: how, what, when and who.
+The bottom row of Table 1 demonstrates the kind of error that can occur without a question word filter.
+Pages with high destination probability, queries to them, and their crowd-voted answer category.
+All but the bottom row had a question query: the lack of a question signals that Pandora would not be appropriate for an answer.
+While question words are useful for identifying answer candidates, neither they nor other types of behavioral log data can help the system understand whether a concise answer could address the information need.
+However, overly verbose answers are not useful to searchers.
+Knowing what kind of answer to expect, for example a short phrase, can help the system perform automatic quality control using length.
+To solve these problems, we use paid crowdsourcing via Crowdflower to categorize answer candidates into types.
+Crowdflower is built on top of Amazon Mechanical Turk and uses hidden quality-control questions known as gold standard questions to filter out poor-quality workers.
+By prototyping many answers, we developed the following three categories as useful for workers to identify: Short answers with very little text.
+For example: "The optimal fish frying temperature is 350F."
+For example, pages requiring deep reading such as "Impact of Budget Cuts on Teachers" and "Centralized vs.
+Workers were asked to read all of the queries that led to the web page, as well as the page itself, and then vote on the best matching category.
+The third column in Table 1 labels each example with its voted answer type.
+Although short answers and list answers can be extracted from the web page and edited into an answer, summary answers require more synthesis.
+For this reason, we leave the generation of summary answers to future work.
+We use the data about whether an answer is a short answer or a list answer to give workers more specific instructions as they extract answer content and to enforce a maximum number of characters workers can extract from a page.
+As a result, early prototype versions of Tail Answers were much too long and of poor quality .
+One popular quality control technique is to generate a set of potential responses and ask workers to vote on which is the best.
+For example, we asked three different workers to copy and paste text from the web page and then had five other workers vote to select the best extraction.
+However, if there are no short extractions, the answer will be long; worse, workers tend to vote for long extractions.
+So, it is necessary to add another layer of quality control to help guarantee that the extractions are short and targeted.
+We adapt the gold standard technique, which requires workers to demonstrate competence by agreeing with the answers to pre-authored example questions for each job .
+Crowdflower uses gold standard testing by silently inserting gold standard questions into the worker's stream, and only keeps work from people who answer at least 70% of the gold standard questions correctly.
+Most gold standard tasks involve workers exactly matching the requester's input.
+For example, for voting we can enforce that workers agree with the authors' selection of which option is the best.
+Unfortunately, requiring exact agreement fails for openended tasks like extraction.
+There are often several valid extractions for a page, and it can be just as important to specify which text workers should not include.
+To address this issue, we introduce inclusion/exclusion lists for gold standard testing for text generation.
+To use an inclusion/exclusion list for page extraction, the requester identifies sections of the page that must be in the extraction, as well as sections of the page that must not be in the extraction, in order for the work to be accepted.
+By doing so, we are able to tightly scope the areas of the page that are off-limits, as well as information that must be included in the answer for it to be correct.
+Figure 4 is a representative example of how training workers using inclusion/exclusion gold leads to shorter, more targeted answers.
+We implement this technique using negative look-ahead in regular expressions.
+At this point, we have a set of answer candidates that can be addressed succinctly and factually by the search engine, but each candidate is only represented by a web page and a set of queries.
+To create an actual answer, we need to extract the information from the web page related to the unifying need, edit it for readability, and write a short answer title.
+Because automatic extraction algorithms are not yet reliable, we use paid crowdsourcing via Crowdflower.
+The algorithm we developed to guide the crowd to create Tail Answers is as follows.
+This information is compiled into a visually distinct search result and presented to searchers who issue the queries associated with the intent, or similar queries.
+Figure 3 contains a graphical representation of these steps.
+Worker quality control is a major challenge for the generation of the Tail Answer title and text.
+Inclusion/exclusion gold standards could be useful for other open-ended crowdsourcing tasks like proofreading, replacing expensive approaches such as Find-Fix-Verify  as well as qualifier tasks, which cut down on the worker pool significantly.
+To generate a set of Tail Answers, we began with a oneweek sample of browsing behavior from opt-in users of a widely-distributed browser toolbar starting March 22, 2011.
+We filtered the sample to users in the US who use English when searching.
+The resulting search trails represent over 2 billion browse events from over 75 million search trails for over 15 million users.
+We filter pages with too little data by removing ones that have been clicked fewer than three times.
+Filtering via destination probability and question words resulted in 19,167 answer candidates, including those in the top four rows of Table 1.
+The query and web page occurrences that make up the answer candidates are distributed similar to power laws, so there are a few pages with many queries and a large number of pages with our minimum of three queries.
+Answer candidates had a median of three queries , 37% of the unique queries contained question words, and the median query had only been issued once in the dataset .
+If each answer candidate were to receive the same number of queries every week for a year as it did during our sample week, the median answer would trigger 364 times per year .
+We sampled 350 answer candidates from this set for which to create Tail Answers.
+We combined several different sampling methods in order to get broad coverage: 100 needs were chosen randomly from the dataset in order to represent the tail more heavily, and 250 were chosen by weighted query popularity to represent query volume.
+The number of workers in each stage is a tradeoff between cost and quality.
+Based on previous work , we recruited three to five workers for extraction and voting.
+Three workers voted on whether each of the 350 information needs should be addressed by a short answer, a list answer, or a summary answer, for 4.2 per need.
+Of the 350 needs, one hundred forty six  were short phrase answers, one hundred twenty seven  were short list answers, and seventy seven  were summary answers.
+We focus here just on the short phrase answers, although the process is identical for short list answers and the results are similar.
+Three workers created extractions for each need , and five workers voted on the best extraction .
+Ten of the 146 answers were voted out by workers for having no good extractions.
+Of the remainder, three workers proofread the extraction , and three workers voted on the best alternative .
+Three workers authored potential titles , and three workers voted on the best title and filtered the answer if none were appropriate .
+At the end of the process, 120 of the 146 short answer candidates became finalized Tail Answers.
+A number of examples are shown in Figure 2.
+The cost per answer was 44.6 plus a small extra fee for Crowdflower and the expense of the partial results for answers that got voted out.
+If we were to build Tail Answers for each of the roughly 20,000 candidates in our dataset, it would cost roughly $9,000.
+This cost can be lowered by combining extraction and title authoring into one task.
+In this section, we aim to better understand Tail Answers.
+Using manual judgments, we show they are high quality and relevant.
+We then present a controlled user study that shows that Tail Answers significantly improved users' ratings of search result quality and their ability to solve needs without clicking.
+To remove a source of variation in these evaluations, we focus on the short answers only.
+We first ask whether Tail Answers are high quality.
+This question has several dimensions: correctness, writing quality, query accuracy, and whether major search engines already have an answer to address the need.
+We handlabeled each of the answers with whether the title or the content had writing errors, whether the answer was correct, whether a major search engine already had such an answer, and whether the answer addressed each query in its training set.
+Two authors labeled each answer; any disagreements were settled by a third rater.
+We found that most Tail Answers had high-quality writing in their title and their content .
+Of the titles with writing errors, workers had suggested a correct version 50% of the time, but it had been voted down.
+Likewise, 30% of the contents with an error had a correct version available, but the workers did not vote for it.
+Correctness was more variable: some common errors are displayed in Table 3.
+Over two thirds of the Tail Answers were judged fully correct .
+A common minor error  occurred when the title did not match the answer: workers who wrote the answer title sometimes paid attention to the original queries rather than the content of the answer.
+This could be addressed through improved interfaces for the workers and more rigorous quality control in voting.
+Resume Writing A Curriculum Vitae, commonly referred to as CV, is a longer , more detailed synopsis.
+It includes a summary of your educational and academic backgrounds as well as teaching and research experience, publications, presentations, awards, honors, affiliations and other details.
+Cary Grant Cary Grant was born on January 18, 1904.
+What Reallyhappens.com Most recent WRH radio show from Rense Radio.
+Double Irish Tax The Double Irish method is very common at the moment, particularly with companies with intellectual property.
+We recruited 361 people  at Microsoft to participate in our study.
+About 30% held nontechnical jobs.
+Participants could complete the study from their own computers, and we raffled off $25 gift certificates in return.
+Participants did not know the purpose of the experiment.
+We created a custom version of the Bing search engine that inserted Tail Answers at the top of the search results whenever the user issued a matching query.
+We gathered a sample of thirty Tail Answers from the 120 we created.
+Participants were shown five queries, each taken from a randomly chosen Tail Answer, and chose one they found interesting.
+Participants were required to invent reasons they would issue each query, which is less realistic than showing the Tail Answer when someone has the real information need.
+However, by giving participants a choice of queries, we hoped they would focus on more personally meaningful tasks.
+Our experiment used a two-by-two research design.
+Each query was randomly assigned either to the Answer condition, which displayed a Tail Answer, or to a No Answer condition, with no answer.
+It was also randomly assigned either to the Good Ranking condition, where the search engine displayed results ranked 1 through 10, or a Bad Ranking condition, which displayed results ranked 101 through 110.
+In the Bad Ranking condition, the search results were typically much poorer.
+All conditions appeared to return top-ten results, and we hid ads and other answers.
+Participants would see each of the conditions randomly as they rated new queries, and were required to rate at least ten queries to be entered in the lottery.
+At the conclusion of the study, participants filled out a final survey.
+We hypothesized that Tail Answers would improve the user experience of the search engine.
+However, we were also interested in how users would react when Tail Answers fired on inappropriate queries or had incorrect results.
+Fourteen percent of the Tail Answers we generated already had answers available on Bing, a major search engine.
+Unit conversions  were the most common, followed by weather, definitions, and dates.
+These answers could be filtered in a deployed system, or could be used to replace manually generated answers, which are expensive and time consuming to maintain.
+We investigated how closely the answers matched the apparent intent of the queries that represented the intent.
+In 58% of the unique queries, it was clear that the Tail Answers addressed the query's intent.
+About 7% of queries were more general than the answer , so it is difficult to know whether the answer would have satisfied the information need.
+About 12% of the unique queries were not good matches: about 9% of the queries expressed a more specific need than the answer had , and about 3% of queries were unrelated to the answer.
+Clustering these queries into overlapping keyword sets and building separate answers for each would help.
+Participants rated 3963 result pages.
+Mean ratings are reported in Table 4 and Table 5.
+To analyze the results, we used a linear mixed effects model, which is a generalization of ANOVA.
+We modeled participant, and query , as random effects.
+Ranking and answer were fixed effects.
+We also included an interaction term for ranking*answer.
+Mean Likert scale responses to: "This is a very useful response for the query."
+Mean Likert scale responses to: "This page contains everything I need to know to answer the query without clicking on a link."
+Finally, because participants were more likely to choose certain queries in our dataset, we weighted the observations so that each answer was represented equally in the data.
+Weighting observations is a common technique when the sample distribution does not match the population; removing the weighting produces very similar results, but we felt that weighting would be the most accurate way to represent all answers equally.
+We ran the model twice, once for the first Likert scale  overall subjective opinion of the result page, and once with the second Likert scale  ability to solve the information need without clicking a link.
+Tail Answers and result ranking both had significant effects on overall rated result usefulness .
+In the statistics to come, we note that weighting the sample leads to noninteger degrees of freedom.
+Result ranking, which is central to search engines, had an effect size just twice the effect size of Tail Answers: 0.34 vs. 0.68.
+The large interaction effect indicates that answers are particularly helpful when search results are poor.
+Tail Answers were also useful at solving information needs without needing to click through to a result .
+The study design removed other answers from the search results in order to control for variation.
+It is possible that our effect sizes would be smaller if other answers were included.
+Overall, the inclusion of Tail Answers had a positive effect on users' search experience as reflected in their ratings.
+The impact of Tail Answers was nearly half as much as result ranking, where search engines focus much of their effort.
+That positive effect was more than doubled when participants were asked whether they needed to click through to a URL.
+Participants filled out the survey at the completion of the experiment and provided feedback on the writing, correctness, and usefulness of Tail Answers.
+Participants found Tail Answers useful , especially for directed, fact-oriented queries.
+For many of these queries, Tail Answers addressed the information need directly in the search results.
+A common theme in the responses was, "it told me exactly the right answer to my question."
+Participants were enthusiastic that a search engine could answer such unstructured queries.
+Most participants did not suspect that the Tail Answers were being human-edited.
+The crowd tended to create Tail Answers based on the most visible or understandable need in the query logs.
+When there were multiple information needs on a single URL, the answer would not cover all queries.
+For example, the only query with clear intent about the Phoenix Municipal Court asked about the court's phone number, so the answer was built around the phone number.
+However, that answer did not completely address more general queries like phoenix municipal court.
+In other cases, participants pointed out that the Tail Answer covered the high-level concept but did not have enough detail to fully satisfy their information need.
+In the future, we believe that it will be important to better target queries either by using the crowd to filter the set of trigger queries, or by A/B testing and measuring click cannibalization .
+Some participants trusted Tail Answers implicitly, and others wanted more information about sources.
+Because Tail Answers look like they are endorsed by the search engine, we are particularly sensitive to accuracy and trust.
+Generally, participants felt that Tail Answers were concise and well-written.
+We view this as a success, because extractions in earlier iterations on Tail Answers were much too long.
+The crowd-authored text had direct readability benefits: one participant remarked that Tail Answers avoided the ellipses and sentence fragments common in search result snippets.
+Participants occasionally requested richer structure, such as tables and images.
+We have shown that search engines can cheaply and easily answer many of searchers' fact-finding queries directly.
+We presented evidence that Tail Answers can improve the user experience, often roughly as significantly as search result quality.
+Although search engines have used large-scale log data and paid judges to improve search result ranking, our findings suggest that there are new ways human effort can be applied to re-envision the search user experience.
+Algorithmic Result Question Query Accepted Rejected What is a substitute for brown sugar, baking, molasses?
+State of California Selma CA, Clovis How much nicotine is in a Low density, 6mg milligrams, 14mg light cigarette?
+Here, an automated question-answering system proposed Tail Answers and crowds filtered them.
+Because Tail Answers are presented in a way that appears authoritative, they can potentially spread incorrect or misleading information without oversight.
+Even simple errors like triggering a Tail Answer on the wrong query can undermine people's trust in the search engine; our evaluation suggested that trimming the query trigger list is an important step for making Tail Answers deployable.
+Tail Answers may be particularly tempting targets for search engine spam because of the authority they carry.
+With Tail Answers, a few members of the crowd would have significant direct control over search results by including advertisements or misinformation.
+However, a small group of trusted individuals could check for these problems and send answers back if there are problems.
+Like result snippets, Tail Answers extract information from web pages and present that content to searchers.
+Unlike snippets, however, the intent behind the extraction is to fully address the searcher's information need, rather than to direct the searcher to the page.
+In this way, Tail Answers cannibalize page views.
+But without the underlying web content, the answers would not exist.
+To incentivize content providers, one option may be for the search engine to redirect a portion of the query's advertising revenue to pages that provide valuable content.
+Search engines will continue walking the line between attributing sources and highlighting the most useful information from that source.
+Our experiments with automatic systems such as AskMSR  and TextRunner  suggest that they produce too many poor guesses to be useful.
+However, a hybrid approach that uses the crowd to vet the answers provided by machine intelligence could be cheap and accurate.
+To explore this, we connected the AskMSR question-answering system to our dataset of Tail Answer queries, and asked it to generate candidate answers for the question queries.
+We then used the crowd to vote whether each answer was correct.
+Table 5 demonstrates early results, for example returning "brown sugar" as a substitute for molasses while filtering out highly-rated false positives like "baking".
+This vote was much cheaper than paying for extraction and proofreading.
+In addition to standalone answers, the crowd can help with snippets, the short page summaries that appear underneath the page title in search results.
+Instead of tail needs, popular queries are a good match for snippet improvement because they are seen by a large number of searchers.
+In particular, we focus on popular queries that have high click entropy .
+Queries like wallpaper have high click entropy because they have multiple meanings , and searchers may not have enough information scent  in the snippets to make good choices.
+We can use the extraction routine from Tail Answers to find snippets for these sites.
+Figure 5 demonstrates the resulting improvements to a high-visibility search snippet for the query wallpaper.
+We have thus far explored short and list-style answers, but there are many more possible answer types that could be developed with our approach.
+For example, answers could be created to help users achieve high-level goals like creating a website or planning a vacation to Yosemite .
+They could also summarize web content, automatically create answers for spiking queries or news stories, or even connect searchers with other users who might be able to help solve their information need .
+To create more sophisticated answers, we expect to transition from generic crowd workers in Mechanical Turk to more expert workers like those found on oDesk.
+The amount of effort and cost could be applied differentially, based on potential gain, with more invested in more popular or high impact information needs.
+Because Tail Answers are general-purpose, it is impossible to provide custom user interfaces.
+However, if we focus on a particular set of information needs, we can build special user interfaces and data extraction requirements.
+Figure 6 shows example answers we have built for translating commands between programming languages, for example understanding how to translate PHP's array join syntax into Python.
+We began with a list of programming primitives in Python, then asked workers to volunteer the mapping into PHP.
+With this mapping, the Tail Answers can return results for functions in either language, as well as translate between the languages, with a specially designed interface.
+Destination probability can also help identify new kinds of answers.
+For example, pages with telephone area codes tended to have high destination probability.
+Armed with this information, search engines might start building answers specifically for area code queries.
+Search engines increasingly aim to return information rather than links.
+Search companies devote significant resources to build a small number of inline answers for topics like weather and movies.
+Unfortunately, most information needs are unlikely to ever trigger answers.
+In response, we have introduced Tail Answers: succinct inline search results for less frequent and extremely varied information needs.
+To build Tail Answers, we draw on the aggregate knowledge of thousands of web users.
+We mine large-scale query logs for pages that tend to end search sessions, select candidates where searchers have used information key terms like question words, and use paid crowds to remove candidates that cannot be answered succinctly.
+Finally, crowds extract the information from the web page, edit it, and title it.
+Our evaluation of Tail Answers demonstrates that they can significantly improve the search user experience and searchers' ability to find the information they are looking for without navigating to an external web page.
+We demonstrate the generalizability of these techniques by prototyping ways they could be used to improve other aspects of the search engine interface.

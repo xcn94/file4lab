@@ -1,0 +1,283 @@
+Navigating through a file hierarchy is one of the most common methods for accessing files, yet it can be slow and repetitive.
+New algorithms that predict upcoming file accesses have the potential to improve navigation-based file retrieval, but it is unknown how best to present their predictions to users.
+We present three design goals aiming to improve navigationbased file retrieval interfaces: minimise the time spent at each hierarchical level en route to the target file; reduce the number of levels traversed by providing shortcuts; and promote rehearsal of the retrieval mechanics to facilitate expertise.
+We introduce three interfaces that augment standard file browsers based on each of these goals: Icon Highlights give greater prominence to predicted items in the current folder; Hover Menus provide shortcuts to predicted folder content; and Search Directed Navigation uses predictive highlighting to guide users through the hierarchy in response to query terms.
+Results from a user evaluation show that all three interfaces improve file retrieval times, with Icon Highlights and Hover Menus best suited for frequently accessed items and Search Directed Navigation best suited for infrequent ones.
+We also show that the benefits are larger when folder content is spatially unstable.
+Finally, we discuss how the interfaces could be combined and deployed in existing file browsers.
+Regardless of the cause, it is clear that reducing retrieval time for hierarchical file browsers could result in large aggregate time savings.
+The general problem of improving file retrieval has received substantial research attention.
+As reviewed below, researchers have studied several aspects of the problem: the ways that users choose to organise information , the performance implications of different hierarchical structures , potential improvements to file access using search , visualisations that provide shortcut access to files , and predictive algorithms for anticipating retrievals .
+Commercial systems have also iteratively refined their facilities, with tools such as `Recently Used' menus, full text searching, and folder aliases now standard in most operating systems.
+Although some alternative retrieval techniques explored in this previous work have been shown to be faster than standard navigation , the performance improvement often comes at the cost of switching to a completely different retrieval interface.
+This is a problem, because several studies have shown people's continued preference for hierarchy-based file navigation over alternative methods .
+Retrieving files is an extremely common task for all computer users.
+Of the many interfaces that are possible for retrieving files, navigating through a hierarchy using a file browser is dominant .
+However, file browser navigation is slow - more than 12 seconds per retrieval for Mac users and more than 17 seconds for Windows users .
+This is a long time to retrieve a file, given that selecting a ready-to-hand file icon would take no more than a second or so.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In contrast, research has shown that search, although an essential tool for some retrievals, is used mainly as a method of `last resort' , called upon when users cannot remember the location of files in the hierarchy.
+Therefore, to solve the performance problems of real-world file retrieval, it is necessary to find improvements that are able to work with the presentation styles and interaction models of the standard hierarchical file browser.
+In this paper we present three new techniques that do this.
+Our new techniques are based on design goals for overcoming three performance constraints in navigation-based retrieval: 1.
+Overcome the visual search constraint: minimise the time spent at each hierarchical level, by reducing exploration and visual search; 2.
+Overcome the levels constraint: reduce the number of levels traversed, by facilitating shortcuts; 3.
+Overcome the practice constraint: improve navigation expertise, by promoting rehearsal of the retrieval mechanics.
+Our three new techniques address these constraints using some of the same advances seen in previous work for prediction-based and search-based approaches , but they differ dramatically in the way that the algorithms' results are presented to the user and the way that the user interacts with the new capabilities - in our techniques, results are tightly integrated into the interface and interaction paradigm of the file browser.
+To reduce step times during file navigation , Icon Highlights  predict which items in the current folder are most likely to be accessed, and give them greater visual prominence.
+Hover Menus  provide quick access to commonly accessed items inside folders, in order to reduce the number of steps required in many cases .
+Search Directed Navigation  guides users through a file hierarchy based on a filename query.
+This is designed to bring some of the advantages of search to file navigation, while facilitating the development of expertise when compared to search .
+A two-part experiment validates our new techniques.
+The first part of the study examines user performance and preference with the techniques in comparison to standard file browsers, using tasks that involve retrieving both previously-visited and unvisited files; it also examines how well users learn file locations with the techniques.
+The second part of the study examines the effects of spatial stability of the folder contents on the relative performance of the techniques, which is important when folder content varies and when view modes change.
+The study's results show that the new techniques provide substantial performance improvements over a standard file browser, and that they are strongly preferred by users.
+The specific contributions of the paper are as follows: first, three design goals for improving navigation-based file retrieval; second, three new interface designs for file navigation that improve different aspects of navigation-based retrieval using predictive and search-based algorithms; third, empirical results demonstrating that these interfaces improve navigation-based retrieval; and fourth, discussion of real-
+To successfully retrieve a file using navigation, users must remember its location .
+However, organisational schemes are rarely optimal, raising challenges such as multiple possible locations due to semantic ambiguity, and the lack of a-priori knowledge that a file will be needed in the future .
+However, files often move between these categories, creating a tension between organisation for current and later reuse .
+To examine the retrieval difficulties stemming from semantic ambiguity, Malone  asked study participants to find documents with descriptions given by coworkers.
+In two thirds of these probes, the documents were not filed under the dimensions  used to describe them.
+Furthermore, he observed that the cognitive difficulty of classifying information acted as a barrier to filing.
+Several other studies have analysed snapshots of users' hierarchies to get a better idea of how they organise their files , also finding that most files are rarely accessed and that a majority of retrievals are made up of a small minority of items .
+The influence that hierarchical structure has on navigation time has been extensively researched, and is broadly encapsulated by the question `broad and shallow or narrow and deep?'
+Cockburn and Gutwin  provide a review of thirty years of empirical research on the topic, which shows diverse results.
+Several studies show that plots of navigation time against depth follow a `U-shape', while others show that time increases with depth.
+Cockburn and Gutwin also present a simple mathematical performance model, called `Search/Decision and Pointing' , that explains the result's diversity: broadly, a U-shape occurs if users must visually search for items at each level of the hierarchy, while shallow structures perform best when users can anticipate target location at each level.
+The SDP model inspired the design goals presented later, and so it is briefly summarised here.
+SDP predicts the time taken to select an item at one level of a hierarchy by combining three factors: the time to visually search for the target; the time to decide about target location; and the time to point to it.
+Pointing time is modelled using Fitts' Law .
+Decision time is modelled as a calibrated logarithmic function of the number of candidate items, and is employed when users can anticipate target location .
+The model uses a power-law to predict the user's transition from search-based strategies to decision-based ones when interfaces offer consistent access methods across retrievals.
+Finally, the model sums the predicted time for each level across hierarchical levels.
+The SDP model suggests three promising opportunities for improving performance in hierarchical navigation, described later: 1. reduce visual search time, which can be a performance bottleneck due to its linear function of candidate items; 2. reduce the number of hierarchical steps required through the hierarchy; and 3. help users transition from relatively slow search-based strategies to faster decision-based ones.
+Contemporary commercial interfaces provide a variety of techniques for reducing the number of hierarchical steps to reach files.
+These include `Smart folders' in OS X, `Libraries' and `Favourites' on Windows 7, and `aliases', `symbolic links' and `shortcuts' in various operating systems.
+Methods to reduce visual search time or to facilitate transitions to decision-based retrieval are rarer, but research exemplars are described below.
+The common `Open recent' menu in commercial software typically uses a simple `Most recently used'  algorithm to allow quick access to the most recently used files within an application.
+However, the contents of the list fluctuates over time and, like search, it does not help users learn the retrieval methods that they are likely to need for future accesses.
+The AccessRank algorithm  was developed to facilitate both accurate predictions and prediction consistency over time.
+AccessRank uses two parameters  and  to configure a balance between prediction accuracy and consistency.
+Log-based analyses of real user data for web browsing, command use, and window switching, showed that AccessRank outperforms prior predictive algorithms for both accuracy and consistency.
+The systems described later in this paper use AccessRank as the back-end algorithm for new interfaces that present its predictions.
+Although log-based analysis demonstrated that AccessRank improved prediction accuracy over previous techniques, achieving benefits in real-world file access is difficult.
+One primary problem is that predictive and search-based systems typically present a completely different interface for retrieving files than a standard file-navigation browser, however most users prefer the navigation-based interface .
+In contrast, search-based or prediction-based retrieval is often accompanied by new interfaces that need to be learned, widely varying search results, and considerable cognitive effort to compose and debug queries.
+These realities about the way users retrieve files suggest that real-world performance could best be improved through a hybrid approach that takes the power of search and prediction algorithms and integrates it with enhanced presentation schemes within the interaction of the existing file browser.
+Search is an essential tool for file access, particularly when item locations are unknown .
+Search has many attractive features for file retrieval: any file attribute can be searched, rather than requiring memory of the item's location ; it does not depend on a hierarchy, relieving users from the need to develop semantic groupings before storage and assign files to them; and it enables retrieval in a single step , potentially allowing for significantly faster retrievals.
+However, researchers have noted that search imparts a lower sense of control and that it relies on recall rather than recognition , which elevates cognitive demands .
+Consequently, it is often used as a method of last resort, applied after failing to retrieve the file by navigating .
+Additionally, search results are typically presented in list form, which facilitates rapid access to the target, but raises two potential problems.
+First, it does little to assist users in learning the navigation-based retrieval mechanisms that are likely to be tried first in any future access .
+Second, search results lists can be ambiguous when multiple candidates match or partially match the search criteria.
+Recommender systems can assist file retrieval by predicting upcoming accesses.
+Two categories of recommender systems are those that base predictions on an individual's past actions , and those that facilitate discovery based on retrievals across a community of users .
+The review of related work suggests several opportunities for improving human performance in navigation-based file access.
+In the following subsections, we distill these opportunities into three design goals, and then present three interfaces aiming to satisfy the goals.
+It is important to note that any file retrieval mechanism will have three parts: an underlying algorithm for deciding which items to present, a presentation approach for making items visible and salient, and a set of interaction techniques with which the user can select items and specify targets.
+Our primary focus is on the presentation aspects of the techniques, but some elements of the algorithms and interaction techniques will also be discussed as needed.
+The design goals stem from insights within the `Search Decision and Pointing' model  which predicts hierarchical navigation time based on the time taken at each hierarchical level , the number of levels traversed , and the potential for the user to make a transition from novice to expert behaviour.
+While navigation-based retrieval naturally supports the goal by using consistent interaction mechanics across experience, search-based retrieval does not.
+Instead, search-based interfaces typically present their results to the user in a list, allowing direct access to each file.
+While this may facilitate rapid retrieval for the current access, the list presentation does not help users learn how to find the file in the navigation-based hierarchy .
+Note that there is a tension between the recommendations of Goal 2 and Goal 3 because the presence of shortcuts allows alternative mechanisms for retrieval, and consequently it may reduce opportunity for rehearsal, particularly if the shortcuts vary due to fluctuations in prediction consistency.
+Search Directed Navigation, described below, allows users to type characters to determine the set of likely candidates based on filename matches.
+The presentation approach uses item highlighting  to guide users through the hierarchy, with the intention of facilitating rehearsal-based transitions to more expert performance.
+Extensive prior literature has investigated improved pointing techniques , see  for a review, and Goal 3 addresses the transition to decision-based methods .
+In Goal 1, therefore, we focus on mechanisms that improve visual search .
+This is particularly important because visual search can be a performance bottleneck .
+Reducing visual search time involves two activities.
+First, the primary job of the retrieval technique's underlying algorithm is to determine a small set of likely candidates for the current retrieval task.
+Second, the technique's presentation approach must make those candidates visible and salient, to reduce the number of objects that need to be visually inspected.
+Prior work on methods for improving the presentation of candidates includes a variety of highlighting mechanisms that enhance the visual salience of likely targets without changing their layout, such as ephemeral adaptation .
+Other techniques segment the visual presentation across space or time, by moving salient items into prominent positions , by segmenting images , or by rapidly presenting images across time .
+Icon Highlights, described below, uses AccessRank to predict probable items at each level of the hierarchy, and uses inplace highlighting to increase their visual salience.
+We developed a basic file browser that closely mimics the icon view of the OS X Finder.
+We then developed three interfaces that augment the basic browser with new features that are intended to satisfy each of the design goals.
+As described above, each technique can have an underlying algorithm, a presentation approach, and various interaction techniques.
+Two of the interfaces, Icon Highlights and Hover Menus, use AccessRank  as their underlying algorithm to predict likely folders and files .
+Search Directed Navigation uses character-based filtering to determine candidates, and also keeps track of prior revisitations.
+SearchDirected Navigation uses an explicit interaction technique - that is, users type characters to specify the search target.
+In contrast, the AccessRank-based techniques use implicit information about selection and navigation history, rather than user input about the target.
+The sections below provide details of the presentation approach for the three retrieval techniques.
+The SDP model also suggests that efficiency gains can be achieved by reducing the number of hierarchical levels traversed en route to the target.
+Users might achieve this by creating flatter hierarchies or by creating shortcut links to important files and folders, but both require a-priori knowledge of the future need to retrieve the file, as well as an understanding of the file structure's implications on retrieval times.
+Hover Menus, described below, also uses AccessRank to determine a set of likely candidates; but this time it creates these sets for each of the folders at the current level, thus indicating what is most likely within that folder's sub-hierarchy.
+The candidates are presented in a context menu associated with each folder, allowing users to skip one or more levels and get shortcut access directly to the most probable child targets in any branch of the sub-hierarchy.
+Icon Highlights increase the visual salience of items that AccessRank predicts, as shown in Figure 1a.
+The highlighting mechanism is similar to that used in Apple's System Preferences application, with graduated blurring of `spotlight' highlighting dependent on the item's AccessRank score .
+The highlighting scheme can be applied to any folder view, such as large or small icons/thumbnails, or filename lists.
+All items remain selectable, regardless of their highlight state.
+To indicate the presence or absence of highlighted items outside the current scroll view, the design marks items in the horizontal or vertical scrollbar .
+Details of the highlighting and blurring algorithm are briefly summarised to aid replication of the technique.
+Next, blur levels are calculated for the top k AccessRank prediction items - thus limiting the amount of visual clutter.
+Blur levels range from bmin  to 1  and are linearly translated from AccessRank scores.
+Finally, these levels are rounded to one of l discrete blur levels, so that users are not distracted trying to distinguish subtle differences between highlight prominences.
+In our implementation, we used k = 5 and l = 4.
+Hover Menus are designed to give users shortcuts to predicted targets located deeper in the hierarchy.
+They offer a recognition-based shortcut for reducing the number of levels that must be traversed through standard navigation actions.
+When a user hovers over a folder for 500ms a menu appears below it  showing lower level content  that have high AccessRank scores.
+Selecting a menu item navigates directly to the associated folder or file.
+To facilitate rapid browsing of several folders, menus appear immediately if the cursor enters a folder within 500ms of leaving a folder with a menu already displayed.
+Menus also fade out if the cursor leaves a folder without a selection being made.
+The menus are populated with up to n files followed by n folders, each sorted by AccessRank score.
+By default, n = 5, although the value is user-configurable.
+If deployed in real file browser applications, these techniques are probably best combined .
+However, it is important to first understand how each of the methods is used in isolation - how they affect file navigation performance, and how participants subjectively respond to them.
+Devising experimental tasks for evaluating file retrieval interfaces is complicated by the number of relevant factors that might be considered.
+These include the structure of the file hierarchy, the degree of ambiguity in the semantic relationship between hierarchical components, the stability or predictability of the data organisation in the interface, the recency and frequency of any previous visits to entities in the hierarchy, as well as individual user preferences.
+Our experimental design uses artificial tasks that control, or partially control, some of these factors in order to yield preliminary insights into the comparative usability and performance of the interfaces.
+Experimental tasks involved navigating within a three-level semantically organised hierarchy to select a target file that was cued by displaying its name in a small window at the side of the file browser interface.
+Example targets include `Paris'  and `Horse' .
+The path to most targets was intentionally partially ambiguous - for example, the target `Paris' might reasonably be contained within top-level folders `Geography' or `History', or in second-level folders `Capital cities' or `Large cities'.
+The ambiguity was intended to emulate imprecise recall of file locations and imperfect organisation as is typical of personal file hierarchies.
+During the experiment participants visited files up to 5 times each, allowing analysis of how performance with the interfaces changed as users become more familiar with the file locations and retrieval mechanisms.
+The experiment also examined how well users remembered the location of target files.
+Search Directed Navigation  is intended to satisfy Goal 3 by providing search-based guidance through the navigation hierarchy towards the target, allowing the user's interaction with search results to be a rehearsal of navigation-based retrieval .
+SDN achieves this guidance by highlighting items in the hierarchy that match typed query terms, using a visually similar highlighting strategy to Icon Highlights.
+If the search term matches an item at any level, the highlighting propagates up the hierarchy to mark the path to the target.
+An item matches the search query if any word or words in the item's filename has the search query as a prefix.
+The level of highlighting depends on the predicted probability of candidate targets, which may be calculated through AccessRank or through other metrics, such as visit count.
+Full content-based search strategies could also be used to determine the set of search matches, although our current implementation does not do so .
+The current version of the technique uses two highlight levels: one for previously-visited items , and one for unvisited items .
+The experiment ran on an iMac with a display resolution of 1920 x 1080.
+The file browser window was 880 x 631 pixels, populated with 48 x 48 pixel icons representing files and folders.
+Software logged all user actions, including task time.
+The experimental file browser application imitated the icon view in OS X at a fixed size of 6 x 5 icons .
+Items could be opened by double clicking, and toolbar navigation links allowed for navigation back, forward, or up to the parent directory.
+The basic interface, called Standard  was then augmented with each of our three interfaces.
+IH used k = 5 and l = 4, HM used n = 3, and SDN used two highlight levels for visited  and unvisited  targets.
+The same file hierarchy was used throughout the experiment, with targets located in different branches for each interface.
+The hierarchy structure was modelled on Bergman's findings of mean folder sizes : 12, 10 and 8 folders, and 16, 12 and 9 files at the root, second and third level respectively.
+Folders containing no target nodes were not populated.
+For consistency, all target files used for analysis were located at the third level, which matches the observed mean file retrieval depth .
+In total, the hierarchy contained 388 folders and 448 files, of which 288 could be selected as target items.
+As the retrieval phase progressed, however, these systems adapted to the user's navigation actions as described above.
+Because of the short duration of the experiment, a modified version of AccessRank was used that did not incorporate the time of day.
+Once the retrieval phase was complete with each interface, participants completed NASA Task Load Index  worksheets  and provided comments on the interface.
+The standard-retrieval phase consisted of a single selection of each of the ten targets from the retrieval phase using the standard file browser .
+Its purpose was to analyse any differences in how the interfaces supported users in learning the traditional mechanisms for navigating to files.
+Part two of the experiment repeated the method used for part one, but without the standard-retrieval phase and using maximally unstable icons - the spatial location of every icon in each folder was randomised after each target acquisition.
+The targets used with each interface were randomly selected within the top-level folders used for that interface in part one, so participants could be expected to have some familiarity with them from the beginning of part two.
+However, as with part one, the interfaces began with no usage history, and so provided no highlights or menus for the initial selections.
+The experiment consisted of two parts: the first asked participants to carry out retrieval tasks  with icons that remained spatially stable in the file browser; the second repeated the procedure of part one, but used icons that were randomly rearranged after each selection in order to examine how performance with the interfaces was affected by unstable locations.
+Understanding susceptibility to unstable locations is important since many activities cause view instability, including changing a browser window's sorting criteria, view settings or size, or changing folder contents.
+Part one of the experiment consisted of three phases using each of the four interfaces: practice , retrieval, and standard-retrieval.
+All three phases were completed using one interface before moving on to the next.
+During the retrieval phase, participants completed 22 file retrieval tasks in response to cued target filename stimuli.
+Successfully completing a retrieval automatically initiated the next by displaying another target.
+The 22 retrievals comprised ten different target files  and two distractor targets.
+The two distractor targets were at the top level of the hierarchy, and were included to reduce participants' anticipation of targets always being located at the third level.
+They were inserted roughly one-quarter and two-thirds of the way through the overall sequence of tasks.
+The ten true targets for each interface were randomly selected from the hierarchies contained within three top-level folders.
+To reduce learning effects stemming from familiarity with the hierarchy, different interfaces used targets from different top-level folders.
+Note that the two interfaces that used AccessRank  had no pre-populated history of file accesses, so for the initial selections of each target they pro-
+Data from the retrieval phase is analysed using a 4x5 repeated-measures analysis of variance  for withinsubjects factors interface  and repetition .
+The primary dependent variable is total time to select the target file .
+Navigational error rates are also analysed.
+Timing data from the standard-retrieval phase are analysed using one-way ANOVA across levels of interface, since each target is only visited once.
+To help characterise performance with the interfaces we also analysed step time as a secondary dependent measure  using factors interface and depth .
+To reduce the impact of outliers when navigational errors were made, task times were capped at 30 seconds and step times at 10 seconds.
+This affected 3.4% of tasks and 1.7% of steps, distributed evenly between interfaces.
+Data from the first task for each interface in each phase was excluded.
+Post hoc tests use the Bonferroni correction.
+Where the ANOVA assumption of sphericity was violated , Greenhouse-Geisser adjustments were used .
+Hover Menus  were relatively slow for initial selections, but fastest once their menus had been populated with shortcuts.
+Icon Highlights  was first or second fastest at each repetition level.
+We logged the time taken at each hierarchical level  from a user's final arrival at a particular level  until their final departure.
+Note that the sum of step times for a task may be less than the total task time, since superfluous navigations are not included in any step time.
+Figure 4a shows step times for each interface across file hierarchy depth.
+ANOVA showed significant main effects of interface and depth as well as a significant interfacexdepth interaction .
+SDN and HM both show particularly slow performance at the first level, which can be attributed to their interaction mechanisms - the time costs of typing a query  or browsing menus .
+However, they provide faster times at deeper levels because users can quickly acquire deeper level targets, either through specific item highlighting  or direct mechanisms for access .
+Figure 3a summarises retrieval times.
+ANOVA showed a significant main effect of interface , with SDN, IH, and HM all similarly fast  compared with ST slower at 8.51 s. Posthoc analysis confirmed pairwise differences between ST and both SDN and IH.
+Figure 3a shows that this is best attributed to SDN being substantially faster than the other interfaces for the first retrieval of an item, but slower than IH and HM for revisitations.
+We note that this is primarily due to differences in the techniques' underlying algorithms and interaction mechanisms, rather than their presentation approaches: SDN allows user input, and so can work immediately, whereas IH and HM must build up information about user selections before they can make good predictions.
+To summarise, the standard interface  was consistently slowest.
+We logged any navigation into an incorrect folder as an error.
+However, as stated previously, the hierarchy was intentionally partially ambiguous, leading us to anticipate high levels of error, particularly for the first selection of any target.
+A significant interfacexrepetition interaction  is best attributed to the marked difference between SDN's low error rate in the first repetition  compared to other techniques .
+This is in part an artefact of the experimental method, which used exact filename stimuli  but inexact, ambiguous hierarchical structures to guide navigation-based retrieval.
+The standard retrieval phase involved navigating to targets without any of the augmentations of IH, HM or SDN, to test for differences in participants' learning of the actual file locations.
+We found no main effect for interface , with mean times ranging from 6.8 s with ST and IH to 7.7 s for SDN.
+Error analysis also showed no significant effect.
+One noted that they would like a combination of HM and SDN.
+Another noted that SDN was most useful when first accessing items, but after a few times they remembered their locations, as intended in design goal 3.
+Two participants commented that the hover menus appeared too slowly, suggesting the need for a shorter dwell timeout or the ability to immediately post the menu .
+One participant also commented that Icon Highlights made it harder to select unhighlighted items, because the highlighting `dragged' their eyes to items.
+Another complained that it highlighted folders that were opened in error.
+This problem could be addressed by only updating the visitation data for a folder when a leaf node it contains is ultimately selected.
+Search Directed Navigation and Hover Menus require active use - users must explicitly choose to type a query or use a menu.
+We therefore examined the logs of interaction to determine how participants used these interfaces.
+Figure 7 shows the proportion of SDN and HM tasks in which their features were actively used, across repetition of access.
+The interesting result is in the contrast between SDN usage patterns when navigating stable and unstable icons.
+With stable icons, participants made extensive use  of SDN in the first repetition, decreasing to 19% in the fifth repetition, suggesting that they gradually learned icon locations and decided not to use explicitly typed queries as they could quickly select items at their known locations.
+With unstable locations, however, participants continued to use queries across repetition .
+Referring back to the Search, Decision and Pointing model that motivated design goal 3, this suggests that users will naturally transition to decision-based mechanisms for identifying and selecting items when stable spatial locations allow them to do so, but that they prefer to use explicit search criteria instead of completing the time-consuming activity of visually searching for targets when items appear in random  locations.
+Hover Menus were used consistently regardless of the stability of icons.
+Only the first repetition, where the menus were unlikely to be populated with assistive data, showed low levels of use.
+When menus were shown for stable icons, target items were present 58.0% of the time, and their parent folders 80.0% of the time, including 62.3% of the time when the target file was not.
+When the target file was present, it was selected 99.0% of the time; when absent, but with its parent folder present, the parent was selected 93.0% of the time.
+Figure 3b summarises the results, showing that the new interfaces yield greater benefits with unstable icons than with stable icons.
+Posthoc analyses show pairwise differences between ST and all three augmented interfaces, as well as between IH and HM.
+Repetition showed the anticipated significant main effect .
+The significant interfacexrepetition interaction  is again attributed to SDN showing much less performance improvement across repetition compared with other interfaces.
+The figure also shows that IH performed particularly well with unstable icons when revisiting items.
+Analysis of step times showed similar  effects to those described above for stable icons , with both main effects and the interaction significant .
+In analysing errors, there were significant main effects for interface  and repetition , as shown in Figure 5b.
+SDN had substantially fewer errors  than the other interfaces , with consistently low error rates, unlike the other interfaces, which had much higher error rates for the first repetition.
+Subjective responses in all categories of the NASA TLX worksheets favoured the new interfaces in comparison to the standard file browser.
+Friedman tests show significant differences between interfaces for mental demand, performance, effort and frustration.
+Participants also ranked the interfaces  for speed, errors, and overall preference.
+SDN was consistently ranked first, and the standard interface consistently last.
+Responses are summarised in Figure 6.
+When asked whether they would prefer SDN or traditional file search tools, 12 of the 16 chose SDN.
+Results show that all three interfaces improve performance in navigation-based file retrieval over the standard icon view.
+Icon Highlights and Hover Menus are particularly efficient for revisiting items, while Search Directed Navigation performs best for newly  visited items.
+We also found that interfaces' relative performance increases as spatial stability decreases.
+Both IH and SDN partially overcome spatial instability by quickly focusing attention to relevant icons.
+As anticipated from the design goals, each of the interfaces performs best in different scenarios of use.
+For example, the Icon Highlights presentation of AccessRank predictions was the best interface for frequently-revisited files in spatiallyunstable views, and SDN was best for infrequently-accessed files that are deeper in the hierarchy.
+Importantly, however, the interface designs are complementary and can be combined to gain increased benefit.
+In such a combination, Icon Highlights would be always present, while the features of Hover Menus and SDN would be available to the user on-demand.
+Icon Highlights and SDN currently use the same visualisation to highlight items.
+This overlap is unlikely to cause confusion, since users who enter a search query to SDN have made an explicit choice to use that technique, and will likely expect that the highlighting is reflecting their search rather than the general AccessRank prediction.
+Hover Menus could be modified to adapt to SDN queries.
+Ultimately this combination converges with traditional lists of search results, but could be implemented to either highlight menu items or repopulate the menu accordingly.
+One area for further study in combining these interfaces is to determine whether users face additional cognitive load in deciding which technique to use.
+We suspect that in a combined deployment users would default to using the automatic feedback provided by Icon Highlights, and only resort to Hover Menus or SDN when retrieval difficulties arise.
+This seems similar to current retrieval , but the combined interface would provide a richer set of tools for assisting navigation without a complete change in retrieval mechanism.
+Table 1 summarises properties of all the retrieval methods discussed in this paper, including navigation, search, the three interfaces and a combined interface.
+Values are based on a mixture of evaluation results and theoretical underpinnings.
+While all approaches have strengths and weaknesses, in theory, combining IH, HM and SDN provides the most benefits.
+The standard view was notably slow with unstable icons, important because item locations can change when folder content changes or when window settings or sizes are changed.
+Implementing the back-end predictive algorithms requires recording and tracking file access data, but is otherwise relatively straightforward.
+The current implementations of IH, HM and SDN are relatively rudimentary, developed to explore their key concepts.
+There are therefore several avenues for interface refinement, including adapting them to other view types, and enhancing Hover Menus to provide more information about file and folder locations .
+We summarise the limitations of our study below.
+Highlights and AccessRank: Our highlighting method is based on the `spotlights' seen in OS X, but other methods may further improve performance .
+Our results do not indicate whether AccessRank, the highlighting method or some combination of them contributed to the success of IH and SDN, nor do they show whether the AccessRank parameters we used were optimal.
+Non-natural setting: While we tried took steps in our experiment design to emulate a familiar dataset, a large field study involving participants' own personal file collections would yield more accurate findings.
+However, our preliminary evaluation allowed us to answer specific research questions that can be further explored in future work.
+Task cuing strategy: The evaluation method initiated tasks by showing a stimuli consisting of the target file's name, which allowed users to simply type the name for a certain match with SDN.
+In real life, recall of filenames is imperfect , and consequently our results for initial selections with SDN can be considered a best case analysis.
+SDN vs search: Our evaluation compared performance between alternative interfaces supporting navigation-based file retrieval.
+We did not address performance comparison between search and navigation.
+A future evaluation could directly compare how search and SDN influence file location learning, whether they have different perceived workloads, and which techniques are best in different circumstances.
+Sample size: While our results were highly significant, a larger sample size would produce more robust findings.
+Erroneous predictions: While we did not directly investigate the effect of erroneous predictions, their effect was incorporated into the main results, showing that the interfaces still provided significant overall benefits.
+Further studies are needed to investigate their effect in more detail.
+Variation in users: Further work is required to investigate the difference in effectiveness of the interfaces for users who organise their hierarchies in different way .
+We presented three interface designs to improve user performance in accessing files by navigating through hierarchical structures.
+The designs use underlying algorithms or search term queries to predict likely target files, and they use these predictions to assist users in traversing the hierarchy.
+The interfaces are designed to assist with hierarchical traversal, rather than simply deliver a list of likely targets, because they are intended to help users learn the location of files, and the associated mechanisms for retrieval, to assist with future navigation-based file accesses.
+The Icon Highlights interface is designed to assist users in visually identifying likely targets at each level of the hierarchy.
+Evaluation results show that it performs particularly well when users are revisiting files in folder views that are spatially unstable.
+The Hover Menus interface is designed to facilitate shortcuts to likely folders and files across levels of the hierarchy, and evaluation results showed that it is particularly effective for revisiting files in spatially stable views.
+Search Directed Navigation highlights items that match search query terms, emphasising those also predicted as more probable.
+It offers an alternative to search by guiding users through the hierarchy to matching items.
+Evaluation results showed that it performs particularly well when users do not have location knowledge.
+All of the interfaces allowed faster task completion than the standard file browser in all conditions, and subjective preference favoured them.
+Further work will combine the techniques and evaluate them in longitudinal use, but current results suggest that these relatively easy to implement features will improve the common activity of navigation-based file retrieval.

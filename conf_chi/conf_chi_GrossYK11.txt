@@ -1,0 +1,114 @@
+The web holds an abundance of source code examples with the potential to become learning resources for any end-user.
+However, for some end-users these examples may be unusable.
+An example is unusable if a user cannot select the code in the example that corresponds to their interests.
+Research suggests that non-programmers struggle to correctly select the code responsible for interesting output functionality.
+In this paper we present Dinah: an interface to support non-programmers with selecting code causing graphical output.
+Dinah assists non-programmers by providing concurrency support and in-context affordances for statement replay and temporally based navigation.
+We have chosen to focus on graphical output from a program because our observations of inexperienced end-users indicate that they define their programming goals in terms of observable output rather than implementation details.
+Further, graphical output provides an approachable means by which non-programmers can determine whether a program is relevant to their needs.
+In this paper we present Dinah: an interface which assists non-programmers in selecting the code causing graphical output.
+We first present Dinah's interface with an example usage scenario.
+We then discuss three guidelines for future code selection systems' design drawn from our formative studies.
+We conclude with the limitations to our approach.
+A wealth of freely available code resources exists on the web.
+These resources range from code snippets in API documentation to whole programs in code repositories.
+Some repositories exist exclusively for end-user environments .
+In many domains, endusers attempt to learn from or reuse code from these code resources .
+To effectively use examples from these resources, users must be able to select the code in an example that relates to their interests .
+Research suggests non-programmers struggle to select the related code either unaided or with existing software support .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In software engineering, output localization  is concerned with correlating output to the code responsible, whether for a feature  or a fault .
+Localization software support can use a combination of static  and dynamic information  to create assistive visualizations.
+Some tools use dynamic traces to create interactive graphical output timelines that enable indexing of active code sections at a point in time .
+The Whyline  enables debugging by asking why and why not questions about program execution from recorded graphical output.
+ZStep95  enables stepping of graphical output changes.
+The majority of these tools have been designed for experienced users and not focused on non-programmers.
+Research shows that non-programmers struggle to find the code responsible for graphical output either alone  or with a debugger .
+An output history tool  enabling bi-directional search of a program's output and code significantly increased non-programmers' success relative to a debugger .
+However, users took nine minutes on average to identify target code while struggling with unfamiliar code constructs and concurrent execution .
+Dinah offers new supports to assist non-programmers with evaluating constructs and searching concurrent code.
+Sam finds a program on the web where a lunch lady "brainwashes" a student by raising her arms to his head and then shaking it.
+Sam believes this example is relevant because he can use the same brainwashing action to make his boy shake the gift.
+Sam now wants to select the code for the arms raising and the shaking to use it in his program.
+Sam looks at the Right Now pane  to see the actions  the lunch lady is doing.
+He notices three actions: a delay and two touch actions.
+Sam clicks on a touch action to open a statement context menu , and replays the action.
+Replay shows the lunch lady lifting her right arm, not both arms.
+Because this is part of what Sam wants, Sam clicks on the action again to open the context menu and locate the action in the program code.
+Now Sam is looking at the code for the brainwash method.
+Sam notices another touch action below the touch action he located.
+He clicks on its Statement Button  for replay which shows the lunch lady lifting only her left arm.
+Sam wants both touch actions, but he does not know how to replay them both at the same time.
+He clicks on the code button for a touch action and chooses the HELP operation .
+In the Help panel  Sam sees a tab for what played at the same time.
+Sam chooses the section referring to a block playing the touch action, and reads the description of a Do Together block.
+To illustrate Dinah , we present a scenario where a non-programmer selects code causing graphical output.
+We present two solutions based on search strategies employed by roughly half of each of our non-programmer participants during our formative evaluation study : bottom-up to select the code for the output's start and top-down to select the code for the end.
+Dinah's interface:  program playback controls,  Right Now pane showing currently executing methods by character  or action name ,  History Pane indexing all executed methods by a target object,  Statement Buttons indicating what is executing , has executed  and has not executed ,  Statement Context Menus to breakdown a super-action , replay a statement, locate a statement , and  help to show the Help pane which explains execution semantics temporally around the statement.
+One user described its value: "you can see exactly what each command means."
+We provide two navigational affordances to help users identify concurrent methods.
+The Right Now pane  shows all methods executing in the running program or at a selected point in time, organized either by 3D object or by method names.
+One user described the Right Now pane as: "kind of representative of all the code that's going on, all at once."
+For concurrency identification in the program code, when a user has identified a particular statement that executes near the same time as their target output, they often search for ways to navigate based on that statement.
+Statement context menus include an item: HELP: What happened around this action?
+This operation opens the Help pane  which includes tabs to help users find methods that executed before, at the same time, and after the selected statement.
+Users often begin the search for a concurrent method by looking for statements that executed "right before" or "next after" a statement.
+If users fail to find their statement in the before or after tabs, they often look at the methods occurring at the same time.
+In the same time tab, the other actions section shows all methods that executed concurrently, organized by 3D object, during the selected statement's execution period.
+To implement these features Dinah maintains a dynamic trace of the running program.
+The trace organizes statement executions into a hierarchical execution tree .
+Parent nodes sort children by execution period for easy execution time search and temporal neighbor location.
+Sam resumes the execution of the program and pauses once the lunch lady begins shaking the student's head.
+Sam looks in the program code for yellow Statement Buttons  to see what statements are currently executing.
+Sam notices a brainwash action first and replays the action.
+The replay begins too early with the lunch lady walking toward the student before shaking his head.
+Sam decides the code he is looking for is in the brainwash action.
+He clicks on the brainwash code button and chooses breakdown  to see the actions inside .
+Inside the brainwash action Sam sees the yellow code button only on the charm action.
+Sam replays the charm action and sees only the head shaking, not any other actions that also occurred concurrently.
+Convinced, Sam decides he has found the end of the code he wants.
+Twenty-six non-programmers  participated in our formative evaluation.
+Users first completed two tutorials explaining basic software operation and an example selection task.
+We provided documentation to eighteen users.
+Finally we asked users to watch a video showing graphical program output and asked participants to mark the first and last statements causing the output.
+Prior guidelines propose independent thread replay to overcome this problem .
+Dinah enables users to replay any execution of a statement.
+Replay shows a statement's output effect independent of any other concurrent statements' output.
+Dinah implements replay by storing all graphical state changes and their source execution thread.
+When a statement is replayed, Dinah shows graphical state changes from the statement's execution thread, and any child threads for concurrent blocks, over the statement's execution period.
+Previous research suggests non-programmers naturally focus on reading code to search a program .
+To accommodate this focus, research also suggests providing direct code interactions, such as thread independent replay, to precisely evaluate statements .
+To this end, we built a replay operation  accessible through a button displayed on each program statement .
+In the initial design, all these buttons had the same appearance, leading users to struggle to determine which statements they could replay.
+As one user stated: "I was assuming I could just play anything, like whatever anytime I want."
+To address this struggle, we experimented with variable button colors based on execution status.
+All statement buttons began as red.
+As a program ran, the buttons for inprogress and completed statements became green.
+Although a user correctly interpreted the colors, that user could not identify why replay was disabled on red buttons.
+In the final design there are three color states .
+While a statement is running, the button is yellow.
+When the statement completes, the button is green.
+One user summarized this as "I think it's kind of showing how much has been completed."
+A study of non-programmers naturally searching and selecting code suggested that non-programmers do not infer program structure, and consequently fail to fully navigate programs .
+We addressed this by enabling users to directly locate statements from program output.
+Additionally, we provide two navigation operations, breakdown and HELP , because correct selection may require navigating to find parent method calls or blocks.
+The locate operation  avoids navigational difficulties by directly navigating to, and highlighting, a statement in the program code.
+The Right Now , History , and Help  panes all summarize methods that are executing or have executed in panes outside the program code.
+When a user chooses a method execution from any of these panes, the locate operation becomes available to show the corresponding statement in the program code.
+This enables users to find the statement without navigating the call hierarchy.
+We observed many users incorporating locate in their searches.
+The breakdown operation  navigates down the call hierarchy by showing a method's implementation.
+We originally labeled this operation show details in tab because previous users described an implementation as an "action's details."
+However, users mentioned a desire to find a way "to breakdown this task into the sub-tasks."
+These users dismissed show details in tab as unrelated to their goals.
+We incorporated this intuitive explanation and later a user expressed that they used breakdown very early in the session because "it made sense at the time."
+The Help pane  offers time-based contextual navigation for a selected statement and the ability to navigate up the call hierarchy.
+We commonly observed users using the locate operation and then getting stuck.
+Moving up the call hierarchy or considering a parent block was unintuitive.
+As one user stated, "it's hard to think of things happening on top of things... you think things happen sequentially."
+To support reasoning in the presence of parental relationships, the Help pane presents temporal execution information in three tabs: what executed before, at the same time, and after the selected statement.
+The same time tab includes sections for the parent method  and one for the parent construct block.
+The super-action section explains the super-action execution relationship and enables a user to move up the call hierarchy by using the locate operation.
+The parent block section similarly explains the block's execution semantics  and offers the locate operation.
+Dinah's features are limited to applications that can be visualized graphically.
+Dinah's approach and affordances should scale to any other graphical environments with appropriate execution time management mechanisms , detection of code sections related to graphical change, and efficient trace storage.

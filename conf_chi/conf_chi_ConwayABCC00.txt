@@ -1,0 +1,169 @@
+This Conference Proceeding is brought to you for free and open access by the School of Computer Science at Research Showcase @ CMU.
+It has been accepted for inclusion in Human-Computer Interaction Institute by an authorized administrator of Research Showcase @ CMU.
+We present lessons learned from developing Alice, a 3D graphics programming environment designed for undergraduates with no 3D graphics or programming experience.
+Alice is a Windows 95/NT tool for describing the time-based and interactive behavior of 3D objects, not a CAD tool for creating object geometry.
+Our observations and conclusions come from formal and informal observations of hundreds of users.
+Primary results include the use of LOGOstyle egocentric coordinate systems, the use of arbitrary objects as lightweight coordinate systems, the launching of implicit threads of execution, extensive function overloading for a small set of commands, the careful choice of command names, and the ubiquitous use of animation and undo.
+Realtime 3D graphics is becoming mainstream: most PCs shipped in 1999 will ship with some sort of 3D graphics accelerator.
+We see this as an opportunity to approach 3D graphics research not as a question of rendering speed, but as one of authoring and pedagogy.
+Our goal is to engineer authoring systems for interactive 3D graphics that will allow a broader audience of end-users to create 3D interactive content without specialized 3D graphics training.
+Implicit in this line of research are a few assumptions: The New Audience Assumption: we believe that a larger and more diverse audience will be interested in creating interactive 3D content.
+It is critical to realize that this new audience will not necessarily have the mathematical or programming background that current graphics programmers have; this shapes the nature of the tools that we must provide to this audience.
+The Programming Assumption: Interesting interactive 3D graphics authoring will still involve some level of logic specification/programming, at least in the near term.
+This is true in part because of conditional behavior, which implies the need for some sort of "if-then" construct.
+We have focused on scripting in this work; future systems will probably use a combination of techniques including keyframing, programming-by-demonstration, and visual programming, as well as scripting.
+We began the Alice research project with the goal of creating new authoring tools that would make 3D graphics accessible to this wider audience, something that current 3D tools would not do.
+Choose a target audience and keep their needs in mind, in our case, non-science/engineering undergraduates.
+Iteratively test our designs with real users, improving both learnability and usability of the system in the process.
+Show a list of methods that this object responds to 
+Users select objects from an object gallery displayed by clicking the add object button .
+Alice's library contains hundreds of low-polygon models whose high fidelity comes from carefully hand-painted texture maps .
+Note that while Alice users can import objects in several popular file formats, Alice itself is not a CAD tool for creating object geometry: Alice is a tool for describing the time-based and interactive behavior of 3D objects.
+Objects are placed in a PHIGS-like tree of nested objects  , displayed along the left edge of the authoring window.
+Navigation tools  provide a simple walking metaphor for moving the camera.
+Alice can support multiple, simultaneous windows/cameras.
+All commands in Alice animate over a period of one second with an Ease-In/Ease-Out interpolation  whenever it is semantically reasonable to do so.
+Programmers can still specify an explicit duration  if so desired.
+This is not just a flashy trick but is a critically important design decision.
+Not only does animation support the percept of object constancy , but it can also aid in the debugging process by providing information about how a bug unfolded.
+In a system without animation, a user can easily make the mistake of using the Move command with a distance that takes the object off the screen.
+An instantaneous move effectively "teleports" the object out of sight, a mistake that is visibly indistinguishable from a delete command.
+By animating the move command, we give the user a chance to see the command unfold over time.
+In this case, the user would see the failure in progress as the object slides off the edge of the screen.
+Likewise, Alice provides an animated infinite undo mechanism .
+This mechanism always takes one second to undo an operation, regardless of the duration of the original command being undone.
+Figure 2: The Alice Authoring Environment .
+Alice uses a general purpose, interpreted language called Python .
+We chose this language for its technical characteristics.
+For example, Alice uses the Coriolis collision detection library.
+Although we resisted changing the Python implementation, our user testing data forced us to make two changes.
+First, we modified Python's integer division, so users could type 1/2 and have it evaluate to 0.5, rather than zero.
+Second, we made Python case insensitive.
+Over 85% of our users made case errors and many continued to do so even after learning that case was significant.
+Using overloaded methods with optional keyword parameters allows us to provide a controlled exposure of power to the Alice user.
+This characteristic of the API allows novice users to become expert users by incrementally adding to what they know, rather than forcing them to learn entirely new commands or API constructs.
+As one Alice user said, "you can get as complicated as you want, but not more than you need to."
+Once the objects are placed and the camera is in position, this initial state is saved into a world file.
+This file also contains the name of each object so that it can be referenced in the script that will control the object's movements.
+When the opening scene is ready, the user then presses the scripting tab , which reveals a text editor and a Run Script button.
+The user iteratively edits the script and runs it, with the script always starting its execution from the saved opening scene.
+For several years, we followed a "time machine" approach to Alice, doing early implementation on high-end SGIs in anticipation of low cost commodity graphics.
+Alice now exists solely on the PC platform, running on MS Windows 95, 98, and NT with the overall structure shown in figure 4.
+The layers are described below.
+The Alice animation engine interpolates data values from a starting-state to a target-state over time, with a default duration of one second.
+When two or more animations run in parallel, the Alice scheduler interleaves the interpolations in round-robin fashion.
+This allows a user to evaluate a command while another command continues to animate, without any explicit thread management.
+The use of these implicit threads is a major contribution of the Alice system.
+Alice itself is a single-threaded application.
+We built an experimental Alice prototype using native Windows 95 system threads, one per animation, but it exhibited poor load balancing between threads, giving rise to poor-quality, lurching animations.
+Animated Alice commands return an animation object:
+Figure 4: The Alice Software Architecture.
+User scripts are written in Python as is much of the Animation Engine Layer beneath it.
+The layers below this are written in C. Alice includes a separate Control Panels facility for creating Visual Basic GUI components directly through the Python scripting language.
+In short, these findings are neither opinions or the results of a marketing-style 
+The data comes from the observed behavior of real members of our target audience during use of the system, focusing on discovering which parts of the API were understood and which were not.
+Perhaps Alice's most distinguishing API feature is that it allows people to create behavior for three-dimensional objects without using the traditional mathematical names for the coordinate axes: X, Y and Z.
+Instead, Alice uses LOGOstyle , object-centric direction names: Forward/Back, Left/Right, and Up/Down.
+We made this design decision after using XYZ for two years where we routinely observed users, even expert ones, saying things like: "I want to move the truck forward one unit, and that's positive X to Alice, so I will type move."
+Our users already had a vocabulary for moving objects in space, but our early system was not using it.
+While it is true that some objects do not have an intrinsic forward direction, this is at least an improvement, because there are no objects that have an intrinsic X direction.
+This seemingly tiny, cosmetic change is probably Alice's biggest contribution to making a usable API for 3D graphics.
+By using direction names in lieu of XYZ, we relieved the user of a cognitive mapping step that may occur thousands of times while developing a 3D program.
+Removing XYZ also reduced the need to talk about negative numbers to an audience that naturally shies away from mathematics.
+Subjects were tested using a two-person talk-aloud protocol .
+During a 30 minute session, pairs of users worked through the Alice tutorial.
+We used pairs because pairs of people naturally talk to each other about what is happening, what is confusing, and what they expect at each step.
+As they talked, we took notes.
+While there was often strong temptation to show the subjects the "right way" out of a problem, we were strict about letting users find their own way, only interceding if the error was so great that it jeopardized the subjects' ability to finish the session.
+Often these sessions were sobering.
+Encouraging everyone on the development staff to observe real users is an excellent way of sensitizing an entire team to the needs of one's target audience.
+The Alice system provides commands that go beyond the classic translation, rotation, and scale operations: Place - this command allows one object to be placed OnTopOf, InBackOf, ToRightOf etc, some other object: cup.place.
+This command was developed independently of and simultaneously with the similar but somewhat more expressive Put system, developed at SGI .
+PointAt and StandUp are underconstrained rotation operations that use a global "up" direction to resolve the ambiguous nature of the command.
+A.PointAt will make A's up vector parallel to the global up direction, while it rotates A around its other two axes so that A's forward direction passes through B. Fred.StandUp will rotate Fred so that Fred's up direction runs parallel to the global Up direction, minimizing the rotation around the other two axes.
+Nudge is similar to the Move command, but translates objects by a percentage of their size, not by an absolute distance.
+This allows people to create animations that are more portable across a wider range of object sizes.
+AlignWith makes one object point in the same direction as another.
+This simple command is very handy and would be fairly difficult for novice users to implement given just a turn  command.
+Pan rotates objects left or right around an axis that is parallel to the global up vector.
+This allows a camera that is tilted down toward the ground to remain pointed at the ground as it turns in place.
+Intuitively, the vase is different than the table legs, but in an undifferentiated PHIGS tree, all objects look alike.
+Alice marks objects loaded from disk as "first class objects"  and marks the objects defined inside those files as parts .
+First-class objects thus act like "firewalls" inside the object tree.
+Programmers can use the optional parameters ObjectOnly, ObjectAndParts, ObjectAndChildren to override this behavior when they need more control.
+The first-class attribute of an object is also used to control picking into the scene and other event-dispatching within Alice.
+This is very much like the pick-bit that some PHIGS systems have used in the past.
+Coordinate transformations are common in 3D applications, and are usually performed so that a geometric operation is easier to compute or reason about than it would be from a global coordinate system .
+The Alice API already eases the burden of coordinate transformation to some extent by making the move and turn commands operate from the object's local coordinate system, rather than from a global frame of reference.
+For more general coordinate system transforms, we designed a system  that allowed programmers to perform any geometric operation within any other object's coordinate system.
+This capability is invoked by adding the coordinate system object with the optional AsSeenBy keyword parameter, as in:
+To provide more useful semantics to this command, we use a second 4x4 matrix to keep track of scale.
+Alice's Resize command now changes the scale of an object via this second scale matrix without changing the object's position and rotation matrix; this allows us to resize the object's geometry without scaling its space.
+By propogating the effects of this scale matrix to the object's children we can similarly resize the geometry and offset relative to their parent of the object's children without scaling their space.
+As a result, a meter in Alice is always a meter regardless of whether or not an object has been resized.
+Novice users are strongly influenced by surface issues, and seemingly inconsequential name choices can often make the difference between a clear API and a confusing one.
+Some notable examples: Resize, not Scale: Scale is usually regarded as a noun, not a verb, and has strong connotations of weight, not size.
+Move, not Translate: Translation is understood by our target audience to be the process by which French is converted into German and has little to do with movement.
+Speed, not Rate: Alice commands can specify how fast something happens, as in bob.move.
+Users were observed to have a few problems with Rate in that it seemed to have percentage or interest rate connotations, while Speed never caused confusion.
+FrontToBack, not Depth: Previous versions of Alice used the words Depth, Width and Height to denote the dimensions of an object.
+We found that these terms were sufficiently ambiguous to users that we resorted to the clearer, but somewhat more cumbersome FrontToBack, LeftToRight, TopToBottom.
+While these terms are somewhat contrived, they at least have the advantage of clarity and are formed out of terms that a novice Alice user already knows.
+AsSeenBy, not CoordSys: this name change was almost aesthetic in nature, and allowed script-writers to read scripts more naturally.
+Color Names, not RGB Triples: Alice uses popular crayon color names like Red, Green, Peach, and Periwinkle to specify colors, not a numeric color model like RGB or HSV.
+No individual name choice is pivotal to Alice's success, but the aggregate effect of getting these names right is quite powerful.
+Almost all Alice scripts use only the following commands:
+Alice's Turn command originally allowed programmers to specify angular amounts in degrees and the animation time in seconds, so it seemed natural that rotational speed be specified in degrees-per-second.
+Informal observation suggested that this unit was confusing.
+After our test subjects had seen the first Alice tutorial and were familiar with the Alice Turn command, we posed the following question: To turn objects in Alice, you specify a direction to turn  and an amount .
+Suppose you did not know an exact amount, but you wanted to make the bunny turn around and around without stopping?
+How would you want to describe the speed that the bunny turns?
+A breakdown of the answers appears below:
+Notice that turns-per-second is a clear favorite and that degrees per second, the units we, the engineers had chosen, came in fifth.
+In reaction to this, we now specify rotational speed in turns-per-second, and angular amounts in turns.
+In retrospect, it seems very natural to express a "quarter turn" by typing bunny.turn.
+Typing is Hard - Most of our users were non-typists and appreciated any help we could give them 
+We are currently working on addressing this issue in Alice.
+Problems in 3D Perception - A small percentage  of our subjects were confused about the depth of objects on screen, sometimes mistakenly seeing objects as approaching or receding when in fact they were being resized.
+Shadows or other depth cues might help reduce these problems.
+High Expectations - Our subjects often expected collision detection and gravity and were surprised when objects passed through each other or hovered in mid-air.
+The Importance of 0 and 1 - When faced with a new Alice command that required a numeric parameter, we saw many users try using a "1" to see what would happen for a wide variety of data types .
+Partly due to this, we adopted a convention that all bounded scalar parameters to Alice calls would range between 0.0 and 1.0.
+We need to find ways of exposing the number and order of parameters to a function to ease the burden of typing.
+Forward/Left/Up is an improvement over XYZ.
+Coordinate transformations can be made easier by allowing other objects to act as the frame of reference in which other operations happen.
+Function overloading and optional keyword parameters in a programming language can be used to support the controlled exposure of power, masking API complexity until the user is motivated to use it.
+Matrices appear nowhere in the Alice API.
+APIs can and should be tested against real users from one's target audience.
+Marking some objects as first class objects is a powerful technique for segmenting one object from another in the object tree.
+All commands should animate by default, including Undo.
+Implicit threads make it possible for novices to control surprisingly complex animations.
+Object resize and the scaling of space are both useful, but should be presented to the user as two distinct operations.
+Surface characteristics of programming languages matter to novices, especially case sensitivity and careful name choices.
+All bounded, scalar parameters should have a valid range of 0.0 to 1.0.
+LOGO , Bolio , and the Alternate Reality Kit   and the animated Self programming environment  were all strong influences in the Alice project.
+Smalltalk  and HyperCard  both demonstrated that programming-in-the-small was feasible by nonprogrammers.
+The Simple User Interface Toolkit   used a two-user protocol to test an API for novice GUI programmers.
+BAGS  , was one of the first interactive 3D systems to use an interpreted language to describe the static layout and dynamic behavior of a 3D scene.
+Like Alice, Obliq 3D  uses an interpreted scripting language for 3D graphics, but unlike Alice, is designed for experts.
+Superscape  and WorldUp  include advanced geometric modeling capabilities and scripting languages.
+WorldUp shares some ease-of-use goals with Alice, but has a very different model for the distribution of scripts and the timing of animations.
+Alice represents the culmination of many independent design decisions based on hundreds of observations of novices.
+These decisions combine to form a 3D graphics API that allows 3D script writing with minimal distraction by "unrelated" issues.
+As one researcher in the field kindly noted, current tools inflict the "death of a thousand cuts" compared Alice's "joy of a thousand tickles."
+Although originally designed for undergraduates, we have observed that many middle and high school students are capable of using Alice to build interactive 3D graphics programs.
+Alice is available for free from http://www.alice.org.
+We have currently distributed over 50,000 copies of Alice.
+S. K. Card, George Robertson, Jock Mackinlay.
+The Information Visualizer, an Information Workspace.
+James H. Clarke, Hierarchical Geometric Models for Visible Surface Algorithms, Communications of the ACM, 19, October 1976, pp.
+Sharon Rose Clay, Jane Wilhelms, Put: Language-Based Interactive Manipulation of Objects.
+IEEE Computer Graphics and Applications, March 1996.
+Jones, Pychological Aspects of Instrument Display.
+I: Analysis of 270 "Pilot Error" Experiences in Reading and Interpreting Aircraft Instruments, Memorandum Report TSEAA-694-12A, Aero Medical Labaroatory, Air Materiel Command, Wright Patterson Air Force Base, Dayton, Ohio, October 1, 1947, pp.
+Fiener, J. F. Hughes, Fundamentals of Interactive Computer Graphic, Addison-Wesley Reading, MA 1990.
+The learnability of HyperCard as an object-oriented programming system.
+The Cognitive Coprocessor Architecture For Interactive User Interfaces.
+In ACM Symposium on User Interface Software and Technology , ACM/SIGGRAPH/SIGCHI, 1989, pp.
+Guido van Rossum and Jelke de Boer, "Interactively Testing Remote Servers Using the Python Programming Language", CWI Quarterly, Volume 4, Issue 4 , Amsterdam, pp 283-303.
+For more information on Python, see http://www.python.org  David Zeltzer, Steve Pieper, David J. Sturman, An Integrated Graphical Simulation Platform, Graphics Interface 89 Conference Proceedings, pp.

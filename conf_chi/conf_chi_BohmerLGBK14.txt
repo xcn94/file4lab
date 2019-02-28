@@ -1,0 +1,323 @@
+Mobile phones have evolved significantly in recent years from single-purpose communication devices to multipurpose computing devices.
+Despite this evolution, the interaction model for how incoming calls are handled has barely changed.
+Current-generation smartphones still use abrupt full-screen notifications to alert users to incoming calls, demanding a decision to either accept or decline the call.
+These full-screen notifications forcibly interrupt whatever activity the user was already engaged in.
+This might be undesirable when the user's primary task was more important than the incoming call.
+This paper explores the design space for how smartphones can alert users to incoming calls.
+We consider designs that allow users to postpone calls and also to multiplex by way of a smaller partialscreen notification.
+These design alternatives were evaluated in both a small-scale controlled lab study as well as a large-scale naturalistic in-the-wild study.
+Results show that a multiplex design solution works best because it allows people to continue working on their primary task while being made aware that there is a caller on the line.
+The contribution of this work is an enhanced interaction design for handling phone calls, and an understanding of how people use it for handling incoming calls.
+The smartphone is, however, still fundamentally a telephone.
+When a user receives a call, current-generation smartphones tend to notify the user with a full-screen visual notification.
+This notification abruptly forces the user to stop whatever task they were previously occupied with and attend to the call.
+For instance, a user might be partway through entering the time and location of a meeting to a calendar from an email.
+When a call is received, this activity must be suspended and returned to after deciding how to handle the call.
+During that time, the user might have forgotten the location of the meeting and so have to look it up again - that is, if they remember to complete the task at all.
+This vision of how people interact with their smartphones is supported by the results of a recent large-scale in-the-wild study: Leiva et al.
+They found that smartphone users are rarely interrupted by phone calls while they are using other apps .
+But when they are interrupted, it is massively disruptive and increases the time it takes users to complete the task they were working on prior to dealing with the call.
+Given the disruption caused by incoming phone calls, we consider whether there is potential for revisiting the design space for how they are handled by smartphones.
+When we consider how smartphones notify users of incoming calls, it is quite clear that the basic interaction model has not changed since the development of early mobile phones.
+Figure 1 juxtaposes a Panasonic mobile phone from circa 1999  beside current generation phones.
+It is clear that apart from the fact that hardware buttons have been replaced with touchscreen buttons, the basic interac-
+People's smartphones are used to support a large variety of activities and tasks.
+Indeed, some have gone so far as to suggest that the smartphone will become the primary computer of choice for many users .
+Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+This is despite the fact that the current generation of smartphones affords far greater functionality and support for tasks than its earlier predecessor.
+Current call answering screens allow declining calls with text messages, or setting up reminders .
+While this helps in catching up with declined calls later, it still leaves the problem of fullscreen alerts interrupting a user's concurrent app usage.
+This paper revisits the design of mobile phone call UIs with the goal to better handle interruptions caused by incoming phone calls during app usage.
+We focus on cases where the user is interrupted by an incoming phone call while they are engaged in another ongoing activity on their smartphone.
+We make three contributions: First we extend the activities of call handling, explore the design space, and present two implementations in that space.
+Second, we report the results of a controlled lab study that evaluates the effectiveness of these various design alternatives for mitigating the effects of call interruptions.
+Finally, we describe a large-scale inthe-wild study that was conducted following the release of a call-handling app to an app store.
+From this study we learned how our design was used in natural contexts.
+There is good evidence to suggest that given greater flexibility and choice people will choose to defer an interrupting task until after a task  has been completed .
+For instance, Fischer et al.
+Hence, if a user is working on their smartphone, they might prefer to be given the opportunity to defer an incoming call until after they have completed the task they are working on.
+Some reports suggest that up to 30% of calls are missed, often for intentional reasons .
+Hence, there is scope to consider alternative design options for handling calls that reduce the level of demand on the person receiving a call.
+There is a long tradition in the HCI community of studying the effect that interruptions, such as handling an incoming phone call, have on task performance .
+We review this work along with work that has sought to develop smart systems to handle calls better.
+Finally, we discuss what few attempts there have been to develop commercial apps to tackle this problem.
+It is well understood that interruptions disrupt ongoing activities and take time to recover from.
+Memory for goals  has emerged as an important theoretical framework for understanding how people re-engage with a task following an interruption.
+The theory assumes that people use their memory as well as salient cues in the environment to help reconstruct what it was they were doing prior to being interrupted.
+This process takes time, and is referred to as a resumption lag.
+There is evidence that incoming calls incur a significant resumption lag for smartphone users.
+This observation led Leiva et al.
+The idea is that this would give the user time to prepare for the call.
+Consistent with this idea, Iqbal et al.
+There has been a large body of work that has attempted to design systems to reduce the disruption caused by incoming phone calls.
+There have been numerous attempts to build adaptive notification systems that manage when calls are allowed.
+Ter Hofte  has applied this idea to managing telephone calls by building a predictive model that blocks calls to users when they are actively engaged in an activity.
+In a similar vein, Ho and Intille  presented a sensor-based strategy for delaying call interruptions that are not time-sensitive until a physical activity transition.
+However, they argue that modeling the scheduling of phone call interruptions is not easy because of the synchronous nature of telephone communication.
+The sharing of context information has been put forward as one way to overcome the issues imposed by the synchronous nature of telephone communication.
+ContextCalls was an early system proposed by Schmidt et al.
+Taking a similar approach, TellingCalls by Granndhi et al.
+Indeed, this idea has been realized in voice-over IP systems, such as Skype, which allow users to make explicit their availability.
+Ironically, though, Teevan and Hehmeyer  found that people are actually more likely, rather than less likely, to accept a call when their status is "busy" or "do not disturb".
+A possible explanation for this might be a self-selection bias, such that only important calls are initiated to people with a busy status.
+Regardless, there is still the problem that users are not very good about updating their status with such context sharing systems.
+Simply silencing an incoming call has become a feature on many devices.
+However, no scientific insights have been generated from these apps.
+This paper explores a more comprehensive design space going beyond the isolated solutions of these apps.
+In summary, little is known about the problem of task interruptions with the primary task running on the phone.
+This is what this paper aims to address by presenting a design for lowering the impact of call interruptions.
+Based on the first observations of Leiva et al.
+Analyzing current smartphone models  we found that they have two shortcomings that may amplify the disruptiveness of incoming call notifications: 1.
+Call apps by default use full-screen modal dialogs to notify the user of incoming calls.
+This visually detaches the user from his previous app and thus might lead to a higher impact of the interruption.
+Call apps only provide the user with two options: to promptly either accept or decline an incoming call.
+This unavoidable decision  might amplify the interruption.
+We tackle these two issues by revisiting and extending the design space of phone call apps as follows.
+First, we increase the user's freedom in deciding when to pick up a call by introducing the possibility of postponing an incoming phone call.
+Second, we re-iterate on the design of user interfaces of phone call apps to mitigate the interruptive effect of incoming calls while an app is being used.
+In particular, we extend the design of current phone call UIs to allow for a higher degree of multitasking and additional options to handle incoming calls.
+Figure 2 describes an activity diagram for handling calls from incoming  to ending .
+The chart highlights the new activity and transitions that we propose in this paper .
+In addition to accepting  and declining  an incoming call, we introduce postponing  the call.
+The three activities A, D, and P relate to handling of notifications of incoming calls.
+While calls can be accepted or declined only once, the postpone activity can be repeated several times.
+The incoming call  and a postponed call  might directly end  if the caller hangs up or the voicemail answers the call.
+Some specific implementations provide additional options, e.g.
+This baseline UI results in overheads in usage times of the concurrent apps when interrupted , for instance, if a user is writing an e-mail or updating their status on a social network.
+As described earlier , this interaction model has barely changed since the development of early mobile phones.
+This seems like a missed opportunity as current-generation phone operating systems allow users to multitask between different apps.
+Despite this potential, current-generation smartphones do not allow users to simultaneously use an app while there is an incoming call.
+A first improvement to mitigate the effect of call interruptions is to give the callee a greater choice in deciding how to handle the call.
+Besides the option to accept or decline a call, we provide a third option: to postpone a call.
+Hence, the user can return to his previous app without a need to decide how to react to the incoming call.
+The approach of postponing calls transfers a user's ability to pick up the call at will from landline phones to smartphones.
+Users benefit from the increased flexibility and choice to defer the call interruption.
+After some time, however, voicemail might possibly answer the call.
+Postponing is not as determined as a "decline and call-back" strategy because the caller will not recognize the callee's postpone action.
+Figure 3b shows that the postpone option can be implemented as an additional button besides accept and decline within the full-screen notification for calls.
+When a call is postponed, the phone call app should go into the background so that the user can continue working in his previous app.
+The caller will be kept waiting on the line.
+After a certain time span the call app will come to the foreground again, and again the user has the three options to accept, postpone or decline the call.
+We will refer to this proposal for a new call interaction design as the postpone UI.
+The difference between 'letting it ring' and pressing 'postpone' is that the notification UI disappears when pressing 'postpone', and reappears automatically after some seconds.
+Multiplexing the primary and secondary tasks on a smartphone's limited screen real estate has been found to provide the user with more control while being interrupted .
+Therefore, a second approach to mitigate phone call interruptions is to alter the visual appearance of call notifications.
+Rather than having a full-screen notification, we propose to divide the mobile screen's limited space into two areas .
+The basic idea is to use a smaller area of the screen to notify the user of an incoming call, rather than using a full-screen notification.
+And again, the user has the choice to either accept, decline, or postpone the call.
+With less screen area used for the alert, the user can continue working on their primary task.
+For example, they might want to finish writing a sentence in an email or tag a point on a map.
+We will refer to this design as the multiplex UI.
+The call was automatically initiated on the caller's phone when the participant started working on a task and the interruption reached him after 6 seconds.
+A pre-study revealed that users might intentionally postpone the call until they have solved the task, since there is no hurry to accept the simulated call.
+To mitigate this effect, we first introduced a random time  after which the caller would hang up .
+In addition, to motivate people to perform well in both tasks, we gave an additional award  to the participant who performed best in the whole study .
+We followed a within-subject A/B/C design for the controlled lab study.
+We tested the multiplex UI compared to the postpone UI and the baseline UI.
+In each condition there was a primary task people had to solve using some apps, and a secondary task with a phone call that interrupted the app usage of the primary task.
+We explained to our participants what the study was about.
+We spent about 15 minutes to acquaint them with the tasks, as well as the different designs: Participants learned how to use the three different call UIs and how to solve the primary tasks.
+They were also introduced to the secondary task on the phone, both standalone and as an interruption during the primary task.
+For the training we used questions and words not used in the three main parts of the study.
+After the training the study had three parts: In each part the participants had to answer 20 questions in the primary task, 11 of them being interrupted by calls.
+During training the participants were instructed to be the one to hang up after each call.
+Each part was assigned to one condition  in a counterbalanced way.
+After each part, the participants were asked to fill out a questionnaire.
+One experimenter stayed with the participant, while a second experimenter carried out the call interruptions remotely.
+At the end of the study we asked for additional demographic information.
+The experiment took about 60 minutes to complete and participants received a 10 EUR gift certificate for their time.
+We implemented the presented design options for call notifications as a prototype for Android phones, and we gave an instrumented smartphone to the participants.
+Figure 3 shows screenshots of the three call-handling UIs we implemented according to the design space introduced before.
+The postpone duration was set to 5 seconds.
+For the primary task we implemented common mobile use cases inspired by the tasks of Cauchard et al.
+Participants got a question and had to use three other apps for answering the question, always by memorizing and connecting pieces of information shown in the other apps.
+Within the interruptive phone call our participants had to do a word-generation task : the caller would say five words, and the participant had to think of and respond with new words starting with the last letter of the given word .
+Further, we distinguish between the time on task before the interruption  and the time on task after the interruption when participants continued to work on the task .
+We also kept track of the time the notification was visible to the user , i.e.
+TNV ends when the postpone button is pressed.
+All time measures had an accuracy of milliseconds.
+In addition , we asked people how annoying the phone call interruptions were, and we asked how respectful the phone application was according to the interruptions during the tasks.
+All these measures were on the same 20-point scale.
+The independent variables were the three conditions of baseline UI, postpone UI and multiplex UI, whereas the dependent variables were the measures explained previously.
+In total we collected 720 data points for each timerelated measure , and we averaged each user's measures over the 20 trials per condition.
+We collected 36 data points  for the TLX-related measure.
+The most important results can be drawn from users' feedback on the three UIs.
+Figure 4 shows the results of the answers people gave regarding the paper-based questionnaires for the three UIs we tested.
+We can see that our participants needed significantly less effort for finishing the tasks with the multiplex UI  compared to the baseline UI .
+The postpone UI was seen as significantly less respectful than the multiplex UI .
+These measures show that the multiplex UI allows the users to solve their primary tasks with less mental demand and less effort.
+On average people took 42.45s  to complete one trial consisting of the primary and secondary task.
+The time on task for non-interrupted trials  was significantly lower than for interrupted trials =12.88, p<.001, which replicates earlier findings that the interruption indeed introduces an overhead .
+We analyzed the impact of the call interruptions on the participant's performance in terms of speed and errors.
+Figure 5 shows the data for this analysis.
+We did not find differences in the overall performance  between the three conditions.
+Participants were a little slower regarding performance time when using the postpone UI.
+This can be explained by the repetitive opening of the notification when postponing it.
+Looking into when people allow for the interruption, we found that the UI condition had a significant effect on the time  participants spent with the primary task before the call was accepted =15.80, p<.001.
+Consequently, the UI condition also has an significant effect on  the time participants spent on the task after the call =6.29, p<.01.
+For the time the call notification was shown to the user we can also find a significant effect of UI condition =15.43, p<.001.
+For the baseline UI, the TNV equals the TN since it cannot run in parallel to the primary task, but it is significantly smaller than for the postpone UI  and the multiplex UI .
+More interestingly, the notification with multiplex UI was shown longer than for the postpone UI .
+These findings suggest that people actively used the multiplex UI to display the call notification in parallel while working on the task: they used it to defer the interruption.
+With the multiplex UI people used the postpone option less frequently per call  than for the postpone UI .
+Though insignificant, this tendency suggests that the multiplex UI decreases the value of the postpone option, since the multiplex UI already makes it possible to continue working on the primary task.
+The latter is significantly higher than with the postpone condition .
+Resuming from an interrupted task is a reconstruction process , which requires re-opening the apps in our study.
+While participants switched more often between apps with the multiplex UI, we did not find any significant differences in the usage time of the apps and the total time on the primary task ; i.e., app switching frequency was highest for the multiplexed UI.
+This suggests that solving tasks requiring more than one app is easier with the multiplexed UI than with the two other UI designs.
+This is because the multiplex UI does not interfere with the app switching itself, while the baseline and postpone UIs disturb app transitions.
+As a consequence, the multiplex UI allows for better task reconstruction when re-opening apps is required.
+Our participants told us that for the postpone UI they would like to have an option for getting back to a call notification in the postpone state instead of waiting until it comes back automatically.
+This would also allow users to immediately turn their attention towards the call after reaching an intermediate state or finishing a subtask in the primary app.
+Considering the small effect that for the postpone UI the time on task was longest and the time on call was shortest , it seems like people used the waiting time in the primary task  to prepare for the call task.
+In contrast, with the multiplex UI one retains control over the call notification and can immediately accept the call if the primary task  is completed.
+In the lab study, we did not find any significant effect of the UI design on the time participants needed to finish their tasks.
+Although this study provides us with insights into the differences between the design solutions that we proposed, this study is limited in that the interruptive call is simulated and the tasks are artificial.
+Since we did not want to overstrain our participants  their tasks were rather short.
+Further, we enticed them to always accept each incoming call.
+To understand how people would use the multiplex UI in a natural context, we conducted a second study in the wild.
+For the reasons explained above we decided to choose and implement the multiplex UI for further investigations.
+Further, by dragging this widget to the screen's edges, the user can accept , decline  or postpone  the call .
+The colored edges also each show an icon and appear as soon as the user touches the widget.
+The postpone duration for CallHeads was 5 seconds by default and users were able to change it.
+Our second study is designed as a natural experiment : neither we as the researchers nor the study participants had control over the incoming calls and people's tasks.
+The call interruptions and the tasks the users were currently carrying out on their phones were subject to their natural contexts.
+We released CallHeads on the Google Play app store so that people could install it to their devices and use the multiplex UI.
+To study the usage of CallHeads we released a second app.
+Instead of implementing the study within CallHeads , we decided to release a second distinct app for running the study.
+This allowed users to use the original app without taking part in our study.
+We believe that this is an important step for making it very transparent to the user that by installing the second app they will take part in a research study .
+In addition, within the study app we asked participants for consent to take part in the study following the two-buttons approach .
+We did not collect any qualitative measures that we surveyed from participants of Study I.
+Study II was fully anonymous and we did not collect any data that would disclose anyone's identity or content of conversations.
+We released CallHeads publicly on July 4, 2013.
+More than 32,000 users downloaded it within 10 weeks and about 10,500 users had it actively installed at the time of writing.
+652 of those users agreed to submit data for our study.
+We withdrew the first two days of data for every user to remove possible self-tests with the app.
+To purge unnatural user behavior, we further only considered users providing data for more than two days.
+As such, our final cleaned data set comprises 525 users with data for 31.03 days  per user on average.
+These 32.66% of calls constitute interruptions of concurrent app usage that we are interested in, and we limit our further analysis to them.
+This high number of call interruptions substantiates this as a practical problem for current smartphone usage.
+In our uncontrolled study we can observe three kinds of call endings: accepted calls , declined calls , and unanswered calls .
+Table 1 provides an overview of the occurrences of the following cases of interruptive calls: * Accepted calls: Out of all interruptive calls more than half  were accepted, i.e.
+In this case the callee actively refuses the call by dragging the widget to the red area .
+A call can be declined for various reasons .
+One simple explanation is that the callee does not want to start talking to the caller, or does not want to be interrupted from his current app.
+Note that in these cases of unanswered calls, the phone was not in standby and the user was likely to be using his phone.
+When a certain time limit is reached, the caller might hang up or the call might possibly be intercepted by the callee's voicemail.
+We can see that most calls were answered and only a few were declined.
+Note that for the 36% unanswered calls the user had his device in active mode, i.e.
+Actively using the phone while a call alert is being shown but leaving the call unanswered is a new behavior introduced with our design; we call this passive decline.
+Interestingly, 499 cases  of postpone actions led to unanswered calls.
+As already mentioned, this can either result from the callee having voicemail, or the caller being unwilling to wait any longer and hanging up.
+Looking at these nearly two-thirds of postpone cases, we found that for 23.64% of calls the caller was willing to wait for more than 40s; average waiting time was 30.22s .
+We expected the postpone option to be used more often than only in 2.66% of calls.
+This underpins that postpone is not essential for mitigating interruptions when using a multiplex UI, but it can be helpful in certain contexts.
+It is worth mentioning that only our new design allows the user to continue using his app while the call notification is pending before making a decision on how to handle the call.
+We analyzed the timing of the decisions to understand how participants made use of this new opportunity.
+This relates to our lab study's time of notification, but in the wild we also saw people not accepting some calls since they showed natural behavior that we did not control.
+Again, we can distinguish three cases: * Time until accept: Before a call was accepted, its notification time was 7.08 seconds on average .
+The reason for the relatively long waiting time is that in this case the callee can also postpone the call or move the call icon out of the focused area.
+106 calls  were postponed at least once before being accepted.
+This time is 1.65 times higher than for accepted calls.
+114 calls  were postponed at least once before being declined.
+This is significantly higher than the notification time before accepting a call  = 13.80, p < .001.
+539 calls  were postponed at least once before being left unanswered.
+We can see that for calls resulting in declines, notifications last longer.
+For calls where the callee instead makes no decision and waits for the caller to hang up, or the voicemail answers, the notification time is even longer.
+Possibly the notification time is longer when declining since declining a call might be a more cumbersome decision.
+Further temporizing this decision results in unanswered calls, where the user also might want to pretend unavailability.
+We also investigated whether the user's call handling is influenced by the app which is being interrupted.
+Therefore we looked for apps that we observed to frequently be interrupted when a phone call comes in.
+We found that the likelihood of using the postpone option is high when media applications are being used.
+In contrast, interruptions of apps that belong to the communications category have a lower probability that the call will be postponed.
+The study reveals that one-third of incoming phone calls interrupt concurrently-used apps.
+This emphasizes the need to improve UIs for handling phone calls, since these interruptions introduce a significant overhead .
+Analyzing the use of the postpone function, we found that users leverage it to passively decline calls even though they are using their phones.
+So far, without this function the phone could not be used, and app usage could not be continued, until the call was either accepted, declined or left unanswered.
+This is only possible through our new design.
+In total we recorded 770 postpone events; 197 were sequences of postpone events, i.e.
+And on average 2.66% of calls were postponed at least once.
+Resulting from 32,000 installations of CallHeads, we also received valuable feedback through both the app store's comment function as well as by email.
+The most requested feature that people would like to use is to be able to dragand-drop the widget to an additional area for declining and sending prewritten text messages to the caller.
+This is interesting, since we found that it takes longer to decline a call than to accept a call.
+Providing users with an option to inform the caller about the reason why they were declined might improve this decision-making.
+In addition, some of those calls that ended unanswered might have been declined with an explanation provided to the caller instead of pretending unavailability .
+Further, it might also be valua-
+Our in-the-wild study is limited by the inherent properties of the method of running large-scale studies through the app store.
+Most importantly, we cannot know about the user's context when calls came in.
+For a better understanding of the reasons why a call ended unanswered even though the user was on his phone, we plan to enhance the quantitative study presented in this paper with qualitative methods of experience sampling in the large.
+Further, we do not know anything about the relation between caller and callee; this might impact how the callee handles the call.
+The multiplex UI design we propose allows people to continue using their apps while being notified of the phone call in parallel.
+Both studies provide evidence that people make use of this new functionality to defer the interruption for a short time to finish micro-interactions with their apps.
+In particular, this form of pre-alerting for incoming calls allows people to finish their current episode of interactions with the current app, before they allow the interruption .
+We saw in Study I that people kept the notification open for a certain time that they would need to reach an intermediate state in their tasks before they decided to switch to the call.
+When the receiver postpones a call the caller will be kept waiting on the line, and as we found this might result in an unanswered call.
+Since related work  found that it has a positive effect when the caller is aware of the callee's status, one idea might be to signal the caller as to what is happening.
+One possibility could be the design of special call-progress tones, or we could use speech synthesis to signal the callee's current app usage context to the user, e.g.
+Then the caller might be able to make a more informed decision about how long he wants to wait for the callee to pick up the call.
+For future work we plan to signal the callee's context back to the caller to investigate how the caller reacts if he knows that the other person is using his phone, but does not want to start a conversation; issues of privacy and social aspects also need to be considered.
+When adding dynamic visual content to the display one has to be concerned about the effect of change blindness : the popup of the notification might result in the user missing changes within the primary app.
+This effect is greatest when the popup opens full-screen, as with current phone call apps.
+However, on the other hand, if the notification is made smaller or placed less prominently, it might not be noticed by a user engaging with other applications, which might result in the user not recognizing the call.
+However, in the CallHeads app the call was also signaled by the ringtone and vibration  as long as the user did not react to the notification .
+However, every one of our users receiving interruptive calls interacted with the widget at least once, so our users did not miss it.
+Nonetheless, finding the optimal size for the notification, i.e.
+The current design of phone call UIs also has some social implications: current implementations on the different operating systems force the user to either accept or decline an incoming call if he wants to continue using his device.
+Otherwise he would have to wait until the voicemail answers or the caller hangs up.
+If the user wants to keep using his current app, he will have to decline the call if he wants to evade the interruption.
+As a result, declining the call might have an impact on the peers' social relation.
+Our new design allows the user to pretend unavailability while continuing to use apps on his smartphone.
+Future work will study the effect of this opportunity on people's phone communication behavior leveraging the CallHeads deployment.
+Our design considerations target visual attention.
+In addition, incoming calls are also announced by auditory and haptic signals.
+A holistic design needs to consider these modalities to notify the user of incoming phone calls.
+One possibility could be changing the ringtone to unobtrusive sounds.
+Hence, the user could be notified about an incoming phone call in an ambient way.
+Also, one could apply different vibration patterns to create haptic notifications in accord with the visual notification.
+The integration of different modalities therefore needs to be addressed in future work, and should be aligned with the visual notification.
+While the proposed multiplex UI is dedicated to the interruptive case, where a user is engaged with another task on the mobile device, we have to raise the question of how to proceed for the 67% of non-interruptive calls .
+CallHeads was built in such a way that it does not show up in this case, and instead the default phone call appears.
+Another option would be to apply the multiplex UI that we proposed for the interruptive case.
+From our users we got strong feedback that they would also like to use the multiplex UI and the option to postpone a call in the non-interruptive case.
+This could support users engaged in non-phone tasks when calls come in.
+This would instantly mute the phone  and the notification would come back after a few seconds.
+Postponing a call might be beneficial when one has to leave the room before being able to answer a call.
+This paper presents a multiplex UI for handling incoming calls on smartphones.
+This design solution tackles the problem that calls can interrupt concurrent application usage.
+We revisited the current design of phone call UIs, extended the options for handling incoming phone calls and presented considerations for possibilities to postpone calls and multiplex the call notification with the concurrent app.
+We studied these two proposals for the design of phone call apps in a small-scale controlled lab study.
+We found that the multiplex UI improves call handling with concurrent app use, in particular because it is less frustrating and annoying.
+We also released an implementation of the multiplex UI to more than 32,000 users through a commercial app store.
+Some of these users  contributed to a study to understand how the app was used in the wild.
+Results showed that one-third of incoming calls interrupt concurrent app usage, and that people use the postpone option to continue using their apps, often leaving their call unanswered.
+This was not possible with previous phone call UIs.
+Alt, F., Shirazi, A. S., Schmidt, A., Atterer, R. Bridging waiting times on web pages.
+Memory for goals: an activation-based model.
+Avrahami, D., Gergle, D., Hudson, S. E., Kiesler, S. Improving the match between callers and receivers: a study on the effect of contextual information on cell phone interruptions.
+The effects of time constraints on user behavior for deferrable interruptions.
+Cauchard, J., Lochtefeld, M., Fraser, M., Kruger, A., Subramanian, S. m+pSpaces: virtual workspaces in the spatially-aware mobile environment.
+The case of the missed icon: change blindness on mobile devices.
+Fischer, J. E., Greenhalgh, C., Benford, S. Investigating episodes of mobile phone activity as indicators of opportune moments to deliver notifications.
+Gonzalez, V.M., Mark, G. Constant, constant, multitasking craziness: managing multiple working spheres.
+Grandhi, S. A., Schuler, R., Jones, Q. G. Telling calls: facilitating mobile phone conversation grounding and management.
+Hart, S., Staveland, L. Development of NASA-TLX : results of empirical and theoretical research.
+Ho, J., Intille, S. S. Using context-aware computing to reduce the perceived burden of interruptions from mobile devices.
+Oasis: a framework for linking notification delivery to the perceptual structure of goaldirected tasks.
+Knittel, J., Shirazi, A. S., Henze, N., Schmidt, A. Utilizing contextual information for mobile communication.
+Back to the app: the costs of mobile application interruptions.
+Miyata, Y., Norman, D.A., Psychological issues in support of multiple activities.
+In User Centered System Design: New Perspectives on HCI.
+Pielot, M., Henze, N., Boll, S. Experiments in app stores - how to ask users for their consent?
+In CHI'11 Workshop on Ethics, Logs and Videotape.
+The phone rings but the user doesn't answer: unavailability in mobile communication.
+Salvucci, D.D., Bogunovich, P. Multitasking and monotasking: the effects of mental workload on deferred task interruptions.
+Schmidt, A., Takaluoma, A., Mantyjarvi, J. Contextaware telephony over WAP.
+Shadish, W. R., Cook, T. D., Campbell, D. T. Experimental and Quasi-Experimental Designs for Generalized Causal Inference.
+Stamm, K., Ahamed, S. I., Madiraju, P., Zulkernain, S. Mobile intelligent interruptions management : a context aware unavailability system.
+Driven to distraction: dual-task studies of simulated driving and conversing on a cellular telephone.
+Understanding how the projection of availability state impacts the reception incoming communication.
+26. ter Hofte, H. Xensible interruptions from your mobile phone.
+Want, R. When cell phones become computers.

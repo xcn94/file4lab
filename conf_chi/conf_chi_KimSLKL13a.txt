@@ -1,0 +1,271 @@
+An intrinsic problem in the design of touch screen software keyboards is that touch screens usually have only two states , whereas real physical keys have three states .
+Due to this mismatch in the number of states, touch screen keyboard designs have had to disregard the touched state of physical keys, simulating only the released and pressed states, as illustrated in Figure 1.
+As the result, touch screen software keyboards do not currently have a state that corresponds to the touched state of physical keys.
+A physical keyboard key has three states, whereas a touch screen usually has only two.
+Due to this difference, the state corresponding to the touched state of a physical key is missing in a touch screen keyboard.
+This touched state is an important factor in the usability of a keyboard.
+In order to recover the role of a touched state in a touch screen, we propose the TapBoard, a touch screen software keyboard that regards tapping actions as keystrokes and other touches as the touched state.
+In a series of user studies, we validate the effectiveness of the TapBoard concept.
+First, we show that tapping to type is in fact compatible with the existing typing skill of most touch screen keyboard users.
+Second, users quickly adapt to the TapBoard and learn to rest their fingers in the touched state.
+Finally, we confirm by a controlled experiment that there is no difference in textentry performance between the TapBoard and a traditional touch screen software keyboard.
+In addition to these experimental results, we demonstrate a few new interaction techniques that will be made possible by the TapBoard.
+Tablet computers with multi-touch screens are increasingly popular.
+As more applications are being designed for tablets, the role of the touch screen software keyboard is becoming more important.
+Tablet computers with large touch screens, such as the Apple iPad and the Samsung Galaxy Tab, have software keyboards with a full-size, complete QWERTY layout, similar to that of a laptop.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+The touched state actually plays an important role in the usability of physical keyboards .
+For instance, a keyboard user can rest their fingers in the touched state during typing.
+Users can also feel the texture of the keys, allowing the chance to align their fingers.
+An ultimate solution to restore the role of the touched state in a touch screen keyboard seemed to be the use of a three-state touch screen , but the relevant technology is not yet ready for the market.
+As a currently feasible solution, we consider the alternative mapping illustrated in Figure 2, where the released and touched states of physical keys are mapped to the released and touched states of touch screens, respectively.
+In contrast to the case in Figure 1, the pressed state of physical keys is disregarded instead of the touched state.
+In fact, the role of the pressed state of physical keys is not as important as that of the touched state.
+A keystroke event, which is not a state, is more important than the pressed state.
+Therefore, we decided to disregard the pressed state, and simulate a keystroke event with a tapping event.
+A consequence of this mapping is that there will be some restriction in utilizing the touched state, as a brief touch will be interpreted as a tapping action.
+If one wishes to rest their fingers on the touch screen keyboard, the duration should be longer than a certain threshold.
+Despite this small limitation, the touched state of a touch screen has now become available for other purposes.
+The result is the TapBoard, a touch screen software keyboard that can be operated by a tapping action.
+A tapping event, as will be defined precisely later, is defined not only by its short duration, but also by a small movement on the screen.
+In the following, we first summarize related works on touch screen text-entry methods and user typing behavior.
+We then present the detailed design of TapBoard, and describe three empirical studies.
+After the experimental results, we introduce some new possibilities enabled by the recovered touched state of TapBoard.
+Finally, we conclude the paper by summarizing the contributions of the current research.
+Because typing skills transfer from the physical to software keyboards , we introduce a number of relevant studies on the characteristics of text entry on a physical keyboard and a touch screen software keyboard.
+In the following subsections, we discuss the importance of the touched state in physical keyboards and why it should be offered in largesize touch screen devices.
+Expert touch-typists can type very quickly on physical keyboards without any visual attention.
+Several studies targeting such typists have pointed out that the removal of kinesthetic and tactile feedback significantly reduced the typing performance .
+In particular, Crump and Logan claimed that simply removing the keycaps, which takes away only tactual information and not kinesthetic movement, also had a negative influence on performance .
+Other studies confirm that tactile information from the keys is the main factor in finger motion planning .
+It seems clear that touch-typing and fast typing exploit the tactile cues provided by the touched state of physical keyboards.
+We made a few assumptions when we first conceived the TapBoard.
+First, we could observe that people do use tapping when they type on a touch screen keyboard, and therefore we expected that TapBoard would be compatible with users' existing typing skills.
+Second, we expected that users will quickly be able to adapt to TapBoard and utilize the touched state, e.g., for resting their fingers on the screen.
+Third, we expected that TapBoard will be as efficient as an ordinary touch screen keyboard, because it is compatible with the existing typing skill of most users.
+All these assumptions require experimental support; hence, we conducted three user studies to collect experimental data.
+In the first, we verify the first assumption that underlies the TapBoard design, and observe user behavior on both physical and touch screen software keyboards.
+In the second study, we elicit several behavioral observations to support the second assumption and fine-tune the parameters of TapBoard.
+In the third study, we compare the text entry performance of a traditional touch screen software keyboard and TapBoard, and obtain experimental support for the third assumption.
+As physical keyboards come in different sizes, touch screen software keyboards are implemented in various forms, from 3-inch devices to full-sized tabletops.
+Compared to physical keyboards, touch screen software keyboards are known to suffer from poor performance .
+Interestingly, however, well-designed touch screen software keyboards offer comparable performance to that of physical keypads in small-size devices such as smartphones .
+Because both keyboards rely heavily on the user's intensive visual attention, the typing skill required for them is similar.
+In this case, the experience of physical keyboards can be easily transferred to software keyboards.
+In contrast, typing performance on touch screen devices larger than a tablet is considerably worse than that on physical keyboards .
+A number of studies have attempted to overcome the performance limitation using layout adaptation , different layouts and sizes , and tactile feedback .
+However, even in the best possible condition, where participants could ignore typing errors, results with touch screen keyboards were still 31% slower than with physical keyboards .
+The distance threshold parameter  was initially set to the width of an alphabet key, which is 80 pixels .
+In addition to implementing the basic logic shown in Figure 3, we had to find some workarounds to handle the non-ideal behavior of the touch screen device, e.g., occasional spurious touch-and-release events, when five or more fingers are touching the screen.
+We handled at most five touch events simultaneously to prevent such erroneous behavior.
+As discussed in the previous subsection, the touched state plays a critical role in the use of physical keyboards.
+Therefore, we expect solutions providing the touched state in software keyboards  to be a strong candidate for improving their performance.
+TouchFire  and SLAP Widget  offer a tangible keyboard object on the touch screen.
+Only keystrokes are transferred to the touch screen by a mechanical structure, and other touches are blocked.
+Tactus technology  developed a deformable touch screen surface, which generates physical bumps dynamically.
+TeslaTouch  LATPaD , and STIMTAC  exhibit a dynamically changeable surface texture.
+The above techniques enable users to get information from the surface of the screen while sweeping their fingers across it.
+TapBoard should accept only brief touches within the size of a key as valid keystrokes and ignore other touches.
+In order to do so, TapBoard runs a state machine, as shown in Figure 3, for each touch point.
+The state machine, which is initially in the  state, makes a transition to the  state on a  event, where i is the index of the current touch point.
+On this transition, it resets a timer t and displacement d, creates a key-input object k, and outputs a  event.
+The state machine returns to the  state when one of the following three events occur.
+In the first two cases, a  event is output for the key-input object k. In the third case, a  event is output for the key-input object k. Only a  event is considered as a keystroke.
+In a series of experiments, we validated the effectiveness of the TapBoard concept.
+First, we collected typing logs from physical keyboards and touch screen software keyboards to set the initial parameters for TapBoard.
+Second, we investigated whether users can adapt to the TapBoard concept.
+Finally, we studied whether there is a performance difference between using TapBoard and a conventional touch screen keyboard.
+A TapBoard prototype was implemented in C# so that it can run on both the Samsung Slate 7 and Samsung SUR40.
+The prototype does not support all the keys of a standard full keyboard, offering only the alphabet keys, shift keys, a space bar, enter key, and backspace key, as shown in Figure 4.
+The TapBoard algorithm applies to all keys except the backspace and shift keys.
+These are excluded based on the results of experiment 1, which is described later.
+As shown in Figure 4, the TapBoard layout replicates the dimensions of a physical keyboard.
+We conducted a within-subjects experiment with three different keyboard conditions: an instrumented physical keyboard with touch sensors , a software keyboard typical of tablet PCs , and a software keyboard typical of tabletop PCs .
+The experiment was carried out to measure the keystroke durations, i.e., key press durations on physical and touch durations on tablet and tabletop.
+We also observed the variation in typing behavior with conditions.
+For this experiment, 12 university students  were recruited.
+All of them were touch typists with traditional physical keyboards, but did not have much typing experience with software keyboards on tablet or tabletop computers.
+These gloves prevented erroneous touch inputs from the palm of the hand.
+In the physical keyboard, we implemented a conductive touch sensor using similar techniques to .
+Participants wore a conductive pad connected to a function generator producing a 1 MHz sine wave.
+The touch sensor scanned the transferred signal through the human body.
+We multiplexed the touch sensor input with six 74HC4051 8channel analog multiplexers, so the sensor unit was capable of sensing 48 touches individually.
+We attached copper tapes to the alphabet keys, shift keys, backspace key, space bar, and enter key, and wired them to the touch sensor unit to capture touch events .
+We recorded all touches from tablet and tabletop, and all touches  and key presses  from physical.
+For touch data in the physical condition, we excluded touch durations of less than 10 ms, which were considered to be due to device noise.
+In all conditions, we developed a transcription test program  in which participants must transcribe test phrases shown at the top of the screen.
+For the tablet and tabletop conditions, the software keyboard was shown below the textbox.
+Each key on the software keyboard changes color when touched.
+Software keyboards are programmed to record touch and release events with timestamps and corresponding characters.
+For the physical condition, only the given text and a transcription textbox were shown on the screen, and participants were asked to transcribe the words using the instrumented keyboard.
+Touch and release events from the touch sensor, as well as key press and release events from the keyboard itself, were recorded with timestamps and corresponding characters.
+The keyboard dimensions, such as key size and distance between keys, were controlled to be identical in all three conditions.
+Each participant was asked to transcribe 50 sentences that were selected randomly from the MacKenzie and Soukoreff phrase sets  for each condition.
+They were required to type as fast and as accurately as possible.
+Participants typed 10 sentences in a training session, and 50 sentences in a test session.
+The order of devices was fully counterbalanced across participants to avoid carryover effects.
+Each participant took 40 min to finish the entire typing session.
+We first analyze alphabet keystrokes.
+Figure 6 illustrates the distribution of keystrokes from each device.
+The 99.9 percentile values for tablet, tabletop, and physical press were 296 ms, 267 ms, and 285 ms, respectively.
+Most keystrokes took less than 300 ms.
+However, physical touch exhibits a significantly different distribution.
+More touches were counted than physical presses because fingers tend to touch surrounding keys during typing.
+Long touches , which are of most interest, are mainly induced by resting or home-row searching.
+Next, we analyze the other keys.
+The enter, space, and backspace keys exhibit similar distributions to the alphabet keys.
+For the shift keys, we observed a significant increase in touch duration and keystroke duration 
+Additionally, users activated the shift key longer on tablet and tabletop than on physical.
+Therefore, we cannot apply the TapBoard concept to the shift key.
+In addition, although it is not observed in this experiment, the backspace key often requires autorepeat functionality.
+Thus, TapBoard is not suitable for the backspace and shift keys.
+Finally, we inspected logs from the touch sensor and found some interesting patterns.
+Figure 8 plots two extreme participants.
+P1 tends to touch and press exactly one intended key.
+In contrast, P12 often rested all fingers .
+Figure 9 shows a representative aligning pattern.
+Fingers rarely rested on lower-row keys .
+Figure 10 plots the distribution of resting touches.
+In summary, most of the keystrokes are short , which supports our assumption.
+We also found that the touched state of physical keyboards exhibits totally different characteristics.
+Participants mainly utilize the touched state for aligning their fingers on the home row.
+We conducted an observational study with two different touch screen devices: a tablet PC  and a tabletop PC .
+We designed an experiment in which participants typed and waited during conversations.
+We expected TapBoard to lead users to rest their fingers on the touch screen keyboards and find the home row while waiting.
+For this experiment, five participants were recruited.
+All of them were university students .
+This experiment again used the Samsung Slate 7 and Samsung SUR40.
+Subjects were provided with a simple chat program in both conditions.
+The program layout was identical to the transcription program of experiment 1, except that the software keyboard adopted the TapBoard algorithm with timeout threshold  = 300 ms and distance threshold  = 80 px.
+For a more natural typing experience, we allowed the participants to type in their mother tongue .
+The program recorded touch and release events with timestamps and corresponding characters.
+In addition, the software keyboard gave additional visual feedback when subjects put at least four fingers on the home-row.
+Its appearance is not very different from that of a general keyboard, but it will cancel your input if you touch the surface for longer than 300 ms." We conveyed this instruction just once before the start of each session in order that the participants understood the key feature of TapBoard naturally without any enforcement.
+After receiving this instruction, they tried cancelling their touches with one finger, two fingers, five fingers, and then eight fingers.
+Then, they conducted a 10 min chat session.
+Each participant had a session with both the tablet and tabletop conditions.
+Three participants started with tablet, and the other two started with tabletop in their first session.
+We observed resting behavior from four out of five participants.
+Figure 11 illustrates the representative resting behavior from one participant.
+Participants tended to rest their fingers  while the moderator was typing questions .
+Similar behavior was observed for four participants across both devices.
+The exception was P2, who did not rest his fingers at all.
+P2 leant against the chair backrest during the whole of the chat sessions, and crossed his arms after he finished his replies.
+The debriefing with P2 revealed that he did not realize that TapBoard allowed him to rest his hands on the device.
+Accumulated resting time percentages  are shown in Figure 12.
+With the exception of P2, participants actively rested for up to 29% of the total experiment time.
+We observed an interesting result related to the order of the conditions.
+P1 and P3 show a lower resting rate with the tablet, which was their starting condition.
+However, P4 and P5 show a higher resting rate with tabletop, which was their starting condition.
+We cautiously claim that tabletop induces more resting behavior due to its affordance.
+We conducted a comparative study with TapBoard keyboards  and traditional touch screen software keyboards  to measure text entry performance.
+The goal of this experiment was to show that TapBoard does not have an adverse effect on text entry performance.
+We expected participants to find the two conditions indistinguishable during the consecutive typing sessions.
+For this experiment, 10 university students were recruited .
+All of them were touch typists with traditional physical keyboards, but did not have a lot of experience with software keyboards on tablet computers.
+The timeout threshold  is the dividing line between typing and resting, and there is a tradeoff.
+As we increase the threshold value, typing becomes easier, and as we decrease it, resting becomes easier.
+We collected canceled touches during typing and resting, and calculated the expected error rates along with different timeout thresholds from 300 ms to 1000 ms. We added two error rates and found the minimum point: 470 ms for tablet and 440 ms for tabletop .
+As a result, we conclude that 450 ms would be the balanced timeout threshold value, i.e., the tradeoff between typing and resting.
+The participants were asked to perform transcription tasks with both TapBoard and Normal.
+They transcribed sentences randomly picked from the MacKenzie and Soukoreff phrase sets .
+Each session consisted of continuous transcription for 20 min.
+Typing sessions alternated between TapBoard and Normal.
+Participants performed five sessions for each condition, thus giving a total of ten sessions per participant.
+The order in which the devices were used was counterbalanced.
+The ten sessions were spread over three consecutive days to prevent fatigue.
+This, however, should be possible without degrading typing performance.
+In order to estimate the touch displacement while typing on a touch screen, we conducted a pilot study with four graduate students .
+They typed for 5 min in the Normal condition and we collected 5297 touch data.
+Based on this result, we set  = 50 px and conducted an experiment to see whether this reduction affected the typing performance.
+The experiment was a continuation of experiment 3.
+We conducted one additional session with TapBoard and Normal with the same participants .
+Then, we compared the new results with those of the last sessions of experiment 3.
+We analyzed the results with twoway repeated measure ANOVA.
+Within-subject factors are the two-level Threshold  and twolevel Condition .
+Table 2 presents the results.
+Typing Speed is measured in Words Per Minute , which is defined by Characters Per Second  * 60 / 5.
+The Corrected Error Rate  is the frequency of errors committed but corrected during typing.
+Not Corrected Error Rate  is the frequency of errors left in the transcribed text.
+Finally, Total Error Rate  is the unified error metric that combines these two error rates.
+Table 1 presents statistical test results for each performance metric.
+In summary, Session has a significant main effect, and Condition and Condition*Session interactions do not exhibit significant effects for all performance metrics.
+We conclude that TapBoard and Normal are not statistically different in their performance.
+To examine the equivalence of the performance of the two methods more rigorously, we picked two consecutive sessions and examined their equivalence using Two One-Sided t-Tests .
+For example, we compared session one and session two, session three and session four, and so on.
+Because we alternated the conditions, any two consecutive sessions consist of one TapBoard session and one Normal session.
+At the 95% confidence level, the test result indeed exhibited statistical equivalence for all session pairs.
+As in the case of a physical keyboard, TapBoard users will be able to rest their fingers between typing operations.
+This possibility was in fact verified in the second experiment.
+Most of the participants in the experiment would rest their fingers on the touch screen while they waited for their turn to type in a conversation session.
+We expect that this feature of the TapBoard will be better appreciated when people are involved in a careful writing task, as they have to pause frequently between typing operations in order to find the best words or expressions for their work.
+We also expect that this feature will be more useful for a tabletop computer with a large touch surface, because a large and stable surface has the affordance to invite resting behavior .
+The results of experiment 2 actually support this expectation, i.e., participants showed a stronger tendency to rest on the keyboard in the case of a tabletop computer.
+A closely related possibility is "anchored typing."
+By anchored typing, we mean a typing operation with one finger while the other fingers rest on the touch screen, as shown in Figure 15.
+This behavior is commonly observed when a user is repeatedly using special keys, such as a shortcut key or an arrow key.
+For instance, in order to read a long web page, one would use a page-down key repeatedly.
+Anchored typing is often a comfortable and stable typing technique for this kind of task.
+This scenario may sound somewhat outdated, as page turning is now usually done with a finger gesture on a touch screen.
+However, applications for which text-entry is a primary operation will need a software keyboard as a major input tool, and then the use of special keys will continue to be a viable interactive option.
+In a pilot study, we could observe that participants were able to "blind-type" on the touch screen after approximately 10 min training.
+Another interesting possibility is typing with only a transparent template, i.e., without a graphical representation of a keyboard on the screen, as shown in Figure 16a.
+A clear advantage of this "texture-only" typing is that a software keyboard is not occluding an application window.
+In Figure 16b, for example, a user is typing on a web page using only the tactile overlay while reading the web page using the whole screen area.
+The importance of tactile feedback in the use of a physical keyboard cannot be overemphasized.
+Users can feel the texture of the keys, and have a chance to align their fingers before starting to type.
+The touched state of TapBoard will enable users to feel the texture of the keyboard on a touch screen.
+This may sound meaningless, as there is no texture on a touch screen.
+This is true at present, but we anticipate that touch screens will have texture in the near future.
+There are already some early studies toward this goal, such as TeslaTouch , LATPaD  and STIMTAC .
+One company is also presenting an early prototype of a programmatically deformable touch screen .
+All of these tactile feedback technologies may only be meaningful when a user can touch and feel the surface.
+Even before such an advanced tactile feedback technology becomes available, some researchers have begun studying the benefit of fine textures on a touch screen for typing performance.
+Kim and Lee  studied the effect of a thin, tactile overlay on a screen keyboard on typing performance.
+With a combination of a tactile overlay and clicking sound feedback, text entry performance and user preference were significantly improved.
+There is also a commercial product with a similar goal, known as TABLSKIN .
+As TapBoard allows users to feel a touch screen more, it will also allow a touch screen to feel the users' touch more.
+A screen keyboard will be able to track the positions of hands and fingers when users rest their hands on the screen keyboard.
+A software keyboard may be instantiated under the hands when users rest their hands on a touch surface such as on a tabletop computer.
+The keys of a screen keyboard may adjust their positions to conform to the finger positions of individual users better.
+This concept, an adaptive screen keyboard, was in fact shown in .
+In their design, the touch screen instantiates a left or right half of the keyboard when it detects four touch points of a hand.
+However, they confess to a usability problem due to the difficulty of distinguishing an intentional typing touch and an unintentional touch on the home row by a returning finger.
+This problem does not exist in the case of TapBoard, because only tapping is regarded as an intentional typing touch.
+The TapBoard will be a more effective basis for a robust realization of an adaptive screen keyboard.
+A basic implementation of an adaptive touch screen keyboard based on the TapBoard is shown in Figure 17.
+In the figure, a software keyboard is following the hands as a user aligns their fingers on the touch screen.
+At this point, the text box will show an updated suggestion list.
+This cycle of interaction between users and the search box continues until they are satisfied with the current input.
+This is just an example of a new interaction style that may become possible when it is possible to conveniently switch between typing and GUI control.
+The most useful possibility enabled by TapBoard is that of using typing operations and gesture operations seamlessly.
+This is possible because only tapping is regarded as a typing operation, and all other movements on the screen can be utilized as gestures.
+For example, it will be possible to move the text cursor by a dragging action between typing operations without leaving the keyboard.
+In the following, we summarize some representative examples.
+Text cursor control: It is often necessary to move a text cursor while typing in order to insert or delete a word.
+Instead of reaching for arrow keys or pointing with a thick finger in a textbox, a dragging gesture on the TapBoard may be used to move the text cursor .
+As one drags further, the cursor will move further.
+Similarly, a dragging gesture with two fingers may be used for backspace operations .
+Text selection and formatting: Text selection may be done by combining the same cursor control gestures and a modifier gesture by the non-dominant hand.
+For instance, one may be able to select a portion of text by moving the text cursor with one of the fingers of the non-dominant hand anywhere on the keyboard .
+This may sound like selecting words using arrow keys with a shiftkey down, which is true, but the static gestures of the nondominant hand can be more diverse.
+For instance, with two fingers, it may be possible to emphasize formatting  instead of text selection when the text cursor moves .
+Writing while typing: A keyboard may not provide all of the symbols that a user wants to input.
+In this case, writing  a symbol may be a more effective alternative.
+A writing operation may be performed with the dominant hand while all of the non-dominant hand fingers are down .
+Writing input may be translated into a symbol by a gesture recognizer, as in , or may be used as it is, i.e., as a handwritten symbol.
+We did not implement an example for this scenario, as a similar scenario has already been extensively discussed by Findlater et al.
+GUI widget control: It is often necessary to mix typing and GUI widget control.
+In a form-filling task, e.g., on a web page, it is necessary to jump between different text fields.
+The gesture for text cursor control may be extended to deal with this problem.
+In fact, the design of TapBoard gestures to cover all of the primary operations will be a non-trivial design problem, and is not pursued in this paper.
+Instead, we implemented an example where one can mix typing operations and simple gestures to selectively accept the suggestion of a text box, such as that of Windows Explorer.
+A screen shot of an example implementation is shown in Figure 19.
+As users type an initial keyword, the text box shows a list of suggestions.
+We proposed the concept of TapBoard, and verified its feasibility in a series of experiments.
+First, we showed that TapBoard is compatible with the existing typing skill of users.
+Second, we showed that users can adapt to TapBoard easily and utilize the touched state, e.g., for resting their fingers.
+Third, we showed that TapBoard is as efficient as an ordinary touch screen keyboard.
+After these experimental verifications, we demonstrated new interaction techniques that will be made possible by TapBoard.
+We expect TapBoard to enhance the touch screen interaction experience significantly, especially by enabling seamless integration of typing operations and GUI operations.
+An immediate next step is to extend the concept of TapBoard beyond a keyboard and make the whole touch screen more "touchable."

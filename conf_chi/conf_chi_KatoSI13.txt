@@ -1,0 +1,121 @@
+Current programming environments use textual or symbolic representations.
+While these representations are appropriate for describing logical processes, they are not appropriate for representing raw values such as human and robot posture data, which are necessary for handling gesture input and controlling robots.
+To address this issue, we propose Picode, a text-based development environment augmented with inline visual representations: photos of human and robots.
+With Picode, the user first takes a photo to bind it to posture data.
+She then drag-and-drops the photo into the code editor, where it is displayed as an inline image.
+A preliminary user study revealed positive effects of taking photos on the programming experience.
+A programming language is an interface for the programmer to input procedures into a computer.
+As with other user interfaces, there have been many attempts to improve its usability.
+Such attempts include visual programming languages to visualize the control flow of the program, structured editors to prevent syntax errors, and enhancement to code completion that visualizes possible inputs .
+However, programming languages usually consist of textual or symbolic representations.
+While these representations are appropriate for precisely describing logical processes, they are not appropriate for representing the posture of a human or a robot.
+In such a case, the programmer has to list raw numeric values or to maintain a reference to the datasets stored in a file or a database.
+To address this issue, Ko and Myers presented a framework called "Barista" for implementing code editors which are capable of showing text and visual representations .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In Sikuli, the image serves as an argument of the API functions.
+Our goal was to apply a similar idea to facilitate the programming of applications that handle human and robot postures.
+We propose a development environment named Picode that uses photographs of human and robots to represent their posture data in a text editor .
+It helps the development process of applications for handling gesture input and/or controlling robots.
+The programmer is first asked to take a photo of a human or a robot to bind it to the posture data.
+She then drag-and-drops the photo into the code editor, where it is shown as an inline image.
+Our environment provides a built-in API which methods take photos as arguments.
+It allows the user to easily understand when the photo was taken and what the code is meant to do.
+After the Microsoft Kinect and its Software Development Kit  hit the market, many interactive applications have been developed that handle human posture.
+At the same time, some toolkits and libraries have been proposed that support the development of such applications.
+They can typically recognize preset poses and gestures.
+When the programmer wants to recognize her own poses and gestures, however, she has to record the examples outside the development environment.
+On the other hand, our development environment is designed to support the entire prototyping process of application development.
+Attempts to support a general workflow of domain-specific applications have already been made for many domains including physical computing , machine learning  and interactive camera-based programs .
+There is a long history of developing robot applications that deal with robot posture.
+Typical approaches include Programming by Example  , timeline-based editors to help designers defining transitions from one posture to another , and general development environments for textual or visual programming languages .
+Most of the PbE systems focus on reproducing observed human actions, and the editors focus on creating and editing actions.
+They both tend to have limited support for handling user input.
+Conversely, general development environments are more flexible in terms of input handling, but do not display posture data in an informative way.
+Our objective is to design a hybrid environment, by taking advantages of these approaches.
+While only one Kinect device can be connected at a time and is automatically detected, one or more Mindstorms NXT devices can be used by entering their Bluetooth addresses.
+Photos are usually taken from the RGB stream of a Kinect device, but a web camera can be used as an alternative source.
+While the preview window is displayed, clicking the "Capture" button triggers the system to take a photo and capture the corresponding posture data.
+Each captured dataset is automatically named, e.g., "New pose ," and stored in the pose library.
+It can be manually renamed but must be unique.
+Saying the word "capture" works when the user wants to capture a human posture and cannot click the button because standing in front of the Kinect device.
+When capturing a robot posture, a torque is applied to each servo motor on a joint to fix its angle.
+When the user tries to change its angle, however, the torque is set off so that she can move the joint freely.
+Therefore, the user can set the robot posture by changing joint angles individually.
+Additionally, she can load an existing posture by rightclicking its photo in the library.
+This allows the user to easily create a new posture from the existing ones.
+These interactions for capturing a robot's posture are inspired by the actuated physical puppet .
+Our prototype implementation consists of three main components : a code editor, the pose library, and a preview window.
+First, the user takes a photo of a human or a robot in the preview window.
+At the same time, posture data are captured and the dataset is stored in the pose library.
+Next, she drag-and-drops the photo from the pose library into the code editor, where the photo is displayed inline, as shown in Figure 2.
+Then, she can run the application and distribute the source code bundled with the referenced datasets so that others can run the same application within our development environment.
+The programmer can write code in a programming language that is an extension of Processing , with a built-in photo-based API whose methods take photos as arguments.
+She can drag-and-drop photos from the pose library to the code editor, directly into argument bodies of the methods.
+Usage examples of currently supported API are shown in Table 1.
+A human and robot are represented by Human and Robot classes, whose instance handles communication with the hardware devices.
+Note that the Human instance is capable of sensing but not controlling posture while the Robot instance is capable of both.
+Picode is built on top of Processing core components including its compiler and libraries.
+The main difference is in the user interface.
+Therefore, the programmer can benefit from the simple language specification and extensibility provided by many Java-based libraries.
+Beside the user interface, we modified the compilation process to link every program to our library.
+We also modified the execution process so that the development environment disconnects from the Kinect device and robots when the program starts, and reconnects to them when it shuts down.
+Human postures and the corresponding images are retrieved using a standalone GUI-less program implemented with Kinect for Windows SDK, which is automatically executed when needed.
+It communicates with the development environment and all programs that run on the environment through a TCP/IP connection.
+Robot postures are retrieved by reading values of a motor encoder or set by transmitting Bluetooth commands that are officially supported by the Mindstorms NXT firmware.
+We asked two test users to try our development environment together for about three hours.
+The goal was to verify two hypotheses on the benefit of embedding photos in the source code.
+The first hypothesis was that photos contain rich contextual information other than mere posture information, which helps the programmer recall the situation.
+The other was that the inline photos can involve a non-programmer in the software development process since they can be basically taken and understood by anybody.
+While one test user knew Processing and was familiar with basic programming concepts, the other did not know about programming except for basic HTML coding.
+We had them work together since we expected our environment to establish a new relationship between programmers and nonprogrammers .
+First, we thoroughly explained the workflow of our programming environment with the example code for an hour.
+Then, we asked them to make their own program for the remaining two hours.
+After two hours of free use, the participants could write a program that uses gesture input to control robot posture.
+The robot basically tried to mimic the user input, e.g., when the user waved her hand, the robot waved its hand back.
+By putting the robot in front of the keyboard, the participants also had it operate the PC with its mechanical hand, which reminded us of mechanical hijacking .
+The code editor is implemented in the Model-View architecture, where the model is the source code in string format and the view is its GUI representation.
+Each photo has its string representation, which is a call to the specific photo-based API Pose.load where key is a unique name of the corresponding posture data.
+When the photo is dropped to the code editor, the string is inserted into the source code.
+Every change in the source code triggers the language parser in order to build an abstract syntax tree.
+Then, the view is updated for syntax highlighting and every call to the photo-based API is replaced with photos.
+Each posture dataset represented by a photo is instantiated as a Pose class instance.
+A Pose class is currently extended using KinectHumanPose and MindstormsNXTPose classes to support platform-dependent implementation and can be further extended to support more types of robots, such as humanoids, or more ways of detecting poses such as with a motion capture system.
+The text file starts with its corresponding Pose class name followed by raw numerical values.
+The equality test between Pose instances always returns false if their types are different.
+When the participants were asked to read existing code, they seemed to benefit from contextual information in photos, which was missing in the numerical posture data.
+The programmer commented that he might also benefit from the information when he reads the code he had written a long time ago since the photo can remind him of the situation.
+According to this observation, there were two types of contextual information.
+The first type tells the user about what the subject  in the photos was doing.
+For example, photos would make it easy to distinguish when a user is drinking a glass of juice from when she is raising her hand to greet, while raw posture data will be the same .
+A robot hand grasping a small ball and a large cube falls within the same issue.
+Additionally, each photo of the robot helps the users remember the proper hardware configuration.
+Prototyping robot applications often requires many iterations, and the photos taken during the development process might work as revision history for the hardware setup.
+The second type tells the user about the surrounding context for which the program was designed.
+The meaning of the inline photos could be understood by both the programmer and the non-programmer, and the photos worked as a communication medium between them.
+The non-programmer said that she felt involved in the application development process and was never bored.
+She stated two reasons for this feeling.
+First, she could take part in the development process by taking photos.
+Simple algorithms that handle posture data often require parameter tuning depending on the environment in which the code runs.
+In our environment, this can be done by replacing the existing photo with a new one.
+Through the replacement, she started to take ownership of the source code.
+With the inline photos, the source code became not only for the programmer but also for the non-programmer.
+Second, she could guess what the code was doing by recognizing the inline photos.
+For non-programmers, text code sometimes looks like a series of non-sense words.
+In Picode, however, they can understand the meaning of the code in relation to its nearby photos.
+When she asked a question about the code to the programmer, the programmer often started the explanation by pointing to the related photo.
+She also mentioned that the photos were easy to see in the plain text code, which made it easy to locate particular lines of the code.
+The idea of making meaning of code transparent  was also discussed in Victor's recent essay about learnable programming .
+Inline photos can be a good starting point for learning programming.
+We introduced Picode, a development environment that integrates photos into a code editor.
+It supports the programming workflow with the posture data: recording examples by taking photos, coding, and running the program.
+Photos were found to be interesting media that enhance the programming experience.
+Picode is opensource and available at http://junkato.jp/picode/.
+We foresee three enhancements that can make our development environment more effective: support for machine learning, comparison between partial posture data, and recording videos instead of taking photos.
+First, the current API only supports comparison between one posture dataset with another, which makes it difficult to recognize more general postures.
+For example, when the programmer wants to recognize the human posture of raising the right hand regardless of the height of the hand, she must write several "if" statements.
+Support for machine learning might solve this issue, treating multiple posture datasets as correct examples and others as false examples.
+Second, the current API cannot compare partial data, which makes it difficult to recognize the posture of the right hand and ignore the other body parts.
+With Kinect, Picode might allow the programmer to mask certain areas of the body on the photo to ignore the corresponding joints.
+Third, recording videos instead of taking photos might allow interesting programming experiences, by combining Picode codebased approach with the flow paradigm of DejaVu .
+Videos can be used for learning human gestures or for replaying robot actions.
+The programmer might be able to change the replaying speed to make robot actions faster or slower.

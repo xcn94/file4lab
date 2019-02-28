@@ -1,0 +1,211 @@
+Automatic layout algorithms are commonly used when displaying graphs on the screen because they provide a nice" drawing of the graph without user intervention.
+There are, however, a couple of disadvantages to automatic layout.
+Without user intervention, an automatic layout algorithm is only capable of producing an aesthetically pleasing drawing of the graph.
+User- or application-speci ed layout constraints often concerning the semantics of a graph are di cult or impossible to specify.
+A second problem is that automatic layout algorithms seldom make use of information in the current layout when calculating the new layout.
+This can also be frustrating to the user because whenever a new layout is done, the user's orientation in the graph is lost.
+This paper suggests using layout constraints to solve both of these problems.
+We show how user-speci ed layout constraints may be easily added to many automatic graph layout algorithms.
+Additionally, the constraints speci ed by the current layout are used when calculating the new layout to achieve a more stable layout.
+This approach allows a continuum between manual and automatic layout by allowing the user to specify how stable the graph's layout should be.
+KEYWORDS: Graphical user interfaces, graph layout algorithms, layout constraints.
+Graphs, consisting of a set of nodes and a set of edges, are one of the most fundamental ways of representing relationships among objects.
+Programs that display a set of relationships as a graph 12, 11, 14, 2, 4 have become more prevalent in recent years because of two major factors.
+Firstly, a person is usually able to comprehend information better when it is presented pictorially for example a graph rather than in textual form.
+This is partly due to the fact that structural properties such as planarity, symmetry, and hierarchy are readily apparent from a well drawn graph and recognition of these properties seems to help the user understand" the graph.
+Secondly, the proliferation of high quality graphics workstations has made the use of graphs as a signi cant part of the graphical user interface a ordable and available to many users.
+This subsection will provide some de nitions that will be used throughout the paper.
+The position of each node and edge in the graph is called the layout of the graph.
+Graph layout can either be done manually, meaning that each node and edge is placed by the user, or automatically, meaning that an algorithm computes the position of the nodes and edges to produce a nice" layout.
+What constitutes a nice" layout depends on the type of graph, the application, as well as on the user's taste.
+Typically, an automatic graph layout algorithm tries to meet one or more possibly con icting aesthetic goals.
+Minimizing the number of edge crossings, maximizing the symmetries, or minimizing the total area of the graph are some of the many possible aesthetic goals.
+Automatic layout has the advantage of relieving the user of the tedious chore of layout, but usually does not produce quite as good results as a manual layout.
+For example, the user might request that one node be to the left of another or that a particular group of nodes be placed near each other.
+Since these constraints are speci ed explicitly, they are of higher priority than the aesthetic goals of the layout algorithm.
+A graph whose layout does not change much when it is newly layed out is called stable.
+Structural stability is concerned with meeting the user-speci ed layout constraints.
+If many user-speci ed layout constraints are speci ed and satis ed then the graph will not have much freedom of movement.
+Messinger 6 suggests that the di erence be measured as how many and how far vertices and edges move from their previous locations".
+Ideally, making a minor change in the graph's structure should cause only a minor change in the layout.
+Most automatic layout algorithms do a complete new layout without taking the current layout into account at all.
+This implies that the new graph layout may be dramatically di erent from the previous one.
+This can be very frustrating to the user because they lose their orientation in the graph.
+This paper will describe a general mechanism for extending automatic layout algorithms to be able to handle layout constraints.
+One particular layout algorithm is used throughout as an example, but the same approach would work on many other layout algorithms as well.
+Our solution 3 uses layout constraints to achieve both structural and dynamic stability.
+As can be seen from the overview of our solution Figure 1, our approach is layered.
+Constraints for a single dimension are speci ed at the lowest level.
+The next higher level manages those constraints.
+On top of this comes the 3-D constraint manager which combines the constraints from the three dimensions and provides a common interface to the graph layout algorithm used by the application.
+The following section will describe how the constraints are represented and how the possibly con icting constraints are evaluated.
+Section Three describes how a layout algorithm can be extended with a constraint manager to achieve structural and dynamic stability.
+Section Five gives several examples that demonstrate how using layout constraints contribute to layout stability.
+Finally, Section Six summarizes our work and suggests some future directions.
+First let us describe the kind of constraints that a user would typically like to have available.
+To constrain the position of a node in a graph, there are three di erent types of constraints: Absolute Positioning: Constrain the node's position in regards to a xed coordinate system.
+For example, assuming that nodes are placed in horizontal levels, constrain placement of a node to a particular level  level 4" or to a range of positions within a particular level  level 2, position 3 5".
+Relative Positioning: Constrain the node's position in relation to other nodes.
+For example, node A is left of node B " or node C is the top neighbor of node D".
+Clusters: Gather a group of nodes together to a cluster" which can then be further constrained.
+For example, cluster E must have a maximum width of 3 units" or all nodes in cluster F are to the right of node G".
+To describe these constraints, we introduce a coordinate system.
+The x-axis runs from left of right, the y-axis from top to bottom.
+The origin of the coordinate system is assumed to be in the upper left corner.
+For three-dimensional layout there may also be a zaxis running from the front to the back.
+The constraints can be formulated using the coordinates of each node.
+For example node A is vertically above node B " is described by the two equations A:x = B:x and A:y B:y.
+This example reveals two principles our system is based on: 1.
+Di erent dimensions are treated independently from each other.
+Constraints are restricted to linear equations.
+We have found that these two principles pose no severe restriction on the layout constraints we can dene.
+Note that even constraints like node A is above and to the left of node B " can be described by the two independent equations A:x B:x and A:y B:y.
+On the other hand, principle 1 makes implementation much simpler two- or three-dimensional constraints are no more di cult than one-dimensional constraints.
+Principle 2 is crucial for an e cient evaluation of the constraints.
+In conclusion of this section we de ne a low level onedimensional constraint as a linear equation of two variables.
+We call any set of these constraints a constraint network.
+For each dimension, there is a constraint manager which has two main tasks: Maintain a list of all constraints and provide functions to add, delete, and query the status of constraints in the constraint network.
+Evaluate the constraint network and keep it consistent.
+A set of constraints is de ned to be consistent if none of them are contradictory.
+The purpose of the evaluation of the constraint network usually called constraint propagation" 7, 5  is to compute the global e ects of local constraints.
+For example, from a chain of order relations like A:x B:x, B:x C:x, C:x D:x the relation A:x D:x should be derived.
+This evaluation can be done in linear time in the number of constraints by an algorithm based on topological sorting.
+For example, the system would answer a query A:x D:x ?"
+This e ciency is important for layout algorithms which may make extensive computations while reordering nodes in the graph layout.
+In the case where the constraints are not consistent i.e.
+The selection of deactivated constraints can be in uenced by assigning priorities to them.
+The constraint manager then tries to keep high priority constraints active, while some low priority constraints are deactivated.
+Among inconsistent constraints with equal priorities, the selection is arbitrary.
+Deactivated constraints are ignored during the evaluation of the constraint network.
+In our implementation the detection of which constraints are deactivated is done by a binary search through inconsistent sets of constraints until all constraints causing an inconsistency are deactivated.
+This solution, however, increases the time complexity from On to On2 log n where n is the number of constraints in the worst case and this leaves some room for improvement.
+So far the dimensions have been treated independently.
+However, in order to de ne a convenient interface to the user, to the layout algorithms and to the applications programs an interfacing module is used.
+This module provides functions to translate threedimensional constraints into one-dimensional ones using the constraint managers for each dimension.
+Each of these functions can be invoked in three ways: DO: Insert a new constraint.
+In this section we want to show how layout constraints may be integrated into an automatic layout algorithm.
+As we stated before, the constraints are designed to meet user requests rather than the aesthetic goals of a particular layout algorithm.
+Therefore, our system should be adaptable to several di erent ones.
+First we show how structural constraints are taken into account, then we use this mechanism to achieve dynamic stability.
+The following is a description of Sugiyama's layout algorithm, which is divided into four phases: Topological Sorting: Assign nodes to levels according to their depth longest path of predecessors in the graph.
+Cycles in the graph are handled by temporarily reversing the direction of an edge.
+Subdivision Of Long-span Edges: Split long" edges that span more than one level into a series of shorter ones by inserting dummy" nodes at all in-between levels.
+Barycentric Ordering: Determine the relative positions of nodes within each level where the goal is to reduce the crossings with the adjacent level.
+Each node is positioned based on its barycenter which, roughly speaking, is the average position of its predecessors or successors.
+Several upward and downward passes are made through the graph until no improvement is detected or a threshold value has been reached.
+Finetuning: Determines the actual x, y coordinates of each node.
+The netuning shifts nodes within their level to center nodes in respect to their predecessors successors.
+The relative position of the nodes is not allowed to change, so this phase will not contribute to any more or less edge crossings.
+For each of these phases some changes or extensions to the original algorithm were necessary.
+Before doing so we have to de ne the correspondence between the coordinate system used by the constraints and the layout algorithm.
+In x-direction coordinate units correspond to subsequent positions.
+Together a constraint A is the left neighbor of B " can be dened by the two equations A:x + 1 = B:x" and A:y = B:y".
+Integration of constraints into the rst phase is easy because constraint evaluation includes topological sorting.
+For each edge, the algorithm introduces one constraint stating that the source node should be placed above the target node of the edge.
+These automatically generated constraints receive a priority that is lower than user-speci ed ones.
+Evaluation of the constraints then yields a proper level assignment.
+Due to user-speci ed constraints, additional back edges source is below target and also at" edges running between nodes on the same level may arise.
+Back edges are temporarily reversed like edges forming a cycle.
+But as Sugiyama's algorithm is not designed to handle at" edges it would draw an edge straight through all intermediate nodes, an additional constraint is generated which requires that these nodes are immediate neighbors.
+The second phase is also easy to adapt.
+If there are two nodes constrained to lie in the same vertical line it is reasonable to require that an edge between them also runs straight on this line rather than being allowed to bend.
+Therefore additional constraints are generated to force all intermediate nodes to have the same x-coordinate.
+The main work of the Sugiyama layout is done during the third phase when a total ordering of the nodes in each level is determined.
+C , corresponding constraints Ax Bx; Bx Cx are given to the constraint manager.
+They receive a low priority so that in determining the nal ordering, the constraint manager will give preference to user- or application-speci ed constraints.
+It is important that the constraint manager be as e cient as possible in our case O1 for queries since there is a large number of constraints and because the levels are rearranged frequently.
+Minimization of edge crossings only makes sense in two-dimensional space.
+If we use a third dimension the resulting graph layout remains a two-dimensional projection.
+This means that we have to minimize edge crossings in the projection.
+Therefore we do not introduce a third dimension until the nal netuning phase.
+For nodes constrained to lie in front of each other we rather generate internal constraints which request that these nodes are immediate neighbors on the same level.
+In the nal phase  netuning the relative ordering of the nodes is preserved, but the x-coordinates of the nodes are determined in a level-by-level pass through the graph.
+When determining the position of nodes in the current level, the position of nodes in the previous levels must be taken into account.
+Additionally, if three-dimensional layout is used, nodes which are constrained to lie in front of each other are positioned 1 -D e ect.
+The performance, however, does not su er too badly because the number of generated constraints is linear in the number of nodes and no inconsistencies are introduced.
+Thus using this method results in a stable graph layout at roughly the same speed as a completely new layout, producing a trade-o between Sugiyama's aesthetics and dynamic stability.
+The previous section described how Sugiyama's algorithm could be adapted to handle structural stability.
+Now we will use the same constraint mechanism to achieve dynamic stability.
+Although it is generally agreed that dynamic stability is a serious problem with automatic layout algorithms, dynamic stability is still a relatively unexplored research area.
+Most approaches try some form of incremental layout" meaning that only a small portion of the graph is newly laid out whereas the rest of the graph remains constant.
+This is particularly important for very large graphs where the extensive computations of the layout algorithm may consume a considerable time.
+Our approach is to generate additional constraints after each automatic layout.
+If the graph is edited these constraints will be weakened in the vicinity of changes.
+This causes the graph layout to be exible in changed areas while it remains stable in the remainder of the graph.
+The vicinity of a change is a subgraph close to where the change occurred.
+It includes the nodes directly a ected by the change plus nodes that are some number of edge length away from the directly a ected nodes.
+The number of edge lengths is a userspeci ed parameter that describes the degree in which the layout should change.
+This may vary from extremely stable vicinity contains only the directly affected nodes to unconstrained vicinity contains all nodes of the graph, therefore same results as standard Sugiyama.
+The constraints generated to achieve dynamic stability constrain each node to its level in the current layout and connect nodes within a level into chains representing their order.
+After a change has occurred, exible nodes are freed from these constraints.
+During the new layout they can move freely, while the other nodes keep the relative positions they had in the old layout.
+If all nodes on a level remain stable, their order need not be recomputed, thus speeding up the layout.
+The EDGE graph editor 8, 16 , which o ers a choice of several layout algorithms for displaying and editing graphs, was extended to include the modi ed Sugiyama algorithm and the associated constraint manager.
+The following three subsections brie y describe the modi cations made to the user, input output, and application interfaces.
+The user speci es editing operations via a set of popup menus.
+We extended the set of menus so that the user can list or alter the current list of constraints.
+To alter a constraint, the user selects the list of nodes by clicking them with the mouse, lls out a form-like menu specifying the type of constraint, the priority etc., and then selects DO", UNDO" or QUERY".
+The appropriate command is then sent to the 3-D constraint manager which responds accordingly.
+The portion of the GRL describing the constraints and their attributes is delimited by keywords and each constraint is a set of attribute:value pairs.
+The following is an excerpt of a GRL description specifying that node A should be to the left of node B with a priority value of 10 and that node B should be in the same vertical column as node C with default priority 0.
+Figure 2: Interdependencies in Physics agement, call graph animation, or directory browsing.
+The applications may invoke any of the functions o ered by the 3-D constraint manager to specify application-speci c constraints.
+For example, our PERT chart graph editor, which calculates the critical path of a project and highlights those nodes, uses the equal column" constraint to align all of the nodes in the critical path.
+This section is intended to demonstrate the capabilities of the system described above.
+To begin with, we show an example for structural stability.
+Figure 2 depicts an overview of the interdependencies between areas of physics.
+Sugiyama's algorithm is appropriate for the almost-hierarchical structure of the graph.
+However, the positioning remains somewhat arbitrary because the layout algorithm lacks knowledge of the semantics of the graph.
+For example, the user would prefer statics" and kinetics" as immediate neighbors, mechanics", wave theory", optics" and atomic physics" on the same x position and estatics" in front of e-dynamics".
+This is achieved by introducing these constraints either interactively, in the GRL le, or from the application.
+The result is shown in Figure 3.
+If we add an edge from e-statics" to nuclear physics", then Sugiyama's algorithm will yield a graph layout like the one in Figure 4.
+We recognize that small changes in the graph structure may cause dramatic changes in the layout.
+Figure 5 shows the same graph, but this time making use of dynamic stability.
+The shape of the graph remains quite similar to Figure 2, making it easier for the user to keep his orientation.
+Our approach tries to nd a compromise between dynamic stability and other layout aesthetics such as the number of edge crossings.
+Nodes in the vicinity of a change may alter their position.
+In this example we used vicinity size 1, i.e.
+The time to compute the graph layouts for Figures 2 5 lay between 3 and 4 seconds, measured as real time on a Sun-3 110 with 8 MByte main memory.
+This suggests that the additional time involved for structural and dynamic layout is reasonable.
+In this article we proposed a way to achieve stability in automatic graph layout.
+To this end we de ned two types of stability, structural and dynamic.
+Structural stability deals with constraints on the graph layout imposed by the user or by applications programs.
+Dynamic stability is the e ort to keep subsequent layouts of graphs similar after the graph's structure was changed.
+The system described above achieves both types of stability by the same mechanism: layout constraints.
+The problem was divided into two parts: The representation of constraints, and their integration into an automatic layout algorithm.
+This division makes it possible to use the constraint representation in various layout algorithms.
+Representation provides the management of any set of linear equations between two scalar values, in particular components of the node coordinates.
+This seems to be a reasonable compromise between expressiveness of the constraint language and implementation and e ciency issues.
+Integration has to be done individually for di erent layout algorithms, but the necessary changes are straightforward.
+This approach allows application-speci c information to be incorporated while retaining the advantages of automatic layout.
+The user is able to choose a desired degree of dynamic stability by specifying a parameter representing the size of the instable region.
+Although the system is de nitely useful as it is, there is, of course, still room for improvement and extensions.
+In particular, the e ciency of the constraint manager when encountering inconsistent constraints could be improved.
+Application to non-cartesian coordinate systems is also worth investigation.
+Because constraints are restricted to linear equations, for example in polar coordinates it is not possible to de ne constraints like A left of B " without trigonometric functions.
+On the other hand, this might not be a severe disadvantage, as the circular symmetry of polar coordinates rather implies constraints like A and B lie in the same sector" or A is near to the center" which can be easily expressed with linear constraints on the polar coordinates.
+Other improvements would be a pattern matching mechanism in the undo" command for example undo all constraints involving nodes A and B " or a more sophisticated edge rout1 -D layout.
+Maintaining knowledge about temporal intervals.
+2 C. Batini, E. Nardelli, and R. Tamassia.
+A layout algorithm for data ow diagrams.
+Stability in graph layout algorithms.
+Master's thesis, University of Karlsruhe, Institute for Informatics, July 1989.
+DAG: A program that draws directed graphs.
+Consistency in networks of relations.
+Automatic Layout of Large Directed Graphs.
+PhD thesis, University of Washington, Department of Computer Sciences, July 1989.
+Networks of constraints: Fundamental properties and applications to picture processing.
+EDGE: An extendible directed graph editor.
+Technical Report 8 88, University of Karlsruhe, Institute for Informatics, June 1988.
+An interface description language for graph editors.
+The ISI grapher: a portable tool for displaying graphs pictorially.
+Computers in Symbolic Graphs and Communications see.
+Information Sciences Institute, Marina Del Rey, CA.
+A browser for directed graphs.
+Methods for visual understanding of hierarchical system structures.
+An algorithm for automatic layout of entity relationship diagrams.
+In C. Davis, S. Jajodia, P. Ng, and R. Yeh, editors, Entity-Relationship Approach to Software Engineering, pages 421 439.
+Automatic graph drawing and readability of diagraphs.
+Knowledgebased editors for directed graphs.
+In H. K. Nichols and D. Simpson, editors, ESEC'87, Lecture Notes in Computer Science No.

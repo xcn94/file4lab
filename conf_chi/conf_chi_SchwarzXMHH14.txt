@@ -1,0 +1,116 @@
+An illustrated example of touches present at different points in time relative to a touch contact of interest .
+Touch points due to palms  are often ephemeral, large, and have low velocity.
+Our approach extracts features and performs classification of each touch point at several points in time , using different sized time windows .
+In this example, we show how the classification for the green dot only changes  as the window size changes.
+Tablet computers are often called upon to emulate classical pen-and-paper input.
+However, touchscreens typically lack the means to distinguish between legitimate stylus and finger touches and touches with the palm or other parts of the hand.
+This forces users to rest their palms elsewhere or hover above the screen, resulting in ergonomic and usability problems.
+We present a probabilistic touch filtering approach that uses the temporal evolution of touch contacts to reject palms.
+Our system improves upon previous approaches, reducing accidental palm inputs to 0.016 per pen stroke, while correctly passing 98% of stylus inputs.
+The contributions of this work are three-fold.
+Foremost, we describe a novel, probabilistic approach to palm rejection.
+Our system requires no initial configuration and is independent of screen orientation and user handedness.
+Second, we review contemporary palm rejection implementations and compare our approach against two applications in a user study, offering the first publicly available comparison of such systems.
+Through our user study, we show that our implementation offers equal or superior performance to these applications.
+We prototyped our approach on an Apple iPad 2 running iOS 6 - a platform without native palm rejection or stylus input.
+Our approach, however, is platform agnostic and will work on any system that reports multiple touch contacts along with location and touch area.
+Tablet computers are often called upon to emulate classical pen-and-paper input.
+However, most touch devices today lack palm rejection features - most notably the highly popular Apple iPad tablets.
+Failure to reject palms effectively in a pen or touch input system results in ergonomic issues , accidental activation and unwanted inputs, precluding fluid and efficient use of these input systems.
+Copyrights for components of this work owned by others than the author must be honored.
+Abstracting with credit is permitted.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Publication rights licensed to ACM.
+Our work began with a series of observations of stylus use on tablets.
+Another insight was that there was often significant context that existed before a touch point appeared on the screen.
+For example, when dotting an `i' the stylus touch might only exist for 50ms - however, the palm might have been on the display for several seconds beforehand.
+As our approach records all touch data, we can look backwards in time to make a more confident classification.
+Using our observations as a starting point, we derived a series of features that characterize touch points of interest and their relationships to neighboring points1.
+We expand the time window symmetrically about t=0, ensuring that data from before and after the initial touch event are included .
+Each touch event has a centroid position and a radius .
+Our features consist of statistics  computed over sequences of touch events corresponding to a particular touch contact for each time window.
+We calculate these statistics for the radius of each event and speed and acceleration of consecutive events.
+Additional features include the total number of events in the sequence and mean/stdev/min/max calculated over the Cartesian distances between the centroid of the touch event at t=0 and all touch events in any concurrent sequences .
+All of these features are rotation and flip invariant.
+This should minimize the effect of device and hand orientation, as well as handedness, on classification.
+Similar features have been used for other applications, including finger angle estimation , thumb-driven interactions  and more generally, finger pose estimation .
+Wang and Ren provide a more complete overview of possible finger properties and related work .
+To better understand which features discriminate palm from stylus, we performed feature selection on our training dataset  using correlation-based feature subset selection  with best first search, provided in Weka .
+We found that min distance to other touches, number of touch events, and min/mean/max/stdev of touch radius to be most valuable1.
+One benefit of our iterative classification approach is that it allows our system to show immediate feedback to the user.
+The system initially shows its best guess  and refines this later as more information becomes available.
+For example, if a touch is initially guessed to be a pen, the application will render a stroke on canvas.
+If this guess is later changed, the stroke is removed from the canvas.
+Each tree was trained using touch features from all window sizes up to the maximum window size.
+For example, the classifier triggered at 200ms uses features obtained from window sizes of 50, 100, 200, 300 and 400ms .
+We used Weka  to train our decision trees using the C4.5 algorithm .
+We collected training data using a custom iOS application.
+For each training instance, a 1cm radius dot was randomly placed on the screen.
+Users were told to place their palms on the screen however they saw fit, such that they could draw a stroke of their choosing starting in this circle.
+This procedure allowed us to collect labeled pointer and palm point data.
+In total, we captured 22,251 touch event instances  from five people using a variety of hand poses, tablet orientations, and handedness.
+To estimate the effectiveness of our iterative approach, we split our data into 11,373 training instances  and 10,878 test instances .
+Figure 2 shows test accuracy over increasing time windows.
+Classification at t=1ms is included to approximate instantaneous classification.
+Accuracy improves as window size increases, plateauing around 99.5% at 200ms.
+We continued classification out to 500ms for experimental reasons, but as Figure 2 shows, the main gains occur in the first 100ms.
+This result underscores the importance of leveraging temporal features and also delaying final classification.
+As shown in Figure 2, performing classification instantly  yields a classification accuracy of 98.4% .
+This is sufficiently accurate that real-time graph-
+Our algorithm records all touch events reported by the touchscreen.
+After a touch point has been alive for at least 25ms, the system classifies the touch as either "pointer" or "palm".
+If a touch terminates before 25ms has elapsed, it is classified using all available data.
+At 50ms after birth, another classification is performed.
+For every 50ms thereafter, up to 500ms since birth, this classification repeats - each time contributing a single "vote".
+A temporary touch type, either pen or palm, is assigned based on the majority of the votes accumulated thus far.
+After 500ms, or if the touch point disappears , voting stops, and the final vote is used to assign a permanent classification.
+Instead, applications must rely on information about touch position, orientation , and size.
+There are dozens of applications in the iOS and Android app stores that claim to have palm rejection features.
+Unfortunately, implementations are proprietary, precluding direct analysis.
+One method applications employ is to specify a special `palm rejection region' where all touches are ignored , though this is unwieldy.
+A second approach uses spatiotemporal features - looking at the evolution of touch properties and movement over a short time window.
+We hypothesize that applications that first draw, then remove strokes, must wait some period of time before detecting accidental touches.
+Two applications exhibiting this behavior include Penultimate  and Bamboo Paper .
+Both applications require the user to specify information their handedness and use the tablet in a fixed orientation, neither of which our method requires.
+Additionally, Penultimate requires users to specify one of three handwriting poses they use.
+The most reliable way to disambiguate stylus input from human input is to use special hardware.
+For example, ultrasonic transducers can be placed at the periphery of a screen to sense ultrasonic pulses emitted by an active pen .
+It is also possible to use an infrared emitting pen and two or more cameras to triangulate the planar position on a screen .
+The Jot Touch  uses a passive capacitive tip, which simulates a finger touch.
+The pen itself is powered and pressure sensitive, sending data to the device over Bluetooth.
+With timing information, it is possible to associate touch events with pen down events.
+Another approach, popularized by Wacom, uses resonance inductive coupling , which uses a special pen and sensor board that operates behind the conventional capacitive touchscreen.
+This technology is used in devices such as the Microsoft Surface and Samsung Galaxy Note.
+Similarly, Gauss-Sense  uses a grid of Hall effect sensors behind the touchscreen to sense the magnetic tip of a special pen.
+LongPad  used a grid of infrared proximity sensors and computer vision to separate palm and finger inputs.
+Finally, advanced capacitive touchscreens can differentiate passive styli by looking at contact size and capacitive properties .
+Even with special hardware for stylus support, simply distinguishing pen from finger is insufficient if the finger can still be used for input.
+In this case, unwanted palm touches may still be interpreted as finger touches in the absence of the pen.
+Thus, software is still needed to reliably distinguish pens and fingers from palms, which the above solutions do not address.
+To assess the performance of our palm rejection approach, we compared against Penultimate and Bamboo Paper.
+As of September 2013, both of these apps have been featured in the Apple App Store, and were subjectively judged by the authors to have the best palm rejection out of 10 candidate applications tested.
+We recruited 10 participants from our lab , who were paid $5 for their time.
+Users were provided a passive, rubber-tipped stylus, which is the most popular style for use with the iPad.
+The task was to replicate 15 symbols presented on cards.
+Participants were instructed to draw each symbol with a single stroke.
+If the application missed the stroke, they were told to continue to the next symbol.
+They were allowed to rest their hands on the screen, and to lift, slide and otherwise reposition their palm however they saw fit during drawing.
+Six symbol sets, representing a variety of 1D and 2D shapes , were presented in random order.
+This procedure was repeated for the three applications - Bamboo, Penultimate, and our own - in a random order.
+Bamboo and Penultimate were each configured for the user's handedness and preferred handwriting pose before the experiment; our application did not require configuration.
+After each symbol set was drawn, the experimenter recorded the number of strokes that were successfully drawn , as well as the number of extraneous strokes  that were drawn .
+Although special styli tend to offer excellent precision, a significant downside is the need for a special purpose accessory, which is often platform-specific.
+Further, additional internal hardware is often required to support these pens, adding to the build cost, size and power draw of mobile devices.
+Thus, a software-only solution, which can be easily deployed and updated, is attractive.
+Further, software solutions offer the ability to disambiguate between finger and palm input.
+However, without an innate way to disambiguate touch events, software solutions must rely on clever processing or interaction techniques.
+For optical multi-touch devices, one approach is to identify palm regions visible from the camera image .
+This outcome is not significantly different from Bamboo Paper, but both Bamboo and our approach are significantly more accurate than Penultimate .
+Statistical significance was assessed by running a repeated measures ANOVA , followed by a Tukey HSD test.
+Additionally, our approach has fewer false positives than Bamboo and Penultimate: 0.016 errors/stroke vs. 0.086 and 0.050 respectively .
+The difference between our approach and Penultimate was not significant, though our false positive rate was significantly lower than Bamboo .
+Although our system performs with accuracy equivalent to Penultimate, it does not require information about hand position .
+We believe two things contributed to this robustness: we collected training data that represented a wide range of poses; and, as mentioned above, we designed our feature set to be hand invariant.
+In this work, we described a palm rejection technique utilizing temporal features, iterative classification, and probabilistic voting.
+We demonstrate the efficacy of our solution with an evaluation, which showed improvements over popular applications considered to be the current state of the art.
+Finally, our approach provides a basis for future research efforts in palm rejection.

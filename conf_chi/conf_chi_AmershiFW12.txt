@@ -1,0 +1,235 @@
+We present ReGroup, a novel end-user interactive machine learning system for helping people create custom, on-demand groups in online social networks.
+As a person adds members to a group, ReGroup iteratively learns a probabilistic model of group membership specific to that group.
+ReGroup then uses its currently learned model to suggest additional members and group characteristics for filtering.
+Our evaluation shows that ReGroup is effective for helping people create large and varied groups, whereas traditional methods  are better suited for small groups whose members can be easily recalled by name.
+By facilitating on-demand group creation, ReGroup can enable in-context sharing and potentially encourage better online privacy practices.
+In addition, applying interactive machine learning to social network group creation introduces several challenges for designing effective end-user interaction with machine learning.
+We identify these challenges and discuss how we address them in ReGroup.
+Major sites have therefore begun advocating customizable friend groups as the latest tool for helping us control with whom we share .
+The currently-advocated approach to custom group creation is to pre-categorize friends in advance of sharing decisions.
+For example, Google+ requires friends be manually organized into "Circles" before content can be shared with them .
+Katango  and Facebook's "Smart Lists"  attempt to aid group curation by automatically generating potential groups based on a person's social graph or common features .
+These automatically generated groups can then be manually edited for correctness or to capture other preferences.
+Pre-defined groups may suffice for filtering update streams and news feeds, but usable security recommendations argue that privacy controls for sharing content should operate in context of that content .
+This is because prior research has shown that willingness to share varies widely based on both content recipients and the content itself .
+For example, a person's definition of a "close friend" may change when sharing a personal photograph versus inviting people to a party.
+Furthermore, Jones and O'Neill  recently showed that groups created for generic purposes only partially overlap with in-context sharing decisions.
+Ill-conceived groupings can therefore lead to information leakage, over-restriction, or additional work to revise pre-defined groups in-context.
+We present ReGroup , a novel system that uses end-user interactive machine learning to help people create custom, on-demand groups in Facebook.
+As ReGroup  observes a person's normal interaction of adding members to a group, it learns a probabilistic model of group membership in order to suggest both additional members and group characteristics for filtering a friend list.
+As a result, ReGroup can tailor its suggestions to the group a person is currently trying to create .
+Facilitating on-demand creation of contextualized groups may help encourage better privacy practices in social networks.
+Social networking sites present a conflict between our desire to share our personal lives online and our concerns about personal privacy .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+ReGroup uses end-user interactive machine learning to help people create custom, on-demand groups.
+As a person selects group members , ReGroup suggests additional members  and suggests group characteristics as filters for narrowing down a friend list .
+This paper makes the following contributions: * A new approach to social access control - using end-user interactive machine learning to help people create custom groups on-demand in the context of sharing decisions.
+Our quantitative and qualitative analyses indicate that different techniques are effective for different types of groups and therefore integrating all techniques in online social networks can support a wider range of desired groups.
+ReGroup uses end-user interactive machine learning to help people create custom groups on-demand.
+In this section, we first use an example to illustrate how a person can create a group with ReGroup.
+We then discuss the challenges inherent to interactive machine learning for group creation and how we address them in our design of ReGroup.
+Ada wants to advertise a confidential research talk to relevant friends at the University of Washington, so she decides to use ReGroup to create a private group for the ad.
+To start, she thinks of a friend she knows will be interested in the talk, searches for them by name  and adds them to her group .
+ReGroup learns from this example and then tries to help Ada find other friends to include.
+Ada now sees several additional friends she wants to include.
+She adds them to her group all at once by drag-selecting and then clicking the Add Selected button .
+With these additional examples, ReGroup learns more about the group being created and again re-organizes Ada's friends to help her find more group members.
+As ReGroup learns about the group Ada is creating, it also presents relevant group characteristics she can use as filters.
+For example, given the currently selected friends, ReGroup believes Ada might want to include other people that live in Washington, that have several mutual friends with her, or that work at the University of Washington .
+Although not everybody Ada wants to include works at the University of Washington , she agrees that they all likely live in Washington.
+She clicks the "Washington" filter, causing ReGroup to remove friends who do not live in Washington.
+This helps Ada by reducing the number of people she must consider when finding friends to include in her group.
+Ada continues interacting with ReGroup this way, explicitly adding group members and filtering when necessary, until she has included everyone to whom she wants to advertise.
+Description/Examples "Sorority friends", "People my age" "People I'm related to" "Friends from my hometown" "Anyone I know who lives nearby" "Anyone from my department at school" "CoWorkers" Number of Inbox, Outbox and Wall messages sent and received.
+ReGroup's ability to suggest group members is powered by its interactive machine learning component.
+Machine learning works by discovering patterns in examples.
+A system is therefore strongly influenced by the quality of information contained in the representations of those examples .
+We based our features on related work on social networks .
+We also conducted an online survey of Facebook and Google+ users to identify common groups we could support.
+We distributed the survey to our own Facebook and Google+ contacts, obtaining 69 responses  describing 244 customized groups .
+Facebook and Google+ advocate creating groups in advance, so the groups identified in our survey may not correspond to groups people would create on-demand .
+Nevertheless, these gave a starting point from which to distill potential features.
+Table 1 presents the 18 features currently used by ReGroup, each with an example group the feature might help support.
+In this research, we endeavored to support common groups as part of demonstrating the potential for interactive machine learning in social access control.
+Our features are therefore not intended to be exhaustive.
+We also use Laplace smoothing to improve performance in the presence of limited training data.
+Although the independence assumption is often violated in real-world data, Naive Bayes has been shown to work well in many practical applications .
+Naive Bayes also gracefully handles missing data and allows for a straightforward interpretation of features, both important aspects of ReGroup as will be discussed below.
+ReGroup's classifier is re-trained every time a person adds friends to a group.
+ReGroup then reorders a person's remaining friends according to who is most likely to also belong to the group as computed by the updated classifier.
+Effective training of machine learning systems requires both positive and negative examples.
+Therefore, a system focused on training an effective classifier will be designed to solicit explicit positive and negative examples .
+In our case, however, a person's primary goal is to create a group.
+That is, the classifier is a disposable side effect and a person is not concerned about its generalization.
+To mitigate the effects of people primarily providing positive examples, we designed ReGroup to obtain implicit negative examples during interaction.
+When a person selects a group member from an ordered list of friends, ReGroup increases the probability that the skipped friends  are not intended for the group.
+This is achieved by assigning the preceding friends implicit negative labels in ReGroup's group membership computations.
+ReGroup also still includes implicitly labeled friends in its list of suggestions.
+We found that setting =0.2*n, where n is the number of times a friend is skipped, worked well in practice.
+Most end-user interactive machine learning systems focus only on interaction with examples .
+However, people often have knowledge about the shared properties of groups.
+We hypothesized that enabling interaction with those features might accelerate the group creation process.
+We chose to realize end-user interaction with features in ReGroup using faceted search , a popular method for helping people find items in collections .
+With faceted search, people find items by filtering a collection based on feature values.
+ReGroup provides two ways for people to filter friends by feature values: * Via a suggested list of five top feature value filters .
+Previous methods for ordering filters have used metrics like hit count  or query keyword similarity .
+However, none of these are appropriate for our domain.
+We therefore formulate the problem decision-theoretically.
+Intuitively, we want ReGroup to suggest filters that will reduce effort required during group creation.
+However, this alone does not guarantee that a filter will prune unwanted friends.
+We use this formulation in choosing the top five filters to suggest, as well as in ordering feature values within the static list.
+While experimenting with early versions of ReGroup, we observed that skipped friends would sometimes continue bubbling back up in the ordered list during group creation.
+Further examination revealed that this occurred when  a friend had all the characteristics of the group, as modeled by the classifier, but  was skipped for some reason not captured by the system .
+Implicit negative examples are not powerful enough to prevent repeated suggestion of such friends because of their high similarity to the many positive examples.
+This problem occurs in all machine learning systems when the hypothesis language is insufficiently expressive to model the true concept.
+However, it can be particularly frustrating in an interactive system like ReGroup, as a person can quickly grow tired of repeatedly skipping the same friend.
+We addressed this with an explicit penalty term,  , in our group membership estimation as follows: where J is the number of times a friend was skipped.
+Our preliminary experiments showed that setting  =0.9 achieved the desired effect .
+Missing data, which can lead to unpredictable behavior in machine learning systems, is rampant in the domain of online social networks.
+People choose not to supply information, have strict privacy settings, or are inconsistent with their online activity.
+The Naive Bayes classifier gracefully handles missing data by ignoring features with missing values when computing group membership probabilities.
+However, missing data can still adversely impact the usefulness of filters by leading to incorrectly filtered friends  or incorrectly preserved friends .
+ReGroup attempts to estimate missing values by creating additional feature classifiers for predicting missing values conditioned on all other available features.
+Then, when applying a filter, ReGroup only eliminates friends who are guaranteed to be ineligible .
+ReGroup is implemented using Facebook's Application Platform  and a Firefox Greasemonkey script .
+ReGroup uses Facebook's Application Platform to access a person's relevant information , while the Greasmonkey script allows ReGroup to run within a person's own Facebook account.
+ReGroup is not publicly available .
+ReGroup accessed a participant's Facebook information only after they provided explicit and informed consent and only for enabling its interface, staying within Facebook's Terms of Service.
+When thinking of groups, participants were instructed to imagine they were about to post a new comment or share a new photo and only wanted to share it with a select group of friends.
+We also provided them with a list of ten example groups based on frequent responses to our online survey  to help them decide.
+Resulting groups ranged from typical  to more unique and nuanced .
+We also asked participants to estimate group size .
+The experimenter then sorted groups by estimated size and assigned them to conditions in order .
+The experimenter then demonstrated ReGroup  with the experimenter's own Facebook account.
+Participants were told they would use three variations of the ReGroup interface.
+Before each condition, the participant practiced with the corresponding interface by creating a simple gender-based group.
+After the practice, participants used the interface condition to create two of their groups .
+To avoid exhausting participants, we limited each group to a maximum of 4 minutes .
+All interface actions were time-stamped and logged.
+All participant information and logged data was stored anonymously, using unique identifiers, on a secure server accessible only by the researchers.
+After each group, participants completed a short questionnaire containing 5-point Likert scales  about the group they just created .
+At the end of the study, participants filled out a final questionnaire to comment on their overall experience and compare the interfaces .
+The study lasted 1 hour and participants were given a $20 Amazon gift certificate for their participation.
+We conducted an evaluation to explore the tradeoffs between end-user interactive machine learning for on-demand custom group creation and Facebook's current approach of allowing manual selection from an alphabetical list or searching by name .
+We also wanted to compare a design including our feature-based interaction with a more typical design using only example-based interaction.
+We evaluated the following interfaces: * Alphabet.
+A person can search by name or scroll through an alphabetical list to find friends.
+This is equivalent to Facebook's current on-demand group creation process.
+Each time a person adds a friend to the group, the list of friends is reordered based on ReGroup's current estimation of group membership probability.
+People can also still search for friends by name.
+The full ReGroup design, enhancing the Example-Only with our decision-theoretic technique for feature-based interaction.
+We ran a within-subjects study, counterbalancing order of interface conditions using a Latin square design.
+At the beginning of the study, we told participants they would be testing new tools for helping people create custom groups in Facebook.
+We also explained the tools would work in their own Facebook accounts and that they would be testing the tools by creating groups of their own friends.
+Participants were then informed about what data would be accessed and how it would be used.
+We continued only after they provided written consent and granted our Facebook Application permissions to access their data.
+Next, prior to seeing any interface, participants were asked to think of six groups they could create during the study.
+We chose this approach to ensure groups were meaningful,
+Twelve people  were recruited via a call for participation sent to several university mailing lists.
+As a result, all of our participants were technically savvy, but ranged from undergraduates to staff members from a variety of disciplines .
+We required participants to have an active Facebook account in use for at least one year and to have at least 100 friends.
+This was to help ensure enough activity was available to enable ReGroup's suggestions.
+As expected, participants varied in their composition and number of friends  and their Facebook activity .
+On average, our participants also had 36.3% missing data with respect to ReGroup's features.
+We performed all of our log and Likert scale data analyses using a nonparametric repeated measures analysis of variance, after aligning the data according to the aligned rank transform  to preserve interaction effects due to having participants create two groups per condition.
+We also performed post-hoc pairwise comparisons when a significant effect was observed.
+To analyze our final ranking questions, we used a randomization test of goodness-of-fit  which is more robust against smaller sample sizes than a standard Chi-Square test.
+For each test, we ran 10,000 Monte Carlo simulations.
+Tables 2 and 3 show the per-condition means and standard deviations for all metrics used in our log and Likert scale data analyses, respectively.
+Table 3 also shows the number of participants choosing each condition for each of our ranking questions.
+We discuss all of our quantitative analyses in the context of our qualitative observations and feedback from participants.
+We analyze our study data in terms of the overall time taken and final group sizes, the speed and effort of selecting group members, and interface element usage.
+Note that we cannot evaluate group accuracy because no adequate ground truth is available or obtainable.
+Asking participants to re-create Facebook or Google+ groups could bias their notion of those groups.
+Alternatively, asking participants to verify group completeness would require exhaustive labeling .
+Overall, participants created 72 groups with a total of 2077 friends.
+Examining the Final Time taken to create groups, our analysis shows a significant effect of interface condition .
+Post-hoc pairwise analyses reveal that participants using the Alphabet interface took significantly less time to create groups than when using both the Example-Only  and Example-Attribute  interfaces.
+There was no difference in Final Time between Example-Only and Example-Attribute conditions.
+One explanation for participants taking less time in the Alphabet condition is that both the reordering conditions  required additional time to update the display when reordering or filtering.
+Another contributing factor could be that participants in the Alphabet condition often attempted to recall friends by name to avoid scrolling through their entire list of friends .
+This may have resulted in people forgetting to include some friends and stopping early.
+Interestingly, participants who resorted to scrolling through the full list often felt like they missed people .
+One participant also explicitly commented "It's too easy to forget about people when it's ordered alphabetically."
+Difficulty recalling friends in the Alphabet interface could have resulted in the shorter Final Times in that condition.
+However, our analysis showed no significant difference in Final Group Size across conditions.
+Further analysis showed the presence of a ceiling effect in all conditions, suggesting that participants were often cut short of the time they needed to complete their groups, which could account for the lack of difference in Final Group Size.
+This effect was also more pronounced in the reordering conditions .
+To compare the time between group member selections, we had to account for the fact that participants could add friends individually or in bulk .
+In the case of a multi-select, we assigned the time between the action and the previous group member selection to the first friend in the multi-selection and assigned a time of zero to the rest of the friends.
+We did not see an effect of interface condition on Mean Select Time.
+Although we did not see an effect of condition on Mean Select Time, the average Mean Select Time was smallest in Alphabet .
+This is partially an artifact of the time needed to update the display in the reordering conditions.
+In Example-Attribute, a display update can also occur as a result of a filtering action.
+As this confounds our analysis of Select Time, we decided to measure the position in the display of each group member immediately before selection as a proxy for effort level.
+That is, if position is low, a friend was closer to the top of the display and therefore required less effort to locate.
+Lower positions indicate that people had to scroll less to search for friends in the reordering conditions because these conditions sorted potential group members closer to the top of the display for easy recognition and access.
+As expected, the Mean Position of selected friends in the Alphabet condition was roughly half, 44.6%, of the average number of Facebook friends of our participants and their SD Position was highly varied because group members were often evenly distributed throughout the entire alphabetical list.
+Our questionnaire results provide additional evidence of reduced effort in the reordering conditions.
+Analyses of our Likert scale questions show an effect of condition on perceived levels of Easiness , with the both the Example-Only and Example-Attribute interfaces being perceived as easier to use than the Alphabet interface .
+We saw no difference in terms of perceived Easiness or Quickness between Example-Only and Example-Attribute.
+Increased Multi-Selections and fewer Single and Search-Selections in the reordering conditions is likely due to these interfaces making friends easier to add as a group by sorting relevant friends to the top of the display and filtering out irrelevant friends .
+Our logged data also showed that participants used the suggested and static filters when they were available .
+Participants selected Suggested Filters 1.9 times on average , selected Static Filters 0.9 times on average , and Unselected Filters that they had previously selected 2.3 times on average .
+Our observations showed that participants sometimes used the filters in clever and unexpected ways, such as selecting them temporarily to find a certain set of friends and then unselecting them to find others.
+One participant commented that the "Filters helped me guide the tool".
+Other comments indicate that the suggested filters served as an explanation of how the system was working .
+Overall, our evaluation showed that different interfaces worked well for different kinds of groups .
+We observed, and participants reported, that the Alphabet condition appeared to work well for small groups whose members could be easily recalled by name .
+In contrast, the reordering conditions worked better for larger and more varied groups .
+One participant noted that for "most of the small groups that I wanted to create, I already knew the list in my head  alphabetical was easiest.
+However, for larger groups, reordering was most efficient."
+A likely result of this is that we found no significant difference in terms of overall participant Happiness with their final groups created in each condition.
+As with all machine learning based systems, the ability to model a concept is highly dependent upon the quality of the underlying data .
+Privacy continues to be a concern in online social networks .
+Traditional mechanisms for specifying social access control lists have been too inexpressive  or tedious and error-prone .
+This has motivated research on alternative methods.
+For example, Toomim et al.
+Recent interest has developed in automatic detection of communities within social networks .
+The assumption in such work is that detected communities will overlap with a person's eventual sharing needs.
+SocialFlows  automatically creates hierarchical and potentially overlapping groups based on email communication.
+These groups can then be edited via direct manipulation and exported to Facebook and Gmail.
+Katango  and Facebook's "Smart Lists"  feature also follow this model by providing a set of automatically generated friend groups which can then be manually edited for correctness.
+Jones and O'Neill  recently evaluated the feasibility of this approach by comparing manually defined groups with automatically detected network clusters.
+They found their automatically-detected clusters only overlapped with manually-defined groups by 66.9% on average, suggesting a need for considerable manual refinement.
+After following up with their participants, they further discovered that predefined groups only partially correspond to in-context sharing decisions .
+In contrast, our focus on custom, on-demand group specification via end-user interactive machine learning is better aligned with usable security recommendations .
+Prior work facilitating on-demand sharing or access control in social networks includes Gilbert and Karahalios's research on modeling relationship or tie strength between individuals based on network structure, communication, and shared profile data .
+Predicted tie strength could potentially inform privacy levels for protected content.
+Our work differs from these in that ReGroup iteratively learns a model based on end-user provided examples and feedback.
+By iteratively updating the underlying model, ReGroup can tailor its group member recommendations to the specific group a person is currently trying to create.
+More similar to our approach of defining groups by example is Gmail's "Don't forget Bob!"
+However, ReGroup provides more control over its suggestions by continuing to iteratively update its underlying model based on further examples.
+Our work also contributes to recent research on designing end-user interactive machine learning systems .
+Most similar to our work is Fang and LeFevre's interactive machine learning-based privacy wizard for online social networks .
+Their wizard employs active learning to construct a privacy classifier that maps item-friend pairs to allow or deny actions.
+ReGroup differs in that we use end-user interactive machine learning as a tool for helping people select members of a group rather than for creating a robust classifier.
+As a result, ReGroup's design aims to balance end-user flexibility and control with speed, as opposed to an active learning approach that prioritizes speed at the potential expense of user experience .
+Furthermore, ReGroup preserves end-user desired control of group membership  by requiring explicit approval of group members instead of delegating control to a classifier.
+Defining groups via member examples and interaction with group characteristics is related to work on example and feature-based feedback in interactive machine learning systems .
+Each of these explored the utility of feature or example-and-feature-based feedback for creating document classifiers.
+Other work  has taken an active learning approach to soliciting end-user labels of features and examples.
+Our approach differs in that we do not solicit feature-level feedback for the purpose of training a classifier.
+Rather, we enable feature interaction for the purpose of helping people search for relevant examples.
+Our approach uses a novel technique of integrating human knowledge of features into the interactive machine learning process through filtering on group characteristics.
+This makes our work more similar to work on faceted search and interaction .
+In their system, end-users could both view songs related to given examples or enter textual queries  that were then mapped to facet values  and used as constraints on song recommendations.
+The social network domain can also have an overabundance of facets, however our approach is to highlight and rank facets highly relevant to the intended group.
+This approach favors recognition of relevant facets instead of relying upon recall, which can be particularly useful when facets are vague or difficult to define.
+Previous approaches to facet ranking for search result exploration have based ranking on hit count , query keywords , query logs and click through data , or user models defined by explicit ratings of documents .
+We base ranking on statistical regularities of the currently selected group members.
+Most similar to our approach is Li et al.
+However, their ranking is based on the navigation cost of reaching the top results and therefore serves more as a sense-making tool rather than a tool to search for additional items.
+This paper presented ReGroup, a novel system that employs end-user interactive machine learning to help people create custom groups on-demand in online social networks.
+Our evaluation showed that different group creation techniques helped in creating different kinds of groups.
+For example, the traditional search-by-name approach is efficient for small, well-defined groups where members are easy to recall by name.
+ReGroup's support for recognition over recall, embodied by both its group member and filter suggestions, helps for larger and more varied groups.
+Therefore, we advocate integrating ReGroup's novel techniques with traditional methods used in online social networks to support a wider range of potential groups.
+This paper also discussed the design challenges associated with interactive machine learning in social access control and detailed how we addressed these challenges in ReGroup.
+One challenge was in addressing unlearnable groups, typically the result of missing information.
+Although we attempted to address this issue with our technique for group member prediction, it still caused some frustrations during our evaluation.
+Additional features should improve ReGroup's performance, but missing data is inherent to social networks.
+Future work might therefore aim to detect such cases and degrade gracefully.
+Another design decision was to focus end-user attention on creating groups, rather than on training a robust classifier.
+However, creating a classifier as a by-product of group creation could enable automatic group maintenance as relationships change over time.
+In the future we hope to evaluate ReGroup's classifiers for group maintenance and to design additional interaction techniques to support this task.

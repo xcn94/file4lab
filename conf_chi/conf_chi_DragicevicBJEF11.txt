@@ -1,0 +1,277 @@
+Animated transitions are popular in many visual applications but they can be difficult to follow, especially when many objects move at the same time.
+One informal design guideline for creating effective animated transitions has long been the use of slow-in/slow-out pacing, but no empirical data exist to support this practice.
+We remedy this by studying object tracking performance under different conditions of temporal distortion, i.e., constant speed transitions, slow-in/slow-out, fast-in/fast-out, and an adaptive technique that slows down the visually complex parts of the animation.
+Slow-in/slowout outperformed other techniques, but we saw technique differences depending on the type of visual transition.
+Research suggests that animated transitions not only improve the aesthetics of a user interface, but also helps users to understand the underlying data .
+However, there are many parameters involved in designing effective animations, including motion paths, staging, scheduling, and timing.
+In this paper, we focus on the latter: timing aspects of animated transitions.
+Rather than having objects move or change at a fixed rate during an animation , cartoon animators sometimes use a "slow in" or "slow out" effect , causing more frames to be dedicated to the beginning or end of the animation .
+Essentially, slow-in and slow-out distort time throughout the animation.
+Computer applications have been quick to adopt this idea , and many graphical toolkits  and animation packages  use a combination of slow-in and slow-out  as their default animation pacing.
+Its use has also been advocated for optimizing animations in user interfaces .
+There are several arguments for using SI/SO, one being realism.
+However, physical realism is generally less crucial in graphical user interfaces than in cartoon animation.
+Another, more practical reason often cited for using SI/SO pacing is that it helps users to anticipate the beginning and ending of the animation.
+However, no perceptual studies have been performed to confirm this informal design rule.
+In particular, SI/SO dedicates less frames to the middle segment -- effectively accelerating it - so it is not clear whether it should be used in all cases, especially when the middle animation segment is visually complex or particularly important.
+In this paper, we address this lack of empirical data by comparing object tracking performance in visually cluttered animations under different temporal distortion strategies, and show how effective these strategies are for important low-
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In a similar study, Shanmugasundaram et al.
+However, all of the above studies investigate the benefits of adding animation to an interactive application, whereas there exists very little work that compares the performance of different types of animations.
+Notable exceptions focus on using animations as notification mechanisms .
+In particular, we are aware of no existing work studying how temporal pacing for animation affects object tracking performance.
+While best practice design guidelines suggest the use of smooth animations with slow-in/slow-out extrema, no formal evaluation exists that verifies that this is indeed the optimal pacing strategy for animated transitions.
+Perceiving and interpreting motion is a fundamental capability of human perception with deep roots in our evolution: moving objects stand out in our visual field, and the Gestalt principle of common fate states that entities moving in the same direction are seen as a unit .
+Perception research suggests that the human visual system is capable of tracking multiple objects simultaneously .
+The actual tracking is performed by the visual system using a mechanism known as smooth pursuit .
+However, many factors influence this capability, including the number of distractors, object speed, occlusions, and motion paths of the objects being tracked.
+Computer animations can be modelled as parametric graphics with time-varying parameters .
+The simplest way to animate parametric graphics between two visual states is by linear interpolation, i.e., for each parameter p changing from p0 to p1 : p  = p 0 + t , t  
+Designing animations was an active practice long before computers, and there is a wealth of literature, tradition, and design guidelines to draw upon for designing effective animations.
+In particular, Johnston and Thomas presented the "12 basic principles of animation" in their seminal work The Illusion of Life: Disney Animation , discussing effective ways of making animations -- particularly character animations -- as realistic and as lifelike as possible.
+Because most animation nowadays is done with computers, much effort has been devoted to transfering these principles to computer animation .
+Accordingly, major computer animation packages such as 3D Studio MAX, AutoDesk Maya, and even Microsoft PowerPoint, today adopt most of the above basic principles of animation in their algorithms.
+When p is an object's position, this formulation produces trajectories that follow straight paths.
+If objects follow non-straight paths , arc-length parametrization can be used instead.
+On a computer screen the animation must be sampled.
+Assuming a constant frame rate f and given a total time T for the animation, we need n = f x T frames to complete the animation.
+Typical values for f are 60 Hz and typical durations of T are 0.5-1.0 seconds for transitions .
+Animations have been used in interactive applications since the advent of graphical user interfaces .
+Before GUIs, programmers would animate terminal output, e.g., to show progress in a time-consuming task.
+In 1993, Chang and Ungar  as well as Hudson and Stasko  concurrently proposed applying cartoon animation to interfaces.
+Thomas and Calder  have since further improved upon this idea.
+Similarly, efforts towards evaluating animated transitions date back to the early 1990s.
+Gonzalez  performed an experiment to show that use of animated transitions in graphical user interfaces can improve the user's decision making process.
+Later, Bederson and Boltman  empirically measured the effect of animated transitions on user capability to build mental maps of spatial information.
+Choosing a fixed t = 1/ results in an animation with constant rate throughout its duration .
+When an object's position is animated, this pacing yields a constant object velocity.
+In a collection of moving objects, all objects start and stop at the same time, but move with different velocities depending on the distance they must travel.
+Constant rate animation has several advantages: it is easy to implement and yields predictable motion because the initial speed of an object suggests its final destination .
+However, it also produces high accelerations and decelerations on the first and last frames, and has a mechanical look that has been referred to as the "computer signature" .
+Evolution of the animation parameter t  and animation rate t  for 4 different temporal pacing strategies in an animation consisting of n = 60 frames.
+The animation rate is normalized across all 4 techniques to allow for comparison.
+For adaptive speed, the technique has detected a complexity peak at frame 18.
+Note that all techniques except SI/SO have abrupt speed changes at the start and end.
+The concept of slow-in/slow-out   uses t values that devote more frames  to the endpoints of the animation, causing the motion to gradually speed up then slow down.
+Of course, this strategy has the unfortunate side effect that objects will move at their fastest speed at the beginning and end of the animation, presumably making it difficult to start and stop tracking any of them.
+In other words, this idea completely abandons the predictability property of SI/SO animation in favor of reducing visual complexity in the middle.
+SI/SO is a recommended animation pacing for transitions in user interfaces  and is used by default in several applications -- e.g., MS PowerPoint, 3D Studio MAX and AutoDesk Maya -- as well as graphical libraries like Piccolo  and Prefuse .
+Beyond aesthetics, the supposed benefits of SI/SO are  that the gradual speed increase at the beginning of the animation helps users to start tracking an animated object, and  that the decreasing speed at the end allows users to predict when an object will stop moving.
+SI/SO slows down the animation to emphasize its endpoints whereas FI/FO slows down its middle.
+To strike a balance between these two, we designed an adaptive technique that dynamically selects the frames with the highest visual complexity and slows down the animation around these frames.
+Figure 2 showcases this idea with one visual complexity peak at frame 18.
+We use an exponential function to slow down  the animation around this frame.
+The technique is a generalization of both SI/SO and FI/FO: with peaks at the extrema or at the midpoint of the animation, the technique will reduce to the former or latter.
+The remaining design parameters in this scheme are the calculation of visual complexity and the selection of peaks.
+For the former, complexity depends on the particular type of animated transition and the type of task.
+One potentially harmful effect of SI/SO is that it accelerates the middle of the animation, which can be problematic if something important occurs at this point.
+The middle of an animation can also be more cluttered and more difficult to follow, which happens for example when many points move from a random location to another .
+In this case, one intuition would be to slow down the midpoint of the animation instead of slowing down its endpoints.
+This not only reduces object velocity, but it also smoothens object motion, which can help visually resolving cluttered animations .
+We define fast-in/fast-out  animation as the dual of SI/SO, slowing down the animation in the middle as opposed to at its extrema.
+The intuition is that a frame t with low D is complex to follow because a large portion of the objects are located very close to each other, resulting in high degrees of occlusion and making single object tracking difficult.
+The final step is to select a small set of frames representing visual complexity peaks, and to slow down the animation speed around these.
+Bear in mind that given a finite animation time T , slowing down one moment of an animation means speeding up another, so this should be done sparingly.
+We use a greedy scheme that keeps selecting peaks of high visual complexity  as long as they fall within a specific proximity  of the most com-
+Since we do not know of a method for randomly generating structured point cloud transitions, we introduce such a method.
+We also use another set of point cloud transitions taken from a real information visualization dataset .
+A random point cloud is defined by 6 parameters: * * * * * * r is the random seed, n is the number of points in the cloud, c is the amount of point clustering, p is the clustering power, s is the separation between points, and i is the number of iterations.
+The goal of our user study is to determine the best way to present animated transitions in terms of temporal distortion, and we thus evaluated how accurately users understood different types of transitions under different temporal distortion schemes.
+Although what is exactly meant by "understanding" a visual transition is a matter of debate, a common experimental task is to have subjects track an object among others .
+This is an elementary low-level task, ensuring that if users are unable to perform it, then more complex tasks -- e.g.
+It is also safe to assume that many higher-level tasks will be difficult to perform if single objects cannot be tracked.
+For example, reading a scrollable text aloud is likely to be difficult if individual words cannot be tracked during scrolling.
+Since our task is tracking an object among others, we focus on visual transitions that involve moving objects.
+Object translation is the most basic operation in animations.
+Other examples are changes in color or shape, but to keep the task simple we focused on moving objects that do not change during transitions.
+To further ensure that perceptual phenomena not directly related to animations such as object recognition and preattentive processing  will not interfere with the task, all objects were visually identical.
+One can assume that if an animation is effective for identical objects, it will also be effective for dissimilar objects.
+Arguably, in real applications users can highlight objects to facilitate tracking, but interactive highlighting is an orthogonal and complementary approach to animation: effective animations with highlighting support are preferable to poor animations with highlighting support, because they better help users follow objects that are not of immediate interest to them -- hence providing context and facilitating incidental discoveries -- and saves time by not requiring explicit object selection.
+We therefore chose as visual transitions large sets of small objects that move from one location to another, i.e., point cloud transitions.
+Finally, since we focus on time and not space, points move on straight paths.
+Although other trajectories have been proposed , this is a simple approach that has been widely employed so far .
+Figure 3 illustrates some values for c and s. A random point cloud transition is defined by the parameters above -- which serve to generate the initial and final point clouds -- plus the parameter m or motion coherence that affects how the final point indices are mapped to the initial ones .
+Details on the dataset generation are described in an appendix.
+We first set out to discover what makes a point cloud animation easy or hard to follow with regards to tracking single points.
+We experimented with various randomly generated point cloud transitions and although we did not find any perfectly reliable predictor of task difficulty, we found that the number of object crossings strongly affected difficulty.
+We define distractor count or ND IST as the number of objects which cross the object of interest over the course of the animation.
+Incidentally, ND IST also captures the density of the point cloud , as well as the distance traveled by the target .
+All animated transitions were limited to 1 second, a common duration for even complex animated transitions .
+The task consisted of tracking a point, and was identical to the one used in the full study.
+Four subjects participated in our pilot.
+We explored the data using ScatterDice  and first observed that all tasks for which all 4 users were successful using constant rate were also successfully completed by all 4 users using SI/SO.
+We then examined tasks for which SI/SO yielded more successful trials than constant rate.
+These were all tasks where the target point  was surrounded by other points  at the beginning and/or at the end of the animation.
+We hence postulated that SI/SO worked well primarily because it allowed users to better see what happens when the animation was the most difficult to follow.
+Inspired by this finding, we designed the adaptive speed technique and decided to also include the FI/FO technique  in the study.
+Thus, an average value of 1 means users guessed the answer whereas a value well above 1 could mean users were misled by the animation.
+The definition of the E RROR metric is such that if the user selects the correct target, her error is 0.
+If she selects an object close to the target, her error is smaller than when selecting an object far from the target.
+Thus, good approximate selections are penalized less than completely random ones.
+Moreover, the normalization with the expected error ensures that in cases where most objects are close to the target, as in a tight object cluster, an arbitrary object selection within the cluster does not give too small an error.
+To test whether temporal distortion helps in following complex parts of an animation, we decided to explicitly include trials where animations are the most complex in the middle or at the endpoints.
+We thus introduce the measure distractor profile or D IST P ROF, which captures the evolution of animation complexity in time, i.e., whether it is mostly complex at the endpoints or the middle :
+An animation that is mostly complex at the endpoints  yields D IST P ROF > 1.
+An animation that is mostly complex at the middle  yields D IST P ROF < 1.
+A task consists of a point cloud transition and a target, i.e., a particular point to follow.
+We included two task datasets  with different properties in terms of structure.
+The generated dataset  was used to ensure we could fully test the different techniques under different distractor profiles.
+The use of the real dataset ensured that our findings were generalizable to real life data.
+For each of these transitions, we generated a task by randomly selecting a target point that  is not occluded by other points at the first and last animation frame and  travels a minimum distance of 0.5 -- i.e., half of the point cloud size.
+We then pruned tasks for which ND IST < 15 in order to further ensure that they were not too easy.
+We grouped these tasks into into three bins .
+The chosen margins for the values of D IST P ROF between bins ensures that tasks differ enough in their distractor profile.
+We randomly selected 12 tasks per bin and obtained a total of 36 randomly-generated tasks.
+Real: The second dataset is a high-dimensional dataset of digital cameras1 .
+A point cloud transition in this dataset depicted the change between two scatterplots of different dimension pairs.
+To select tasks that follow the distractor profiles we wanted to explore, we generated about 800 potential tasks by combining  random transitions , and  random objects as targets, always ensuring that the target was not covered by other objects at the first and last animation frame.
+Since values for D IST P ROF were very close to 1, we used only two bins  for which we selected the 12 tasks with highest D IST P ROF  and the 12 with lowest D IST P ROF.
+Trials were marked as outliers when E RROR was beyond 3 standard deviations from the mean for a given subject, T ECH and D IST P ROF , and were removed from further analysis.
+The remaining trials were aggregated per subject for each combination of conditions, and followed closely the normal distribution.
+Post-hoc pair-wise means comparison  showed that SI/SO and C were significantly different from each other and from all other techniques .
+Pair-wise means comparison  showed that SI/SO was significantly better than all other techniques across distractor profiles.
+However, the results differ for the remaining techniques.
+Specifically under the dm and do distractor profile, A performs significantly worse than C, but not in the de distractor profile case.
+Participants were first shown the initial point cloud.
+They were asked to press the Space bar to highlight the target in red.
+After releasing Space, the highlighting of the target would disappear .
+When subjects were ready to begin the trial they pressed Space again, after which all objects were animated to their final state.
+Participants were then asked to use the mouse to select the target in this final state as accurately as possible.
+The experiment was conducted on a desktop computer equipped with a mouse, keyboard, and a 19" LCD monitor .
+Point clouds were shown in a 800 x 800 rectangular area, with points being dark gray 16-pixel squares.
+Pair-wise means comparison  showed that SI/SO was significantly more accurate than C and FI/FO, with no significant difference between SI/SO and A.
+A significant T ECH x D IST P ROF interaction was present  for the 2 distractor profiles.
+Pairwise means comparison  showed that for the de distractor profile, the trends follow that of the main analysis .
+However, for the dm distractor profile, we found that SI/SO was significantly better than A, but not C.
+12 participants  were randomly assigned to one of 4 groups.
+Each group used all 4 techniques described in the design space section in an ordering balanced using a Latin square.
+Tasks were selected as described previously, and were repeated across techniques.
+To avoid learning, task order was randomized across techniques, and point clouds were rotated by 90o between techniques.
+Prior to each technique users were given brief instructions, without explaining the implementation details of each technique, and performed a short warm-up session  to familiarize themselves with the technique.
+Although we were mainly interested in the selection error E RROR, we investigated perfectly correct trials  to see the percentage of correct answers per technique and distractor profile.
+Error rates were relatively high compared to the many user studies that focus on completion time.
+This is because we only measure errors: had we measured low error rates  we would have seen little or no difference between techniques.
+Note that the relatively high difficulty of our tasks is not artificial, as many graphical applications display large numbers of objects and animate them very rapidly so as not to slow users down .
+In the following section, we try to explain and generalize these results.
+We also try to offer some recommendations for designers planning to use animation in interaction design.
+There seems to be two primary and conflicting principles at work for how to effectively design the temporal pacing of linear animated motion of point clouds: P1 Allocate frames to endpoints: Spend the majority of the frame budget on the beginning and end of an animation to allow users to anticipate motions; or P2 Allocate frames to complex segments: Spend the frame budget on segments of an animation that are visually complex, either by calculating the complexity  or by observing typical point cloud transitions .
+A significant T ECH x D IST P ROF  interaction showed that this trend was not followed in the de distractor profile, where SI/SO was significantly better than C as well, but not A .
+By examining the correct trials in detail, we found that if a task was completed correctly in any of the techniques , it was also performed correctly using SI/S0 in 95% of tasks.
+Principle P1 has so far been the dominant approach in animation literature, practice, and tradition, whereas P2 has barely received any attention at all.
+One of the conclusions of the present work should be that this emphasis on the endpoints of an animation has been justified, and that a strategy based on adapting animation speed depending on frame complexity will only be successful when those complex frames happen at the animation endpoints.
+In other words, easing in and out of an animation seems much more important than slowing down and speeding up around frames of high visual complexity.
+The question is of course why this is the case.
+A common explanation is that gradually accelerating and then decelerating motion aids tracking the object as well as helps the user in anticipating the beginning and ending of the animation.
+In particular, if the user is not expecting the animation to happen in the first place, a slow and gradual start will help the user to detect that the animation is starting and to adjust to the tracking task accordingly.
+In other words, predictability seems to be one of the key features named for slow-in/slow-out pacing, not that the slow movement allows users to better decipher complex parts of the animation .
+To begin to find an explanation for why predictability is so dominant in this task, it is necessary to delve into the workings of the human visual system.
+No interaction effect with distractor profile was present.
+We further found that if a task was completed correctly in any of the techniques , it was also performed correctly with SI/SO in 84% of tasks.
+Voluntary eye movement can be performed in only two separate ways: saccadic movement and smooth pursuit , where the latter is the method employed during object tracking .
+Open-loop pursuit is the first visuomotor response to motion and typically lasts 100 ms; it is ballistic and thus not attuned to the velocity or direction of the visual stimulus.
+Closed-loop pursuit then takes over until the motion ends, and is characterized by uniform pursuit gain, i.e., the ratio between angular velocity of the eye and the target is close to 1 .
+This suggests two things: First, that a slow and gradual start of an animated motion will help mitigate any inaccuracies caused by the ballistic behavior of the first open-loop response.
+This presumably prevents the user from losing tracking of an object in the first few instants of the animation.
+Second, a gradual slow-down will help the closed-loop stage in dynamically adjusting the angular velocity of the eye to maintain zero retinal velocity of the moving object.
+In other words, this presumably prevents the user's eye from overshooting a target as it reaches the end of its motion path.
+Note that recent evidence in vision science suggests that overshooting generally does not occur, even if the motion stops unexpectedly , and that the eye, after a latency of about 100 ms, is capable of decreasing its velocity to zero in a constant time of 100 ms .
+Nevertheless, overshooting the target as it stopped was a common complaint among participants for other pacing techniques than slow-in/slowout in our experiment.
+We speculate that because our point clouds involved many distractor objects that often ended up in the same vicinity at the end of an animation, the final few instants of an animation were crucial for successfully distinguishing the target, and thus that the 200 ms response may cause tracking loss for abrupt stops.
+It should also be noted that given the time intervals involved in smooth pursuit, i.e., 100 ms for the ballistic open-loop response, 100 ms latency for detecting motion termination, and 100 ms for slowing down the eye velocity to zero, our one-second animations are highly taxing for the visual system -- around 30% of the duration of the animation is spent in visuomotor response to the motion!
+Nevertheless, onesecond transitions remain an informal guideline for interaction design , and the fact that the error rate in our experiment was so low for such comparably difficult tasks attributes to the capabilities of the human visual system.
+Scientific findings on smooth pursuit may also explain why principle P2 is not more significant than it is.
+While it is generally difficult to initiate smooth pursuit without visual stimulus , research shows that it is possible to continue smooth pursuit if a target is momentarily occluded .
+This suggests that visual complexity in the form of overlapping and crossing motion paths may not be as serious a problem as we may have initially thought, and that frame budgets are better spent on the extrema of the motion.
+Finally, it is possible that abrupt changes in object velocity must be avoided not only at animation endpoints, but also during the animation itself in order to facilitate object tracking.
+If true, this would suggest a third design principle : keep velocity variations as low as possible, from which P1  would simply be a consequence.
+This is an intriguing possibility that needs further investigation in the future.
+Our work makes a number of assumptions that may limit its broad applicability to other areas.
+For example, we focus on animated transitions of point clouds where each point has the same visual appearance, whereas it can be argued that in many real-world animations, the objects have a unique visual identity which would simplify object tracking.
+However, this is an orthogonal aspect of temporal distortion, and we think that our results should generalize to real-world tasks as well.
+Another potential limitation is that our study only measured tracking of a single object, but many realistic tasks involve several objects moving simultaneously; in fact, perceptual research suggests that most humans are capable of tracking up to four or more objects at the same time .
+Our motivation here is that object tracking of a single object is clearly a task component of tracking multiple objects, so our results should give an indication of the general case.
+Nevertheless, more research is needed to study this in full detail.
+Furthermore, recent results in vision science show that it is possible to initiate smooth pursuit even before the target starts to move, especially if the person knows exactly when it will start .
+This was of course the case for our experiment, where participants initiated the transition by pressing the space bar.
+More research is needed to see whether unexpected animated transitions will cause different results for animation pacing on object tracking than those we observed.
+Finally, given the perceptual nature of our evaluation, it would be interesting to also study these effects using a highprecision eye tracker.
+For example, is there an overshooting effect when an object moving at constant speed stops, and is there a marked difference for slow-in/slow-out motion?
+Despite the above limitations, we still believe that our task and our findings are general enough to apply to a wide spectrum of interaction and visualization scenarios.
+In other words, our recommendation for short-duration animated transitions to show state changes in an interactive application is to use slow-in/slow-out animation pacing -- not only does this result in more realistic and aesthetically pleasing motion, it also provides the high predictability necessary for reliably tracking individual objects in the animation.
+It is hard to say whether our findings also generalize to other animation durations or to non-linear motion paths.
+They should hold for slightly different animation durations, but with very different durations we would have observed either a ceiling effect or a floor effect given our task difficulties.
+As for non-linear paths, animation practice suggests using them , but our intuition suggests that this would again decrease the predictability of the motion.
+Future research should address this question.
+Finally, it is important to note that our work has not addressed the question whether or not to use animation in the first place, but rather which pacing methodology should be chosen if animation is adopted in an interactive application.
+For the former question, we refer the reader to existing literature on the topic, such as that of Tversky et al.
+We have presented results from a formal user study evaluating object tracking accuracy in animated point cloud transitions under different temporal distortion strategies.
+These results provide solid empirical data on the use of animation for graphical user interfaces, an area that so far has largely been dominated by design principles from general animation that may not necessarily transfer to interaction design.
+Our findings show that slow-in/slow-out, i.e., smoothly stretching time at the endpoints of an animation, is the most accurate temporal distortion strategy, and we speculate that this is because it maximizes the predictability of the motion.
+In future work, we plan to design temporal distortions that support both design principle P1 -- slowing down around the endpoints of the animation -- and principle P2 -- slowing down around visually complex animation frames.
+We are also interested in mathematically optimizing temporal distortion functions similar to van Wijk and Nuij's approach to pan-and-zoom animation .
+Finally, we would like to explore more complex time distortion schemes, such as staging animation  so that all objects move at the same velocity.
+Animation for interaction design is a large topic, and we plan to continue to study differences between this domain and cartoon animation.
+For example, slow-in/slow-out is just one of Disney's 12 basic principles of character animation , and it would be useful to explore the other principles in equal depth as our present work.
+In addition, our results also open up an array of new questions on human perception that needs further investigation, including impacts of momentary occlusion, curved motion paths, and the number of distractors.
+Animation: From cartoons to the user interface.
+In Proceedings of the ACM Symposium on User Interface Software and Technology, 45- 55, 1993.
+F. Chevalier, P. Dragicevic, A. Bezerianos, and J.-D. Fekete.
+Using text animated transitions to support navigation in document histories.
+In Proceedings of the ACM CHI Conference on Human Factors in Computing Systems, 683-692, 2010.
+Rolling the dice: Multidimensional visual exploration using scatterplot matrix navigation.
+Color lens: Adaptive color scale optimization for visual exploration.
+IEEE Transactions on Visualization and Computer Graphics, 2011.
+Does animation in user interfaces improve decision making?
+In Proceedings of the ACM CHI Conference on Human Factors in Computing Systems, 27- 34, 1996.
+A. prefuse: a toolkit for interactive information visualization.
+In Proceedings of the ACM CHI Conference on Human Factors in Computing Systems, 421-430, 2005.
+J. Heer and G. Robertson.
+Animated transitions in statistical data graphics.
+Animation support in a user interface toolkit: Flexible, robust, and reusable abstractions.
+In Proceedings of the ACM Symposium on User Interface Software and Technology, 57-67, 1993.
+O. Johnston and F. Thomas.
+The Illusion of Life: Disney Animation.
+In Extended Abstracts of the ACM CHI Conference on Human Factors in Computing Systems, 1965-1968, 2005.
+Interpolating splines with local tension, continuity, and bias control.
+The control of voluntary eye movements: New perspectives.
+R. J. Krauzlis and S. G. Lisberger.
+Temporal properties of visual motion signals for the initiation of smooth pursuit eye movements in monkeys.
+S. Ath enes, S. Chatty, and A. Bustico.
+Human factors in ATC alarms and notifications design: an experimental evaluation.
+In Proceedings of the USA/Europe Air Traffic Management R&D Seminar, 2000.
+Cognitive processes involved in smooth pursuit eye movements.
+L. Bartram, C. Ware, and T. Calvert.
+Moticons: detection, distraction and task.
+B. Bederson and A. Boltman.
+Does animation help users build mental maps of spatial information?
+In Proceedings of the IEEE Symposium on Information Visualization, 28-35, 1999.
+B. Bederson, J. Grosjean, and J. Meyer.
+Toolkit design for interactive structured graphics.
+P. Cavanagh and G. A. Alvarez.
+Tracking multiple targets with multifocal attention.
+Transitions between pursuit eye movements and fixation in the monkey: Dependence on context.
+Principles of traditional animation applied to 3D computer animation.
+In Proceedings of the ACM Conference on Computer Graphics and Interactive Techniques, 35-44, 1987.
+Topology-aware navigation in large networks.
+In Proceedings of the ACM CHI Conference on Human Factors in Computing Systems, 2319-2328, 2009.
+Vision science: Photons to phenomenology.
+Offset dynamics of human smooth pursuit eye movements: effects of target presence and subject attention.
+Z. W. Pylyshyn and R. W. Storm.
+Tracking multiple independent targets: Evidence for a parallel tracking mechanism.
+Perception and extrapolation of velocity and acceleration.
+M. Shanmugasundaram, P. Irani, and C. Gutwin.
+Can smooth view transitions facilitate perceptual constancy in node-link diagrams?
+B. H. Thomas and P. Calder.
+Applying cartoon animation techniques to graphical user interfaces.
+In Proceedings of the ACM Symposium on User Interface Software and Technology, 3-12, 1995.
+B. Morrison, and M. B etrancourt.
+A model for smooth viewing and navigation of large 2D information spaces.
+Information Visualization: Perception for Design.
+Morgan Kaufmann Publishers Inc., San Francisco, CA, USA, 2004.
+Animated exploration of dynamic graphs with radial layout.
+In Proceedings of the IEEE Symposium on Information Visualization, 43-50, 2001.
+To generate a random point cloud from the parameters listed in the Datasets section , we first initialize the random seed to r and choose n points pi  S , with S being the unit square.
+We then move them using a force-directed algorithm and i iterations.
+We use k = 7 because it yields similar degrees of visual clustering for different values of p. u u is the unit vector ||u || dC min is the minimum distance above which the force applies.
+To generate a transition, we first generate two point clouds P 0 =  and P 1 =  with the previous method.
+This operation is repeated n2 m2 times.

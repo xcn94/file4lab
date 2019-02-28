@@ -1,0 +1,245 @@
+The size of human fingers and the lack of sensing precision can make precise touch screen interactions difficult.
+We present a set of five techniques, called Dual Finger Selections, which leverage the recent development of multitouch sensitive displays to help users select very small targets.
+These techniques facilitate pixel-accurate targeting by adjusting the control-display ratio with a secondary finger while the primary finger controls the movement of the cursor.
+We also contribute a "clicking" technique, called SimPress, which reduces motion errors during clicking and allows us to simulate a hover state on devices unable to sense proximity.
+We implemented our techniques on a multi-touch tabletop prototype that offers computer visionbased tracking.
+In our formal user study, we tested the performance of our three most promising techniques  against our baseline , on four target sizes and three input noise levels.
+All three chosen techniques outperformed the control technique in terms of error rate reduction and were preferred by our participants, with Stretch being the overall performance and preference winner.
+While touch screen use is widespread in special purpose applications, the slow adoption of touch screens into more general computing devices has be attributed to known issues of relatively high error rates, arm fatigue, and lack of precision .
+Due to technical restrictions, most commercially available touch screen devices in use today are only capable of tracking a single point on the surface of the device.
+In addition to dealing with the same issues as the single-touch machines, the underlying technology of multi-touch sensitive devices  often tends to make their input more noisy.
+When running software developed for a normal mouse interface on such a touch screen, these issues become problematic.
+Today's WIMP  user interfaces require frequent selection of very small targets.
+For example, window resize handles are often just 4 pixels wide.
+Noisy input, lower tracking resolution, and large potential touch area of a finger now become a problem.
+Furthermore, fingertips can occlude small targets depriving users of visual feedback during target acquisition.
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Also, the user's hands and arms may contribute to the occlusion problem.
+Depending on screen orientation, the user may be forced to either look "under hand"  or "over hand" .
+Finally, it is often difficult to decide the optimal point in the finger's contact area which should anchor the cursor, leaving the usual choice to the center of mass.
+This can lead to a small but pervasive disconnect between the user's expectations regarding cursor position and what is actually being sensed and computed.
+These issues have been recognized by researchers who have proposed several solutions: adding a fixed cursor offset , enlarging the target area , and providing on-screen widgets to aid in selection .
+Unlike previous work, we explore the benefits of multi-touch capable devices to provide fluid dual-finger interactions for pixel-accurate targeting.
+In the techniques presented in this paper, the secondary  finger can quickly modify or switch cursor manipulation modes without disrupting the primary  finger.
+We present an iteratively designed set of five techniques that allow the user to simultaneously perform both cursor steering and selection of assistance mode .
+In addition to the precise selection techniques, we contribute a "clicking" technique, called SimPress, which reduces motion errors during clicking and allows us to simulate a hover state on devices unable to sense proximity.
+Increasing the relative size of screen targets has also been explored by scaling the display space  or scaling the motor space .
+The work of Olwal and Feiner  experimented with hand gestures that activated various levels of fish-eye distortion in the interface to facilitate target selection.
+Techniques that adaptively increase the motor space while leaving the displayed image unchanged, such as those by Blanch et al.
+This information might not be available in many of today's applications.
+More importantly, such techniques require the use of a relative pointing device such as a mouse.
+Without such devices, they introduce an unpredictable cursor offset when applied directly to an absolute pointing device such as a touch screen.
+Buxton  identified that most current user interfaces require an interaction model consisting of at least 3 different states .
+However, many touch sensitive devices can only reliably sense location in one state thus making it hard to disambiguate between dragging and tracking .
+The use of a stylus  is generally preferred in many interfaces that require precise interactions.
+However, while a stylus has a much smaller tip, the associated issues with hand tremor and resolution make the selection task of small targets more difficult than with a mouse.
+Ren and Moriya  report that a limiting size for stylus targets is about 1.8 mm, below which even the stylus interaction requires additional assistance.
+Much research has been performed on bimanual interaction in user interfaces.
+In their pioneering work, Buxton and Myers  demonstrated that users tend to parallelize interaction tasks between hands thus gaining significant performance improvements.
+This simultaneous bimanual operation eliminated many inefficiencies typical of modal interfaces.
+Some research by Kabbash et al.
+Two-finger and two-handed interactions for the activation of various tools, menus and widgets have been explored by researchers in many related fields: on tabletop surfaces , 3D volumetric displays , tangible user interfaces , virtual reality , and augmented reality .
+Difficulties with precise interactions on touch screen devices have been addressed before, initially by Potter et al.
+Their Take-Off technique provides a cursor with a fixed offset above the tip of a finger when the user is touching the screen.
+Lifting the finger off the screen triggered selection .
+While this method is effective for most targets sizes, it has been found ineffective when the target size is smaller than 4 pixels.
+Sears and Shneiderman  explored cursor stabilization improvements that effectively slowed down the cursor movement in various regions around the initial finger contact point, thus allowing for pixel-precise selection.
+While this method performed well for the target acquisition task, a precise steering task, such as drawing, would be hard due to varying cursor speed.
+More recently, Albinsson and Zhai  explored several onscreen widgets for increasing precision while selecting small targets on a touch screen.
+Their interactions were designed to be used with touch screens capable of reporting only a single contact point and therefore the users were required to execute multiple discrete steps before selecting the target.
+These steps were delimited by the user lifting their finger from the screen, thus impeding the overall interaction performance.
+The primary finger is the finger that the user normally points with and tends to be the index finger on the dominant hand.
+The secondary finger is a helper finger which in Dual Finger Selections can be any other finger on the same or opposite hand.
+In most cases we observed that users used the index finger on their non-dominant hand as the secondary finger.
+With some interactions, a single-handed operation is desired, and then the thumb of the dominant hand can serve as a secondary finger.
+To address the precision problem of touch screen interactions we developed Dual Finger Selections, two finger  interactions that allow the user to improve targeting precision when necessary without hindering simple targeting tasks.
+Dual Finger Selections were designed in an iterative fashion.
+We aim to support this direct manner of interaction and require that further assistance is invoked only when the user explicitly requests it.
+The offset should be user-invoked and temporary.
+Fixed permanent offsets  require the users to continuously compensate their targeting even in situations when the target is large enough to be easily selected by direct touch.
+This change of the control-display ratio should not involve the pointing finger.
+Before discussing the details of our dual finger selection techniques, it is important to outline the device requirements that enable our interactions.
+In addition to disambiguating between fingers, our interactions require that the device implement a clicking operation distinct from merely coming in contact with the surface.
+Previous techniques that address this issue, such as Land-On or Take-Off , implicitly perform a "click" when the contact between their finger and the surface is either established or broken, respectively.
+Such techniques provide a mechanism for clicking, but do not address the needs of current user interfaces that require at least 3 different interaction states : out-of-range, tracking , and dragging.
+Both tracking and dragging states require the contact position to be continuously reported; however, most current touchsensitive devices only sense location when the contact is actually touching the surface, making it difficult to approximate those two states.
+A possible solution is to use pressure-sensing technology and map the increased pressure to a dragging state, and light pressure to a tracking state.
+Since our device does not report pressure directly, we simulated a pressure-sensitive device by mapping the changes in the finger's contact area to the changes in pressure.
+The stabilization of the cursor movement during clicking is a crucial aspect of our technique, which we call SimPress .
+Our techniques require a multi-touch screen that is capable of simultaneously tracking at least two independent contacts on the surface.
+We also assume that in addition to the location of contacts, their contact areas are reported as well.
+A brief description of our prototype multi-touch device can be found later in this paper.
+Since the user starts pointing with their finger tip and then rocks the finger to click, the increase in area happens predominately in one direction: from the tip point towards the user's wrist.
+We used this fact to stabilize the cursor position by fixing the cursor location to the top middle point of the contact area, rather then the center of mass .
+In our preliminary experiments, we found that this point naturally moves much less than the center point and therefore reduces the cursor noise during clicking.
+By fixing the cursor to the top-middle point, the user is also able to make a more drastic change in the contact area without significantly disturbing the cursor location, which aids in reduction of the unintentional clicks.
+Two thresholds on contact area were established to disable spurious switching between the clicking states due to noise or hand tremor.
+Crossing the high threshold activates the click-on state, and crossing the low threshold returns back to clickoff state.
+Due to the finger size differences, these high and low thresholds should be automatically recalibrated for each person.
+Currently, the calibration is done manually.
+SimPress only works if the user is always approaching the tabletop from the same direction, otherwise the orientation of the hand and arm has to be taken into account.
+A future improvement can potentially use the orientation of the click itself to track the orientation of the user's hand.
+However, given that in our experiments, the orientation of the user interface was fixed, our users tended to orient themselves straight-ahead.
+In our dual finger selection techniques, all click events are always triggered by the primary finger.
+The cursor is then offset to the midpoint between the primary and the secondary finger.
+A similar behavior occurs on any resistive touchpad that places the pointer at the midpoint of all touches .
+While both fingers are in contact, moving either or both fingers controls the movement of the cursor.
+Clicking is still performed only by the primary finger.
+This technique allows for variable reductions in cursor speed: when both fingers are moving in the same direction and the same speed, the cursor follows with the same speed, while when only one finger is moving, the cursor moves with half the speed of that finger.
+While the Dual Finger Midpoint technique was very appealing to our initial testers and very simple to master, it did not provide enough assistance for selecting the smallest targets .
+At best, this method reduces the finger speed by a factor of 2 which yields good results for most targets; but it does not provide enough control for the smallest targets.
+An additional shortcoming of this technique is that not all locations on the screen are equally accessible.
+For example, screen corners are not accessible using midpoint selection.
+Consequently, the utility of this technique is somewhat limited by the fact that in today's user interfaces small targets often are located in the corners of the screen.
+Our initial and simplest Dual Finger Selection technique, called Dual Finger Offset, provides a user triggered cursor offset.
+The cursor offset is not enabled by default.
+However, by placing a secondary finger anywhere on the surface, the cursor is subsequently offset with respect to the primary finger by predefined fixed amount.
+This offset always places the cursor above the primary finger.
+To accommodate both left- and right-handed users the cursor is placed to the left or to the right of the primary finger based on the relative position of the secondary finger.
+For example, by placing the secondary finger to the left of the secondary finger to the left of the primary, the cursor appears to the left of and above the primary finger.
+Inspired by the strong performance of ZoomPointing technique , we designed a Dual Finger Stretch technique that allows the user to adaptively scale a portion of the screen with the secondary finger while the primary finger performs the selection.
+To allow for simultaneous "stretching" and selection, the primary finger provides the initial anchor location around which the user interface is scaled, while the secondary finger identifies the corner of the square area which will be scaled.
+By moving the secondary finger closer or further away from the primary finger, the square stretching area is reduced or expanded as illustrated in Figure 4.
+Lifting the secondary finger from the table resets the interface to its default un-stretched state.
+Upon this reset, the cursor is offset with respect to the primary finger and is placed where it was located in the stretched state.
+The cursor offset is reset when all fingers are removed from the table.
+For most common midscreen manipulations, Dual Finger Stretch enables controldisplay ratios roughly up to 10.
+By allowing clutching and repeated zooming, it may be possible to further increase this ratio.
+The Dual Finger Stretch technique has several advantages over the ZoomPointing technique primarily due to the dual finger design.
+First, zooming and selection are not decoupled into two separate actions.
+Instead they can happen concurrently which results in a fluid interaction.
+Second, the interface scales in all directions from the original primary finger's location.
+This provides an important advantage over traditional rectangle selection where the two points specify the diagonal corners of the zooming rectangle .
+With the rectangle selection, the user tends to place the primary finger off target in order to "capture" the target in the zoomed area, while with Dual Finger Stretch, the user places the primary finger directly on target and the interfaces scales underneath in all directions.
+Placing the finger off-target requires the user's primary finger to traverse an increased distance to perform final selection because the target will appear to move away from the finger as the zoom level increases.
+By encouraging placement of the primary finger as close to the target as possible, the eventual distance that this finger will need to traverse to acquire the target is minimized.
+Four areas control the relative speed of the cursor: normal, slow 4X, slow 10X, and freeze.
+Normal mode moves the cursor with the same speed as the primary finger; the two slow modes reduce the speed of the cursor by a factor of 4 and 10 respectively, while freeze mode "freezes" the cursor in place, disabling any cursor movement.
+In preliminary experiments, we found that the ability to completely stop the cursor from moving has two benefits.
+First, by freezing the cursor, the user can quickly and easily establish a desired cursor offset.
+This is accomplished by freezing the cursor temporarily, moving the finger to achieve the desired offset, and then unfreezing the cursor again.
+Second, when selecting very small targets, even small amounts of noise can cause an error.
+Such noise can be due to device tracking errors, tremor in the user's hand, or noise due to the clicking motion.
+By freezing the cursor in place, the user can ensure that the desired selection is successful even in very noisy conditions.
+The left two areas on the crossing menu invoke two helper modes: "snap" and "magnify".
+To allow users to adaptively adjust the control-display ratio as well as obtain cursor offset while looking at an unzoomed user interface, we have designed the Dual Finger X-Menu widget.
+This circular menu is invoked whenever the secondary finger establishes contact with the surface.
+It is positioned so that the finger is located at its center.
+The user can select a particular assistance mode by moving the secondary finger to any of the desired regions of the menu .
+This mode is useful in repositioning the cursor in the slow movement modes because it is easy to run out of tracked screen space when using the slow cursor modes.
+Magnify mode presents a small magnification area in the middle of the crossing menu that shows the enlarged area under the cursor.
+The magnification factor is fixed at 2X.
+This mode is particularly useful when the primary finger overlaps the cursor.
+In this case the magnified image acts as a lens showing the portion of the interface obstructed by the primary finger.
+A simple cursor notification widget displays which cursor speed level is currently selected, without requiring the user to refer back to the menu.
+The behavior of this notification widget can be seen in Figure 7.
+Dual Finger X-Menu is not operated by clicking, but rather by "crossing" the finger into a particular area, which enables more experienced users to activate modes by simply performing quick strokes in a particular direction.
+With practice, this selection can be made without looking, and could therefore allow for an expert mode in which the menu could be completely hidden from the user.
+Removing the secondary finger from the surface will cause the menu to disappear.
+Encouraged by the possibilities of the different interaction modes of Dual Finger X-Menu and the simplicity of Dual Finger Midpoint, we developed the Dual Finger Slider technique, which incorporates the menu's most useful features, but simplifies and streamlines the overall interaction .
+Given that two finger interactions are a very natural way of specifying distance, we have designed this interaction using the distance between fingers to switch between cursor speed reduction modes.
+This technique does not present an on-screen widget to the user.
+Instead, it relies completely on the user's ability to gauge the spatial relationship between their fingers.
+The same cursor notification widget  is used to signal the cursor speed to the user.
+Moving the secondary finger towards the primary finger reduces the cursor speed in 3 discrete steps.
+This allows for the same reductions in cursor speed that is available in Dual Finger X-Menu: normal, slow 4X, slow 10X, and freeze.
+Moving the secondary finger away from the primary increases the speed up to the normal speed.
+Snapping is signaled by a distinct sound effect.
+The distance that the secondary finger traverses in switching speed reduction modes is predefined and is not dependent on the distance between the fingers.
+The modes are remembered even after the user lifts the secondary finger which allows for clutching in the interaction.
+Our interaction techniques are designed for present and future multi-touch screens, and to some extent, they are device independent.
+However, we have developed them on a prototype multi-touch tabletop display to facilitate research and user studies .
+The prototype uses a diffuse screen coupled with an infrared camera and computer vision algorithm to detect contacts on the tabletop surface.
+The screen is back-projected with the projector integrated in the base of the table below the screen.
+The users were instructed to click on the current green target as fast and as accurately as possible.
+We recorded both movement times and error rates, but we analyzed completion times only for successfully completed trials.
+We had hypothesized that the smallest targets might not be reliably selectable by all the techniques tested and therefore were more interested in the impact of our techniques on the reduction of error rate, than the completion time.
+The experiment consisted of two parts: an evaluation of the SimPress technique and a comparative evaluation of the four dual finger selection techniques under varying amounts of noise.
+Both used the same testing infrastructure to present targets to the user, measure user performance and log all experimental data.
+In addition, the users completed a post-experiment user preference questionnaire.
+This separation allows the computer vision algorithms to ignore the projected display in order to see only surface contacts.
+A similar approach is used in the TouchLight  display system and elsewhere.
+The screen resolution of our prototype multi-touch device is 1024 x 768 , which, given the screen dimensions of 61 x 46 , yields a pixel size of 0.6mm.
+The finger that is about 1.5 cm wide covers about 25 screen pixels.
+To evaluate the Dual Finger Selection and SimPress techniques, we conducted a user study that challenged the users to select small and large targets using the various techniques.
+Additionally, we were interested in how well these techniques perform on devices of very low precision.
+Accordingly, in our experiments we added synthetic noise to the sensing system described above, and systematically varied its magnitude.
+Twelve paid participants , ages 20- 40, participated in the experiment.
+All subjects were frequent computer users.
+They had varying experience with the touch screens, ranging from "monthly" use to "several times a day", with the average corresponding to "weekly" use.
+All subjects used their right hand as their dominant hand.
+Eleven subjects identified themselves as righthanded.
+The single left-handed subject preferred using their right hand for mouse operation and chose to use the right hand as the dominant pointing hand in the experiments.
+The subjects were pre-screened for color blindness.
+The subjects were asked to perform a simple reciprocal target selection task, with square targets of varying widths, separated by a fixed distance of 100 pixels.
+This task is loosely based on the Fitts' Law target acquisition task, but without the variation of distance.
+The task involved clicking on a green square target that was surrounded by a green circle.
+We wanted to determine the performance of SimPress clicking technique to obtain a baseline measure of the minimal target width that is possible to select reliably without additional assistance.
+An additional motivation was to ensure that our subjects mastered and were comfortable using SimPress, since we required them to use it throughout later experiments.
+Our subjects were first given an introduction to the SimPress technique and then allowed to perform 1 practice run before the actual experiment.
+A within-subjects, repeated measures design was used consisting of 5 target widths .
+The widths were chosen to represent the range of smallest available targets in a typical GUI.
+For example, the smaller toolbar buttons tend to be between 15 and 20 pixels wide, while the resize handles are sometimes less than 5 pixels wide.
+The experiment consisted of 5 sets  of 5 trials each, for a total of 25 trials per user.
+The order of the sets was randomized across users.
+Our hypothesis was that the users would be able to reliably select only the largest of our small targets  and that the finger's occlusion of the target and the small amount of noise still present while clicking would make the selection of other target sizes difficult.
+We performed a repeated measures ANOVA on the mean error rate data and found the significant main effect with target width =62.598, p<0.001.
+The data are summarized in Figure 10.
+Paired samples t-tests show no significant differences between the user's performance with 8 and 16 pixel targets.
+To eliminate the effects of switching selection strategies  we discarded the first trial in each block.
+All our techniques were modified to completely reset after each click in order to ensure the same starting state for all trials.
+Our main hypothesis was that techniques that increase the control/display ratio lessen the impact of the input noise.
+Therefore, Stretch, X-Menu and Slider should be less affected by the increase in noise, than the Offset technique.
+The second hypothesis was that Slider would perform better than X-Menu since the Slider is controlled by the natural bimanual way of specifying spatial extent , rather that the independent finger actions in X-Menu.
+For the second part of the experiment, we tested the performance of our Dual Finger Selection by comparing the three most versatile techniques  and the Offset technique.
+By providing no additional assistance other than the cursor offset, the Offset technique served as a baseline.
+Even though the Midpoint technique received very positive response from our initial testers, this technique was not included due to the relatively small assistance that it offered in selection  and lack of equal accessibility to all screen locations.
+Additionally, we were interested in how our techniques would perform in the presence of noisy input.
+We note that many touch screen devices provide noisier input than standard relative pointing devices such as a mouse.
+This is particularly true of a whole class of touch screen devices that depend on the video signal for their touch recognition.
+In addition to noise in the video stream, such devices often require that the video signal is up-sampled to match the screen's resolution.
+This up-sampling introduces additional sampling noise.
+In order to test how our techniques deal with increased noise, we added Gaussian noise to the position of each tracked finger, creating three noise levels: low , medium , and high .
+While the noise can be reduced with a use of a filter , this solution either results in a slight cursor lag or overshoot when the finger's velocity abruptly changes, as is the case with any start or stop of the finger.
+We believe that there is a benefit to having interaction techniques that adaptively allow the user to reduce the noise when so desired, leaving the noisy, but lag-free, input otherwise.
+By manipulating the control/display ratio, Stretch, X-Menu, and Slider implicitly allowed the reduction of the input noise as well.
+Our study followed a within subjects design that tested 3 noise levels, 4 techniques, and 4 target widths  per block.
+We performed a 3  x 4  x 4  repeated measures ANOVA on the mean error rate data and found the significant main effects across all conditions.
+This confirmed that more errors were committed in the higher noise levels.
+No significant difference was found in the error rate between X-Menu and Slider techniques.
+The interaction of technique and width =29.473, p<0.001, Figure 11 is interesting as it shows that our assistive techniques  all performed exceptionally well  in all noise conditions for targets 2 pixels or larger .
+While the increase of noise greatly degraded performance of the Offset technique, the other 3 techniques show no statistically significant effects to the various noise levels.
+Due to the dramatically high number of errors committed by our users using the Offset technique, our data contains several blocks without a single successful trial .
+While this prevented us from performing a repeated measures ANOVA on movement times, we present the informal analysis of median movement time values for blocks for which we have data.
+Median times were chosen to correct for the typical skewing due to reaction time data.
+This also removed the influence of any outliers in the data.
+Aggregating the movement times across all noise levels and all target widths, the Stretch technique is on average 1s faster than Slider =5.011, p<0.001.
+There do not appear to be statistical differences in the performance times of Slider and X-Menu.
+This failed to confirm our second hypothesis that Slider would outperform X-Menu.
+Offset's performance times were comparable to other techniques, indicating that users did not believe that spending more time on targeting would yield more precise targeting with Offset technique.
+Figure 13 shows the performance of techniques with respect to target width.
+The data shows a general trend of more time being spent on targeting smaller targets.
+Out of the four compared techniques, the top performer and most preferred technique, Stretch, was the only one that did not provide a cursor offset.
+This clearly demonstrated that the benefit of increased target size successfully compensated for the fingertip occlusion factor.
+The data from this experiment is consistent with the results from a study by Albinsson and Zhai  which also showed that their baseline zooming technique outperformed on-screen widgets that provided cursor speed control.
+We feel that Dual Finger Stretch is a simple and powerful interaction that utilizes the distance between fingers in a very natural way.
+However, in many applications, scaling may have an undesired effect of losing overview of the interface.
+Therefore, we were very pleased with the strong performance of Slider and X-Menu, which provided comparable error rates with a small time penalty of about 1s when compared to Stretch.
+In addition, as our subjects' written comments point out, those techniques strongly benefit by the ability to freeze the cursor.
+As one subject describes, freezing the cursor is a functional equivalent to presenting a user-controlled "are you sure?"
+This was particularly useful with higher noise levels.
+Experience should also substantially improve our Slider and X-Menu because zooming is a very familiar interaction for most users.
+As such, it might have an unfair advantage when compared to other speed-controlling techniques.
+The SimPress clicking technique exceeded our performance expectations.
+This enables the novice users to reliably click on targets that are as small as 8 pixels.
+We believe that with practice and more thorough calibration, this threshold could be further reduced.
+The users filled out a post-experiment questionnaire rating their experience with four techniques on a 5 point Likert scale  They were asked to comment on the following categories: mental effort, learning time, hand fatigue, enjoyment, and performance in low, medium and high conditions.
+X-Menu required the most mental effort , and the longest time to learn .
+Data shows no significant statistical differences between techniques with respect to hand fatigue.
+Stretching was the most enjoyable , followed closely by Slider technique .
+We also asked users to rate their overall preference for the technique for selecting small targets.
+An additional SimPress modification was implemented, but not tested, permitting the user to rapidly click on targets without requiring the rocking motion.
+This timer solution generates a click event if the contact was present on the surface for less than 0.4 s. This allowed the simple selection of large targets to remain as direct as possible while more complex interactions, such as drag and drop, can be performed using the SimPress technique.
+Our study results show that Dual Finger Selections present viable solutions for increasing precision and accuracy in a small target selection task.
+They are designed to be used on most multi-touch screens, perform well with the increase of input noise, and fully utilize the benefits of dual finger interactions.
+Overall, these techniques provide a palette of interactions from which the user may chose depending on the application.

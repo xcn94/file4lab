@@ -1,0 +1,102 @@
+Current solutions for enabling touch interaction on existing non-touch LCD screens require adding additional sensors to the interaction surface.
+We present uTouch, a system that detects and classifies touches and hovers without any modification to the display, and without adding any sensors to the user.
+Our approach utilizes existing signals in an LCD that are amplified when a user brings their hand near or touches the LCD's front panel.
+These signals are coupled onto the power lines, where they appear as electromagnetic interference  which can be sensed using a single device connected elsewhere on the power line infrastructure.
+We validate our approach with an 11 user, 8 LCD study, and demonstrate a real-time system.
+Although touch-enabled user interfaces are rapidly becoming popular for mobile applications, the cost and complexity of large touch displays have dramatically limited their use for desktop computers.
+In the past, researchers have used optical sensors such as cameras  and infrared sensors .
+Although these systems typically provide finger-level accuracy for multiple touch points, they may not scale well in all situations, as each display needs its own sensor and communication mechanism.
+Additionally, most of these systems can only detect when the user is touching the surface, and are unable to sense when a hand is approaching the surface or hovering above it.
+Specialized capacitive sensors are typically used to detect when a hand is approaching or hovering .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Our approach utilizes existing signals in the LCD display, which are amplified when a user brings their hand near or touches the monitor's front panel.
+These signals are coupled onto the power lines, where they appear as electromagnetic interference  which can be sensed using a single device connected elsewhere on the power line infrastructure.
+Additionally, a single sensor can be used to sense touches on many displays connected to the same power line infrastructure .
+This approach of indirect capacitive sensing using EMI was first shown in LightWave, which detects the capacitive coupling between a user and an uninstrumented compact fluorescent lamp  .
+In LightWave, the presence of the human body near the CFL detunes the oscillator in the switchedmode power supply, and thus changes the amplitude and frequency of the noise signals on the power line.
+In uTouch however, the power line EMI used for sensing touches is produced by the timing control signals in the LCD panel, and those signals are amplified due to increased power consumption of the LCD when a user touches the panel.
+In this paper, we describe the theory of operation and present a feasibility study demonstrating the ability to detect and classify 5 different gestures  across 11 users and 8 LCD displays .
+We describe the signal processing and machine learning needed to implement the uTouch system, and present a real-time demonstration .
+In LCD monitors, a backlight produces uniform white light using either a cold cathode fluorescent lamp  or light emitting diodes .
+The white light passes through a polarizer, liquid crystal , color filter, and a second polarizer before being emitted at the front of the display.
+The intensity of the light is controlled by the strength of the electric field applied to the LC.
+Pixels are made by closely grouping red, green, and blue colored filters, which visually combine to produce the desired color.
+Although the panel is made of a large array of pixels, only a single row of pixels is on at any time, and therefore small thin-film transistors  are used to enable each pixel.
+Figure 2 shows a small section of an LCD panel array.
+With the gate voltage applied only to the active row, a field is created on all electrodes in that row.
+Each row is selected once per frame, and enabled periodically at the refresh rate.
+We will refer to the rate at which the display switches active rows as the row rate.
+The row rate is dictated by the refresh rate of the display  and the number of rows , and does not change when the driving resolution is changed.
+As explained above, the row select lines and column data lines are changed every row, at the row rate.
+As a result of this, the row and column drivers consume power in bursts at the row rate.
+In the same way that current spikes from a digital clock couple EMI onto the power line, the current spikes from the row and column drivers result in EMI on the power line at harmonics of the row rate .
+On some monitors, EMI is also observed at harmonics of half of the row rate.
+This is because some LCDs group adjacent rows in what is called line-paired inversion.
+In this case, if we assume that the colors of nearby pixels are typically similar,
+This will therefore cause EMI at half of the row rate.
+We note that since the EMI is produced by multiplexing the rows of a panel, it is thus independent of the backlight technology  and independent of the pixel-level electrode configuration .
+All such varieties of panels have the same type of TFT array and therefore produce EMI at the row rate in the same way.
+Although the row rate EMI on the power lines is typically below the noise level, when a user's hand hovers over or touches the panel, a very large capacitance to ground is added in parallel with the row select lines and column data lines.
+This added capacitance results in significantly higher power consumption by the row and column drivers, which causes higher levels of EMI at harmonics of the row rate .
+This EMI is both conducted onto the power line and radiated onto the power lines by the panel and user.
+The resulting EMI on the power line can then be seen well above the noise level as shown in Figure 3.
+Furthermore, the relative amplitude change of this EMI is a function of the strength of the capacitive coupling between the panel and the hand.
+This noise is therefore a robust signal for sensing different kinds of touches and hovers on the panel.
+In a push gesture, the user was asked to first perform a five-finger touch, followed by a full-hand touch , and the pull was exactly the opposite.
+Each participant performed 6 repetitions of each touch gesture on each of 6 monitors , and 5 of the 11 participants also collected data on 2 laptops .
+We randomized the order of gestures to mitigate any temporal bias.
+For consistency, all monitors used the same background image; however, we have also demonstrated a real-time implementation with dynamically changing backgrounds, as shown in the video figure.
+To measure the EMI on the power line, we used the same hardware used in LightWave .
+An analog high-pass filter  with a 3 dB corner frequency of 5.3 kHz is used to reject the strong 60 Hz component.
+The output of the HPF is sampled at 1 MS/s using a 12-bit analog-to-digital  converter in the USRP  followed by transforming the signal into frequency domain using a 32,768-point fast Fourier transform , yielding a frequency resolution  of 30.5 Hz.
+The signal from the USRP is then fed into the computer for data analysis.
+It should be noted that a USRP was used in this prototype simply for convenience.
+Since the required hardware is very simple , it can easily be integrated into a small plug-in unit, which can be installed anywhere in a home or office.
+After an event is detected, features are extracted from the filtered energy curve for gesture classification.
+From Figure 5 , it can be seen that the amplitude change is much greater for a full-hand touch compared to a five-finger touch.
+To capture these amplitude differences we compute the following three features:  maximum amplitude: maximum value during the touch duration,  average amplitude, and  change in amplitude: difference of the average amplitude during the touch duration and the average energy in the 3 seconds prior to the touch.
+The push and pull gestures can be distinguished using the asymmetry in the capacitive coupling  using the following features:  peak amplitude position: position in time of the point of maximum amplitude relative to the segmented touch duration, and  amplitude asymmetry: difference between the average amplitude in the first and second half of the segmented touch duration.
+The touch EMI is produced at many harmonics of the row rate; however, for our processing, we manually selected the single harmonic with the highest power for each monitor.
+This selection can be automated using a one-time calibration process.
+After selecting the EMI peak, we sum the energy of the magnitude of the FFT in the selected frequency bin with the 2 adjacent bins, and filter the result with 3 passes of a Savitzky-Golay filter with a degree of 1 and a frame length of 39 .
+To identify the end points of the performed touch gesture, we took the 1st-order derivative  of the filtered summed energy curve and smooth it again with 2 more passes of the Savitzky-Golay filter .
+We obtain an average detection rate of 96.4% , with the rate being above 97% for all touch gestures, except for hover and push.
+The lower detection rate for hover is due to the hand being farther from the panel, resulting in less capacitive coupling, and thus less change in EMI.
+The lower detection rate for the push gesture is attributed to the way most users performed the gesture.
+We observed that users tended to approach the screen more slowly when performing the push gesture compared to the other gestures.
+Since our detection algorithm is based on the derivative of the EMI, this slow approach results in fewer detections.
+To explore the feasibility of using uTouch to classify user gestures, we treat our analysis as a machine learning problem.
+We first trained a 5-class  support vector machine  using the Weka toolkit.
+In order to model a realistic use case, we trained the model using only the first two examples of each touch gesture for each monitor and user, and then tested the model on all remaining examples.
+From the confusion matrix in Figure 6 , it can be seen that there is significant confusion between the five-finger touch  and hover.
+During these actions, the palm, which represents the largest area of the hand, is at about the same distance from the LCD panel, and therefore has nearly the same capacitive coupling.
+These similarities cause the amplitude of the EMI to be nearly the same, which results in the observed confusion.
+In addition, the confusion between FH/FF and push/pull is due to the fact that the push and pull gestures are comprised of FH and FF touches.
+We believe that a larger training set would allow more robust classification of these 5 gestures.
+Figure 6  shows the confusion matrix, which shows considerably fewer misclassifications.
+Note that due to imperfect event detection, there are a different number of test examples in each classification run , and thus the accuracies reported in the confusion matrix do not average to the aggregate accuracies reported above.
+In order to explore the temporal stability of the signal, two of the users in the study were asked to repeat the experiments on separate days.
+One user performed the experiment on 6 separate days and the other on 3.
+We trained a model using only the data from the first day, and then ran the classifier on the data from the remaining days.
+Since the performance was not degraded substantially over the case in which we used only data from one day, we can conclude that our signal is temporally stable over many days, even when the noise level and load on the power line changes.
+It should also be noted that the high standard deviation in classification accuracy for the 5-class problem is almost entirely due to differences in the monitors.
+The standard deviation of the classification accuracy across all 11 users is only 5.5%, while it is 20.3% over the 8 LCD screens used.
+This low variation across users indicates that it may be possible to build a generic model, and thus require no peruser training.
+To test this hypothesis, we trained a 3-gesture classifier  on the data from 10 of our 11 users, and then ran the classifier on the data from the remaining user.
+This high accuracy suggests that it is possible to build a generic model using a large database of users, thus removing the training requirement for new users.
+Savitzky-Golay filter with a degree of 1 and a frame length of 3.
+In addition, a moving average filter of length 3 was used to further smooth the signal.
+We used a simplified decision-tree classifier using only two of our original features .
+This implementation has little perceivable latency and shows high event detection and classification rates when used on our best performing monitor .
+The video figure demonstrates this real-time system as well as a gaming interface and video playback controller.
+We demonstrate an approach for passively detecting and classifying a user's touches and hand hovers over an uninstrumented LCD panel.
+Our approach utilizes electromagnetic interference  produced by LCD displays that is amplified when a user brings their hand near or touches the LCD's front panel.
+This EMI is coupled onto the power lines, which can be sensed using a single device connected elsewhere on the power line infrastructure.
+We show the feasibility of using this approach through an 11 user, 8 LCD study, and a real-time system.
+Abileah, A., Green, P. Optical sensors embedded within AMLCD panel: design and applications.
+Active Matrix Liquid Crystal Displays.
+Echtler, F., Pototschnig, T., and Klinker, G. An LEDbased multitouch sensor for LCD screens.
+LightWave: Using Compact Fluorescent Lights as Sensors.
+Hodges, S., Izadi, S., Butler, A., Rrustemi, A., Buxton, B. ThinSight: versatile multi-touch sensing for thin form-factor displays.
+Moeller, J., & Kerne, A. ZeroTouch: an optical multitouch and free-air interaction architecture.
+Rekimoto, J. SmartSkin: an infrastructure for freehand manipulation on interactive surfaces.

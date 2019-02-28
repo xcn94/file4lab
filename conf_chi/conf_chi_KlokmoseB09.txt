@@ -1,0 +1,325 @@
+While such techniques have been prototyped in the lab, they are still not available to the users at large.
+We believe this is due to the lack of adequate software support to develop such interactions.
+In this paper we specifically address multi-surface interaction, i.e.
+We question the adequacy of the current predominant user interface paradigm, the application-based WIMP interaction model, and its underlying architectural models such as MVC  for building user interfaces going beyond a single desktop computer.
+We examine the requirements for a user interface software architecture that supports multi-surface interaction.
+We argue that instrumental interaction  provides an appropriate framework for interaction in multisurface environments and introduce ubiquitous instrumental interaction.
+We then present VIGO , an architecture that supports ubiquitous instrumental interaction and show how it is used to create a generalized version of pick-and-drop.
+This paper addresses interaction in multi-surface environments and question whether the current application-centric approaches to user interfaces is adequate in this context and present an alternative approach based on instrumental interaction.
+The paper presents the VIGO  architecture and describes a prototype implementation.
+It then illustrates how to apply VIGO to support distributed interaction.
+Finally it demonstrates how a classical Ubicomp interaction technique, Pick-and-Drop, can be easily implemented using VIGO.
+In his seminal paper on ubiquitous computing , Mark Weiser envisioned how computers would take on multiple sizes, from the small tab to the notebook-sized pad and the large interactive wall.
+These devices would be used interchangeably and in combination: pads as "sheets" of paper and tabs as, e.g., input devices for an interactive wall.
+Part of this vision has been realized today: we now have myriads of small devices, similar in size to the envisioned tabs and pads, and interactive walls are on their way to becoming consumer level products.
+But the seamless interplay between the multiple device surfaces that Weiser imagined is still far from reality: the simple act of exchanging data among devices typically requires complex configuration or the use of a physical USB key rather than Rekimoto's simple and intuitive pick-and-drop .
+The vision of ubiquitous computing includes the idea that multiple users can interact with multiple devices through a variety of interfaces, including interfaces spanning multiple surfaces.
+This vision challenges the traditional assumption of one surface / one interface / one application that is very deeply engrained in today's desktop computing environments.
+This assumption is also pervasive in the software tools used today for creating interfaces - tools which are tightly bound to the platform hosting them and to the WIMP interaction style.
+These tools typically do not support the multiplicity, dynamism, heterogeneity and distribution that characterize the ideal of multi-surface interfaces, making it difficult in particular to develop multi-surface interfaces.
+Two central goals in creating user interfaces for multisurface environments are to provide users with distributed interfaces that support fluid interaction across stationary and mobile devices and the ability to dynamically configure those interfaces according to the available devices and users' needs.
+Two major challenges in this context are: Supporting reuse and the quality of learning across different devices  , and technically supporting the continuity and distribution of work across multiple devices .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Beaudouin-Lafon  introduced instrumental interaction to model WIMP and post-WIMP interfaces on desktop computers.
+The key idea is a conceptual separation between instruments and domain objects.
+Instruments consist of a physical part  and a logical part .
+Instruments are mediators  between the user and domain objects: The user acts on the instrument, which transforms the user's actions into commands that affect the relevant domain objects and provides feedback to the instrument and the user.
+Instrumental interaction was inspired by the way we use physical tools: A painter can freely add or remove brushes from his collection, pass them around, etc.
+Computer applications do not currently support this level of flexibility: a brush in a drawing application can rarely be removed and used in another context, such as a text editor.
+Applications typically have a predefined set of tools that is difficult or impossible to adapt to one's needs or taste.
+This lack of flexibility limits the mobility, distribution and customizability of interfaces.
+It also typically results in complex monolithic applications, built for general-purpose personal computers, with dozens or even hundreds of tools to cover all possible needs.
+While instrumental interaction was developed in the context of desktop interfaces, the concepts are more general and apply particularly well to multi-surface interaction.
+We call Ubiquitous Instrumental Interaction our extension of instrumental interaction to this context.
+In Ubiquitous Instrumental Interaction, the instrument is an explicit construct rather than a descriptive concept.
+Ubiquitous instruments should be exchangeable among users, they should work in a similar way on different devices, sometimes across multiple devices, and they should be technically separated from the objects they operate on.
+Instruments should be applicable to domain objects and on device surfaces when and where it makes sense, even if they were not designed to do so in the first place.
+The objects that users interact with through instruments should be able to migrate across device surfaces, support multiple views, and be manipulatable by an instrument in ways not necessarily anticipated by the object.
+Note that this does not preclude an instrument from "breaking" an object, i.e.
+Finally, instruments should themselves be objects and therefore be manipulatable by other instruments.
+For example, pickand-drop is a very flexible and generic instrument capable of picking up an object of any type on any of the surfaces available to the user and dropping it onto another object on another surface.
+A color picker is another example of a generic instrument that can be used in many contexts.
+It typically works with a color palette that displays the set of available colors, but can also be generalized to pick the color of any object with a color attribute.
+A last example is an annotation instrument that can add annotations to any object, e.g.
+Such flexibility supports what Illich  calls convivial use: "Tools foster conviviality to the extent to which they can easily be used, by anybody, as often or as seldom as desired, for the accomplishment of a purpose chosen by the user.
+The use of such tools by one person does not restrain another from using them equally."
+Implementing Ubiquitous Instrumental Interaction requires a software architecture that enables the flexibility that we have described above in the context of a distributed infrastructure.
+We believe that a software architecture based on small-grain components that can be reconfigured according to the users' needs or the available devices is the most appropriate.
+We identify two main requirements for this architecture: Decoupling: Objects and instruments should be separate components that communicate through a simple protocol allowing instruments to query and modify objects.
+For example, any object that provides a 2D surface can be used by a pen instrument to add annotations.
+Such decoupling will facilitate the distribution and replication of objects, or parts of objects, across multiple devices.
+Integration: Despite the fact that interaction may involve multiple surfaces, multiple processes and multiple machines, the system should appear as a single consistent entity from the user perspective.
+The ability to use the same instrument with objects of different types should be seamless and in general the system should support a seamless user experience.
+While most research on multi-device interaction has focused on migrating applications across devices, especially through model-based approaches , little research has addressed true multi-surface interaction, i.e.
+Notable exceptions include the Pebbles project  and Demeure et al.
+Some systems have attempted to provide a generic solution to interact with applications in a multi-device computing environment.
+XWeb  and The SpeakEasy Recombinant Computing Framework  are probably the closest to our work in that respect.
+In SpeakEasy services can provide their own user interfaces to be aggregated on the client.
+The goal of XWeb and SpeakEasy however is to automatically transform user interfaces for different devices, while we focus instead on a uniform interaction model to create custom interfaces that leverage the capabilities of the environment.
+Other systems, such as the iStuff toolkit , are designed to explore multi-device interaction but do not embody a specific interaction model.
+Cameleon-RT  on the other hand is a reference model rather than an implementation framework.
+It focuses on the automatic adaptation of plastic interfaces while we focus on adaptability by the users.
+More generally, architectures for Ubicomp systems have focused mainly on middleware to support system requirements such as distribution, discovery, fault-tolerance or contextawareness, but do not address the specific needs of interaction .
+The BEACH architecture  is a rare exception as it addresses interaction explicitly although it seems limited to classical interaction techniques based on mouse and gesture input.
+Architecture models for user interfaces have a long history, with the MVC  design pattern  being by far the most widespread solution.
+A well-known problem with MVC is the strong dependency between the view and controller that limits reusability.
+Abstraction-LinkView   was designed for sharing a common model  among multiple networked clients potentially each with their own view, but is otherwise quite similar to MVC.
+None of the existing patterns however make instruments explicit, instead they promote a widget-based type of interaction.
+Finally Document-Presentation-Instruments   is a document-centric software architecture based on instrumental interaction.
+Like our approach the goal it decouples instruments from the target objects, however DPI is a desktop-based framework and does not address the distribution of objects and instruments across multiple machines.
+THE VIGO ARCHITECTURE We now present VIGO , the architecture that we have designed to implement Ubiquitous Instrumental Interaction.
+VIGO is an alternative to MVC designed to create distributed interfaces based on the principles described in the previous section.
+VIGO objects are different from objects in the classical object-oriented sense.
+In order to achieve the required decoupling between objects and the instruments manipulating them, objects are passive, i.e.
+Rather than hiding their state through encapsulation, they expose it as a set of directly accessible properties, while the behavior that is usually provided through methods is encapsulated in governors .
+Compared with MVC, the Model is separated in VIGO into Objects, implementing state, and Governors, implementing behavior.
+Objects can be primitive, consisting only of properties, or composite, consisting of properties and other objects.
+An object can be a part of several objects simultaneously, such as when a diagram is used in multiple documents: a change in the diagram is then reflected in all the parent documents.
+This is a different concept than multiple views, which is discussed below.
+This object structure lends itself to a natural description in XML, which is the format we use for persistence.
+Examples of concrete objects are text documents, graphic canvas, the board and pieces of a board-game  or concrete user interface elements.
+Objects  can be distributed over multiple computers.
+In our implementation their state is kept synchronized across the replicas.
+Because objects are passive, this can be implemented simply and efficiently.
+The underlying principle behind our notion of object is that every interaction must target one or several objects and may result in a change to the state of these objects.
+Rather than interacting with a "system" or "application" as with traditional interfaces, the user interacts with objects, by means of instruments.
+The fact that objects are open gives tremendous power to instruments.
+On the one hand, it makes it possible to "break" an object by putting it into an inconsistent state.
+Governors are designed to control this potential chaos.
+On the other hand, it makes it possible to implement interactions that were not anticipated.
+Figure 1 presents the VIGO architecture.
+Objects are presented to the user through views.
+Users manipulate objects through instruments, which query views to identify the objects being designated.
+In order to manipulate an object, an instrument queries the governors attached to that object to validate its manipulations.
+Governors, on the other hand, observe object changes to implement potential side effects.
+Finally governors can manipulate their attached objects if the user's actions on the object have side effects beyond that object.
+The following description shows that this design ensures a strong separation of concerns, provides great flexibility and supports distribution among multiple devices and machines.
+Views on objects are translations of the objects into one or more modalities perceptible by the user.
+The are very similar to views in MVC.
+A typical instance of a view is a visualisation of an object  on a screen.
+Views are strongly coupled with the objects they represent, so that any change to the object is reflected in the view.
+Views on the other hand do not provide any kind of interaction: any change to the view is the result of a change to the object.
+Views provide a service to translate coordinates  between the view of and object and that of its subobjects or vice-versa.
+Unlike objects, views are device-dependent, i.e.
+Multiple views can be associated with an object, in which case they are synchronized.
+Note however that multiple views of the same object can also occur when an object is shared among several parents, as described in the previous section.
+Since objects are passive and views are pure representations, they can be implemented efficiently, e.g.
+On the other hand, for efficiency reason, the object should be available on the machine that holds the view.
+This is easily achieved using the ability to distribute an object, as described in the previous section.
+An instrument can be distributed, i.e.
+For example, a PDA used as a remote control will require some feedback on the controlled device, while the pick-and-drop technique  uses input from two devices, the source and destination.
+Since instruments are event processors, this requires that the event system must be distributed, i.e.
+Since events are asynchronous, this can work with any network transport system.
+Instruments have no direct equivalent in MVC.
+Instruments that correspond to traditional widgets, such as a scrollbar, can be implemented with an MVC triplet where the controller is the instrument itself while the model and the view implement its associated object.
+But MVC forces such an instrument to be linked to a target object, such as a text area, through a parent MVC controller.
+This is one of the reasons why a simple interaction such as drag-and-drop is difficult to implement with MVC .
+By contrast VIGO instruments are loosely coupled with their targets.
+In other cases, the equivalent of instruments are implemented in the controller of an object in MVC.
+For example, an implementation of a text area with MVC typically include the text editing commands in the controller.
+This merge of a domain object  and the instruments to manipulate it  in a single MVC entity does not provide the separation of concerns that VIGO encourages.
+It also limits extensibility, e.g.
+Beaudouin-Lafon  defines an instrument as: ... a mediator or two-way transducer between the user and domain objects.
+The user acts on the instrument, which transforms the user's actions into commands affecting relevant target domain objects.
+The concept of instrument is inspired by the real world: a stick to enhance one's reach, a pen to write on a piece of paper, a hammer to drive a nail.
+Examples of digital instruments include those to enter text, manipulate graphics, draw, select objects, etc.
+The tools in the tool-palette in applications such as Photoshop are typical examples of instruments.
+An instrument may need to provide feedback to the user by presenting some information.
+This is achieved by associating instruments with objects and creating views for these objects.
+This means, in addition, that an instrument can manipulate another instrument through the object associated with it and the proper governors.
+One way of concretely thinking of instruments is as event processors.
+Instruments react to input from the user or from other instruments, change objects and fire new events for other instruments to react to.
+Interaction occurs through chains of instruments, e.g.
+We have now described how objects are passive constructs visualized through views and manipulated by the user with instruments.
+The manipulations issued by an instrument consist in changing the state of the targeted object.
+Specific rules governing these state changes or the consequences of these state changes are not the responsibility of the instrument, otherwise it would be very difficult to create polymorphic instruments  that are independent from the objects they manipulate.
+Consider for example a board game such as checkers or Othello.
+If the instrument used to move the pieces of the game implements the rules of the game, then it cannot be used for other games, or indeed for anything else.
+Another solution is to implement the rules in the board object, but this breaks our object model.
+To solve this problem we introduce governors2 to embody the rules and consequences of interactions with objects.
+Governors implement the "application logic" or "business rules" commonly found in the MVC Model.
+Governors are associated to objects at the level of individual properties: a client, typically an instrument, that needs access to a property of an object asks the governors associated with that property whether that change is acceptable and what an acceptable change would be.
+Once the change is made it notifies the governors so they can take any additional action.
+The idea is that a governor controls certain aspects of an object and only the properties that are relevant to that governor are associated with it.
+Several governors may be associated with one object and several objects may be associated with one governor.
+Finally governors are stateless, i.e.
+Let us illustrate this with the Othello3 game.
+The positions of the pieces on the game board are associated with a governor handling the game rules and the consequences of manipulating the pieces.
+The move instrument queries the piece's governor when it is about to drop the piece on the board.
+The governor checks that it is a legal move and if so returns the proper position for the piece, i.e.
+If it is not a legal move, it returns the list of valid moves, which the instrument may decide to highlight.
+Once the piece has been set to the new position, the governor is again notified of the change, and it applies the side effect, i.e.
+Note that since it is up to the instrument to query the governor, it could decide to bypass it and cheat or even break the game.
+Note also that the same move instrument used to move the pieces can be used to move the whole board.
+One could imagine a governor for the board that "shakes" the pieces when the board is moved, as often happens with a real board.
+Finally if the piece governor is to keep track of turn-taking in the game, it must store this state in a separate object or in the board itself.
+This ensures that if another instrument manipulates the board, it can access that state as well.
+Governors should not be seen as direct mediators between instruments and objects: the governors are not an interface to the objects, neither are they transparent to the instrument and just react to the manipulations of the objects.
+Both cases would lead to a lack of flexibility.
+In the first case, instruments would not be able to bypass the governors; in the second case instruments would not be able to visualize what the governor proposes, such as the valid moves in the Othello game.
+Instead, governors and instruments negotiate: instruments query the associated governors to validate a manipulation or to get the valid or suggested manipulations  which they could in principle ignore .
+Since governors are stateless there are various ways to handle governed distributed objects.
+Each machine could have an instance of a shared object's governors, only one of the machines could hold the governors and let the others query it, or the governors could reside on a central server.
+Note that governors can be attached and detached from objects dynamically.
+Multiple representations of a single object are common in computer applications.
+For example, a UML specification may be represented as a text or as a diagram, a chess game may be represented by an animated board or a list of moves, etc.
+Representations are also often used to create computer renderings of physical objects, such as the reading of a sensor.
+Such representations involve a fairly large semantic distance between the object being represented and the representation, to the point where, in the user's mind, the different representations and the original object are separate  objects.
+In VIGO, this notion of representation does not correspond to the notion of view.
+Since instruments manipulate objects through their views, the mapping between a view and its object must be fairly straightforward.
+In order to support the kind of representation that involves a large semantic distance, we use objects and governors instead.
+Consider the case of a mapping between objectoriented code and an interactive UML diagram: The code and diagram are edited through text-editing instruments and diagram instruments respectively.
+The code has a text view and associated governors for handling syntax highlighting, indentation, etc.
+The two objects, however, share a governor handling the mapping between code and UML  so that adding a new box in the UML class diagram creates the associated code and visa versa.
+Controlling physical devices is analogous: The external device is represented by an object with an associated governor handling the synchronization of state between object and machine.
+In this section we describe our prototype implementation of the VIGO architecture.
+Our hardware setup consists of a SMART BoardTM connected to a Mac together with a Nokia N810 Internet Tablet.
+The implementation is a client-server system developed in Python using the Twisted  distributed computing framework.
+For visualization we use the Apple Cocoa framework on the Mac and PyGTK + Cairo on the Nokia N810.
+The server has three facets, an object-server, an event-server and a governor-server.
+Objects are defined in a simple XML language with primitives such as basic shapes and text.
+Using graphical objects simplifies the mapping to views and is sufficient for our experiments.
+Graphical objects are laid out in a Canvas, which is itself contained in a view-object.
+View-objects are the only objects that are not replicated, they are created locally on a device when a canvas is loaded.
+Objects have a unique id and are replicated across clients by the object-server.
+Each client manipulates a local object and the changes are propagated to other clients sharing the same object through the object-server.
+Views are device-specific components that display objects and provide methods for translating between screen and view coordinates and.
+Our implementation is naive in that it redraws the whole view when the corresponding object changes.
+This could be improved by observing the changes in the object and optimizing redrawing.
+Multiple views on a single object are supported.
+Since views are the only devicedependent construct and have a fairly small interface, it is easy to port VIGO to another platform using a different graphical toolkit.
+This is what we have done with Cocoa on one device and PyGTK and Cairo on another.
+Instruments take input events such as button presses and transform them into object manipulations.
+This transformation is described by a state machine.
+We have implemented a Python library for state machines similar in its principle to SwingStates .
+We have noticed that state machines not only reduce the traditional "spaghetti of callbacks" problem of user interfaces , they also provide a good hint of the complexity of the instrument being implemented.
+An example of a simple instrument is an instrument for moving objects on the screen.
+This instrument actually consists of two instruments: An instrument to select an object on the screen, and an instrument to move the selected object.
+From the user's perspective, these two instruments act as a single, integrated one.
+Separating them has the advantage that they can be reused more easily to create more complex instruments.
+Instruments can share events through the event-server hence they can receive local as well as remote events.
+The latter are sent by other clients and automatically dispatched by the event server.
+We can now show the implementation of the pick-and-drop instrument.
+We use two state-machines .
+Selecting an object when in the picking state triggers the transition to the dropping state and a P ick event is fired with the id of the picked object.
+The remote pick-and-drop instrument receives this P ick event and transitions to the picked state.
+The picked object can now be dropped with the remote pick-and-drop instrument by loading the object whose id is in the P ick event from the object-server.
+When one of the state machines drops the object, it fires a Drop event that reverts all instruments to the Start state.
+Figure 5 gives the Python pseudo-code for the pick-and-drop state machine.
+It uses our syntax for defining states and transitions in instruments with Python decorators .
+The color-picker instrument is implemented in a similar way.
+On the N810 PDA we have implemented an instrument that fires events indicating that a color has been picked, and on the SmartBoard a drawing instrument that reacts to these events and changes its color .
+The color-picker can work on anything that has a color attribute, hence a specific palette object is not required.
+We have implemented other instruments for resizing shapes, terminating views and activating other instruments.
+The latter uses gesture input on the SmartBoard whereas on the PDA it uses the keyboard.
+Instruments can provide visual feedback by creating an associated object and using the same vector-graphics language as other objects.
+The view for this object is a transparent overlay above the other views.
+This is used, e.g., by the gesture instrument to provide feedback about the gesture being made and whether the gesture has been recognized or not.
+Governors provide a simple interface for instruments to validate changes and to retrieve sets of valid changes.
+In the Othello example a move instrument can ask the governor of a piece whether a position is valid and can query for the set of currently valid positions.
+When a change to a governed object has been made, the governors are notified and can react accordingly, e.g.
+The Othello game uses two governors: The board-governor makes sure that pieces can only be placed within the squares of the board, and adds a new property to the pieces on the board to hold their grid coordinates .
+It also places a fresh piece in the corner of the board when one has been moved to a cell.
+The second governor is attached to the pieces and implements the Othello rules: checking that a move is correct and turning over the proper pieces after a piece has been put down.
+It uses the grid coordinate properties added to the pieces by the board governor.
+Figure 6 illustrates three boards, the first board has no governors , the second board only has the board-governor  and the third board has both governors .
+Figure 7 shows an XML object attached to both governors.
+The interaction between the move instrument and governors is as follows: The move instrument queries the governor associated with the x-y position of the piece being moved for valid values.
+The board governor computes the mapping from the grid coordinates stored in the piece  to the x-y position on the board.
+It then asks the governors associated with the grid coordinate properties whether their position is a valid move.
+The board governor now takes the intersection between its valid grid coordinates and those returned by the governors and returns their translation into x-y positions.
+When placing the piece, the board-governor is notified, sets the new grid coordinates for the piece and notifies the Othello governor which exchanges the pieces on the board according to the game rules.
+This shows that the board governor can be used not only for playing Othello, but also for any game that relies on a board with a square grid.
+Instruments can query governors for valid values in order to provide feedback to the user about the rules associated with an object.
+In the Othello game this is used by the move instrument to show whether a position is legal: in Figure 6, the move instrument turns the line red if the user points at an illegal position.
+Instruments interact with governors through a client-side governor-handler .
+In our implementation governors reside on a governor-server, and are instantiated when a client loads an object for the first time.
+If multiple governors are associated with a set of properties the governor-handler computes the intersection of the valid values that they return.
+If an instrument wants to change the properties of an object that is not governed, e.g.
+An instrument can also simply ignore the governors and change object properties directly.
+The print governor simply prints the object that is dropped on the printer.
+The printer can be picked-and-dropped like any other object and therefore can easily be shared across multiple devices and taken away on one's PDA.
+Using these components, we have created a scenario where the PDA is used as both a color and object palette for creating graphics on the SmartBoard.
+Images and shapes are picked on the PDA and dropped on the SmartBoard, while colors for freehand drawing are selected on the board .
+Finally the canvas on the SmartBoard can be picked and dropped on the PDA, or dropped on the printer for printing.
+Now that we have described the components, we can illustrate some multi-surface interactions supported by the architecture.
+We start with the pick-and-drop instrument.
+Since any object can be used with that instrument, we can apply it to the Othello board itself.
+This works with no extra code and allows to instantly share live applications across multiple devices and surfaces: picking an ongoing game on the SmartBoard and dropping it on the PDA, we instantly have a networked multiplayer version of Othello .
+Another application is to put the pieces of the Othello game on the PDA of each player.
+They just use pick-and-drop to move the pieces from their PDA to the SmartBoard, again without modifying anything to the existing game.
+We have also implemented a printer object associated to a print gover-
+VIGO was designed specifically to address multi-surface interaction and support a flexible interaction style where users can use any instrument on any object.
+We first compare it with MVC and then provide some formative evaluation.
+VIGO is conceptually close to MVC but has a number of key differences.
+First, VIGO was designed from the ground up for distributed interfaces.
+While there are some implementations of distributed MVC , in particular in the context of Rich Internet Applications, they usually have a number of limitations with respect to the original pattern, and to our knowledge none of them natively support multi-surface interactions such as pick-and-drop.
+Second, VIGO stresses the notion of mediation that is absent in MVC.
+In MVC the View is both a visualization of the model and of the "tool" to interact with the model, whereas VIGO puts the visualization of the model in the View and the visualization of the tool in the Instrument.
+MVC makes it difficult, or at least non-natural, to create non widget-like interactions.
+For example, drag-and-drop types of interaction are not well supported by MVC, but they are a key interaction in multi-surface environments.
+Finally, the MVC state-based Model is not explicitly present in VIGO.
+Instead, the Governor represents behavioral aspects of the model that are relevant to interaction.
+This provides a high degree of flexibility that is difficult to obtain with MVC.
+We now summarize a qualitative evaluation of VIGO based on some of the criteria defined by Olsen  to assess user interface systems research: Generality of the solution: Instrumental interaction makes the assumption that interaction is mediated by an instrument.
+Whether all interaction with a computer is mediated or not is beyond the scope of this paper5 , however it does cover a wide range of interaction styles, including traditional WIMP interaction, tangible interaction and pen-based interaction  that are relevant to multi-surface environments.
+Our experience so far is that VIGO provides appropriate support to implement ubiquitous instrumental interaction, and we have yet to find an instrumental technique that does not fit the pattern.
+To give a perspective on how ubiquitous instrumental interaction could change some basic uses of the computers, consider instant messaging: with VIGO, a conversation would be an object that two or more users can share .
+The governors associated with the conversation would add a user name and time stamp to the entries added to it.
+Entries could be images, text, drawings or even a live game like Othello, added with pick-and-drop.
+The conversation itself could be moved around between the surfaces available to the user and manipulated with the instruments available on the devices at hand, e.g.
+Viscosity: According to Olsen viscosity includes flexibility, expressive leverage and expressive match.
+The goal of VIGO is to clearly separate concerns among its strongly decoupled components.
+We have illustrated the level of flexibility this provides.
+In particular, adding or removing governors radically changes the behavior of objects, and instruments can operate on objects they know very little about.
+New instruments can easily be implemented and tested with existing objects, instruments and governors.
+Expressive leverage is demonstrated by the polymorphic aspect of instruments and the ability to reuse the various components.
+For example, the draw instrument that was created for the paint application can be used to annotate the Othello board, and the color picker can pick the color of any other object.
+Expressive match is supported by the use of concepts familiar to developers, such as a  event system, state machines and XML-like objects, and the "concrete" character of the components that makes it easy to decide what should be in the objects, the governors and the instruments.
+Power and Scale: The power of instrumental interaction is the ability to apply any instrument to any object, and the power of VIGO is to provide developers with simple means to achieve this interoperability.
+Combining objects, combining governors and combining instruments is simple, what may prove more challenging is controlling which interactions are desirable and which are not.
+While we see evidence that the approach is scalable, we need to validate it by implementing a larger system.
+In case the flexibility of the model proves a weakness rather than a strength, for example if we loose control over the combinatorial explosion of interactions between instruments, governors and objects, we will consider adding appropriate control mechanisms.
+This paper addresses a problem area that has gained little attention despite the development of ubiquitous computing technologies.
+We have shown the potential of multi-surface interaction and presented an extension of instrumental interaction called Ubiquitous Instrumental interaction that supports distributed interaction among multiple devices and computers.
+It has then presented VIGO, a software architecture pattern designed for the implementation of ubiquitous instrumental interaction and illustrated it with several examples.
+VIGO supports reusability of instruments by users, since the same instrument can be used with different objects.
+It also supports reusability of components by the developer, in particular through the flexibility provided by the dynamic management of governors attached to objects.
+Finally we have shown how to implement the classical Ubicomp interaction technique pick-and-drop and discussed a number of evaluation criteria for the proposed pattern.
+We plan to continue the development of VIGO to further explore how to best support multi-surface interaction and address issues such as the configuration of instruments, the scalability of the architecture and the design of novel multi-surface interaction techniques.
+C. Appert and M. Beaudouin-Lafon.
+Swingstates: adding state machines to the swing toolkit.
+R. Ballagas, M. Ringel, M. Stone, and J. Borchers.
+L. Balme, A. Demeure, N. Barralon, J. Coutaz, and G. Calvary.
+CAMELEON-RT: a software architecture reference model for distributed, migratable, and plastic user interfaces.
+Instrumental interaction: an interaction model for designing post-WIMP user interfaces.
+M. Beaudouin-Lafon and W. E. Mackay.
+Reification, polymorphism and reuse: three principles for designing visual interfaces.
+O. Beaudoux and M. Beaudouin-Lafon.
+Dpi: A conceptual model based on documents and interaction instruments.
+Computers XV Interaction without frontier .
+A Human Activity Approach to User Interface Design.
+C. Brodersen, S. Bodker, and C. N. Klokmose.
+Quality of learning in ubiquitous interaction.
+European Conference on Cognitive Ergonomics , 2007.
+A. Demeure, J. Sottet, G. Calvary, J. Coutaz, V. Ganneau, and J. Vanderdonckt.
+The 4C reference model for distributed user interfaces.
+E. Gamma, R. Helm, R. Johnson, and J. Vlissides.
+Design Patterns: Elements of Reuseable Object-Oriented Software.
+The abstraction-link-view paradigm: using constraints to connect user interfaces to applications.
+A cookbook for using the model-view controller user interface paradigm in smalltalk-80.
+M. Modahl, B. Agarwalla, G. Abowd, U. Ramachandran, and T. S. Saponas.
+Toward a standard ubiquitous computing framework.
+G. Mori, F. Patern o, and C. Santoro.
+Design and development of multidevice user interfaces through multiple logical descriptions.
+Separating application code from toolkits: eliminating the spaghetti of call-backs.
+Taking handheld devices to the next level.
+User interfaces when and where they are needed: an infrastructure for recombinant computing.
+Evaluating user interface systems research.
+D. R. Olsen, S. Jefferies, T. Nielsen, W. Moyes, and P. Fredrickson.
+Models - views - controllers.
+Pick-and-drop: A direct manipulation technique for multiple computer environments.
+A multiple device approach for supporting whiteboard-based interactions.
+In Proceedings of the 1998 ACM Conference on Human Factors in Computing Systems , 1998.
+Software infrastructure for ubiquitous computing environments: Supporting synchronous collaboration with heterogeneous devices.
+The computer for the 21st century.

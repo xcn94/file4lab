@@ -1,0 +1,385 @@
+Computer and Information Science University of Oregon Eugene, OR 97403 USA hornof@cs.uoregon.edu Abstract EyeDraw is a software program that, when run on a computer with an eye tracking device, enables children with severe motor disabilities to draw pictures by just moving their eyes.
+This paper discusses the motivation for building the software, how the program works, the iterative development of two versions of the software, user testing of the two versions by people with and without disabilities, and modifications to the software based on user testing.
+Feedback from both children and adults with disabilities, and from their caregivers, was especially helpful in the design process.
+The project identifies challenges that are unique to controlling a computer with the eyes, and unique to writing software for children with severe motor impairments.
+Categories & Subject Descriptors: H.5.2 : User Interfaces - input devices and strategies, interaction styles.
+General Terms: Design, Human Factors.
+Keywords: Art, children, drawing, eye tracking, input devices, interaction techniques, universal access.
+INTRODUCTION New software is needed to enable people to control their computers with eye movements.
+This need is especially acute for people with severely impaired motor abilities, who cannot move their limbs or speak, such as people with partial paralysis resulting from Amyotrophic Lateral Sclerosis , brain injury, or cerebral palsy.
+These people are severely limited in their ability to interact and communicate with the rest of the world.
+Despite these severe disabilities, many of these users retain normal control of their eyes, which opens the door to perhaps the best and most noninvasive means for these people to interact and communicate with the world--with eye movements.
+Overall, few software applications have been specifically designed to be controlled with eye movements.
+Exceptions include software for typing with the eyes by moving the gaze across a keyboard displayed on the computer screen .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Computer Science and Engineering University of Washington Seattle, WA 98195 USA cavender@cs.washington.edu However, eye-controlled software is not available for the vast majority of the activities that people without disabilities accomplish on their computers or with pencil and paper.
+There is a particular need for new eye tracking software applications to be developed for children.
+Children have special interaction and communication needs that, if not met, will impede their social, emotional, educational, and creative development, and further reduce the ability of children with complex physical disabilities to function in society.
+EyeDraw is a software program that, when run on a computer with an eye tracking device, enables children and young adults with severe motor impairments to draw with their eyes.
+EyeDraw is developed iteratively based on user feedback.
+Previous work by the authors  shows how analysis of human perceptual-motor control contributed to the initial design of EyeDraw, and how children without disabilities could use the tool.
+This paper shows EyeDraw progressing from Version 1 to Version 2 based on user studies, and presents the results of user observation studies conducted with children and adults with disabilities who successfully used EyeDraw to draw pictures with their eyes.
+RELATED WORK For over twenty years, researchers have been building systems that use the eyes as a direct input to the computer .
+There has been more recent interest in finding ways to use eye position in some secondary, useful manner, such as monitoring a user's attention to find opportune times for interruptions , or to jump the mouse cursor to the gaze region when making manual mouse movements .
+Overall, success has been limited in part because eye tracking is technically challenging and labor-intensive, and because eye movement data are noisy and difficult to interpret .
+However, there have also been some success stories.
+Furthermore, improvements in the accuracy and ease-of-use of eye trackers make it increasingly feasible to build software applications tailored for eye control, such as for drawing with the eyes.
+It has been observed throughout the world that children naturally progress through a series of qualitative stages when learning to draw with paper and pencil: random scribble, controlled scribble, basic forms, early pictorial, and later pictorial .
+Children follow the same stages of development when learning to draw on computers .
+Previous approaches for drawing with the eyes use free-eye drawing.
+In free-eye drawing, pixels on the screen are colored-in wherever the eye tracker records the gaze on the computer screen.
+Figure 1 shows free-eye drawing from Tchalenko  and from EaglePaint .
+Both systems have produced drawings that would be categorized in the scribble stages of drawing, but not in the basic forms or pictorial stages .
+Children have not used the systems to draw recognizable objects and scenes such as people and houses.
+The eye cursor is a colored square  that dances around the screen wherever the user puts their eyes, with a small roughly 133 ms delay.
+Alternating Between Looking and Drawing EyeDraw enables the user, while keeping his or her gaze on the picture, to shift between using their eyes to  just look at the drawing and  add to the drawing.
+This smooth subtask-switching is one of several differences between EyeDraw and previous software for drawing with the eyes.
+In both Tchalenko's free-eye drawing system and in EaglePaint, the ink effectively poured from the user's gaze.
+What resulted was a case of the "Midas touch" problem, in which anything the user looked at became activated.
+The user could not examine alternative spaces in which to draw or pick up the pen to move to the next character without putting down more ink all along the way.
+EyeDraw does not have such a problem.
+Figure 2 shows how a user controls the drawing process in EyeDraw.
+The design departs from free-eye drawing by providing control that is one level removed from the direct coloring-in of pixels.
+Rather than drawing directly, the user effectively manages a drawing process.
+It is somewhat analogous to using a tool in drawing software for the general public.
+The user defines the starting and ending point of a line rather than drawing the line pixel by pixel.
+The EyeDraw user is still, however, faced with the challenge of using the visual modality to both determine where to place the start and end of the line, and to place the points.
+This problem, which is resolved by a tight control and feedback loop around the eye cursor, is discussed next.
+On the left, three attempts to free-eye draw the name "John" from Tchalenko .
+On the right, free-eye drawing in EaglePaint .
+The difficulties in free-eye drawing can be explained in part based on the characteristics of human visual perception and oculomotor  processing.
+First, free-eye drawing jams together two task activities that are usually independent when drawing a picture: eye movements to view the drawing, and manual  movements to draw lines.
+Second, people do not have the same control over their eyes as over their hands and other limbs.
+People can move their eyes in short, quick bursts, but not slow adjusting movements.
+HOW EYEDRAW WORKS Eye Tracking Terminology To understand how EyeDraw works, it is useful to have a basic understanding of how the eyes work, and how eye trackers work.
+The gaze is the vector that goes from the eye to the gazepoint, which is the point in a scene where a person is looking.
+The gaze moves around a scene with a series of quick jumps called saccades, each of which lasts roughly 30 ms.
+Between saccades, the gazepoint stays at the same location  for a fixation that lasts roughly 100 to 400 ms. A dwell is a long fixation.
+The reason that the eyes move, in short, is so that people can put items of interest into the high resolution vision which is at the center of their gaze.
+An eye tracker generally reports the gazepoint on the computer screen 30 to 1000 times per second.
+EyeDraw uses the LC Technologies Eyegaze eye tracker, which reports the gazepoint 60 times per second, or once every 16.7 ms.
+The system uses the pupil-center corneal-reflection technique.
+A state transition diagram of the two eye cursor states and the transitions between them when drawing.
+Issuing Drawing Commands This section describes how the user controls the state of the eye cursor, and thus the drawing process.
+Figure 3 shows the two states that the cursor moves through when the user issues a drawing command.
+The first Looking state uses a green cursor.
+As long as the user keeps moving their eyes around, the cursor will stay green.
+If the gaze dwells at a location for a minimum amount of time, the program enters a Drawing state and the cursor changes to red.
+The threshold is initially set to 500 ms, but is adjustable to accommodate different levels of ability.
+To stop the command from being issued, the user moves his or her eyes from the current location within 500 ms.
+This returns the user to the green Looking state without issuing a command.
+To issue the command, the user continues dwelling for another 500 ms, at which point EyeDraw executes the drawing command.
+Auditory feedback also confirms the drawing command was executed.
+The program then automatically returns to the Looking state.
+This transition between the looking and drawing states can be applied to a wide variety of drawing tools, including a line, square, and circle.
+The same basic control technique can be used to position and "stamp" clip-art onto a drawing.
+EYEDRAW VERSION 1 We have thus far developed two versions of EyeDraw.
+Version 1 includes a minimum set of eye-control features: tools for drawing lines and circles; an "undo" button; a grid of dots to help the user dwell at a chosen location; and a facility to save and retrieve drawings.
+To assist the developers, the program also records all eye movements so that they can be replayed later in the lab.
+Version 1 was evaluated with two user observation studies--a local study in which the software was evaluated by children and adults without disabilities, and a remote study in which the software was evaluated by adults with severe motor disabilities.
+Evaluation by Children Without Disabilities Though the software is ultimately designed and intended for children with disabilities, user observation studies using children without disabilities are useful because this enables us to evaluate the software with many users in a highly controlled environment, and to have more extensive discussions with the children about their experiences with the software.
+Testing the software with children and adults with disabilities who use an eye tracker to communicate is critical, but also very difficult in part because these users are widely distributed across the globe.
+EyeDraw Version 1 was initially evaluated by children and adults without disabilities.
+The primary question in our user observation study was whether people could use EyeDraw to draw recognizable pictures.
+Secondary questions included  which parts of the drawing program were easier or harder to use,  what were the preferred settings for issuing drawing commands , and  what were the participants' subjective impressions of using the software.
+Participants Ten participants without disabilities were recruited.
+Four were female and six were male.
+The other half were 21 to 36 years of age, with an average age of 26.
+Procedure Each session lasted a little under an hour.
+After preliminary paperwork and a brief questionnaire, the eye tracker was calibrated to the participant.
+Each participant was briefly introduced to the basic functionality of the software, and asked to make some drawings.
+The transition from the green to red cursor to indicate the transition from Looking to Drawing can optionally be set to include an additional intermediary yellow cursor state.
+Users, however, preferred the simpler two-state control.
+Participants were asked to rate the ease of use and ease of learning of the program on a scale from 1 to 4, with 1 as "very easy" and 4 as "very hard."
+Participants generally found the program easy to learn  and easy to use .
+The easiest tasks were clicking on the buttons with the eyes  and saving the drawings .
+The hardest tasks were controlling the eye cursor  and controlling the drawing .
+Participants found the grid of dots useful.
+Seven out of the eight participants were able to draw a picture that was judged by the authors to be of a clearly recognizable scene.
+The youngest participant  was the only one who did not draw a full picture, though he did gain control over the drawing process and was able to follow an experimenter's suggestions to draw lines from one region of the screen to another.
+Figure 4 shows two of the drawings made by children using the EyeDraw system.
+The drawings can be identified as a girl, and a house in the sun.
+Technologies Eyegaze Communication System .
+Testing was conducted remotely with the assistance of caregivers.
+All of the users have severe cerebral palsy, and no functional use of their arms and legs.
+All but one of the participants  are nonverbal.
+All have little or no purposeful movement in their arms and legs, but normal control of their eyes.
+Each remote test site also had one primary caregiver who installed the software, administered the user study, and reported the results.
+The caregiver was either the user's mother or an assistive technology specialist at a care facility.
+We refer to the users as User #1 through User #4.
+All four are introduced here even though only the first two evaluated Version 1.
+User #1 is an 18-year-old woman who has used the Eyegaze system at home for ten years.
+She is a "power user" of the system, using her Eyegaze system up to 8 hours a day.
+She typically works with two computers simultaneously, using the Eyegaze system to move the mouse cursor and eye-type on a second Windows computer, which runs regular desktop software and is connected to the internet.
+The participant uses the system to chat with friends, write poetry, surf the internet, and do homework.
+The user shared numerous emails with the authors during the course of the study.
+She has tried in the past to paint with a head pointer, but found it difficult because she had to move her head to one position to paint, and to another position to see what she was painting; the device also caused headaches.
+User #2 is a 61-year-old man with a Master's in Rehabilitation Counseling.
+He is able to verbally express his needs but his speech is slower than normal.
+He has been using the Eyegaze system for a year and a half, for an average of about an hour per day.
+He uses it to write letters to family and friends, and articles for a newsletter associated with the long term care facility where he resides.
+User #3 is a 12-year-old boy who has used his Eyegaze system at home and at school for about three years.
+He uses it for typing, schoolwork, communication, playing computer games, and getting on the internet, especially to visit sports websites.
+The user has had little opportunity for visual creative expression.
+His mother explains that he enjoys "hand over hand" arts and crafts, in which a caregiver completes the activity and puts the child's hand through the motions, "but they can be frustrating for him," presumably because he has no direct control over the activity.
+User #4 is a 9-year-old boy who has used an eye tracker along with Speaking Dynamically Pro since the age of 3.
+His mother wishes that the eye tracker could also be used to interact with storybooks, and with reading and math programs.
+Though most participants volunteered that they found the activity to be fun, it was not particularly easy.
+For those participants who created a second drawing, they liked it better than the first.
+It appears as if drawing with the eyes requires a great deal of focused attention, but that it gets easier with practice.
+Evaluation by the Target Audience Given that the goal of EyeDraw is to provide children with creative and developmental experiences that are otherwise unavailable to them because of a severe motor impairment, the ultimate test of EyeDraw is w hether children with severe motor impairments can use the software to draw with their eyes.
+Nonetheless, the software was evaluated by both children and adults with disabilities in part to increase the number of possible users, but also because the adults tend to be more communicative.
+Even though they are nonverbal in a conventional sense, many are "digitally verbal" with their eye-controlled communication system.
+These users have learned to advocate for themselves and thus by association for younger users in a voice that the younger users have not yet acquired.
+Nancy Cleveland, a registered nurse working for LC Technologies, assisted in the recruitment of our users with disabilities.
+She specifically put us in touch with one young adult because she anticipated that this user could tell us whether the software would have worked for her when she was a child.
+This feedback turned out to be readily forthcoming.
+Procedure Each caregiver was sent a packet that included the EyeDraw software, instructions for installation and testing, consent forms, and a set of questions.
+Another set of questions, to be answered after trying EyeDraw, asked about the usability and learnability of the software.
+Open-ended questions included the following: What were your overall impressions?
+How was the drawing control?
+How was the overall control of the program?
+How can we improve the overall functionality of the program?
+Specific questions included but were not limited to the following: Could you start and end the lines where you wanted?
+Did the buttons sometimes get clicked by accident?
+What new features would you like to see?
+User #1 answered some of the specific questions about the interface.
+She reported that the clicking sounds that accompanied the transition from green to yellow to red were helpful, that she did not use the grid very often, that the buttons were easy to click on, and that "it's easy to save" the drawings.
+New features requested by the user included: putting EyeDraw in the Eyegaze menu; a tool for drawing squares; and adding color.
+She also requested "a text button where I can type on my drawings.
+It also needs a spray-brush."
+User #2 used EyeDraw Version 1 for seven sessions, for an average of 36 minutes per session.
+He typically produced no drawings per session.
+User #2 had great difficulty using the software.
+His four hours of working with the program produced only a few drawings that had more than one line or shape.
+Despite the difficulties, the caregiver reported that the user was "really excited about the program."
+To try to understand the user's difficulty, we replayed and watched all of the user's eye movement data at the lab.
+The source of the difficulty appeared to be that the eye tracker was not tracking his gaze smoothly.
+The eye cursor was very jittery and erratic, which would make it very difficult to issue the gaze-based drawing commands to start and end lines and circles.
+The caregiver decreased the fixationdetection time from the default 500 ms to the fastest possible 250 ms in the first session, and kept it at that setting for subsequent sessions.
+Even at this setting, the user had a difficult time issuing line-drawing commands.
+On the occasion that he did draw the lines and circles, they appeared so quickly that he did not appear to be in control.
+Even with the grid turned on, and the user clearly trying to fixate the dots, the cursor was generally too jittery to issue a command.
+The caregiver pointed out to us that an eye image appeared on the screen in all other Eyegaze software, but not ours.
+This is an image of the eye as seen by the eye tracking camera, along with a color-coding that indicates if the eye is currently too close  or too far .
+She suggested that perhaps the difficulty in tracking resulted in part because the user could not see when he was in and out of optimal range of the camera.
+If he could see the image, he could make small head and neck adjustments to get the eyes back in the optimal range.
+She suggested that we add the eye image to the EyeDraw screen.
+Other suggestions from the user and caregiver included adding: colors, designs, patterns, and textures; different sounds for the changing of the eye cursor from green to yellow to red; enhanced eye-controlled tool bars and menus; and coloring book exercises.
+They also suggested that the eye-controlled buttons "speak" their function when the eyes look at them.
+User #1 used EyeDraw Version 1 for seven sessions, for about an hour per session, and saved 28 drawings.
+The clearest feedback provided by this user was that she did not want to use EyeDraw if it were not accessible through the Eyegaze communication system's main menu.
+For this user to test EyeDraw, her caregiver had to quit out of the communication system and manually start EyeDraw.
+The user could later quit out of EyeDraw, but this did not automatically return to the communication system.
+It instead left the system inaccessible to the user.
+For the period of time during which the user tested EyeDraw, she was isolated from the control and independence afforded by the Eyegaze system.
+This user found this to be entirely unacceptable.
+Though she agreed to try the software, she wrote: "I want to get to stuff on my own."
+Figure 5 shows two of the drawings created by User #1.
+She described the drawings as specific scenes: "someone yelling" and "someone trying to do the jumping jacks."
+She reported that she liked the drawings she created with EyeDraw, felt that she was in control and could draw what she wanted, and found nothing difficult or frustrating other than EyeDraw not being in the main Eyegaze menu.
+She did report, though, that sometimes the eye cursor was jerky and unstable, thus making it hard to draw.
+She reported that EyeDraw was easier to use than painting with a head pointer because she could look at what she was drawing.
+She also reported that the program felt "too slow because I couldn't start drawing right away, I had to wait for the dot to change colors."
+Discussion Remote users, unlike the local users, identified two major problems with EyeDraw that would hinder EyeDraw's usefulness to our target population.
+The problems included the lack of an eye image on the screen, and EyeDraw not being in the Eyegaze system's main eye-controlled menu.
+To address User #2's difficulties with the jittery cursor, we added a feature so that the end-user could adjust the spatial distribution of the fixation-detection algorithm.
+The feature is the complement to how the user can already adjust the dwell time of the algorithm.
+We replayed User #2's jittery eye movement data after increasing the spatial distribution from the standard 0.25 inches to 0.75 inches, and this resulted in many more fixation commands being recognized.
+Requiring caregiver intervention to start EyeDraw was frustrating for User #1.
+However, it is difficult to add EyeDraw to the main system menu in part because this requires us to modify the software that these participants use to communicate with the world, and we are reluctant to risk introducing bugs.
+Nonetheless, it is clearly important to make EyeDraw and other software for this population accessible within their current eye-controlled environment.
+User #1 clearly used the program to draw.
+She was reasonably happy with her drawings.
+Taking a narrow view of what drawings should look like, the drawings are perhaps not "perfect," but then again neither are the drawings made by anyone learning to draw for the first time.
+User #1's drawings are not immediately recognizable as specific things or scenes, but they do appear to be deliberately organized, composed, and drawn.
+The drawings look like the emergent diagram shapes seen in the basic forms stage of learning to draw .
+It appears as if the user was trying to draw faces, which typically appear in the early pictorial stage of drawing.
+When the user explained the content of the drawings, the intentionality was readily apparent.
+It appears as if the user was able to enter one of the intermediary stages in the natural progression of learning to draw.
+The software clearly supports more than just the early scribbling stages of drawing, which may be the extent to which free-eye drawing can be used.
+EYEDRAW VERSION 2 EyeDraw Version 1 was extended to Version 2 based on user observations, user feedback, watching children work on art projects, and the literature on children's drawing.
+Existing features were refined to improve usability of the basic eyedrawing functionality.
+New features were also added.
+Figure 6 shows a screenshot of Version 2.
+Version 2 has the same features as Version 1 plus:  a display of the camera image in the top right of the screen, to help the user stay in range,  user-defined settings that provide the user with various controls  such as the dwell detection thresholds, and  audio feedback that reports the current state of the eye cursor when drawing--a different note is played for each transition.
+Version 2 also adds rectangle- and polygon-drawing tools; colors; stamps that can be placed with a dwell; and a "Dot On/Dot Off" button that parks the eye cursor and lets the user look around without accidentally issuing commands.
+A screenshot of EyeDraw Version 2 with the eye-controlled Settings dialog box opened.
+Version 2 was evaluated with two user observation studies--a local study in which the software was evaluated by children without disabilities, and a remote study in which the software was evaluated by children and adults with severe motor disabilities.
+Evaluation by Children Without Disabilities Children without disabilities evaluated EyeDraw Version 2.
+The two driving research questions in the evaluation were  whether the users would take advantage of the new features to draw more "interesting" pictures and  whether the refinements to the basic control system would make EyeDraw easier to use.
+Participants All twelve participants were children without disabilities between the ages of 6 and 14, with an average age of 10.
+Seven were male and five were female.
+Two users had evaluated Version 1 and are considered "longitudinal users."
+Ten were new users who had never before controlled a computer with their eyes.
+Procedure Each session lasted about one hour.
+Seven of the participants also returned for a second hour-long session at a later day, typically two weeks later.
+After preliminary paper work and a brief questionnaire, the eye tracker was calibrated to the participant.
+The participants were then given three to five minutes of free time to explore the software.
+For the new users, this time was spent learning how the program works and how to draw with it.
+For the two longitudinal users, this time was spent getting acquainted with the new features and changes made to the program.
+For the next four to six minutes the participants were asked to experiment with different user-defined settings in order to find those that were most preferable.
+Users were specifically asked if they found the audio feedback to be useful.
+If the answer was no, they were asked if the noise was really not useful or if the noise was just annoying.
+If they confirmed that it was really not useful, the sound was turned off.
+Otherwise, it was left on.
+The remainder of the study consisted of two drawing sessions, about fifteen minutes each, and a playback session, usually about ten minutes.
+During the drawing sessions, the user was told they could draw anything they desired.
+Midway through each drawing session the sound was turned back on  and the user was asked to reevaluate all settings including the sound.
+For the playback session, the user's drawing sessions were replayed for the user at about four times the original speed.
+This gave the users a chance to talk about their drawing experience as it unfolded; it is generally difficult to talk and draw with the eyes at the same time.
+Lastly, the participants filled out a post-experiment questionnaire about the program.
+As mentioned, most of the users returned for another one hour drawing session.
+Upon returning, users were not given time limits for their drawings, but were encouraged to draw as much as they liked.
+Users were presented with the same post-experiment questionnaire as in the first visit.
+Discussion Overall, the children found the software easy to use and easy to learn, though the drawing control was initially tough.
+Initially, the children were somewhat captivated, or perhaps distracted, as they explored the wide range of features.
+The two longitudinal users seemed to be more captivated by the use of color in the basic lines and shapes which they learned how to use in Version 1.
+The first-time users were more taken by the stamps, even to the point of using stamps of eyes that they found after laboriously drawing eyes with the line tools, as in the second drawing in Figure 7.
+The infatuation with the many features and the attraction to the stamps permitted less time for the creation of a drawing, prompted us to invite all of the children back for a second session to see if the novelty of the many features would wear off and the children would spend more time drawing.
+In the second session, the children were much more engaged with creating images.
+The drawings started to develop in pictorial quality.
+Evaluation by the Target Audience As with EyeDraw Version 1, the ultimate test of Version 2 is whether it can be used by children with severe motor impairments.
+The software was evaluated by both children and adults who communicate using an eye tracker.
+Results In our local usability study of Version 1, we found the preferred dwell time to be consistently 500 ms.
+In our previous study we found that most users preferred the two state control  rather than with the intermediary yellow cursor state .
+This time we found that only 50% of users preferred the two-state control.
+As one user commented, "I liked the three noises better because it sounded more balanced, but I chose the two noises because I wanted to go faster."
+In general, the children reported that the system was easy to use and learn; that it was initially difficult to control the drawing process; and that it was easier to control the drawing process on the return visit.
+Figure 7 shows two drawings from the user study.
+All twelve of the participants were able to draw with their eyes.
+The authors attempted to categorize each of the 53 drawings made based on the stages of learning to draw and found the following results: 5 were determined to be in controlled scribble stage, 13 in the basics forms stage, 11 in early pictorial, and 21 in later pictorial.
+One of the drawings was considered a "non-drawing" as the user simply spent time learning the tool without drawing anything more than a few stamps placed on the screen in meaningless order.
+None of the drawings fit into the random scribble stage as all users exhibited at least some control of their markings and placed objects in deliberate arrangements.
+Participants and Procedure All four remote users that were introduced earlier  evaluated EyeDraw Version 2.
+The procedure was nearly identical to that for evaluating Version 1.
+One additional step was that some of the drawings were sent back to the users with a request for eye-typed comments, with questions such as: Do you remember drawing this?
+Do you like the drawing?
+Is it a picture of something special, or were you just sort of practicing?
+If it is a picture of something special, can you tell me what it is?
+Results All four remote users were able to use EyeDraw Version 2, but had a wide range of success in terms of its ease of use.
+User #1  tested Version 2, and saved fifteen unique drawings in five sessions.
+F igure 8 shows her using the system, and two of the drawings that she produced.
+The user provided comments on the two drawings at the bottom of Figure 8.
+About the left drawing, she eye-typed "Here's an ocean that I made up in my mind.
+I use the stamps for the animals.
+The picture came out good."
+About the right drawing, she confirmed that it is a landscape and wrote that she "did an awesome job".
+Both drawings clearly capture intentional, recognizable scenes.
+The first also captures an inspired use of stamps to create an abstract visual mass, a three-dimensional representation of space that was specifically noted and intended by the user.
+The drawings are somewhere between the basic forms and early pictorial stages, which is further along than her drawings from Version 1.
+It appea rs as if she may be progressing through the stages of learning to draw even in the course of these user observation studies.
+A drawing by User #2.
+User #2's eye-control improved dramatically even though he did not change the user-adjustable dispersion-threshold parameter in the fixation-detection algorithm, a new user control added to Version 2.
+The caregiver reported that the user was finally able to use the program because  the eye image on the screen made it much easier for him to stay in range and be tracked accurately and  all of his practice finally paid off, and he finally "got the concept" of how EyeDraw works.
+As she reported, the final long session "was unbelievable to me, and to him."
+User #3  only tested Version 2, and saved five drawings from three sessions.
+Figure 10 shows User #3 using EyeDraw, and two of the drawings that he produced.
+The eye image, barely legible in the upper right of the screen, appeared to be essential for this user to be able to use the system.
+The user appeared to have control over the software, though he seemed to have some trouble with the various dialog boxes used to open and save drawings.
+Watching a video taped by his mother, and also based on her observations, the user seemed to get a little lost in some dialog boxes, not knowing for sure what to do.
+It seemed as if he accidentally deleted some drawings, clicking on "No Save" when his mother was asking him to save his drawings.
+Perhaps he really did not want to save it, but his actions did not appear to be entirely deliberate.
+User #1 using EyeDraw Version 2 , and two drawings that she produced.
+As with most users of Version 2, both local and remote, this user was also immediately drawn to the new stamp feature.
+She initially used them as word-like icons, to tell a little story about how she loves her dog.
+She then used them more as a drawing element, to create visual textures.
+During this time, she did not use the line tools very much.
+But then she slowly returned to the line tool, using it together with the stamps.
+She did produce a couple of drawings with just lines during this period, including one that she described as her "bulldog/pug".
+Her final drawing  integrates the shape and line tools with the stamps, for a somewhat complex visual integration.
+User #2  found EyeDraw Version 2 easier to use than Version 1.
+He used EyeDraw Version 2 for just three sessions.
+The first two sessions were about fifteen minutes each, during which he was able to put down a few more shapes and lines than in Version 1, but the drawings were still very sparse, as with Version 1.
+In his third session with EyeDraw 2, however, he experienced a breakthrough.
+As reported by his caregiver, "He finally really got it."
+This single session lasted almost two hours, and produced sixteen drawings, all of which were intermediary saves of one long drawing.
+Figure 9 shows the resulting composite image, which perhaps falls between the stages of controlled scribble and basic forms.
+User #2 was now able to place lines, shapes, and stamps.
+His early drawings were typically blank or had a single line or shape.
+The new drawing demonstrates greatly improved ability to control the drawing process.
+Similarly, when ending a line, he sometimes went off the drawing and onto the adjacent buttons, thus turning a square into a circle, or clicking on "Save" and thus losing the shape because he did not anchor the second corner.
+Local users reported that the first of these two behaviors was particularly annoying.
+The feedback was an example of how testing the software with children without disabilities helped us to better understand problems that a child with disabilities also had but did not report.
+Figure 10 shows two of User #3's drawings, made during his second and third sessions using EyeDraw.
+The drawings are not immediately recognizable as scenes or objects, as were the drawings made by children without disabilities, but they demonstrate control of the tool and are meaningful to the user.
+He described them as "bed" and "home."
+The drawings would probably be classified somewhere within the controlled scribble and basic shapes stages.
+There appears to be an effort to put marks in specific regions, and the user's comments also suggest some intentionality.
+Nonetheless, perhaps some of the markings are like the scribbles children make as they are learning how to hold a pencil and move their arm.
+User #3 generally liked his drawings.
+He reported that the program was hard to use but that it got easier with practice.
+User #4  only tested Version 2, so he did not benefit from earlier practice with Version 1.
+He only tried Version 2 a few times, and for very brief sessions.
+He made few drawings, and they tended to be very sparse.
+Perhaps it needs to also engage children without disabilities in art activities, so that using EyeDraw becomes a peerencouraged social activity, just like playing Backyard Sports.
+Though the eye tracker appeared to track User #3 accurately and smoothly, he still had trouble drawing at first.
+Perhaps our basic eye-command technique is not obvious at first.
+Also, time on task is clearly critical.
+Overall, the user spent relatively little time learning the system, at least compared to our two older users.
+Clearly, EyeDraw needs to draw the user in, perhaps using play and entertainment techniques such as those used in children's games.
+GENERAL DISCUSSION Overall, remote testing of EyeDraw by children and adults with severe motor impairments demonstrates that we have successfully built and deployed a tool that can be used by children and adults to draw with their eyes.
+Even though the program is somewhat difficult to use at first, it gets much easier with practice.
+Across four remote users, we can identify two kinds of users with two kinds of usage patterns.
+The two younger participants use the eye tracker for relatively short periods of time with somewhat constant caregiver attention.
+The two older participants use it for longer sessions without a caregiver, and evidently enjoy this independence.
+The younger participants seemed to have less patience with EyeDraw, whereas the two older participants seemed to have more patience, in one case even trying it for several hours before finally being able to draw.
+We are particularly interested in addressing the needs of the younger users, who seemed impatient and perhaps frustrated when they were not able to draw, and who seemed to spend a lot of time exploring features rather than drawing, at least initially.
+EyeDraw needs to help children to enjoy drawing as quickly as possible.
+We noticed that the assistive technology specialist and mother that we visited gave their children continual constructive feedback and encouragement as the child progressed through an activity.
+Though we disparaged free-eye drawing earlier in our design process as a problematic way to draw with the eyes, it may be appropriate to limit the user to free-eye drawing when first using EyeDraw.
+This would insure immediate positive feedback even at the expense of control.
+New features, such as the ability to change the color of the ink, or start and stop the flow of ink, could be gradually introduced.
+The data provide some insight for how and when EyeDraw might gradually introduce new features to best support the creative process.
+First, recall that the two less-patient younger users tended to use the program for very short periods of time, and with a caregiver continually present.
+The caregivers had a very strong sense of what the children would be able to do, and what would be too hard.
+For these users, it would seem appropriate for the caregiver to control the sequential introduction of new features.
+Second, recall that our two older, more-patient users were willing to invest a lot of time even though success was not immediate.
+Discussion The remote users had more success at using Version 2 than Version 1.
+They were able to create lines and designs, and to save their drawings.
+They appear to be successfully placing visual objects at desired locations.
+Two users specifically described the pictorial content of their drawings.
+As we studied the drawings that were made by our users with disabilities, we adjusted our criteria for the kinds of drawings that would be needed to confirm that the software works for this user group.
+We initially expected to see pictorial drawings of the sort produced by our local users.
+We came to realize that such drawings would probably take a long time for our remote users to produce.
+The remote users had not yet developed manual drawing skills as had our local users.
+The remote users' drawings are perhaps in some ways akin to the drawings made by children as they figure out how to control a crayon in their hand.
+However, our 18-year-old remote user demonstrated some impressive pictorial skill, and it appears as if her drawing ability might have developed even within the course of the study.
+Though User #3 seemed to have a very short attention span with EyeDraw communication system, when visiting this user, we noticed that he did have a lot of patience using the Eyegaze system to control the mouse movement on a second computer that was running the children's software Backyard Sports.
+The process was slow and tedious compared to a typical pace, but nonetheless clearly gave the user much satisfaction.
+Perhaps EyeDraw just needs to be more fun.
+CURRENT WORK We are currently developing Version 3, which will feature a further-refined feature set as well as a progressive revealing of increasingly advanced functionality.
+We are exploring options for providing more immediate feedback and encouragement to engage the children at every step.
+Some of our target users had difficulty generating the first set of dwells necessary to draw the first line and thus could not experience and learn the basic control technique.
+Until using EyeDraw, there has been little need for the users to make successive dwells at the same location.
+Having EyeDraw start the user with free-eye drawing might give children a great deal of fun and satisfaction, and help them to gain confidence that they can draw with their eyes.
+Despite the difficulties associated with free-eye drawing, the immediate feedback provided by the technique may help to communicate to users the concept of using the eye position to draw lines.
+Adding the ability to turn the ink off  might also make free-eye drawing more tenable by removing the "Midas touch" problem.
+The very eye-drawing technique that was initially dismissed in our design process might actually be the best introduction to the more enabling but more complex drawing techniques built into EyeDraw.
+CONCLUSION EyeDraw is a software program that enables children and adults with severe motor impairments to draw pictures by moving their eyes.
+The software supports the range the stages observed in the natural progression of learning to draw.
+Children and adults, both with and without disabilities, successfully used the software to produce drawings that fell into the stages that may be appropriate given each person's previous experience with the activity.
+It appears that EyeDraw may support the natural human developmental pattern of learning to draw.
+This research demonstrates how a detailed analysis and understanding of fundamental human-perceptual constraints and oculomotor control and feedback capabilities can be applied to create human-computer interfaces that enable new eye-control of software applications.
+These applications can support open-ended creative processes such as that of visual artistic composition to enable people with severe disabilities who are currently locked out of fundamental human creative and expressive opportunities to experience more of what life has to offer.
+ACKNOWLEDGMENTS Rob Hoselton contributed to the development and testing of EyeDraw.
+Tim Halverson assisted with eye tracking and design.
+Nancy Cleveland, Dixon Cleveland, and Peter Norloff, of LC Technologies, provided technical and domain expertise, and helped recruit participants.
+The National Science Foundation supported this work through a Research Experiences for Undergraduates supplement to Grant IIS-0308244.
+The eye tracking lab used for this project was supported by the Office of Naval Research through Grant N00014-02-10440.
+Both of these grants were awarded to the University of Oregon with Anthony Hornof as the principal investigator.
+Proceedings of Human Factors in Computing Systems, New York: ACM, 360-362.
+A study of children's computer-generated graphics.
+EagleEyes: An Eye Control System for Persons with Disabilities.
+The Eleventh International Conference on Technology and Persons with Disabilities.
+EyeDraw: A system for drawing pictures with eye movements.
+Proceedings of ASSETS 2004: The Sixth International ACM SIGACCESS Conference on Computers and Accessibility, New York: ACM, 86-93.
+What you look at is what you get: Eye movement-based interaction techniques.
+Proceedings of ACM CHI `90: Conference on Human Factors in Computing Systems, ACM: New York, 11-18.
+Eye tracking in human-computer interaction and usability research: Ready to deliver the promises .
+Palo Alto, Calif., Mayfield Pub.
+Twenty years of eye typing: systems and design issue.
+Proceedings of the Symposium on Eye Tracking Research and Applications: ETRA 2002, New York: ACM Press, 15 - 22.
+An evaluation of an eye tracker as a device for computer input.
+Manual and gaze input cascaded  pointing.
+Proceedings of ACM CHI `99: Conference on Human Factors in Computing Systems, New York: ACM, 246-25.

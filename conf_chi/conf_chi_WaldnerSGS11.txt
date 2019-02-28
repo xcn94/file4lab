@@ -1,0 +1,269 @@
+In this paper we present importance-driven compositing window management, which considers windows not only as basic rectangular shapes but also integrates the importance of the windows' content using a bottom-up visual attention model.
+Based on this information, importance-driven compositing optimizes the spatial window layout for maximum visibility and interactivity of occluded content in combination with see-through windows.
+We employ this technique for emerging window manager functions to minimize information overlap caused by popping up windows or floating toolbars and to improve the access to occluded window content.
+An initial user study indicates that our technique provides a more effective and satisfactory access to occluded information than the well-adopted Alt+Tab window switching technique and see-through windows without optimized spatial layout.
+To reveal this information, the user has to change the window layout manually.
+Most current window managers employ multiple overlapping windows and leave the spatial arrangement of the individual windows merely to the user.
+As a result, important information may be hidden in occluded windows  and users spend a significant amount of time switching between windows to reveal obscured content .
+Different window management techniques to increase the amount of simultaneously visible information have been explored.
+Automatic window layout techniques  reduce the amount of window overlaps and, as a result, the empty screen space.
+A limitation of these systems is the lack of knowledge about the application content.
+Therefore, windows are treated as "black boxes", which does not leave much room for overlap-avoidance  if the screen is cluttered with a large number of windows.
+On the other hand, transparency can be employed to reveal the content of occluded windows.
+However, transparency alone does not ensure that important hidden content is actually revealed.
+If highly salient window content overlaps, visual differentiation between window layers becomes difficult for the user.
+These situations can be resolved with an optimized spatial layout which minimizes information overlap.
+In this paper, we therefore propose importance-driven compositing - a new window management approach for seethrough user interfaces.
+We base our work on recently es-
+Although more than 25 years have passed since the emergence of the WIMP metaphor, the window concept still prevails as the unique interface to control multiple applications on the screen.
+Today, the need of information workers for multiple applications to successfully complete a single task and the common usage of floating menus or multiple windows per application, lead to a standard desktop being cluttered with a large number of open application windows.
+Even with increasing display space, users just tend to keep more application windows open .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+Importance-driven compositing window management analyzes these window textures to identify perceptually important window regions to optimize the spatial window layout for see-through compositing .
+To identify the importance of a window and its content, we rely on a visual attention model describing how much a location in an image stands out from its surroundings .
+In summary, our contributions are: * Using visual saliency as an importance measure of application window content and the concept of importance maps as unified, image-based importance representation for compositing window managers, * a window management approach combining spatial window layout optimization with see-through compositing for maximum information visibility and interactivity, * a hardware-accelerated implementation for real-time usage in an established windowing system, and * a validation of our approach through an initial user study indicating a benefit of our technique for accessing occluded content compared to traditional Alt+Tab window switching and free-space transparency .
+We will present novel window management functions based on importance-driven compositing to improve the access to occluded information by a new window switching approach and a semi-automatic window layout technique.
+We also introduce functions to decrease occlusion of window content by pop-up windows or floating menus.
+However, experiments have shown that simple alpha blending either causes readability problems with foreground items or decreases the perception of the background image - depending on the chosen alpha level .
+Outlines of text and icons  and multiblending  have been shown to improve recognizability of blended content.
+Dynamic transparencies  help to increase background visibility and were demonstrated to reduce targeting performance only marginally.
+For see-through window management, Ishak and Feiner  apply free-space transparency only to "unimportant"  window regions.
+This guarantees that important content in top-level windows is preserved.
+However, it does not guarantee that important content in occluded windows is actually revealed.
+If important content in the occluded windows is located underneath the important regions of the overlay window, the user has to manually re-arrange windows to access hidden content.
+This limitation is the main motivation for our approach: we use window importance not only for see-through compositing, but also for an optimized spatial window layout which minimizes overlaps of important regions.
+With the steadily increasing number of open, overlapping application windows, users are required to apply some sort of occlusion management technique  to discover and access occluded window content.
+To bring occluded windows to the front, window managers provide window lists, sequential window switching techniques , or space-filling window layouts .
+However, explicit window switching has been described as tedious .
+Subsequently, we discuss two window management approaches alleviating the need to switch windows explicitly by increasing the amount of simultaneously visible information on the screen: see-through windows and automatic spatial window layouts.
+Window layout techniques like overlap-avoiding dragging  or constraint-enabled window management  spatially arrange windows to avoid window overlaps.
+For both techniques, a sufficiently large screen is required to accommodate for all the non-overlapping windows in their original size.
+Other techniques only temporarily change the window layout for certain situations, for instance if a physical occlusion of user interface elements has been detected  or if the user wants to copy-and-paste between overlapping windows .
+All of these examples treat windows as simple rectangular shapes - irrespective of their content.
+For our window layout routine, we were inspired by the field of augmented reality, where a common task is to annotate real-world objects in video images with virtual labels.
+To find the optimal placement for the label, the video images are analyzed .
+We extended this approach for compositing window management where we treat windows as image templates with the objective of finding the window layout with the least information overlap.
+To deal with limited screen space, window layout techniques often apply some sort of deformation to the windows.
+For instance, tiled window managers  have to resize windows to keep all windows visible without an overlap.
+Automatic down-sizing introduces the risk of clipping important content at the window's boundary.
+Therefore, others crop windows to preserve only the most relevant regions of context windows .
+However, in these systems the user has to define the relevant regions manually, which can be a tedious task.
+In contrast, importance-driven compositing automatically identifies perceptually important window regions, by image-based analysis of window textures.
+Task management systems  apply perspective transformations or down-scaling to context windows, while the focus windows remain in the center of the screen.
+See-through user interfaces were first introduced by Bier et al.
+Today, advances in hardware-accelerated window management  have made enhanced window rendering techniques, such as transparencies, geometric deformations, or change visualizations , widely available.
+Furthermore, interaction with transformed windows is not possible in these examples.
+Thus, users have to perform explicit window switches to access and manipulate information in transformed windows.
+A main distinguishing aspect of our work is that we use unimportant screen space - potentially embedded within windows - to show important elements of occluded windows in original size.
+Content is neither distorted nor shrunk and fully interactive, if visible.
+This allows the user to look up and interact with the fine-grained content in occluded windows without explicitly bringing them to the front.
+Window importance maps are accumulated into a common desktop importance map, which can be extended by highlevel information provided by the user or derived from the physical screen setup.
+Windows are added to the desktop importance map from front to back - ensuring that recently used windows are prioritized for layout and compositing.
+Figure 2 shows individual window importance maps, highlevel information, and the merged desktop importance map.
+The resulting desktop composition is depicted in Figure 3.
+Importance-driven compositing analyses the importance of window content to find an optimal spatial window layout - in terms of visibility and interactivity of occluded content - for see-through window interfaces.
+Our approach is composed of four steps: 1.
+The creation of desktop and window importance maps containing image-based descriptions of important regions, 2. a window layout routine, placing occluded windows to minimize the overlap between important regions, 3. importance-driven see-through compositing, applying per-pixel transparencies to reveal important content of occluded windows, and 4. interaction techniques allowing the user to access and manipulate content in occluded windows.
+In the following, we will discuss these steps in more detail.
+Saliency is a measure of how much a location visually stands out from the surrounding image regions .
+Typically used bottom-up saliency features are regions of high changes in luminance, color opposition, orientation changes, and motion.
+For our window importance maps, we apply the conspicuity analysis proposed by Mendez et al.
+In addition, we measure visual changes in occluded windows and temporarily increase importance in regions where content has changed.
+Visual changes caused by user interaction, such as scrolling the window content, are ignored.
+The importance maps in Figure 2 show that user interface elements and information content, such as text or images, are assigned high importance values.
+In particular, the video in the center window of Figure 2 is highly salient due to additional motion.
+Homogeneous background regions have low importance - independent of their background color.
+We introduce importance maps as unified image-based representation of importance in windowing systems: window importance maps are extracted from each window's content using a model of saliency-based visual attention.
+In our system, the window's content is given as an image - more specifically as a texture, as we are relying on a hardwareaccelerated window rendering .
+In addition to the accumulated window importance maps describing importance based on visual perception, the desktop importance map can also contain high-level information.
+For instance, a user might want to keep desktop regions uncovered from application windows to have access to frequently used desktop icons  or to avoid windows spanning across physical monitor bezels on multi-monitor settings .
+This importance information can be accumulated into the desktop importance map - for instance by automatically adding a one-pixel line of high importance along monitor bezels.
+In the example map of Figure 2, the user manually selected the upper left corner of the screen as high-importance desktop region, where window placement should be avoided.
+The aim of the window layout routine is to spatially arrange windows so that important regions of occluded windows are moved to desktop areas of little importance.
+Therefore we consider both, each window's individual importance map  and the desktop importance map describing the current distribution of information over the desktop , to find the optimal window placement.
+Figure 3 shows the layout step for a single window and the resulting desktop composition.
+The optimal window placement is determined by considering three influencing factors described in the following .
+Overview of importance-based compositing for a single window:  from the window's texture,  the window importance map is created.
+Secondly, the location p should have little displacement from the original window location po , which is defined by the location where the window has been mapped or manually positioned by the user.
+Thus, this term is responsible for maintaining a certain degree of spatial stability.
+In other words, jitter should be minimized.
+These requirements can be formulated as an optimization problem over all possible window locations p : J  = i Ji  + d D + j D, where J is the associated cost function to be minimized, composed by a weighted sum of the information overlap Ji , and the distance D to the original location  and previous position .
+The individual weights  vary for the presented window manager functions described further below in the paper.
+To reduce the number of potential window locations , the search space can be decreased by additional constraints.
+For instance, windows can be bound to certain screen regions or to "parent" windows.
+In addition, we limit the maximal window movement over time.
+This introduces smooth frame-to-frame animations and helps the user keep track of window movements.
+Window content is never placed outside the screen boundaries.
+This decreases the search space for large windows, while maximized windows will not be re-positioned at all.
+Our algorithm treats multiple windows sequentially in a greedy manner.
+For each window, the best placement is determined by solving the optimization problem as stated above.
+Subsequently, the window's importance map is added to the desktop importance map at the determined location.
+The modified desktop importance map then serves as an input for the next window's placement.
+As the windows being traversed first have more freedom in finding a good placement, more recently used windows are implicitly prioritized.
+Importance-driven see-through compositing reveals occluded content by applying pixel-wise transparencies.
+We implemented two well-known compositing techniques from the field of technical illustrations and volume rendering : ghosting and cut-aways.
+Thereby, it ensures that the most important features of each window are visually preserved .
+However, if the window layout routine cannot spatially separate important regions , important features in overlapping windows compete for visual prominence.
+Cut-aways put more emphasis on the windows' stacking order: they ensure that the most prominent features of the overlay windows are preserved.
+Only if the desktop's importance map value is below a certain threshold, the obscured window's content is revealed.
+Smooth blurring and desaturation of obscured window content provide subtle depth cues.
+Importance-driven compositing window management allows users to interact with visible portions of occluded windows - even if located within the boundaries of an overlay window.
+We rely on the simple assumption that the user aims to interact with the visually most prominent window at the current mouse pointer location.
+We therefore set the input focus according to the compositing result: the window with the overall highest contribution to the pixel's color below the mouse pointer is activated.
+Based on the concept of importance-driven compositing, we subsequently present novel window management functions for overlapping windows.
+Clearly, applying see-through window compositing to all application windows at all times interferes with focused attention  - the ability to focus entirely on a single item without visual interference from other items.
+Therefore, our suggested functions apply importance-driven compositing either temporarily or solely to a subset of windows.
+Top-level windows are not re-positioned.
+Penalties on window displacement for the layout algorithm are kept low to give more emphasis on minimizing the information overlap than a stabilized window layout.
+We discard the window title bars from occluded windows, as they have a high visual saliency but little benefit for user interaction in this situation.
+As input is redirected to the most salient window at the cursor location, simple operations in occluded windows - such as pressing a button - can be accomplished while exposing occluded content without actually bringing the window to the front.
+To signal which window currently holds the input focus, we increase the active window's overall alpha value and show its title at the left upper window corner .
+When releasing the key combination, the active window under the pointer is brought to the front and the other occluded windows return to their original locations.
+This indicates that users often only need to skim the content of a secondary window to resume their primary task, such as reading a bit of documentation, checking if a new e-mail has arrived, or retrieving the result of a calculation.
+With sequential window switching techniques, the user has to perform multiple operations: initiate the window switch, identify and select the window of interest, perform the actual operation, and repeat the window switching step to return to the previous window.
+Not surprisingly, "the need to Alt-Tab" has been described as tedious .
+To reduce the number of necessary activities to quickly access occluded content, we use importance-driven compositing to uncover information in occluded windows on demand.
+When working with large-scale monitors, users rarely maximize windows.
+Instead, they often "carefully coordinate" their windows and keep a small portion of occluded windows visible for direct access .
+This window arrangement alleviates the need for explicit window switching.
+However, manually arranging the windows is rather time-consuming and keeping important elements visible for easy window identification requires frequent re-adjustment as other windows are moved.
+We use importance-driven compositing as a semi-automatic window layout technique which is initiated when the user starts dragging a window.
+All windows - except for the window currently being dragged - become subject to semiautomatic window layout.
+As the user drags a window, underlying windows are re-positioned to avoid information overlap .
+Semi-automatic window layout:  the user drags a window towards the left, which causes an overlap with another window.
+The window layout persists as long as the amount of covered information is low.
+Window trails were added for illustration purposes.
+Cut-aways are employed to ensure the readability of foreground information, as depicted in Figure 7.
+Users can directly interact with dialog windows wherever visibility is given.
+To bring the dialog window to the front as a conventional opaque window, the user employs a simple shortcut.
+If the user does not interact with the dialog within 10 seconds after creation, the window moves to the back of the window stack as a conventional occluded window.
+As the user releases the mouse button, the applied layout persists and the windows become fully opaque again.
+In contrast to the previously described window uncovering function, we treat the window being dragged as a black box  as the aim is to optimize the layout for opaque windows.
+However, we do consider the importance of content in the windows underneath.
+In case the dragged window is moved on top of other windows, the layout function re-positions these occluded windows so that only unimportant regions are covered.
+Penalties for window displacement and jitter are high to keep the spatial window layout as persistent as possible.
+Users can furthermore influence the resulting layout by providing high-level desktop importance information.
+They can define desktop regions where window placement should be avoided or prioritize certain regions.
+Floating toolbars or tear-off menus are commonplace in many applications, such as word processors or image editing software.
+Instead of docking a menu to the window's boundary, the user can detach it and re-position it anywhere on the screen.
+Floating toolbars usually stay on top of the main application window to enable quick access to important user interface elements.
+Thereby, toolbars can lead to an occlusion of the main window content.
+We allow the user to interactively pick floating toolbars for importance-driven compositing using a shortcut or a context menu entry.
+Once selected, the toolbar window is re-stacked behind the main application window and re-positioned to avoid an overlap with the main content.
+Ghosting maintains the most important content of both, toolbar and main window.
+We constrain the layout algorithm to apply only minimal displacement from the menu's previous and original location.
+As a result, the toolbar will minimally adjust its position as the user manipulates the main window's content, offering a trade-off between spatial stability and avoiding occlusion of important content.
+Consider, for instance, the floating menu shown in Figure 8: as the user scrolls the content, the menu is set to empty document spots but is never moved too far from its original location.
+Users can bind a toolbar to a main window by using a context menu entry or by dragging it within the boundaries of the parent window and not moving it for a second.
+Automatic toolbar placement is then restricted to the interior and the immediate surroundings of the parent window.
+If the main window is moved, the toolbar is re-placed accordingly.
+To detach the toolbar from its parent, the user drags it outside the parent window's boundaries.
+Visual feedback of the binding/unbinding operation is provided by animated icons.
+Windows popping up without the user triggering it usually signals events which require the user's attention.
+Examples are dialogs indicating a new e-mail, instant messages, or a completed file operation.
+Immediate user activity is not always necessary.
+Yet, dialog windows popping up on top of the window stack - sometimes even obscuring the main interaction item - necessitate the user to interrupt the current task and undertake immediate action.
+To minimize user interruption, we apply importance-driven compositing to pop-up dialogs.
+Our system supports independent application windows to reach similar functionality as floating application toolbars - similar to user interface "holes" to access auxiliary applications .
+For instance, the user can attach a calculator to a programming environment or a sticky note to a document editor and access them like conventional user interface elements of the main application.
+We conducted a preliminary user study to judge the usability of importance-driven compositing for accessing content in occluded windows.
+For that purpose, we compared it with two other window management techniques for three different tasks.
+The tasks were designed to simulate real information work situations, where users have to skim through information in occluded windows or quickly interact with obscured content before resuming the main task.
+We hypothesized that importance-driven compositing will be advantageous compared to sequential window switching for quickly looking at information in occluded windows, as the number of necessary steps to reveal occluded content is reduced.
+Furthermore, we expected a performance benefit of importance-driven compositing for simple interaction tasks in occluded windows, as we provide the facility to directly interact with user interface elements in occluded windows.
+We compared the following three window management techniques for revealing occluded window content: Alt+tab  in combination with conventional overlapping windows is a standard window switching technique provided by all major operating systems and served as a control condition.
+The employed Alt+Tab switcher by the Compiz window manager shows small previews of all windows when activated by the Alt+Tab sequence , and allows for sequential window selection by pressing the tab key.
+Free-space transparency , proposed by Ishak and Feiner , applies transparency to unimportant window regions of overlay windows using a smooth gradient between transparent and opaque regions.
+We simulated FST using importance-driven compositing without the layout routine .
+Instead of the original notion of unimportant window content , we used our importance maps to define transparency values.
+FST does not allow users to directly interact with the occluded content.
+Therefore, we provided the "pie menu" proposed by the authors, which shows a circular menu of all the windows lying underneath the current pointer location, to bring occluded windows to the front.
+Participants had to press Start+tab to retrieve this menu and then click on a window preview to bring the desired window to the front.
+Importance-driven compositing  was employed to uncover occluded windows on demand, as described further above.
+To initiate IC, participants had to press the key combination Start+w.
+As long as the keys were pressed, occluded windows were spatially arranged, cut-aways were applied and interactivity for the most salient window underneath the pointer was ensured .
+Participants were asked to solve a visual search task.
+Questions were presented in a textual format and the users had to identify specific items in occluded windows.
+They were presented with a maximized main window and five small object windows behind the main window, which were arranged in a cascaded fashion.
+The object windows always contained an image of a 2D geometric primitive and - depending on the task type - a small textual label and a button.
+Tremendous processing capabilities are nowadays available in form of graphics processing units  in virtually every PC system.
+Yet, they remain mostly unused for common window operations.
+In our system, we formulate computationally expensive tasks  using advanced GPU languages - namely, the OpenGL Shading Language2  and the Open Computing Language3  - to support real-time interaction.
+For our prototype, we extended the OpenGL-based compositing window manager Compiz4 for the X Window System of Linux.
+On a Quad-Core 2.80 Ghz CPU and NVIDIA GeForce GTX 480, for a desktop resolution of 1280x1024, placing and rendering a window of approximately 500x300 pixels requires 6ms.
+For a conventional office scenario with five managed windows, we obtain an average frame rate of 20 fps.
+Window importance maps are extracted from the individual windows' textures by using a GLSL implementation of Itti's visual attention model , as proposed by Mendez et al.
+Visual window changes are monitored through window damage events, i.e., notifications of window region updates provided by the X Window System.
+These damage regions are merged into the window's importance map.
+For the computationally expensive evaluation of the window layout cost function, we execute a two level parallel search in OpenCL.
+The best location found on a lower resolution is refined locally to give the new window location.
+The final window compositing step is realized as a GLSL fragment shader, which is applied to the translated windows.
+The compositing shader determines per-pixel alpha values and evaluates each pixel's neighborhood for blurring and shadowing, according to the chosen compositing technique.
+The shader is also responsible for merging the window's importance map with the desktop importance map and to determine the most salient window at the respective pixel.
+This information is queried each time the mouse is moved, to find the active window at the current mouse pointer location.
+Although this modifies the window manager's stacking order, we do not alter our traversal order for layout and compositing to keep the desktop visually consistent.
+The following three task types had to be solved: Count: Participants were asked to search for a certain 2D geometric primitive  in the five object windows, count its occurrences, and select the number of occurrences from the list of solutions in the main window .
+This represents a scenario where users have to get an overview of all the windows and identify them based on a strong visual feature, which is also clearly visible in a scaled window representation.
+Read: Participants had to find the only object window which contained a textual label  that matched the associated picture of a geometric primitive .
+Subsequently, they had to select the same label from the list in the main window.
+This represents a scenario where the user has to switch to a window containing textual information required for the main task.
+Note that the text labels were too small to be readable in the FST pie menu and AT preview menu.
+Interact: The task was similar to the read task, except that the validation of the matching label was selected by a push button directly in the object window .
+The task was designed to represent situations where the user has to shortly interact with an occluded window before resuming the main task.
+We recruited 15 participants  from a local high school and university.
+All participants were experienced computer users and tested for color-blindness.
+Nine participants are using Microsoft Windows as a primary operating system, three employ Linux and three use Mac OS X. Twelve of the participants use Alt+Tab "often" to "very often" to switch windows, followed by the window list in the task bar, which is employed frequently by eleven participants.
+None of the participants stated using one window switching technique exclusively.
+We measured the completion times  and error rates for each task item.
+Participants were also handed out a preference questionnaire at the end of the experiment.
+A semi-structured interview was conducted to collect subjective feedback.
+For each technique, participants had a short practice session .
+We conducted a 3  x 3  repeated measures ANOVA  to evaluate completion times.
+Bonferroni adjustments were applied for post-hoc comparisons.
+Post-hoc comparisons showed that IC  was significantly faster than both, FST and AT .
+AT was also faster than FST.
+However, IC was only faster than AT for the read and interact tasks.
+For the count task, there is no significant difference between IC and AT, but both techniques were performing better than FST.
+Figure 10 illustrates the completion time results.
+Participants generally committed few errors with 97% of the questions being answered correctly.
+The highest error rates were collected for FST in the count and read tasks .
+Participants were asked to rank the three techniques on a seven-point Likert scale.
+Wilcoxon Signed Rank tests with Bonferroni adjustments showed that IC  was rated significantly higher than AT , and that both techniques were evaluated higher than FST .
+In the interview, participants mentioned the readability of small text and the ability to interact with obscured user interface elements as main reasons to rank IC higher than FST and AT.
+FST was primarily disliked for the pie menu to access occluded windows, which was described as hard to use, because only the windows located underneath the pointer were shown.
+Due to the initial cascaded window layout, only the top-most object window was fully visible .
+Therefore, several users commented that they did not know which windows were located beneath the mouse pointer and, as a consequence, which windows were included in the menu.
+One user summarized interaction with FST as: "Transparency and not being able to interact  is very exhausting".
+We also asked the participants which technique they preferred for the three tasks.
+For the interact task and read task, IC was chosen by the majority .
+In the interview, most participants stated that IC was most appropriate for the read task as the text in obscured windows was readable, in contrast to the small menus of AT or FST.
+For the interact task, participants mentioned the ability to directly interact with occluded content without explicitly selecting the corresponding window as exceptionally useful.
+For the count task, AT was the most preferred technique .
+Participants commented that the menu of AT provided a good overview, so they could immediately see which images were available.
+The results partially support our hypotheses: IC indeed provides an advantage for quickly looking at content in occluded windows.
+However, compared to AT, the performance advantage is only significant for accessing finegrained information .
+The benefit of IC for simple interaction in occluded windows was confirmed by the results of the interact task.
+Longitudinal studies will help to assess the benefits and limitations of our proposed window management functions in more realistic settings.
+With importance-driven compositing, the desktop is not just a collection of  rectangles but rather a rich information map.
+We showed that we can leverage this importance measure for new interaction techniques on window manager level, which would otherwise require access to the application's content.
+It can also be employed as unified interface to implement previously suggested window management techniques, such as free-space transparency , multiblending , or clipping lists , as fully functional window manager extensions.
+Image-based representations of physical occlusions can serve as influence to the desktop's importance and thus generate occlusion-aware window layouts  automatically.
+In the future, we will investigate how our importance model can be enriched by techniques for automatic extraction of individual user interface components , user-defined window constraints , or fine-grained window management , which takes into account the context of a user's action on a window.
+We also consider to add scaling as additional optimization factor to our layout routine.
+Shrinking and expanding regions of low importance can lead to a more flexible content arrangement, especially for large windows.
+Finally, our prototype has to be considered as proof-of-concept implementation.
+We demonstrated the feasibility of using stateof-the-art GPU languages in window managers.
+Yet, system performance can - and should - be further enhanced.
+Besides low-level optimizations for the GPU code, high-level observations of window changes could be used to trigger only partial importance map updates.
+The results of our experiment indicate that importancedriven compositing supports users in skimming through information in occluded application windows.
+Users described the access to occluded information as "more fluid" compared to sequential window switching menus, as only one activity was necessary to extract information from an occluded window.
+Another distinguishing aspect is the ability to directly interact with content of occluded windows without explicitly selecting the window in a separated user interface.
+Participants commented that this feature created a sense of "direct" interaction on the occluded content.
+We consider the encouraging results of our exploratory user study as starting point for more empirical evaluations on importance-driven compositing.
+We will address potential limiting factors of our system which have not been captured by our experiment, such as the effect of automatic window re-arrangements on spatial memory or the effect of a dense information display on focused attention.
+We presented importance-driven compositing window management which considers the importance of window content for an optimized spatial window layout in combination with see-through compositing.
+The aim of the technique is to optimize visibility and interactivity of important content contained in multiple overlapping application windows.
+Importance is defined by an image-based analysis of visually salient features within window textures.
+Based on importance-driven compositing, we presented new window management functions to minimize information overlap and to ease the access to occluded content.
+Results of a preliminary experiment indicate that users could extract finegrained information and perform easy interaction tasks in occluded application windows faster and with greater subjective satisfaction compared to overlapping windows with sequential Alt+Tab switching.
+In comparison to free-space transparency , users appreciated the increased content visibility due to a more appropriate spatial window layout and the ability to directly interact with occluded content.

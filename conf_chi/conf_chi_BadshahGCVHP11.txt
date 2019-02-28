@@ -1,0 +1,130 @@
+We present Interactive Generator , a self-powered wireless rotary input device capable of generating haptic or force feedback without the need for any external power source.
+Our approach uses a modified servomotor to perform three functions:  generating power for wireless communication and embedded electronics,  sensing the direction and speed of rotation, and  providing force feedback during rotation.
+While InGen is rotating, the device is capable of providing the sensation of detents or bumps, changes in stiffness, and abrupt stops using only power that is harvested during interaction.
+We describe the device in detail, demonstrate an initial `TV remote control' application, and end with a discussion of our experiences developing the prototype and application.
+To the best of our knowledge, InGen is the first self-powered device, which also provides haptic feedback during operation.
+More broadly, this work demonstrates a new class of input systems that uses human-generated power to provide feedback to the user and wirelessly communicate sensed information.
+Moreover, haptic feedback serves as a primary input modality to convey information when auditory and visual feedback may not be appropriate or available.
+However, with the exception of vibrating cellphone alerts, computer-controlled haptic feedback  it is not yet ubiquitous.
+Even so, other forms of haptic feedback, such as electronic control of temperature, stiffness and texture, are potentially valuable.
+Unfortunately, the electric motors, solenoids, or other electromechanical actuators employed in many force feedback systems have significant power requirements.
+This seems inevitable since haptic feedback ultimately relies on electrical energy to affect physical movement.
+This in turn, limits mobile applications where battery life is an important factor.
+As such, many of the haptic design schemes reported in the HCI literature require external power supplies.
+The design goals of incorporating haptic feedback and reducing power consumption therefore seem inherently at odds with each other.
+However, this is not the case.
+Our system exploits unique properties of DC motors to provide rotational haptic feedback with no external power requirements.
+We call this system the Interactive Generator, or InGen .
+To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee.
+In combination, these three features enable the device to provide haptic feedback as the user interacts with it.
+For example, in an application where turning a knob scrolls through a media collection, a detent sensation might indicate the movement between items in the list.
+Also, a change in the knob's rotational resistance from easily rotated to stiff could convey nearing or reaching the end of a playlist.
+There has been substantial prior research in ultra-low power embedded devices which harvest energy in order to remove the need for replacing or recharging batteries.
+Many of these projects use human effort as a source of power, including hand crank flashlights and portable radios.
+In these devices a geared dynamo produces energy, which is stored using a capacitor or rechargeable battery, and can be used later to power the device .
+InGen is different because the processes of power generation and device operation are tightly coupled into one action.
+Similar coupling has previously been explored by using piezo-electric transducers in skis and snowboards for active speed dampening .
+Others have also looked at using a person's action for both harvesting and sensing .
+Our work differentiates itself because we incorporate a third dimension - generating output in the form of haptic feedback.
+Related to InGen's power harvesting approach is the Peppermill controller , which shows how a user interface device can source power from the physical effort required to interact with it.
+InGen takes this approach further by incorporating a mechanism that produces haptic feedback by periodically stiffening the rotary input.
+This is done using the same DC motor that harvests the power required to operate the device, by selectively shorting its two terminals.
+The notion of stiffening  a motor in this way is a common technique that is widely used in control systems and robotics .
+However, the approach described in this paper accomplishes this without losing any of the stored energy so that the device stays powered even while such feedback is being generated.
+In addition, detents and varying stiffness have been reproduced in several previous rotary systems, including .
+However, to our knowledge there has been little work in the HCI community on generating these feedback patterns using motor shorting in a battery-less haptic system.
+In addition, when rotating the knob the user also turns a potentiometer, which we use to record the speed and direction of rotation with higher precision than what sensing only the motor could provide.
+InGen has three main subsystems: haptic feedback, power generation, and sensing/communication.
+Figure 2 shows the various components that make up InGen.
+Central to both the haptic subsystem and power generation is the geared, permanent magnet DC motor that is part of the Hi-Tec HS-625MG servomotor .
+A property of DC motors is that when their armature is rotated they act as generators, creating a potential difference across their terminals.
+The magnitude of this potential difference is directly proportional to the rate at which the armature is rotated , the strength of the magnets, and the number of turns on the armature.
+The last two parameters increase the cost and the size of the motor.
+As such, we chose to maximize RPM by using a motor with a reducing gear head.
+The servomotor in InGen has a 240:1 gear ratio , which we found to give a good balance between ease of rotation, and effectiveness of power generation and braking.
+The internal resistance of the motor is 3.3  that generates around 4.2 V when the motor is turned at a rate of 1 revolution per second .
+The MG variant has a metal gearbox, which we found to be essential - the plastic gearbox common to many servomotors are very fragile to fast rotations.
+InGen is a general-purpose handheld controller with two distinct sections that rotate relative to each other.
+A user holds one section in one hand while using the other hand to rotate the section relative to the first.
+As Figure 1 shows, the two sections are identical so that the device can be operated in either orientation.
+The two sections are connected with a modified servomotor.
+When a user turns the knob,
+As mentioned earlier, InGen uses the inherent property of dynamic motor braking by shorting.
+If the terminals of a DC motor are short-circuited while the motor's armature is rotated, the current generated by the turning motor acts to power the motor in the opposite direction.
+Under such conditions, the motor still turns but its stiffness greatly increases-as if a brake were being applied.
+InGen uses a rectifier bridge followed by an LT3008 adjustable low-dropout linear regulator to produce a stable output voltage for the microcontroller at 2.5 V .
+However, providing haptic feedback by shorting the motor causes a disruption in power .
+To overcome this, we used high energy density double layer capacitors  for power storage in the power harvesting circuitry .
+This keeps a steady voltage supply to the circuitry even when force feedback is being applied.
+Though the addition of these storage capacitors helps to maintain power, it also increases start-up latency because voltage must be accumulated before it is sufficient to power the device.
+That is, when the system is completely drained of power, the user needs to turn the knob for about one second before the system starts functioning.
+However, the higher capacitance allows the device to stay powered for five to six seconds even if there is no interaction.
+We further reduce startup latency by using a MAX8211 voltage monitoring IC .
+This IC switches off all power to the microcontroller and the rest of the circuitry until there is enough power in the storage capacitors to turn on all of the hardware for a substantial amount of time.
+Once cut-off, the residual power in the capacitors decays over a number of hours .
+When the device is used again it wakes up in less than 300 ms, because the voltage stays on the supercaps.
+Thus, the device becomes responsive almost instantaneously.
+We found that if the user interacts with it for four to five seconds the circuitry can remain powered for up to five to six seconds even after the interaction stops.
+After the initial interaction, the device can be interacted with instantaneously for a number of hours.
+In this way, the startup latency is a concern only when the device is cold started.
+That is, the device has not been interacted with for a significant period, causing the storage capacitors to discharge completely.
+On other occasions such as when the device is used after a few hours of inactivity, the residual power in the capacitors plus the generated power are enough to trigger the voltage monitoring IC to turn the system on very shortly after interaction starts.
+By programmatically braking and releasing the motor, we are able to dynamically generate a variety of haptic sensations.
+When the braking is continuous, the device is hardest to turn - it is in its most-stiff state.
+If the braking is duty cycled at a suitably high frequency, the feedback can be varied continuously from very stiff to freely rotating.
+Braking momentarily as a user interacts is perceived as a detent or bump that can, for example, be used to indicate an item of interest as the user navigates an interface.
+Digital braking control of the motor is accomplished using two IRLD024PBF N-channel MOSFETs with built-in protection diodes, which have their gates connected to the digital output pins of a microcontroller .
+When either of the gates is driven high the drainsource channel conducts.
+Two transistors are used, so that haptic feedback for each rotational direction can be controlled independently.
+For example, the motor can simultaneously be stiff to turn in the one direction while being easy to turn in the other direction .
+With this configuration, it is possible to produce a variety of interesting sensations by simply changing the digital control signals.
+The microcontroller drives the control pins via pulse width modulation , allowing the stiffness perceived by a user to vary anywhere between very stiff and easy-to-turn.
+In the current prototype, we have implemented three different types of haptic feedback: detents, static stiffness, and dynamic stiffness.
+A detent can be provided by rapidly braking and un-braking the motor, creating the impression of a bump as the user turns the motor.
+Static stiffness can be achieved by setting the duty cycle of a pin to a specific level and maintaining it, making the motor harder or easier to turn for the user.
+The direction and the rate of rotation can be sensed using the DC motor by monitoring the polarity and magnitude of the voltage it produces .
+However, the InGen has an Alps RDC803001A dual-wiper potentiometer integrated with the servomotor for sensing rotation more precisely.
+Using a dual-wiper device instead of the single-wiper variant  provides accurate posi-
+The amount of power consumed by the potentiometer is insignificant compared to other components such as the wireless link.
+InGen's circuitry consumes on an average 52mW .
+The TI eZ430-RF2500 platform with a MSP430 microcontroller and integrated CC2500 radio communications was chosen primarily on the basis of low power requirements and ease of use .
+We make use of the optimized, low-power RF protocol stack called SimpliciTI for all wireless communication.
+To minimize power consumption, the transmit radio is only turned on briefly every 50 ms to beacon the speed and direction of interaction to the PC.
+The PC has a matching microcontroller and radio that is always on.
+To ensure that InGen receives commands sent from the PC, every 5th wake up cycle , the microcontroller turns on its receiver radio and polls for command messages.
+A pending command is then executed before going into a low power mode again.
+More experimentation needs to be done to establish the ideal rate of polling, but we found that 250 ms provides a good tradeoff between interactivity and "device on" time.
+One solution is to reduce the time duration of the detent .
+The other is to design the user interface so that the detent occurs farther apart  or reserving the detent feedback for just special indicators in the list.
+More broadly, we can imagine designing for interactions with these limitations in mind and creating interfaces that encourage more rotation.
+There are still some areas of improvement for future work.
+Although the current prototype has modest power requirements, reducing consumption would allow the device to operate longer without rotation.
+This could be accomplished by employing a radio technology that has lower peak power.
+Another area of future exploration is the integration of additional sensors, such as an accelerometer which can report the orientation in which the device is being operated, as well as push buttons that can provide additional input capabilities for an application.
+Similarly, other forms of output such as sound generation, which is typically lowpower, merit investigation.
+The combination of haptic and audible feedback has been found to be quite powerful, especially in eyes-free applications .
+We would also like to explore different form factors than the one presented in this paper.
+In some cases a linear version of InGen, based on an actuated mixing-desk fader, might be more appropriate than the rotary system we have built to date.
+We would also like to explore more applications, including gaming - imagine a fishing game where the player feels their catch struggling as it is wound in.
+One can also imagine using InGen to indicate snap to grid actions in a user interface.
+Overall, we believe that InGen provides a start for a new class of battery-less interaction devices that leverage human-generated power for both input and haptic feedback.
+We have built a simple application to demonstrate the feedback characteristics of our prototype InGen device.
+This is a scrolling menu similar to a television channel guide.
+The rotational input can be used to scroll forward or backwards through a list of channels.
+As each item in the list is passed, the user feels a short detent to indicate this.
+On approaching either end of the list, the knob offers maximum resistance in that direction to indicate the end.
+In this paper, we have described a number of key contributions with the development of InGen: the use of a single transducer to generate power and provide force feedback; we have detailed a fully functional handheld device that combines these characteristics with additional sensing and wireless communication; and the insights gained from building the device and using it in a simple `TV remote control' application.
+To gather some initial feedback on InGen, we conducted an informal evaluation, where we allowed various users to explore the use of InGen with our television channel guide application.
+We found that almost everyone was able to start up the device in a just a single rotation .
+The start up latency did not seem to pose a problem for anyone as we had initially expected.
+If some users were turning the device too slowly to turn on the device, they often gradually increased their speed as a natural reaction.
+The overall feedback on the haptic sensation generated by InGen was largely positive.
+Most indicated that they were able to easily discern the change in stiffness at the ends of the list and the detents between the channel items.
+Chang, A. and O'Sullivan, C. Audio-haptic feedback in mobile phones.
+In Proc of CHI '05 Extended Abstracts on Human Factors in Computing System, 2005.
+Jr., Andrus C. Use of piezoelectric devices to control snowboard vibrations.
+Immersion Corporation, Rotary Haptic Knob.
+Power Electronics: Converters, Applications, and Design, 2nd edition, John Wiley & Sons.
+Systems for human-powered mobile computing.
+In Proc Annual Design Automation Conference, 2006 7.
+Villar, N. and Hodges, S. The Peppermill: a humanpowered user interface device.
